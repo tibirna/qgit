@@ -1,0 +1,225 @@
+<ui version="4.0" >
+ <class>TabPatch</class>
+ <widget class="QWidget" name="TabPatch" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Patch</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="Q3ButtonGroup" name="buttonGroupDiff" >
+         <property name="minimumSize" >
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="title" >
+          <string/>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>3</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="textLabel" >
+              <property name="text" >
+               <string>Diff to:</string>
+              </property>
+              <property name="wordWrap" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButtonParent" >
+              <property name="focusPolicy" >
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="toolTip" >
+               <string>Check to diff against parent</string>
+              </property>
+              <property name="text" >
+               <string>P&amp;arent</string>
+              </property>
+              <property name="shortcut" >
+               <string>Alt+A</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButtonHead" >
+              <property name="focusPolicy" >
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip" >
+               <string>Check to diff against HEAD</string>
+              </property>
+              <property name="text" >
+               <string>H&amp;EAD</string>
+              </property>
+              <property name="shortcut" >
+               <string>Alt+E</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButtonSha" >
+              <property name="focusPolicy" >
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip" >
+               <string>Use CTRL + right click to select a revision to diff against</string>
+              </property>
+              <property name="text" >
+               <string>&amp;SHA</string>
+              </property>
+              <property name="shortcut" >
+               <string>Alt+S</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditDiff" >
+         <property name="toolTip" >
+          <string>SHA value of selected revision. Use CTRL + right click to select.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QSplitter" name="splitter_2" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QSplitter" name="splitter" >
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="RevDesc" name="textBrowserDesc" />
+        <widget class="Q3TextEdit" name="textEditDiff" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>7</hsizetype>
+           <vsizetype>7</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>2</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="textFormat" >
+          <enum>Qt::PlainText</enum>
+         </property>
+         <property name="wordWrap" >
+          <enum>Q3TextEdit::NoWrap</enum>
+         </property>
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+         <property name="undoRedoEnabled" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="Q3ListBox" name="listBoxFiles" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>7</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>Q3TextEdit</class>
+   <extends>Q3Frame</extends>
+   <header>q3textedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RevDesc</class>
+   <extends>Q3TextBrowser</extends>
+   <header>revdesc.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Q3TextBrowser</class>
+   <extends>Q3TextEdit</extends>
+   <header>Qt3Support/Q3TextBrowser</header>
+  </customwidget>
+  <customwidget>
+   <class>Q3ButtonGroup</class>
+   <extends>Q3GroupBox</extends>
+   <header>Qt3Support/Q3ButtonGroup</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Q3ListBox</class>
+   <extends>Q3Frame</extends>
+   <header>q3listbox.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >revdesc.h</include>
+ </includes>
+ <resources/>
+ <connections/>
+</ui>

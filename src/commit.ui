@@ -1,0 +1,323 @@
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>CommitBase</class>
+  <widget class="QWidget" name="CommitBase" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>585</width>
+        <height>390</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>Commit changes</string>
+    </property>
+    <property name="windowIcon" >
+      <pixmap>image0</pixmap>
+    </property>
+    <layout class="QHBoxLayout" >
+      <property name="margin" >
+        <number>0</number>
+      </property>
+      <property name="spacing" >
+        <number>0</number>
+      </property>
+      <item>
+        <layout class="QVBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <widget class="QSplitter" name="splitter" >
+              <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+              </property>
+              <widget class="Q3ListView" name="listViewFiles" >
+                <property name="allColumnsShowFocus" >
+                  <bool>true</bool>
+                </property>
+                <property name="toolTip" stdset="0" >
+                  <string>Check files to commit</string>
+                </property>
+                <column>
+                  <property name="text" >
+                    <string>File</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+                <column>
+                  <property name="text" >
+                    <string>Status</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+                <column>
+                  <property name="text" >
+                    <string>Git index</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+              </widget>
+              <widget class="QWidget" name="layout36" >
+                <layout class="QVBoxLayout" >
+                  <property name="margin" >
+                    <number>0</number>
+                  </property>
+                  <item>
+                    <widget class="QLabel" name="textLabelMsg" >
+                      <property name="text" >
+                        <string>Commit message (first line is the sub&amp;ject):</string>
+                      </property>
+                      <property name="buddy" stdset="0" >
+                        <cstring>textEditMsg</cstring>
+                      </property>
+                      <property name="wordWrap" >
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="Q3TextEdit" name="textEditMsg" >
+                      <property name="sizePolicy" >
+                        <sizepolicy>
+                          <hsizetype>7</hsizetype>
+                          <vsizetype>7</vsizetype>
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                        </sizepolicy>
+                      </property>
+                      <property name="textFormat" >
+                        <enum>Qt::PlainText</enum>
+                      </property>
+                      <property name="linkUnderline" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="wordWrap" >
+                        <enum>Q3TextEdit::NoWrap</enum>
+                      </property>
+                      <property name="toolTip" stdset="0" >
+                        <string>Lines starting with '#' will be ignored</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </widget>
+            </widget>
+          </item>
+          <item>
+            <layout class="QHBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <widget class="QLabel" name="textLabelLineCol" >
+                  <property name="minimumSize" >
+                    <size>
+                      <width>150</width>
+                      <height>24</height>
+                    </size>
+                  </property>
+                  <property name="font" >
+                    <font>
+                      <family>Monospace</family>
+                    </font>
+                  </property>
+                  <property name="frameShadow" >
+                    <enum>QFrame::Sunken</enum>
+                  </property>
+                  <property name="text" >
+                    <string>Line: %1 Col: %2</string>
+                  </property>
+                  <property name="wordWrap" >
+                    <bool>false</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <spacer name="spacer3" >
+                  <property name="sizeHint" >
+                    <size>
+                      <width>30</width>
+                      <height>20</height>
+                    </size>
+                  </property>
+                  <property name="sizeType" >
+                    <enum>Expanding</enum>
+                  </property>
+                  <property name="orientation" >
+                    <enum>Horizontal</enum>
+                  </property>
+                </spacer>
+              </item>
+              <item>
+                <widget class="QPushButton" name="pushButtonSettings" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>0</hsizetype>
+                      <vsizetype>0</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>Settin&amp;gs</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string>Alt+G</string>
+                  </property>
+                  <property name="autoDefault" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="pushButtonCancel" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>0</hsizetype>
+                      <vsizetype>0</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>Canc&amp;el</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string>Alt+E</string>
+                  </property>
+                  <property name="autoDefault" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="pushButtonUpdateCache" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>0</hsizetype>
+                      <vsizetype>0</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>S&amp;ync</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string>Alt+Y</string>
+                  </property>
+                  <property name="autoDefault" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Update cache for selected files</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="pushButtonOk" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>0</hsizetype>
+                      <vsizetype>0</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>&amp;Commit</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string>Alt+C</string>
+                  </property>
+                  <property name="autoDefault" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Commit selected files</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <tabstops>
+    <tabstop>textEditMsg</tabstop>
+    <tabstop>listViewFiles</tabstop>
+    <tabstop>pushButtonCancel</tabstop>
+    <tabstop>pushButtonUpdateCache</tabstop>
+    <tabstop>pushButtonOk</tabstop>
+  </tabstops>
+  <images>
+    <image name="image0" >
+      <data format="PNG" length="855" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000031e49444154388d858c5f685b5500c67fe79e939c7b6e929b2ccd9ad8ac298bb52b4e8b0a625b457d998222283ef820b318c127f14114447c2a8828f34d118a6f22a21b654f6ef8d461eb904d2ad3b5e264165dfac79898fec94d6e9a9be38356f1457ff0f1bd7cdf4ff017954ac5cf6432f70d0c0cdceffbfe8410a2e8384e2e8aa24ebfdfff358aa2ebbbbbbb97abd5eaf9b9b9b9d5839fa8542a727c7cfc74a9547ac4f77d1d0401b55a8dfdfd7d005cd7452985e3381863e8743ab6d96c6ed5ebf5976767673f52434343a72627279f585c5ca4d7eb1d88715d17630c524ab4d6b8ae8bd69a743a2db4d605a5d4dcf4f4f459e5fbfe439ee721a5fc97c0711ca4944829514a118fc7d15aa3b5260c4332998c31c68c29adb589c562ccccccb0b1b141ad56a3dbedb2bdbd4d100428a530c6608c218a22f6f6f6c8e572b45a2d62b1585c359bcdbae779477ddf27954a51afd71142502814f03c0f8be0dd2f86e9efc779fade1b8ce65ddaed36d65aa2286aab4422915e5959c1f33c62b118e9741a2104007d0b6f9d2bf2ec83790a39c13b67258f1dbfc2a1789b2008acebba71a59492c5629146a341bbdd666969092925293fcd27df4ef1f05d791a81a05e8513f71ce2e34bb771f2f6ef191c1c74945252359bcd86b5b66c8cc1755da6a6a608bbfbbc796690a3476ea6ba27b8110231200ea36303bcbf3ac6e3fe82b5d67654369bcdafadadb1bebe4e3299248a22de383dccb5df6fa1e3096221e0828dffd9b810160ef3f6f5bbc54d7675588561d82a97cb74bb5d822060e5c72697aad304ae60ab0a99c3607c500242a0d5871d059447687c73eb33b2542ab9beef9f28168b22954a31944f71c7e0354ad1126b364b2d91664743330e7b06c2043c70ee03eefce9fcceeafc4b2fcae5e5e58b8ee3845b5b5be39b9b9bba5aadcaa4e98963e5249fd78eb093f5c1e7ef383e8c7c39ff43527cf7e4d5ab572e0afe219ecbe5062626268ee7f3f929d775473e1d78eda9d6b1d1241e90006d407bb0fbe80bafd89df74ef1bfbc5efd9a33d6aacfac4d2c589bfdcadac2e56e47244e3e773051ff2998bff0bc73a1f3aa707aaa27a12f21f8ed979f6debc38583c91f0e342ae6e1a7cf160000000049454e44ae426082</data>
+    </image>
+  </images>
+  <connections>
+    <connection>
+      <sender>pushButtonOk</sender>
+      <signal>clicked()</signal>
+      <receiver>CommitBase</receiver>
+      <slot>pushButtonOk_clicked()</slot>
+    </connection>
+    <connection>
+      <sender>pushButtonCancel</sender>
+      <signal>clicked()</signal>
+      <receiver>CommitBase</receiver>
+      <slot>pushButtonCancel_clicked()</slot>
+    </connection>
+    <connection>
+      <sender>pushButtonUpdateCache</sender>
+      <signal>clicked()</signal>
+      <receiver>CommitBase</receiver>
+      <slot>pushButtonUpdateCache_clicked()</slot>
+    </connection>
+    <connection>
+      <sender>textEditMsg</sender>
+      <signal>cursorPositionChanged(int,int)</signal>
+      <receiver>CommitBase</receiver>
+      <slot>textEditMsg_cursorPositionChanged(int,int)</slot>
+    </connection>
+    <connection>
+      <sender>pushButtonSettings</sender>
+      <signal>clicked()</signal>
+      <receiver>CommitBase</receiver>
+      <slot>pushButtonSettings_clicked()</slot>
+    </connection>
+  </connections>
+</ui>

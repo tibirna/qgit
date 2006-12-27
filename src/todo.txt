@@ -1,0 +1,7 @@
+Add a QGit Icon
+
+When open history file viewer highlight all history entries in log view
+and stop highlight when closing.(?)
+
+RFC822-valid Subject lines 
+which wrap across multiple text lines.

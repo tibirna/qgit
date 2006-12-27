@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>resources/cancel.png</file>
+        <file>resources/filter.png</file>
+        <file>resources/find.png</file>
+        <file>resources/folder.png</file>
+        <file>resources/folder_open.png</file>
+        <file>resources/mail_get.png</file>
+        <file>resources/mail_send.png</file>
+        <file>resources/misc.png</file>
+        <file>resources/openterm.png</file>
+        <file>resources/redo.png</file>
+        <file>resources/reload.png</file>
+        <file>resources/shellscript.png</file>
+        <file>resources/source_c.png</file>
+        <file>resources/source_cpp.png</file>
+        <file>resources/source_h.png</file>
+        <file>resources/source_java.png</file>
+        <file>resources/source_pl.png</file>
+        <file>resources/source_py.png</file>
+        <file>resources/tab_remove.png</file>
+        <file>resources/tar.png</file>
+        <file>resources/txt.png</file>
+        <file>resources/undo.png</file>
+        <file>resources/view_top_bottom.png</file>
+        <file>resources/view_tree.png</file>
+        <file>resources/wizard.png</file>
+    </qresource>
+</RCC>

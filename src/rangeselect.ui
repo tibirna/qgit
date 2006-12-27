@@ -1,0 +1,354 @@
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>RangeSelectBase</class>
+  <widget class="QDialog" name="RangeSelectBase" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>405</width>
+        <height>213</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>Range select</string>
+    </property>
+    <property name="windowIcon" >
+      <pixmap>image0</pixmap>
+    </property>
+    <property name="modal" >
+      <bool>true</bool>
+    </property>
+    <layout class="QHBoxLayout" >
+      <property name="margin" >
+        <number>4</number>
+      </property>
+      <item>
+        <layout class="QVBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <layout class="QGridLayout" >
+              <property name="spacing" >
+                <number>2</number>
+              </property>
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item row="1" column="0" >
+                <widget class="QLabel" name="textLabelFrom" >
+                  <property name="text" >
+                    <string>&amp;Bottom:</string>
+                  </property>
+                  <property name="buddy" stdset="0" >
+                    <cstring>comboBoxFrom</cstring>
+                  </property>
+                  <property name="wordWrap" >
+                    <bool>false</bool>
+                  </property>
+                </widget>
+              </item>
+              <item row="1" column="1" >
+                <widget class="QComboBox" name="comboBoxFrom" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>7</hsizetype>
+                      <vsizetype>1</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="editable" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="insertPolicy" >
+                    <enum>QComboBox::NoInsert</enum>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Select a tag or paste/write a rev</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="0" column="0" >
+                <widget class="QLabel" name="textLabelTo" >
+                  <property name="text" >
+                    <string>Top:</string>
+                  </property>
+                  <property name="buddy" stdset="0" >
+                    <cstring>comboBoxTo</cstring>
+                  </property>
+                  <property name="wordWrap" >
+                    <bool>false</bool>
+                  </property>
+                </widget>
+              </item>
+              <item row="0" column="1" >
+                <widget class="QComboBox" name="comboBoxTo" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>7</hsizetype>
+                      <vsizetype>1</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="editable" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="insertPolicy" >
+                    <enum>QComboBox::NoInsert</enum>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Select a tag or paste/write a rev</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <spacer name="spacer2_2" >
+              <property name="sizeHint" >
+                <size>
+                  <width>20</width>
+                  <height>21</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Vertical</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="Q3ButtonGroup" name="buttonGroup5" >
+              <property name="title" >
+                <string/>
+              </property>
+              <layout class="QHBoxLayout" >
+                <property name="margin" >
+                  <number>2</number>
+                </property>
+                <item>
+                  <layout class="QHBoxLayout" >
+                    <property name="margin" >
+                      <number>0</number>
+                    </property>
+                    <item>
+                      <widget class="QCheckBox" name="checkBoxDiffCache" >
+                        <property name="text" >
+                          <string>&amp;Working dir</string>
+                        </property>
+                        <property name="shortcut" >
+                          <string>Alt+W</string>
+                        </property>
+                        <property name="toolTip" stdset="0" >
+                          <string>Check to see git status. Necessary for committing.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QCheckBox" name="checkBoxShowAll" >
+                        <property name="text" >
+                          <string>All branch&amp;es</string>
+                        </property>
+                        <property name="shortcut" >
+                          <string>Alt+E</string>
+                        </property>
+                        <property name="toolTip" stdset="0" >
+                          <string>Check to enable '--all' option</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QCheckBox" name="checkBoxShowWholeHistory" >
+                        <property name="text" >
+                          <string>Whole histor&amp;y</string>
+                        </property>
+                        <property name="shortcut" >
+                          <string>Alt+Y</string>
+                        </property>
+                        <property name="toolTip" stdset="0" >
+                          <string>Check to view all the revisions</string>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </item>
+              </layout>
+            </widget>
+          </item>
+          <item>
+            <spacer name="spacer2" >
+              <property name="sizeHint" >
+                <size>
+                  <width>20</width>
+                  <height>21</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Vertical</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <layout class="QVBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <widget class="QLabel" name="textLabelOptions" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>7</hsizetype>
+                      <vsizetype>1</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>&amp;Additional options:</string>
+                  </property>
+                  <property name="buddy" stdset="0" >
+                    <cstring>lineEditOptions</cstring>
+                  </property>
+                  <property name="wordWrap" >
+                    <bool>false</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QLineEdit" name="lineEditOptions" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>7</hsizetype>
+                      <vsizetype>1</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Extra options to feed git rev-parse -> git rev-list</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <layout class="QHBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <widget class="QCheckBox" name="checkBoxShowDialog" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>1</hsizetype>
+                      <vsizetype>1</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>S&amp;how this dialog when opening a repository</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string>Alt+H</string>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>You can always reenable the dialog from settings.</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <spacer name="spacer5" >
+                  <property name="sizeHint" >
+                    <size>
+                      <width>80</width>
+                      <height>20</height>
+                    </size>
+                  </property>
+                  <property name="sizeType" >
+                    <enum>Expanding</enum>
+                  </property>
+                  <property name="orientation" >
+                    <enum>Horizontal</enum>
+                  </property>
+                </spacer>
+              </item>
+              <item>
+                <widget class="QPushButton" name="pushButtonOk" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>0</hsizetype>
+                      <vsizetype>0</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>O&amp;k</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string>Alt+K</string>
+                  </property>
+                  <property name="autoDefault" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <images>
+    <image name="image0" >
+      <data format="PNG" length="698" >89504e470d0a1a0a0000000d49484452000000100000001408060000008462bd770000028149444154388d95914b48946118859fdf99296f834982a514989913ba500c97a2e9b64574a155b488e8620421051551a0082e5a586804998ba2904a4aa8e846166237690ab40bc68c498ae288e9dcff99ffb43118b5dbbc7016dfcbf73e1cce4112bf643eb53586efacbfe0db4b4ae2fe6f5af0883d2abba0e084024f36f7be39825312738f298e8e16b685fb79b7011c80f14780d9b3ac41d16929f851d1c1addf4ceff6012bd462297651932f8c566035604bbcb1933072446731bf424a3a8e75c7d660ccaec1364b3cd411686ad125202829ce822309ff29ece6e7c2c396eff48c228352f8a5147e28456f4af1068dbf4bed0056c1d26c301fb0333ebdefbbac4f52fc9364be92cc4792794b8ad74b6187425ff1761ca2ecb72146efd210fcb0f6617472c7443c7adc92755db2da24b34c0a20f9904651b09f2f370f50f4db168054c0d9b69b8d11afd3ab699b3485c67bd1d06da602cf198d3cc3efbbc63320e38f2d48c27ccd6579506480b9f34dfb7de5e5e5a6dd6eaf5c01b915cbc90556266691c2a2b12678cf0c8c0cd0fade133b575252622f28283839030c449894e493642d682151815636f96f703f0bf281d4e6e6666f5d5d5d3c2323a31ac85cfc7f8983f4c37a9bb98b2d3f605652786464e4545151514a6969e91920d3308c05374b00f3ae6292e600dadbdbafe6e5e57d76b95c553939391540e63f018b677878f868565696515555d508a41b86614b0ad0d9d9792f3b3bdbed72b9ca8a8b8b6b135dfc1700606868e8a0dfef576d6dedd97917f6a4005d5d5dfd927af3f3f30b2b2b2bb701cea400001e8fa7beafaf2f565353730248330cc39114a0a7a767d0ed765f494b4b5b5d5d5dbd0770260500181b1b3bdddddd3d1c0a85c280f913c244e14d2bcf24bb0000000049454e44ae426082</data>
+    </image>
+  </images>
+  <connections>
+    <connection>
+      <sender>pushButtonOk</sender>
+      <signal>clicked()</signal>
+      <receiver>RangeSelectBase</receiver>
+      <slot>pushButtonOk_clicked()</slot>
+    </connection>
+    <connection>
+      <sender>checkBoxShowAll</sender>
+      <signal>toggled(bool)</signal>
+      <receiver>RangeSelectBase</receiver>
+      <slot>checkBoxShowAll_toggled(bool)</slot>
+    </connection>
+    <connection>
+      <sender>checkBoxDiffCache</sender>
+      <signal>toggled(bool)</signal>
+      <receiver>RangeSelectBase</receiver>
+      <slot>checkBoxDiffCache_toggled(bool)</slot>
+    </connection>
+    <connection>
+      <sender>checkBoxShowWholeHistory</sender>
+      <signal>toggled(bool)</signal>
+      <receiver>RangeSelectBase</receiver>
+      <slot>checkBoxShowWholeHistory_toggled(bool)</slot>
+    </connection>
+    <connection>
+      <sender>checkBoxShowDialog</sender>
+      <signal>toggled(bool)</signal>
+      <receiver>RangeSelectBase</receiver>
+      <slot>checkBoxShowDialog_toggled(bool)</slot>
+    </connection>
+  </connections>
+</ui>

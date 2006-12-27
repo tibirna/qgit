@@ -1,0 +1,94 @@
+<ui version="4.0" >
+ <class>TabRev</class>
+ <widget class="QWidget" name="TabRev" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Rev list</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="splitter_2" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="Q3ListView" name="listViewLog" >
+      <property name="selectionMode" >
+       <enum>Q3ListView::Extended</enum>
+      </property>
+      <property name="allColumnsShowFocus" >
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text" >
+        <string>Graph</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Short Log</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Author</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Last Change</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QSplitter" name="splitter" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="RevDesc" name="textBrowserDesc" />
+      <widget class="Q3ListBox" name="listBoxFiles" />
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>Q3ListView</class>
+   <extends>Q3Frame</extends>
+   <header>q3listview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RevDesc</class>
+   <extends>Q3TextBrowser</extends>
+   <header>revdesc.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Q3TextBrowser</class>
+   <extends>Q3TextEdit</extends>
+   <header>Qt3Support/Q3TextBrowser</header>
+  </customwidget>
+  <customwidget>
+   <class>Q3ListBox</class>
+   <extends>Q3Frame</extends>
+   <header>q3listbox.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >revdesc.h</include>
+ </includes>
+ <resources/>
+ <connections/>
+</ui>

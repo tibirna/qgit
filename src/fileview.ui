@@ -1,0 +1,407 @@
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>TabFile</class>
+  <widget class="QWidget" name="TabFile" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>600</width>
+        <height>480</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>File</string>
+    </property>
+    <layout class="QHBoxLayout" >
+      <property name="margin" >
+        <number>0</number>
+      </property>
+      <item>
+        <layout class="QVBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <layout class="QHBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <layout class="QHBoxLayout" >
+                  <property name="margin" >
+                    <number>0</number>
+                  </property>
+                  <item>
+                    <widget class="QToolButton" name="toolButtonCopy" >
+                      <property name="minimumSize" >
+                        <size>
+                          <width>30</width>
+                          <height>30</height>
+                        </size>
+                      </property>
+                      <property name="text" >
+                        <string/>
+                      </property>
+                      <property name="shortcut" >
+                        <string>Ctrl+C</string>
+                      </property>
+                      <property name="icon" >
+                        <iconset>image0</iconset>
+                      </property>
+                      <property name="autoRaise" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="toolTip" stdset="0" >
+                        <string>Copy selection to the clipboard stripping line headers (CTRL+C)</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QToolButton" name="toolButtonShowAnnotate" >
+                      <property name="enabled" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="minimumSize" >
+                        <size>
+                          <width>30</width>
+                          <height>30</height>
+                        </size>
+                      </property>
+                      <property name="text" >
+                        <string/>
+                      </property>
+                      <property name="shortcut" >
+                        <string/>
+                      </property>
+                      <property name="checkable" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="icon" >
+                        <iconset>image1</iconset>
+                      </property>
+                      <property name="autoRaise" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="toolTip" stdset="0" >
+                        <string>Hide/show file annotation</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QToolButton" name="toolButtonFindAnnotate" >
+                      <property name="enabled" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="minimumSize" >
+                        <size>
+                          <width>30</width>
+                          <height>30</height>
+                        </size>
+                      </property>
+                      <property name="text" >
+                        <string/>
+                      </property>
+                      <property name="shortcut" >
+                        <string>Ctrl+L</string>
+                      </property>
+                      <property name="checkable" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="icon" >
+                        <iconset>image2</iconset>
+                      </property>
+                      <property name="autoRaise" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="toolTip" stdset="0" >
+                        <string>Lock selection to first tagged line of current revision (CTRL + L)</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QToolButton" name="toolButtonRangeFilter" >
+                      <property name="enabled" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="minimumSize" >
+                        <size>
+                          <width>30</width>
+                          <height>30</height>
+                        </size>
+                      </property>
+                      <property name="text" >
+                        <string/>
+                      </property>
+                      <property name="shortcut" >
+                        <string/>
+                      </property>
+                      <property name="checkable" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="icon" >
+                        <iconset>image3</iconset>
+                      </property>
+                      <property name="autoRaise" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="toolTip" stdset="0" >
+                        <string>Filter revisions on selected line range</string>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QToolButton" name="toolButtonHighlightText" >
+                      <property name="enabled" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="minimumSize" >
+                        <size>
+                          <width>30</width>
+                          <height>30</height>
+                        </size>
+                      </property>
+                      <property name="text" >
+                        <string/>
+                      </property>
+                      <property name="shortcut" >
+                        <string/>
+                      </property>
+                      <property name="checkable" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="icon" >
+                        <iconset>image4</iconset>
+                      </property>
+                      <property name="autoRaise" >
+                        <bool>true</bool>
+                      </property>
+                      <property name="toolTip" stdset="0" >
+                        <string>Source highlight</string>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <spacer name="spacer1" >
+                  <property name="sizeHint" >
+                    <size>
+                      <width>300</width>
+                      <height>20</height>
+                    </size>
+                  </property>
+                  <property name="sizeType" >
+                    <enum>Expanding</enum>
+                  </property>
+                  <property name="orientation" >
+                    <enum>Horizontal</enum>
+                  </property>
+                </spacer>
+              </item>
+              <item>
+                <widget class="Q3Frame" name="frame8" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>1</hsizetype>
+                      <vsizetype>1</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="maximumSize" >
+                    <size>
+                      <width>32767</width>
+                      <height>30</height>
+                    </size>
+                  </property>
+                  <property name="frameShape" >
+                    <enum>StyledPanel</enum>
+                  </property>
+                  <property name="frameShadow" >
+                    <enum>Raised</enum>
+                  </property>
+                  <layout class="QHBoxLayout" >
+                    <property name="margin" >
+                      <number>0</number>
+                    </property>
+                    <item>
+                      <layout class="QHBoxLayout" >
+                        <property name="margin" >
+                          <number>2</number>
+                        </property>
+                        <item>
+                          <widget class="QToolButton" name="toolButtonPin" >
+                            <property name="text" >
+                              <string/>
+                            </property>
+                            <property name="shortcut" >
+                              <string/>
+                            </property>
+                            <property name="checkable" >
+                              <bool>true</bool>
+                            </property>
+                            <property name="icon" >
+                              <iconset>image5</iconset>
+                            </property>
+                            <property name="autoRaise" >
+                              <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0" >
+                              <string>Pin View (Alt-V)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item>
+                          <widget class="QSpinBox" name="spinBoxRevision" >
+                            <property name="sizePolicy" >
+                              <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>5</vsizetype>
+                                <horstretch>2</horstretch>
+                                <verstretch>0</verstretch>
+                              </sizepolicy>
+                            </property>
+                            <property name="maximum" >
+                              <number>65535</number>
+                            </property>
+                          </widget>
+                        </item>
+                      </layout>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <widget class="QSplitter" name="histSplitter" >
+              <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+              </property>
+              <widget class="Q3ListView" name="histListView" >
+                <property name="sizePolicy" >
+                  <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>7</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>1</verstretch>
+                  </sizepolicy>
+                </property>
+                <property name="allColumnsShowFocus" >
+                  <bool>true</bool>
+                </property>
+                <column>
+                  <property name="text" >
+                    <string>Graph</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+                <column>
+                  <property name="text" >
+                    <string>Id</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+                <column>
+                  <property name="text" >
+                    <string>Short Log</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+                <column>
+                  <property name="text" >
+                    <string>Author</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+                <column>
+                  <property name="text" >
+                    <string>Last Change</string>
+                  </property>
+                  <property name="clickable" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="resizable" >
+                    <bool>true</bool>
+                  </property>
+                </column>
+              </widget>
+              <widget class="Q3TextEdit" name="textEditFile" >
+                <property name="sizePolicy" >
+                  <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>7</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>2</verstretch>
+                  </sizepolicy>
+                </property>
+                <property name="textFormat" >
+                  <enum>Qt::PlainText</enum>
+                </property>
+                <property name="linkUnderline" >
+                  <bool>false</bool>
+                </property>
+                <property name="wordWrap" >
+                  <enum>Q3TextEdit::NoWrap</enum>
+                </property>
+                <property name="readOnly" >
+                  <bool>true</bool>
+                </property>
+                <property name="undoRedoEnabled" >
+                  <bool>false</bool>
+                </property>
+                <property name="autoFormatting" >
+                  <set>Q3TextEdit::AutoNone</set>
+                </property>
+              </widget>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <images>
+    <image name="image0" >
+      <data format="PNG" length="634" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000024149444154388d85924b4e54511086bf3ae7dcdbdd34a80490ee104da4d1400c6008127a62883b700526eec005b80171059ae0cc2d989e31e9307060489a4420314e1c4182e1dedb8f7bcfc301ef87b1665595facf5f5f1d69b7f78e4647874d081e6b3dde0794d2ececfc1cdedefef1268acc6780a2b0acad3d076073f31b51640030958a199e9dad9d644051409a0e88630db0d1e9ec8d2ba5d64308dc16ea7a416b88e398fdfddf1c1e1e512e97de5bebde19a3514afe2f2002ce59161666585979cadcdc3422f2a8d97cc6c8c830d79d98db04b4d61c1f77e9f572eedca9d26c2ebc9898b8f7b1286c05a88610be7aef3f29a56e0a64191c1da5a469cad2d2342323314023cb682449465138b2acffaad3d9bb5b14f6c315817e1fbadd3e4a69b4d6944a17ed6a15bcaf7070f08724492897cbeb834172ff9c410890e705c628ca658388701dbc31421c47d4eb13cccc3c6468a8fcf65c20cf41442337415f105742a914313939c6d4d438c64418a52e0e618ca094c139b85c3f8b6e37274dbb781fa8544a880826497a24494192f4f13ee0bdc7b9409e5be4929d24f164d98010846ab582d61a63c0b45a5b5f5aadad2bcff57a83defcfce397ababd38d33b8d616c4b14129855272ea5030c0ebcbc3796ea9d5c6a8d5c636bca7a11438e7d15a616d406b85d60a117db2f6e5e1a2b0d4eb132c2fcfe21c3817b056809355b416bcffc74f74ced3683c6071f1092104422800218a4044f03e42c423620110512710cf044420cbfab4dbdf0108210c76777f01a4a739ce71da7388409af6ec5f8ef6f580c580fc570000000049454e44ae426082</data>
+    </image>
+    <image name="image1" >
+      <data format="PNG" length="590" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000021549444154388d8d92cd4b546114c67f77e68eca14d58c166d0c495bd8a2a0a0206ce7babf4204110c92040911b7d14202215cb668d5a6ff201082c07d21087dd11424997ae7def7e39cd3e25e9d5c0cf46c9ef301e77d9e73dee4fe8befb7cf0cd6872d2aa1107c21f83c96ec04d70d7877ba1e9d203e478afdbdf4c2d9c6ebd1e1e65870469e1b45aee499d1ed2a79d7e8264a2d51540d1f14ad199a2a660edccea7b4d51c181b6d35290ac806201f80ac0e595a72238134819a010228c8002081c275c6d2f173c683715081282002127b7188551ec107234643c590a8bc7c53236d0dc1f5114ea09d6dde1d5d656ab2cdbf5035541591926354b6de27a49801506c5c01a031bdceeecfcb4c4db6595959a11f161797513552533bd548dad7a053c6b3b3b364598619a82a666066a469031145557b03b66fbee2f0f0901bbe0d94b5cdcdcdbe0a16161e97c3acb2706fa20941492e34008f99b1baba56bd54faeeedc0f03e5416aa01e1ed32b6f781c6f43ad81d448cb5b5d5be0ae6e61e550a2a0bc9500b9a17b1da20566d7d7e7e81a270981dab30cc8c24a9573bb1de157edc7a8a738e91914bf0f500116563e3795f0533330f31a3a7c0cc4efcdd9d388faab1b4f4e4d40e8efbaa4af01180f4f75160b793a1f53636a474f61515cfcee7021145a2942c8a9a616aa8953ff1cf5120ddfa78f06ce7cb01d147a28b441fcad847c447822b7389727cdd137cfbe5fa5afc6ffc05ca75a67a3e35ed0a0000000049454e44ae426082</data>
+    </image>
+    <image name="image2" >
+      <data format="PNG" length="693" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000027c49444154388d7dd14f48d3611cc7f1b7fb3f5d6ec33f4b4b1624094a21a88c20a120ebee5188ce75e8d40806e125ecb29b5e822028c243a73c58d0c98bd62134d0cc852269e6c6dc6feed7eff7ecf7bfc3da6fabc8e7f4fcf97e5edf87e769e1af3133f322ded515bdddd919bbd3dede7a014096d5dd42419a2d162bcf32995b5273bdb779313dfdb4231a8da453a9a187a3a3038964b29b33673ae8ebeb8e854281ab8787256f2a75736d696941fc03a4d3b39ed6d6d0e4f8f8a5e98181beb6eded3d636565bdfce5cbaeaaaa8ab7bfff6c3010f05ddcdd3dfc3a3636b1bebcfcc601f0d5015d37da1289f8543299886e6eee688b8bef9fabaaf6085056575b1e4852f9eef0f0603491884d954ac7af0119c0530784d07cc160e05c30e8656363279fcf4b4fb2d97bdfb2d97b474254b35b5bfbfbba2e08047ce784d0dcc62ea0282a86a12384209f2f1d9ba6b9563f9b9b4b176459d134ad8aaeeb288aeabe9b2b5d3ebd1941f4fa85b487df2cf83223f3bd999121b770febbe4b77e1ee2a9e6fdd7fb3ec55f8204d002b0961d9cf0875bd356fcfc78e45424742c95453c246f34ffd091880cb5c7a261f5a752f59577560ca13e1ebefff99d0fa0207123357965a2bda7081c014e18c2a3cd40120b2881e3842ab99e6b1f5e6d7f046ac08fa28da5e6a052e4c4e10092c0fa2cf1a31869bcc141d1c128ab10d04e083b50a9c2fe3186e47050741a40a9e2605534f08b3f03f5ae960d8a0e472a181656d543a9d204380ea01a10d4c0d302b603a65d0b9a36e816540d306c302cd0bdaeef7e23865d93f4df45860da6550b9b76236c5aa0372eea02c209378a5ca009abef9b364278ff01720b6f65b9cd1f3c85edd46ee2c0ffe68aee91811cc02fddb95be8bffaf7d50000000049454e44ae426082</data>
+    </image>
+    <image name="image3" >
+      <data format="PNG" length="674" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000026949444154388d75923f481b511cc7bf7779d7460d478740a101538236a84471c8e07488a4223876f00f2e5adcbb358e828b4ea550ba4806a163c1b1500e07095d540a456ca008c19826a4e899e3bcf325f7ed60ef308d7ee10deff17d9ff7fb7e790a490c0e0ec2b66d140a05ccccccc0308c6c3a9d4e0178a2aaaa22a56c9e9e9efe324df3dbd6d616d6d6d620a504490800705d17b66dc76ddbfe54afd7738ee3a05c2ea352a9e0eaea0a8aa2607a7a1a1b1b1bd8dbdbfb2aa57c05c002009084aeebcff84fc56291cbcbcb1c1a1a622c1623808eb5b9b9c942a1e0018890bc056c6f6f7faed56a9c9b9b6332992400c6e3716632194e4c4c309bcdb2bfbf3f84944a250e0c0cbc0e012b2b2b1f4832954a75bd2884e8d8e7f3795e5e5e5208f1320400c0cecece7792dcdfdfe7eaea2ac7c7c7994824984c26691806f3f93c8f8f8f49925353531f83f8210000767777cb7c40d56a95b55a8d4b4b4b5f023f492824a1284a70f6d834cd866118b1c3c343349b4d589685f3f3738c8c8cc034cdd2fafa7afa5e40241281effb20f9f4e8e8e877229140b158c4c5c505464747717272622f2e2e3e07f0e75e80100242080040bbdd7e717070f0d3711c4829e1ba2e72b95c06c00fdc5157074208f4f5f541d7754c4e4ebe0df2cfcecebec73d0a7fe2fcfc3c00c0f77df8be8febeb6b341a0ddb755d44a351789ed75a5858404f4f0f5455bddbd92dc0f3bc701292200955551f5996054dd3e0fbbe1678ee5e0e0141f640aaaaa2b7b7574829717373836834aa699ad6e50b016767671db9daed366cdbaed4eb75b45a2d54ab55a7d96c221289744dd051e2ff1a1e1e7e333636f60e80fe50897f01017097cb327dbd1b0000000049454e44ae426082</data>
+    </image>
+    <image name="image4" >
+      <data format="PNG" length="849" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000031849444154388da5935f685b750085bfe4a6d992346b5cd21ad7d6ba6e2cb5c3a91d6e631b459d622bac3075080e04514451e64010449cec41d41715a688507d51ca2ad8d91537591b47617f68b775355997ae4d4dd7962e599334b9497a736feefdfd7c10c718ecc9f374e0c0f7f41d9b9492ff13dbc0be7f8b5d4245c7abb878e9bee65087e67fec896063d0ebf2b850538b562e3e76fdf870ec74ef5f56cf2d83c46dc2c03e38d10527f6d2317a64db68faca2f72289a93a32921ff9c1732630a294c5d5ac959a94d9c94e1237be63a1a79fd36a0bf0b065e50de983ffeb61022258528cbbdfd42ee080bd9da2be4b92b51298e7d20c5f96e29fa3e97428dcb78cf5ba2fd010e0228af84d8d5d4dede7b3591bbd1f7ddd7d76a4b973cabb63cec2ebbddd4adce72c03f83fbe251288c51991ac6b6711b6b1fdd6edbccd4d3a72ecc9d510ebdb8b1dbb9ae39f4e647bfbf3618c97ca225a20f7d7ca0656ba72fc37e4f0cb7bd00c1062a8110b2a109c5e1c2e6d9407dc0e558bc3458e3a87dbc6d6770fb6e8e1e8a7da62f67df6ddcd2d2264511673e0a15032c0bb05365b7a04a80fa23d48f8035c9ee9077a743292495d575553c7bf0e556f2f95610a026c0d0c134c0ac806542c504c300ff02282ea44c10f02ad58a4cdd5cb3d9b1b4a3c6851d2750c842290b5a0e5696612503a53414d3504a53567d946f54b16a36436256d59591052b7cf6dcc2c8c4e8a4b54eaa2df707ab1d58069457c0d0405791ea32b6728171bdc2ccaec3149b3aa94cf5131f57330ac0a2c6ccc882f5dbf0c5f4c42625f3d486f56baa3174281711d2c74aa00ba734f949c4f9a22dcf404d845cf41aea19f3bc72a796699dc9cbd3daf527ebcdfd7541875de44ac4b21f623cf23e4ba967f02d7dcfec26039f50693b75939f87f8d671b7dbb13c03dd7f247bbe7cd0f6aadd61929caea162427eda4fa7d7c9b1be39f4b2c2e1d38c45547e55ee0600cce718f7eada7321bf59dbe88b1068d068969fb2d67d956246f04dd89afa6a9cf77441c476af9779149a9f5fcf3b5bebd913f050e771624baa68e1bf191c9ae387b2e03260dd137047024035600304700bd0fe1bff01d82e7e2b962d48b60000000049454e44ae426082</data>
+    </image>
+    <image name="image5" >
+      <data format="PNG" length="485" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff61000001ac49444154388dc5d33f48550114c7f1cfbdefbee74309854786a939bc41086a10ca6a086c6fb3da424aa42982a09096a0a5cd96961a84a2a51603e135845b42ba54d01fb0a04c305e682fcb7cffaeb7a14093b4c1a1b39cdf19be1cf89ddf099224b19d0ab7452330a253dd47cbf88115d4112183f43a1dfd9e33f29906675329fb22b187eaaea0b0e5aa04ab76e38cbaa16a5d39889c08c338aca5b3e9bb6afa3605ab72b8dcd2d132d1d6d176cd8a5915c7f03c4c9692fbb9bdb95c764ff68eb2c3827570cd2eb173517bf4a4fd78fbf5e6cee6eee24cb1a0e2a4c01c444929995e2c2f56c3feb0c3a27bdeebc72b5503ba0c044782decc818cd2d392e5c2f2032943b24a6b260e6ad5a5e0821e458c7a67c582a30e3a849d18c3b81b1a5db5c3571964091a89ac2a7a6bca6b3dba714a5e28af0d35dc54376544836129f1468b42157c37ed8558110d68c207dcc28461894b7f8321f20db149cf2cd8af551a73185336e3bc26b7b78a5b2446ec8d392f7dd2aa8a715fccbaa8d1e8bfb21aa96115151326f599f7d9acd3228ffe38e9269592478044d9bc5e4b06451e0bac4577634ffdd2419ae0bf7fe34fae038bee04a5cacf0000000049454e44ae426082</data>
+    </image>
+  </images>
+</ui>
