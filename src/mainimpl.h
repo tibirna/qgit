@@ -10,12 +10,8 @@
 #include <qpointer.h>
 #include <qregexp.h>
 #include <q3process.h>
-#include <q3ptrvector.h>
 #include <qtimer.h>
-//Added by qt3to4:
-#include <QCustomEvent>
 #include <QCloseEvent>
-#include <Q3PtrList>
 #include <Q3PopupMenu>
 #include <QEvent>
 #include "exceptionmanager.h"
@@ -25,7 +21,6 @@
 class Q3ListViewItem;
 class Q3ListBoxItem;
 class Q3PopupMenu;
-class QCustomEvent;
 class Q3Accel;
 class Q3TextEdit;
 class Git;
@@ -54,10 +49,10 @@ signals:
 
 public slots:
 	void tabWdg_currentChanged(QWidget*);
-	void newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&);
+	void newRevsAdded(const FileHistory*, const QVector<QString>&);
 
 protected:
-	virtual void customEvent(QEvent* e);
+	virtual bool event(QEvent* e);
 
 protected slots:
 	void initWithEventLoopActive();
@@ -141,7 +136,7 @@ private:
 	void goMatch(int delta);
 	bool askApplyPatchParameters(bool* commit, bool* fold);
 	Q3TextEdit* getCurrentTextEdit();
-	template<class X> Q3PtrList<X>* getTabs(int tabPos = -1);
+	template<class X> QList<X*>* getTabs(int tabPos = -1);
 	template<class X> X* firstTab(int startPos = -1);
 	void openFileTab(FileView* fv = NULL);
 

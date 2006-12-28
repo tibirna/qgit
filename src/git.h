@@ -7,9 +7,7 @@
 #ifndef GIT_H
 #define GIT_H
 
-#include "qobject.h"
-//Added by qt3to4:
-#include <Q3PtrList>
+#include <QObject>
 #include <QPair>
 #include "exceptionmanager.h"
 #include "common.h"
@@ -33,7 +31,7 @@ public:
 	Lanes* lns;
 	StrVect revOrder;
 	uint firstFreeLane;
-	Q3PtrList<QByteArray> rowData;
+	QList<QByteArray*> rowData;
 };
 
 class Git : public QObject {
@@ -131,7 +129,7 @@ public:
 	Domain* curContext() const { return curDomain; }
 
 signals:
-	void newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&);
+	void newRevsAdded(const FileHistory*, const QVector<QString>&);
 	void loadCompleted(const FileHistory*, const QString&);
 	void cancelLoading(const FileHistory*);
 	void cancelAllProcesses();
@@ -198,13 +196,14 @@ private:
 	const Rev* fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh);
 	const RevFile* fakeWorkDirRevFile(const WorkingDirInfo& wd);
 	void copyDiffIndex(FileHistory* fh, SCRef parent);
+	const RevFile* insertNewFiles(SCRef sha, SCRef data);
 	const RevFile* getAllMergeFiles(const Rev* r);
 	bool isParentOf(SCRef par, SCRef child);
 	bool isTreeModified(SCRef sha);
 	void indexTree();
 	void annotateExited(Annotate* ann);
 	void updateDescMap(const Rev* r, uint i, QMap<QPair<uint, uint>,bool>& dm,
-	                   QMap<uint, Q3ValueVector<int> >& dv);
+	                   QMap<uint, QVector<int> >& dv);
 	void mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, uint>, bool>&dm);
 	void mergeBranches(Rev* p, const Rev* r);
 	void updateLanes(Rev& c, Lanes& lns, SCRef sha);

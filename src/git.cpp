@@ -30,24 +30,25 @@ using namespace QGit;
 FileHistory::FileHistory() {
 
 	lns = new Lanes();
-	revs.setAutoDelete(true);
 	clear("");
-	revs.resize(QGit::MAX_DICT_SIZE);
-	rowData.setAutoDelete(true);
+	revs.reserve(QGit::MAX_DICT_SIZE);
 }
 
 FileHistory::~FileHistory() {
 
+	clear("");
 	delete lns;
 }
 
 void FileHistory::clear(SCRef name) {
 
+	qDeleteAll(revs);
 	revs.clear();
 	revOrder.clear();
 	firstFreeLane = 0;
 	lns->clear();
 	fileName = name;
+	qDeleteAll(rowData);
 	rowData.clear();
 }
 
@@ -60,9 +61,7 @@ Git::Git(QWidget* p) : QObject(p) {
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
 
-	revsFiles.resize(MAX_DICT_SIZE);
-	revsFiles.setAutoDelete(true);
-
+	revsFiles.reserve(MAX_DICT_SIZE);
 	cache = new Cache(this);
 }
 
@@ -734,7 +733,7 @@ const QStringList Git::getDescendantBranches(SCRef sha) {
 	if (!r || (r->descBrnMaster == -1))
 		return tl;
 
-	const Q3ValueVector<int>& nr = revLookup(revData.revOrder[r->descBrnMaster])->descBranches;
+	const QVector<int>& nr = revLookup(revData.revOrder[r->descBrnMaster])->descBranches;
 
 	for (int i = 0; i < nr.count(); i++) {
 
@@ -758,8 +757,8 @@ const QStringList Git::getNearTags(bool goDown, SCRef sha) {
 	if (nearRefsMaster == -1)
 		return tl;
 
-	const Q3ValueVector<int>& nr = goDown ? revLookup(revData.revOrder[nearRefsMaster])->descRefs :
-	                                       revLookup(revData.revOrder[nearRefsMaster])->ancRefs;
+	const QVector<int>& nr = goDown ? revLookup(revData.revOrder[nearRefsMaster])->descRefs :
+	                                  revLookup(revData.revOrder[nearRefsMaster])->ancRefs;
 
 	for (int i = 0; i < nr.count(); i++) {
 
@@ -889,20 +888,26 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 	return text;
 }
 
+const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
+
+	RevFile* rf = new RevFile();
+	parseDiffFormat(*rf, data);
+	revsFiles.insert(sha, rf);
+	return rf;
+}
+
 const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	SCRef mySha(ALL_MERGE_FILES + r->sha());
-	RevFile* rf = revsFiles[mySha];
-	if (!rf) {
-		QString runCmd("git diff-tree -r -m -C " + r->sha()), runOutput;
-		if (!run(runCmd, &runOutput))
-			return NULL;
+	const RevFile* rf = revsFiles[mySha];
+	if (rf)
+		return rf;
 
-		revsFiles.insert(mySha, new RevFile());
-		rf = revsFiles[mySha];
-		parseDiffFormat(*rf, runOutput);
-	}
-	return rf;
+	QString runCmd("git diff-tree -r -m -C " + r->sha()), runOutput;
+	if (!run(runCmd, &runOutput))
+		return NULL;
+
+	return insertNewFiles(mySha, runOutput);
 }
 
 const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef path) {
@@ -930,31 +935,26 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 
 		// we insert a dummy revision file object. It will be
 		// overwritten at each request but we don't care.
-		revsFiles.insert(CUSTOM_SHA, new RevFile());
-		RevFile* rf = revsFiles[CUSTOM_SHA];
-		parseDiffFormat(*rf, runOutput);
+		return insertNewFiles(CUSTOM_SHA, runOutput);
+	}
+	const RevFile* rf = revsFiles[sha]; // ZERO_SHA search arrives here
+	if (rf)
 		return rf;
-	}
-	RevFile* rf = revsFiles[sha]; // ZERO_SHA search arrives here
-	if (!rf) {
 
-		if (sha == ZERO_SHA) {
-			dbs("ASSERT in Git::getFiles, ZERO_SHA not found");
-			return NULL;
-		}
-		QString runCmd("git diff-tree -r -c -C " + sha), runOutput;
-		if (!run(runCmd, &runOutput))
-			return false;
 
-		if (!revsFiles.find(sha)) { // has been created in the mean time?
-			revsFiles.insert(sha, new RevFile());
-			rf = revsFiles[sha];
-			parseDiffFormat(*rf, runOutput);
-			cacheNeedsUpdate = true;
-		} else
-			return revsFiles[sha];
+	if (sha == ZERO_SHA) {
+		dbs("ASSERT in Git::getFiles, ZERO_SHA not found");
+		return NULL;
 	}
-	return rf;
+	QString runCmd("git diff-tree -r -c -C " + sha), runOutput;
+	if (!run(runCmd, &runOutput))
+		return false;
+
+	if (revsFiles.find(sha)) // has been created in the mean time?
+		return revsFiles[sha];
+
+	cacheNeedsUpdate = true;
+	return insertNewFiles(sha, runOutput);
 }
 
 void Git::startFileHistory(FileHistory* fh) {
@@ -967,7 +967,7 @@ void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 	shaMap.clear();
 	QRegExp rx(path, false, true); // not case sensitive and with wildcard
 	FOREACH (StrVect, it, revData.revOrder) {
-		RevFile* rf = revsFiles[*it];
+		const RevFile* rf = revsFiles[*it];
 		if (!rf)
 			continue;
 

@@ -21,8 +21,6 @@
 #include <qclipboard.h>
 #include <qtoolbutton.h>
 #include <qtabwidget.h>
-//Added by qt3to4:
-#include <QCustomEvent>
 #include "mainimpl.h"
 #include "git.h"
 #include "annotate.h"
@@ -53,8 +51,8 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&)),
-	histListView, SLOT(on_newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&)));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+	histListView, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(m(), SIGNAL(repaintListViews(const QFont&)),
 	        histListView, SLOT(on_repaintListViews(const QFont&)));
@@ -348,12 +346,13 @@ void FileView::on_revIdSelected(int id) {
 
 // ******************************* data events ****************************
 
-void FileView::customEvent(QEvent* e) {
+bool FileView::event(QEvent* e) {
 
-	if (e->type() == (int)QGit::ANN_PRG_EV)
+	if (e->type() == (int)QGit::ANN_PRG_EV) {
 		updateProgressBar(((AnnotateProgressEvent*)e)->myData().toInt());
-	else
-		Domain::customEvent(e);
+		return true;
+	}
+	return Domain::event(e);
 }
 
 void FileView::updateProgressBar(int annotatedNum) {

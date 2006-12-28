@@ -7,11 +7,10 @@
 #ifndef EXCEPTIONMANAGER_H
 #define EXCEPTIONMANAGER_H
 
-#include <q3valuevector.h>
+#include <QVector>
+#include <QList>
 #include <qmap.h>
 #include <qstring.h>
-//Added by qt3to4:
-#include <Q3ValueList>
 
 // exception manager sugar macro
 #define EM_DECLARE(x)    int x
@@ -73,12 +72,12 @@ private:
 		int excpId;
 		bool isRaised;
 	};
-	typedef Q3ValueList<Exception> ThrowableSet;
+	typedef QList<Exception> ThrowableSet;
 	typedef ThrowableSet::iterator SetIt;
 	QMap<int, ThrowableSet> throwableSetMap;
 	ThrowableSet totalThrowableSet;
 	ThrowableSet regionThrowableSet;
-	Q3ValueVector<QString> descriptions;
+	QVector<QString> descriptions;
 
 	SetIt findExcp(ThrowableSet& ts, const SetIt& startIt, int excpId);
 	void setRaisedFlag(ThrowableSet& ts, int excpId);

@@ -44,11 +44,11 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 	stream << (Q_INT32)dirs.count();
 	for (int i = 0; i < dirs.count(); ++i)
-		stream << dirs[i];
+		stream << dirs.at(i);
 
 	stream << (Q_INT32)files.count();
 	for (int i = 0; i < files.count(); ++i)
-		stream << files[i];
+		stream << files.at(i);
 
 	// to achieve a better compression we save the sha's as
 	// one very long string instead of feeding the stream with
@@ -60,27 +60,28 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 	QString buf;
 	buf.reserve(bufSize);
-	Q3DictIterator<RevFile> it(rf);
-	for ( ; it.current(); ++it) {
-		if (   it.currentKey() == ZERO_SHA
-		    || it.currentKey() == CUSTOM_SHA
-		    || it.currentKey().startsWith("A")) // ALL_MERGE_FILES + rev sha
+	FOREACH (RevFileMap, it, rf) {
+		SCRef sha = it.key();
+		if (   sha == ZERO_SHA
+		    || sha == CUSTOM_SHA
+		    || sha.startsWith("A")) // ALL_MERGE_FILES + rev sha
 			continue;
 
-		buf.append(it.currentKey());
+		buf.append(sha);
 	}
 	stream << buf;
 
-	for (it.toFirst(); it.current(); ++it) {
-		if (   it.currentKey() == ZERO_SHA
-		    || it.currentKey() == CUSTOM_SHA
-		    || it.currentKey().startsWith("A")) // ALL_MERGE_FILES + rev sha
+	FOREACH (RevFileMap, it, rf) {
+		SCRef sha = it.key();
+		if (   sha == ZERO_SHA
+		    || sha == CUSTOM_SHA
+		    || sha.startsWith("A")) // ALL_MERGE_FILES + rev sha
 			continue;
 
-		stream << it.current()->names;
-		stream << it.current()->dirs;
-		stream << it.current()->status;
-		stream << it.current()->mergeParent;
+		stream << it.value()->names;
+		stream << it.value()->dirs;
+		stream << it.value()->status;
+		stream << it.value()->mergeParent;
 	}
 	dbs("Compressing data...");
 	f.writeBlock(qCompress(data)); // no need to encode with compressed data
@@ -144,7 +145,7 @@ bool Cache::load(const QString& gitDir, RevFileMap& rf, StrVect& dirs, StrVect& 
 		bufIdx += 40;
 
 		rf.insert(sha, new RevFile());
-		RevFile* p = rf[sha];
+		RevFile* p = const_cast<RevFile*>(rf[sha]);
 		*stream >> p->names;
 		*stream >> p->dirs;
 		*stream >> p->status;

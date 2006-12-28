@@ -7,11 +7,11 @@
 #ifndef ANNOTATE_H
 #define ANNOTATE_H
 
-#include <qobject.h>
-#include <q3process.h>
-#include <qtimer.h>
-#include <qpair.h>
+#include <QObject>
 #include <QTime>
+#include <QPair>
+#include <QTimer>
+#include <q3process.h>
 #include "exceptionmanager.h"
 #include "common.h"
 
@@ -26,7 +26,7 @@ public:
 	int id, type;
 	QStringList roots;
 };
-typedef Q3ValueVector<ReachInfo> ReachList;
+typedef QVector<ReachInfo> ReachList;
 
 class RangeInfo {
 public:

@@ -10,7 +10,6 @@
 #include <qobject.h>
 #include <qpointer.h>
 #include <qregexp.h>
-#include <q3valuevector.h>
 #include "ui_patchview.h" // needed by moc_* file to understand tab() function
 #include "domain.h"
 
@@ -90,7 +89,7 @@ private:
 		int paraTo;
 		int indexTo;
 	};
-	typedef Q3ValueVector<MatchSelection> Matches;
+	typedef QVector<MatchSelection> Matches;
 	Matches matches;
 };
 

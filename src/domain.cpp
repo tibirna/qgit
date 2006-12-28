@@ -6,8 +6,6 @@
 */
 #include <qapplication.h>
 #include <q3listview.h>
-//Added by qt3to4:
-#include <QCustomEvent>
 #include "exceptionmanager.h"
 #include "mainimpl.h"
 #include "git.h"
@@ -209,7 +207,7 @@ bool Domain::flushQueue() {
 	return false;
 }
 
-void Domain::customEvent(QEvent* e) {
+bool Domain::event(QEvent* e) {
 
 	bool fromMaster = false;
 
@@ -229,7 +227,7 @@ void Domain::customEvent(QEvent* e) {
 	default:
 		break;
 	}
-	QObject::customEvent(e);
+	return QObject::event(e);
 }
 
 void Domain::populateState() {

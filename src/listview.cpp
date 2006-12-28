@@ -213,7 +213,7 @@ bool ListView::update() {
 
 // ************************************ SLOTS ********************************
 
-void ListView::on_newRevsAdded(const FileHistory* f, const Q3ValueVector<QString>& shaVec) {
+void ListView::on_newRevsAdded(const FileHistory* f, const QVector<QString>& shaVec) {
 
 	if (f != fh) // signal newRevsAdded() is broadcast
 		return;
@@ -545,7 +545,7 @@ void ListViewItem::paintGraph(const Rev& c, QPainter* p, const QColorGroup& cg, 
 	QBrush back = cg.brush(crole);
 	p->fillRect(0, 0, width, height(), back);
 
-	const Q3ValueVector<int>& lanes(c.lanes);
+	const QVector<int>& lanes(c.lanes);
 	uint laneNum = lanes.count();
 	uint mergeLane = 0;
 	for (uint i = 0; i < laneNum; i++)

@@ -18,12 +18,12 @@ class FileHistory;
 class Q3Process;
 class MyProcess;
 
-#ifdef _WINDOWS
+#ifdef ON_WINDOWS
 #define USE_QPROCESS
 #else
 // data exchange facility with git-rev-list could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
-// #define USE_QPROCESS
+#define USE_QPROCESS
 #endif
 
 class DataLoader : public QObject {

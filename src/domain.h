@@ -7,9 +7,8 @@
 #ifndef DOMAIN_H
 #define DOMAIN_H
 
-#include <qobject.h>
-//Added by qt3to4:
-#include <QCustomEvent>
+#include <QObject>
+#include <QEvent>
 #include "exceptionmanager.h"
 #include "common.h"
 
@@ -21,10 +20,11 @@ class Domain;
 class MainImpl;
 class Git;
 
-class UpdateDomainEvent : public QCustomEvent {
+class UpdateDomainEvent : public QEvent {
 public:
 	explicit UpdateDomainEvent(bool fromMaster, bool force = false)
-	: QCustomEvent(fromMaster ? QGit::UPD_DM_MST_EV : QGit::UPD_DM_EV), f(force) {}
+	: QEvent(fromMaster ? (QEvent::Type)QGit::UPD_DM_MST_EV
+	                    : (QEvent::Type)QGit::UPD_DM_EV), f(force) {}
 	bool isForced() const { return f; };
 private:
 	bool f;
@@ -134,7 +134,7 @@ protected slots:
 	void on_deleteWhenDone();
 
 protected:
-	virtual void customEvent(QEvent* e);
+	virtual bool event(QEvent* e);
 	virtual bool doUpdate(bool force) = 0;
 	void linkDomain(Domain* d);
 	void unlinkDomain(Domain* d);

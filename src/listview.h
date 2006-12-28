@@ -64,7 +64,7 @@ public:
 	void updateIdValues();
 	void getSelectedItems(QStringList& selectedItems);
 	bool update();
-	void addNewRevs(const Q3ValueVector<QString>& shaVec);
+	void addNewRevs(const QVector<QString>& shaVec);
 
 	bool filterNextContextMenuRequest;
 
@@ -74,7 +74,7 @@ signals:
 	void contextMenu(const QString&, int);
 
 public slots:
-	void on_newRevsAdded(const FileHistory* fh, const Q3ValueVector<QString>& shaVec);
+	void on_newRevsAdded(const FileHistory* fh, const QVector<QString>& shaVec);
 	void on_repaintListViews(const QFont& f);
 
 protected:

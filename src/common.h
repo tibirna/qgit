@@ -8,15 +8,12 @@
 #define COMMON_H
 
 #include <QLinkedList>
-#include <q3valuevector.h>
-#include <q3dict.h>
-#include <qmap.h>
-#include <qevent.h>
-#include <qcolor.h>
-#include <qfont.h>
-#include <qvariant.h>
-//Added by qt3to4:
-#include <QCustomEvent>
+#include <QHash>
+#include <QVector>
+#include <QEvent>
+#include <QColor>
+#include <QFont>
+#include <QVariant>
 
 /*
    QVariant does not support size_t type used in Qt containers, this is
@@ -53,7 +50,7 @@ typedef QStringList&                SList;
 typedef const QStringList&          SCList;
 typedef QLinkedList<QString>&       SLList;
 typedef const QLinkedList<QString>& SCLList;
-typedef Q3ValueVector<QString>      StrVect;
+typedef QVector<QString>            StrVect;
 
 namespace QGit {
 
@@ -293,12 +290,12 @@ public:
 	const QString shortLog() const { return mid(sLogStart, sLogLen); }
 	const QString longLog() const { return mid(lLogStart, lLogLen); }
 
-	Q3ValueVector<int> lanes, childs;
+	QVector<int> lanes, childs;
 	bool isDiffCache, isApplied, isUnApplied;
 	int orderIdx;
-	Q3ValueVector<int> descRefs;     // list of descendant refs index, normally tags
-	Q3ValueVector<int> ancRefs;      // list of ancestor refs index, normally tags
-	Q3ValueVector<int> descBranches; // list of descendant branches index
+	QVector<int> descRefs;     // list of descendant refs index, normally tags
+	QVector<int> ancRefs;      // list of ancestor refs index, normally tags
+	QVector<int> descBranches; // list of descendant branches index
 	int descRefsMaster; // in case of many Rev have the same descRefs, ancRefs or
 	int ancRefsMaster;  // descBranches these are stored only once in a Rev pointed
 	int descBrnMaster;  // by corresponding index xxxMaster
@@ -313,7 +310,7 @@ private:
 	int autStart, autLen, autDateStart, autDateLen;
 	int sLogStart, sLogLen, lLogStart, lLogLen;
 };
-typedef Q3Dict<Rev> RevMap; // faster then a map
+typedef QHash<QString, const Rev*> RevMap;  // faster then a map
 
 class RevFile {
 
@@ -326,16 +323,16 @@ class RevFile {
 	// returned by 'git diff-tree -C' plus source and destination files info.
 	// In case of a working dir file a third field is added with info about
 	// git index status of the file (CACHED_FILE or NO_CACHED_FILE)
-	Q3ValueVector<QString> status;
+	QVector<QString> status;
 
 	// prevent implicit C++ compiler defaults
 	RevFile(const RevFile&);
 	RevFile& operator=(const RevFile&);
 public:
 	RevFile() {}
-	Q3ValueVector<int> dirs; // index of a string vector
-	Q3ValueVector<int> names;
-	Q3ValueVector<int> mergeParent;
+	QVector<int> dirs; // index of a string vector
+	QVector<int> names;
+	QVector<int> mergeParent;
 
 	// status helper functions
 	const QChar getStatus(int idx) const { return status[idx].at(0); }
@@ -351,7 +348,7 @@ public:
 		return (isExtendedStatus(idx) ? status[idx].section(',', 1, 1) : "");
 	}
 };
-typedef Q3Dict<RevFile> RevFileMap;
+typedef QHash<QString, const RevFile*> RevFileMap;
 
 class FileAnnotation {
 public:
@@ -363,9 +360,9 @@ public:
 	QString fileSha;
 };
 
-class BaseEvent: public QCustomEvent {
+class BaseEvent: public QEvent {
 public:
-	BaseEvent(SCRef d, int id) : QCustomEvent(id), payLoad(d) {}
+	BaseEvent(SCRef d, int id) : QEvent((QEvent::Type)id), payLoad(d) {}
 	const QString myData() const { return payLoad; }
 private:
 	const QString payLoad; // passed by copy

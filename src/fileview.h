@@ -8,8 +8,6 @@
 #define FILEVIEW_H
 
 #include <qpointer.h>
-//Added by qt3to4:
-#include <QCustomEvent>
 #include "ui_fileview.h" // needed by moc_* file to understand tab() function
 #include "common.h"
 #include "domain.h"
@@ -49,7 +47,7 @@ public slots:
 	void on_revIdSelected(int);
 
 protected:
-	virtual void customEvent(QEvent* e);
+	virtual bool event(QEvent* e);
 	virtual bool doUpdate(bool force);
 
 private:

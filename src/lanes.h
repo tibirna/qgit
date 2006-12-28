@@ -7,9 +7,9 @@
 #ifndef LANES_H
 #define LANES_H
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <q3valuevector.h>
+#include <QString>
+#include <QStringList>
+#include <QVector>
 
 class Lanes {
 public:
@@ -30,7 +30,7 @@ public:
 	void afterBranch();
 	void afterApplied();
 	void nextParent(const QString& sha);
-	void getLanes(Q3ValueVector<int> &ln){ ln = typeVec; }; // O(1) vector is implicitly shared
+	void getLanes(QVector<int> &ln){ ln = typeVec; }; // O(1) vector is implicitly shared
 
 private:
 	int findNextSha(const QString& next, int pos);
@@ -38,8 +38,8 @@ private:
 	int add(int type, const QString& next, int pos);
 
 	int activeLane;
-	Q3ValueVector<int> typeVec;
-	Q3ValueVector<QString> nextShaVec;
+	QVector<int> typeVec;
+	QVector<QString> nextShaVec;
 	bool boundary;
 	int NODE, NODE_L, NODE_R;
 };

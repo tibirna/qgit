@@ -303,8 +303,7 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
 
-	QByteArray* ba = new QByteArray();
-	ba->append(data);
+	QByteArray* ba = new QByteArray(data.toAscii());
 	ba->append('\0');
 	fh->rowData.append(ba);
 	int dummy;
@@ -518,6 +517,7 @@ void Git::clearRevs() {
 
 void Git::clearFileNames() {
 
+	qDeleteAll(revsFiles);
 	revsFiles.clear();
 	fileNamesMap.clear();
 	dirNamesMap.clear();
@@ -802,7 +802,7 @@ void Git::setLane(SCRef sha, FileHistory* fh) {
 
 	Lanes* l = fh->lns;
 	uint i = fh->firstFreeLane;
-	const Q3ValueVector<QString>& shaVec(fh->revOrder);
+	const QVector<QString>& shaVec(fh->revOrder);
 	for (uint cnt = shaVec.count(); i < cnt; ++i) {
 		SCRef curSha = shaVec[i];
 		Rev* r = const_cast<Rev*>(revLookup(curSha, fh));
@@ -870,7 +870,7 @@ void Git::procReadyRead(const QString& fileChunk) {
 	else
 		filesLoadingPending.append(fileChunk); // add to previous half lines
 
-	RevFile* rf = revsFiles[filesLoadingCurSha];
+	RevFile* rf = const_cast<RevFile*>(revsFiles[filesLoadingCurSha]);
 	int nextEOL = filesLoadingPending.find('\n');
 	int lastEOL = -1;
 	while (nextEOL != -1) {
@@ -879,8 +879,8 @@ void Git::procReadyRead(const QString& fileChunk) {
 		if (line.constref(0) != ':') {
 			SCRef sha = line.left(40);
 			if (!rf || sha != filesLoadingCurSha) { // new commit
-				revsFiles.insert(sha, new RevFile());
-				rf = revsFiles[sha];
+				rf = new RevFile();
+				revsFiles.insert(sha, rf);
 				filesLoadingCurSha = sha;
 				cacheNeedsUpdate = true;
 			} else
@@ -921,14 +921,14 @@ void Git::appendFileName(RevFile& rf, SCRef name) {
 }
 
 void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm,
-                        QMap<uint, Q3ValueVector<int> >& dv) {
+                        QMap<uint, QVector<int> >& dv) {
 
-	Q3ValueVector<int> descVec(1, idx);
+	QVector<int> descVec(1, idx);
 
 	if (r->descRefsMaster != -1) {
 
 		const Rev* tmp = revLookup(revData.revOrder[r->descRefsMaster]);
-		const Q3ValueVector<int>& nr = tmp->descRefs;
+		const QVector<int>& nr = tmp->descRefs;
 
 		for (int i = 0; i < nr.count(); i++) {
 
@@ -936,7 +936,7 @@ void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm
 				dbp("ASSERT descendant for %1 not found", r->sha());
 				return;
 			}
-			const Q3ValueVector<int>& dvv = dv[nr[i]];
+			const QVector<int>& dvv = dv[nr[i]];
 			for (int y = 0; y < dvv.count(); y++) {
 
 				QPair<uint, uint> key = qMakePair(idx, (uint)dvv[y]);
@@ -958,9 +958,9 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
 		return;
 
 	// we want all the descendant branches, so just avoid duplicates
-	const Q3ValueVector<int>& src1 = revLookup(revData.revOrder[p->descBrnMaster])->descBranches;
-	const Q3ValueVector<int>& src2 = revLookup(revData.revOrder[r_descBrnMaster])->descBranches;
-	Q3ValueVector<int> dst(src1);
+	const QVector<int>& src1 = revLookup(revData.revOrder[p->descBrnMaster])->descBranches;
+	const QVector<int>& src2 = revLookup(revData.revOrder[r_descBrnMaster])->descBranches;
+	QVector<int> dst(src1);
 	for (int i = 0; i < src2.count(); i++)
 		if (qFind(src1.constBegin(), src1.constEnd(), src2[i]) == src1.constEnd())
 			dst.append(src2[i]);
@@ -986,9 +986,9 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, 
 	const StrVect& ro = revData.revOrder;
 	SCRef sha1 = down ? ro[p->descRefsMaster] : ro[p->ancRefsMaster];
 	SCRef sha2 = down ? ro[r_descRefsMaster] : ro[r_ancRefsMaster];
-	const Q3ValueVector<int>& src1 = down ? revLookup(sha1)->descRefs : revLookup(sha1)->ancRefs;
-	const Q3ValueVector<int>& src2 = down ? revLookup(sha2)->descRefs : revLookup(sha2)->ancRefs;
-	Q3ValueVector<int> dst(src1);
+	const QVector<int>& src1 = down ? revLookup(sha1)->descRefs : revLookup(sha1)->ancRefs;
+	const QVector<int>& src2 = down ? revLookup(sha2)->descRefs : revLookup(sha2)->ancRefs;
+	QVector<int> dst(src1);
 
 	for (int s2 = 0; s2 < src2.count(); s2++) {
 
@@ -1014,7 +1014,7 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, 
 		if (add)
 			dst.append(src2[s2]);
 	}
-	Q3ValueVector<int>& nearRefs = (down) ? p->descRefs : p->ancRefs;
+	QVector<int>& nearRefs = (down) ? p->descRefs : p->ancRefs;
 	int& nearRefsMaster = (down) ? p->descRefsMaster : p->ancRefsMaster;
 
 	nearRefs.clear();
@@ -1034,7 +1034,7 @@ void Git::indexTree() {
 	// we keep the pairs(x, y). Value is true if x is
 	// ancestor of y or false if y is ancestor of x
 	QMap<QPair<uint, uint>, bool> descMap;
-	QMap<uint, Q3ValueVector<int> > descVect;
+	QMap<uint, QVector<int> > descVect;
 
 	// walk down the tree from latest to oldest,
 	// compute children and nearest descendants
@@ -1107,7 +1107,7 @@ void Git::indexTree() {
 const QString Rev::mid(int start, int len) const {
 
 	// warning no sanity check is done on arguments
-	return QString::fromAscii(ba.constData() + start, len);
+	return QString::fromAscii(ba.mid(start, len));
 }
 
 const QString Rev::parent(int idx) const {
@@ -1127,23 +1127,23 @@ const QStringList Rev::parents() const {
 int Rev::indexData() { // fast path here, less then 4% of load time
 
 	int last = ba.size() - 1;
-	boundaryOfs = uint(ba[start] == '-');
+	boundaryOfs = uint(ba.at(start) == '-');
 
 	parentsCnt = 0;
 	int idx = start + boundaryOfs + 40;
-	while (idx < last && ba[idx] == ' ') {
+	while (idx < last && ba.at(idx) == ' ') {
 		idx += 41;
 		parentsCnt++;
 	}
 	idx += 47; // idx points to first line '\n', so skip tree line
-	while (idx < last && ba[idx] == 'p') //skip parents
+	while (idx < last && ba.at(idx) == 'p') //skip parents
 		idx += 48;
 
 	idx += 23;
 	if (idx > last)
 		return -1;
 
-	int lineEnd = ba.find('\n', idx); // author line end
+	int lineEnd = ba.indexOf('\n', idx); // author line end
 	if (lineEnd == -1)
 		return -1;
 
@@ -1156,13 +1156,13 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 	autDateStart = lineEnd - 39;
 	autDateLen = 10;
 
-	idx = ba.find('\n', lineEnd); // committer line end
+	idx = ba.indexOf('\n', lineEnd); // committer line end
 	if (idx == -1)
 		return -1;
 
 	// shortlog could be not '\n' terminated so use committer
 	// end of line as a safe start point to find chunk end
-	int end = ba.find('\0', idx); // this is the slowest find
+	int end = ba.indexOf('\0', idx); // this is the slowest find
 	if (end == -1)
 		return -1;
 
@@ -1174,7 +1174,7 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 		lLogStart = lLogLen = 0;
 		return ++end;
 	}
-	lLogStart = ba.find('\n', sLogStart);
+	lLogStart = ba.indexOf('\n', sLogStart);
 	if (lLogStart != -1 && lLogStart < end) {
 
 		sLogLen = lLogStart++ - sLogStart;

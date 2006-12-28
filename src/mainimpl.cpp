@@ -39,7 +39,6 @@
 #include <QCloseEvent>
 #include <QKeyEvent>
 #include <QEvent>
-#include <QCustomEvent>
 #include <Q3PtrList>
 #include "config.h" // defines PACKAGE_VERSION
 #include "help.h"
@@ -161,8 +160,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	int wd = lineEditSHA->fontMetrics().boundingRect(tmp).width();
 	lineEditSHA->setMinimumWidth(wd);
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&)),
-	        this, SLOT(newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&)));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	// connect cross-domain update signals
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(Q3ListViewItem*)),
@@ -525,7 +524,7 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 
 // ******************************* Filter ******************************
 
-void MainImpl::newRevsAdded(const FileHistory* fh, const Q3ValueVector<QString>&) {
+void MainImpl::newRevsAdded(const FileHistory* fh, const QVector<QString>&) {
 
 	if (!git->isMainHistory(fh))
 		return;
@@ -703,14 +702,14 @@ bool MainImpl::passFilter(ListViewItem* item, SCRef filter, int colNum,
 	return (field.find(QRegExp(filter, false, true)) != -1);
 }
 
-void MainImpl::customEvent(QEvent* e) {
+bool MainImpl::event(QEvent* e) {
 
 	BaseEvent* de = dynamic_cast<BaseEvent*>(e);
-	if (de == NULL) {
-		QWidget::customEvent(e);
-		return;
-	}
+	if (de == NULL)
+		return QWidget::event(e);
+
 	SCRef data = de->myData();
+	bool ret = true;
 
 	switch (e->type()) {
 	case ERROR_EV: {
@@ -733,9 +732,11 @@ void MainImpl::customEvent(QEvent* e) {
 		doFileContexPopup(data, e->type());
 		break;
 	default:
-		dbp("ASSERT in MainImpl::customEvent unhandled event %1", e->type());
+		dbp("ASSERT in MainImpl::event unhandled event %1", e->type());
+		ret = false;
 		break;
 	}
+	return ret;
 }
 
 int MainImpl::currentTabType(Domain** t) {
@@ -746,14 +747,14 @@ int MainImpl::currentTabType(Domain** t) {
 		*t = rv;
 		return TAB_REV;
 	}
-	Q3PtrList<PatchView>* l = getTabs<PatchView>(curPos);
+	QList<PatchView*>* l = getTabs<PatchView>(curPos);
 	if (l->count() > 0) {
 		*t = l->first();
 		delete l;
 		return TAB_PATCH;
 	}
 	delete l;
-	Q3PtrList<FileView>* l2 = getTabs<FileView>(curPos);
+	QList<FileView*>* l2 = getTabs<FileView>(curPos);
 	if (l2->count() > 0) {
 		*t = l2->first();
 		delete l2;
@@ -766,11 +767,11 @@ int MainImpl::currentTabType(Domain** t) {
 	return -1;
 }
 
-template<class X> Q3PtrList<X>* MainImpl::getTabs(int tabPos) {
+template<class X> QList<X*>* MainImpl::getTabs(int tabPos) {
 
 	X dummy;
 	QObjectList l = this->queryList(dummy.className());
-	Q3PtrList<X>* ret = new Q3PtrList<X>;
+	QList<X*>* ret = new QList<X*>;
 	for (int i = 0; i < l.size(); ++i) {
 
 		X* x = static_cast<X*>(l.at(i));
@@ -785,9 +786,10 @@ template<class X> X* MainImpl::firstTab(int startPos) {
 	int minVal = 99, firstVal = 99;
 	X* min = NULL;
 	X* first = NULL;
-	Q3PtrList<X>* l = getTabs<X>();
-	for (X* d = l->first(); d; d = l->next()) {
+	QList<X*>* l = getTabs<X>();
+	for (int i = 0; i < l->size(); ++i) {
 
+		X* d = l->at(i);
 		if (d->tabPos() < minVal) {
 			minVal = d->tabPos();
 			min = d;

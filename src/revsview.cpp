@@ -47,8 +47,8 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	listBoxFiles = new ListBoxFiles(this, git, tab()->listBoxFiles);
 	treeView = new TreeView(this, git, m()->treeView);
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&)),
-	listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const Q3ValueVector<QString>&)));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+	listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -213,7 +213,7 @@ bool RevsView::doUpdate(bool force) {
 		st.setSha(((ListViewItem*)item)->sha());
 		st.setSelectItem(false);
 		UpdateDomainEvent* e = new UpdateDomainEvent(false);
-		customEvent(e); // will be queued immediately
+		this->event(e); // will be queued immediately
 		delete e;
 	}
 	return (found || st.sha().isEmpty());

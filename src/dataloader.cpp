@@ -106,7 +106,7 @@ void DataLoader::parseSingleBuffer(const QByteArray& ba) {
 
 		} else { // less then 1% of cases with READ_BLOCK_SIZE = 64KB
 
-			int end = ba.find('\0', 0);
+			int end = ba.indexOf('\0');
 			if (end == -1) // consecutives half chunks
 				break;
 

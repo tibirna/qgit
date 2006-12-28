@@ -24,7 +24,7 @@
 #include <q3stylesheet.h>
 #include <qtextcodec.h>
 //Added by qt3to4:
-#include <Q3ValueList>
+#include <QList>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "git.h"
@@ -83,7 +83,7 @@ CommitImpl::CommitImpl(Git* g) : QWidget(0, 0, Qt::WDestructiveClose), git(g) {
 	move(pos);
 	tmp = settings.readEntry(APP_KEY + CMT_SPLIT_KEY, CMT_SPLIT_DEF);
 	sl = QStringList::split(',', tmp);
-	Q3ValueList<int> sz;
+	QList<int> sz;
 	sz.append(sl[0].toInt());
 	sz.append(sl[1].toInt());
 	splitter->setSizes(sz);
@@ -143,7 +143,7 @@ CommitImpl::~CommitImpl() {
 	QString tmp = QString("%1,%2,%3,%4").arg(pos().x()).arg(pos().y())
 	                      .arg(size().width()).arg(size().height());
 	settings.writeEntry(APP_KEY + CMT_GEOM_KEY, tmp);
-	Q3ValueList<int> sz = splitter->sizes();
+	QList<int> sz = splitter->sizes();
 	tmp = QString::number(sz[0]) + "," + QString::number(sz[1]);
 	settings.writeEntry(APP_KEY + CMT_SPLIT_KEY, tmp);
 	close();
