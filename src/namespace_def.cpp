@@ -12,7 +12,7 @@
 
 */
 
-#ifdef _WINDOWS
+#ifdef ON_WINDOWS
 #include <windows.h>
 #else
 #include <unistd.h> // usleep()
@@ -201,7 +201,7 @@ bool QGit::stripPartialParaghraps(SCRef src, QString* dst, QString* prev) {
 
 void QGit::compat_usleep(int us) {
 
-#ifdef _WINDOWS
+#ifdef ON_WINDOWS
 	Sleep(us);
 #else
 	usleep(us);
@@ -219,7 +219,7 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 	stream << data;
 	file.close();
 
-#ifndef _WINDOWS
+#ifndef ON_WINDOWS
 	if (setExecutable)
 		chmod(fileName, 0755);
 #endif
