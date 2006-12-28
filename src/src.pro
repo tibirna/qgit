@@ -10,6 +10,9 @@ DESTDIR = ../bin
 TARGET = qgit
 BUILD_DIR = ../build
 
+target.path = ~/bin
+unix:INSTALLS += target
+
 UI_DIR = $$BUILD_DIR
 MOC_DIR = $$BUILD_DIR
 RCC_DIR = $$BUILD_DIR

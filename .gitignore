@@ -1,0 +1,7 @@
+Makefile*
+*~
+bin
+build
+*kde*
+Doxy*
+qgit4.tag

@@ -1,0 +1,330 @@
+                                      THE PROBLEM
+
+
+Qt3 uses the call qApp->processEvents() (from now on PE) to let a program do not block while  
+a long operation is occurring. This function passes the control to the application event loop
+and any new pending event like GUI event, socket notifier(QProcess) and others are processed.
+
+The problem with PE is that when the calling function returns a changed context could 
+be found. Some objects could be born, other disappeared, some action incompatible
+with the previous context could have been done, as example closing a window while 
+processing or clearing a data container that the calling function is using.
+
+How to deal with this? A way is to check some 'context flags' on return from
+PE to search for a 'wrong context' and take appropriate actions.
+But this is not a good general solution because implies that the function that calls, and
+returns, from PE knows about the whole context.
+
+As example, A() is a function that access some data (kept in any kind of container a list, a 
+file, etc), B() is a function that makes a lengthy operation and uses PE.
+If we have a code flow like the following
+
+    A()
+    |--->   B()
+    |        |-----> qApp->processEvents()
+    |        |-----> do something else
+    |                   return
+    |--->   ....
+    |--->   data.access()
+
+We should check inside of B() if the data is no more valid and eventually return an error code.
+But B() knows nothing about the our data. Of course we should check in A(), just after the B() call,
+but this is sub-optimal because it implies that we know for sure that B() does not accesses the data
+_nor_ any other function called by B() before to return to A().
+
+In real software the call chain between the function that uses a resource and the function that
+pass the control to the application event loop and return from it can be very long and complex.
+
+
+
+                                      INTRODUCING EXCEPTIONS
+
+The standard way that C++ has to deal with this kind of problems is called exceptions handling.
+
+If B() throws an exception, returning from PE, on a corrupted database, and the first catch clause
+is in A(), no matter how long and complex the chain is, A() will catch the exception before anything
+else is done.
+
+This seems interesting, but has two drawbacks, one general, one depending on Qt.
+
+
+-Exception resuming/termination models
+
+What happens if B() is called on start up, on data refreshing, or, in general, in a context where database
+consistency is not important or, worst, should not be checked? The exception will be thrown, no catch 
+clause will take the exception, the default handler will be invoked and this means, at least in C++,
+program termination [in C++ you can provide a custom set_terminate() function to handle uncaught 
+exceptions but you cannot continue from here, just clean-up and exit].
+The general problem has a name and is called 'C++ supports termination-model exceptions, not resumption'.
+
+So we need a way to let B() throw an exception _only_ if the exception will be caught, IE
+only if the abnormal condition is 'interesting' in the actual context.
+
+
+-Exceptions trough signals/slots
+
+Standard C++ try-throw-catch exception system is not compatible with Qt signals/slots. If a function B() is
+called by A() by means of a signal the catch clause will not work, also if signals/slots in Qt3 are wrappers
+to direct calls.
+         
+    A()
+    |---> try
+    |---> emit mySignal  --> slotMySignal() 
+    |          			|-----> throw X
+    |---> catch(x)
+    |      |---> we will NOT catch X
+
+
+It is possible to code to avoid signals/slots when exceptions are involved, but the _real_ problem is
+that also PE is a barrier to exceptions propagation.
+
+What happens is the following:
+
+  A()
+    |---> try
+    |       B()
+    |        |-----> qApp->processEvents()
+    |        |                           |----> C()
+    |        |                                   |----> database.clear()
+    |        |                                throw databaseIsEmpty
+    |        |<----- qApp->processEvents()
+    |        | 
+    | <----return
+    | 
+    |---> catch(databaseIsEmpty)
+    |      |
+    |      |---> we will NOT catch databaseIsEmpty
+
+
+This is very unfortunate.
+
+
+
+                                      INTRODUCING EXCEPTION MANAGER
+
+If we rewrite the above scheme as follows:
+
+  A()
+    |---> try
+    |       B()
+    |        |-----> qApp->processEvents()
+    |        |                           |----> C()
+    |        |                                   |----> database.clear()
+    |        |                                throw databaseIsEmpty
+    |        |                                   |
+    |        |<----- qApp->processEvents()<----return
+    |        | 
+    |        if (databaseIsEmpty is throwable)
+    |              throw databaseIsEmpty
+    | <----return
+    | 
+    |---> catch(databaseIsEmpty)
+    |      |
+    |      |---> NOW we will catch databaseIsEmpty
+
+
+
+Two things have changed between the schemes.
+
+      - The potential exception is checked to verify if it is among the throwables exceptions
+
+      - The exception is thrown in the same region* of the catch clause
+
+
+*[A 'region' is the code that executes between two calls of PE]
+
+
+Class ExceptionManager does exactly this, checks the exception against a throwable set, wait until
+the correct region is reached and finally throws the exception.
+
+If we rewrite the above code to use ExceptionManager helper macros we have:
+
+ A() {
+      .....
+      try {
+          EM_REGISTER(databaseIsEmpty); // adds databaseIsEmpty to the throwable set
+
+          .....
+          B();
+          .....
+
+          EM_REMOVE(databaseIsEmpty); // removes databaseIsEmpty from the throwable set
+
+      } catch (int i) {
+
+            EM_REMOVE(databaseIsEmpty);
+
+	    if (i == databaseIsEmpty) {
+
+                   .....handle the exception....
+
+                   EM_CHECK_PENDING; // re-check any other pending exception
+            }	
+      }
+      .....
+}
+
+B() {
+      .....
+      EM_BEFORE_PROCESS_EVENTS; // some magic occurs ;-)
+
+      while(something_happens)
+          qApp->processEvents();
+
+      EM_AFTER_PROCESS_EVENTS; // throws the pending exceptions belonging to the current region
+      .....
+}
+
+C() {
+      .....
+      database.clear();
+      EM_RAISE(databaseIsEmpty); // checks if databaseIsEmpty is throwable and, in case,
+      .....                      // flags it as 'raised'. In the latter case it will be 
+      .....                      // thrown, but only when returning in the correct region.                       
+}
+
+ 
+With this scheme everything works as expected. There are some things to note:
+
+1)  In B() there is no knowledge of 'databaseIsEmpty'. B() does not have to know about the general
+    context at all.
+
+2)  At the end of the catch clause any other pending exception will be thrown, so to allow for
+    multiple raised exceptions.
+
+3)  The same exception will be thrown as many times as has been registered. What it means is
+    ExceptionManager supports nested try-catch blocks, also when looking for the same exception,
+     in this case each catch clause will be called with the same exception and in the correct order.
+ 
+4)  ExceptionManager has an internal multi-region stack. What it means is that try-catch blocks
+    can be nested _across_ many PE calls: each catch clause will be called with the correct raised
+    exception and in the correct time, when returning in the corresponding region from a PE call.
+    No matter when the exceptions have been raised.
+
+
+
+                                      TECHNICAL DETAILS
+
+A 'region' is the code that executes between two calls of qApp->processEvents()
+the code in a region has the stack property. Ie if fb() is called inside fa() then
+fb() will return before fa().
+
+A 'catch set' is a set of exceptions that are added at the beginning of the
+same try block. Given a group of exceptions of the same catch set the following can occur:
+
+1- No exception is raised -> the catch clause is not called.
+
+2- Only one exception Ex of the set is raised -> the catch clause is called
+   with Ex parameter.
+
+3- More then one exception Ex1, Ex2,..Exn are raised -> the catch clause is
+   called with Ex1 parameter, ie the first priority exception. The exception
+   priority is given when adding the exceptions at the beginning of try block.
+   The last added is the first priority.
+
+
+The totalThrowableSet is a list of exceptions that can be raised with a call to
+raise(excp).
+
+The regionThrowableSet is a subset of totalThrowableSet and lists the exceptions
+that can be thrown in the corresponding region.
+
+The regionThrowableSet is saved before to call qApp->processEvents() and restored
+on return.
+
+A call to qApp->processEvents() trigger a region boundary. So a new and empty
+regionThrowableSet must be used. To let ExceptionManager to know the region crossing time,
+ie qApp->processEvents() call, we use the convention that the call to saveThrowableSet()
+is done 'just before' the qApp->processEvents() call. Where 'just before' it means
+that no others ExceptionManager method must be called between saveThrowableSet() and
+processEvents().
+
+	int currentRegionId = saveThrowableSet();
+
+	.....(no more ExceptionManager calls).....
+
+	qApp->processEvents();
+
+	.....(no ExceptionManager calls).....
+
+	restoreThrowableSet(currentRegionId);
+
+The region throwable sets are saved in a list: throwableSetList
+
+When a call to raise(excp) occurs totalThrowableSet is walked to find excp.
+If the exception is found then the exception is tagged to be thrown.
+
+In this case the flag  isRaised is set in _all_ the occurrences of excp in the
+regionThrowableSet and in _all_ the occurrences of excp in throwableSetList.
+This is because the exception will be thrown in each region upon re-entering,
+not only in the current region. And in the same region will be thrown as many
+times as are the occurrences of excp in the corresponding throwable set
+
+Upon restoring the throwable set with restoreThrowableSet() it is safe to
+throw any pending exception with:
+
+	throwPending();
+
+
+Method throwPending() walks _in order_ the regionThrowableSet ONLY to find all the
+exceptions with the flag isRaised set.
+
+This is because C++ throw-catch does not seem to be able to walk-back across
+qApp->processEvents() boundaries, ie across regions. So _only_ the pending exceptions
+of the current region will be thrown. The others will be eventually thrown later.
+
+ExceptionManager throws ONLY ONE exception among the matching exceptions set. Then, in the
+catch clause throwPending() is called again. This is to guarantee that exceptions are
+thrown in the correct order.
+Note that the catch clause is always in the same region of the throw command.
+
+
+		The exception thrown is the last that has been added
+
+
+-Removing exceptions from throwables list
+
+Normally an exception is removed from throwables list by code when leaving try block. 
+But thrown exceptions will by-pass try block and will go directly in the catch clause.
+So all the exceptions added in try block must be removed in the catch clause, also if
+the thrown exception is not handled there.
+
+Note that in the catch clause all the exceptions of the catch set will be removed.
+If there are two exceptions raised, the first will throw and the catch clause will
+remove both. So the second exception will never be thrown. This is to take in account 
+when adding exceptions in the try clause:
+
+			NO!!!						YES
+	try {						try {
+		EM_REGISTER(very_bad_one);			EM_REGISTER(small_one);
+		EM_REGISTER(small_one);				EM_REGISTER(very_bad_one);
+
+
+When a remove(excp) occurs regionThrowableSet and  totalThrowableSet are walked
+in order from newest entry to oldest and the first occurrence of excp is removed.
+So to take in account the case where the same exception is added twice:
+
+	fa() {
+		......
+		try {
+			EM_REGISTER(myExcp);
+			.......(no processEvents() here, same region)
+			fb();
+			.......(no processEvents() here, same region)
+			EM_REMOVE(myExcp);
+		} catch ()
+
+Where
+	fb() {
+		......
+		try {
+			EM_REGISTER(myExcp);
+			.......
+			EM_REMOVE(myExcp);
+		} catch ()
+
+
+In this case myExcp will be added twice and must be removed twice. And after the
+first remove in fb() catch clause will be thrown again and caught in the fa() catch clause.
+
+So at the end of the catch clause there must always be the throwPending() call.
