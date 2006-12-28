@@ -303,9 +303,9 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
 
-	QByteArray* ba = new QByteArray(data.length() + 1);
-	memcpy(ba->data(), data.ascii(), data.length());
-	ba[data.length()] = '\0';
+	QByteArray* ba = new QByteArray();
+	ba->append(data);
+	ba->append('\0');
 	fh->rowData.append(ba);
 	int dummy;
 	Rev* c = new Rev(*ba, 0, idx, &dummy);

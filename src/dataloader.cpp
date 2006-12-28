@@ -136,16 +136,12 @@ void DataLoader::addSplittedChunks(const QByteArray* hc) {
 
 void DataLoader::baAppend(QByteArray** baPtr, const char* ascii, int len) {
 
-	QByteArray* ba = *baPtr;
-	uint oldSize = 0;
-	if (ba) {
-		oldSize = ba->size();
-		ba->resize(oldSize + len);
-	} else {
-		ba = new QByteArray(len);
-		*baPtr = ba;
-	}
-	memcpy(ba->data() + oldSize, ascii, len);
+	if (*baPtr)
+		// we cannot use QByteArray::append(const char*)
+		// because 'ascii' is not '\0' terminating
+		(*baPtr)->append(QByteArray::fromRawData(ascii, len));
+	else
+		*baPtr = new QByteArray(ascii, len);
 }
 
 // *************** git interface facility dependant code *****************************
