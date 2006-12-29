@@ -6,11 +6,8 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qcombobox.h>
-#include <qlineedit.h>
-#include <qcheckbox.h>
-#include <qsettings.h>
-#include <qregexp.h>
+#include <QSettings>
+#include <QRegExp>
 #include "common.h"
 #include "git.h"
 #include "rangeselectimpl.h"
@@ -18,26 +15,21 @@
 using namespace QGit;
 
 RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl,
-                                 bool* q, Git* g) : QDialog(par, 0, true) {
+                                 Git* g) : QDialog(par), git(g), range(r) {
 	setupUi(this);
-	range = r;
-	quit = q;
-	git = g;
-	*quit = true; // if user press ESC everything works as expected
-
 	QStringList otl;
 	orderTags(tl, otl);
 
 	// check if top tag is current HEAD
 	if (!otl.empty()) {
-		const QString tagSha(git->getRefSha(otl.first(), Git::TAG, false));
+		SCRef tagSha(git->getRefSha(otl.first(), Git::TAG, false));
 		if (git->checkRef(tagSha, Git::CUR_BRANCH))
 			// in this case remove from list to avoid an empty view
 			otl.pop_front();
 	}
-	comboBoxTo->insertStringList(otl);
-	comboBoxTo->insertItem("HEAD", 0);
-	comboBoxFrom->insertStringList(otl);
+	comboBoxTo->insertItem(0, "HEAD");
+	comboBoxTo->insertItems(1, otl);
+	comboBoxFrom->insertItems(0, otl);
 	comboBoxFrom->setFocus();
 
 	int f = flags();
@@ -65,7 +57,7 @@ void RangeSelectImpl::orderTags(const QStringList& src, QStringList& dst) {
 	QStringList tmpLs;
 	FOREACH_SL (it, src) {
 		const QString& s = *it;
-		if (re.search(s) != -1) {
+		if (re.indexIn(s) != -1) {
 			QString t(s);
 			tmpLs.append(t.insert(re.pos(1), rcMark));
 		} else
@@ -74,14 +66,14 @@ void RangeSelectImpl::orderTags(const QStringList& src, QStringList& dst) {
 	tmpLs.sort();
 	dst.clear();
 	FOREACH_SL (it, tmpLs) {
-		const QString& s = *it;
-		if (s.endsWith(noRcMark))
-			dst.prepend(s.left(s.length() - noRcMark.length()));
-		else {
-			QString t(s);
+
+		QString t(*it);
+		if (t.endsWith(noRcMark))
+			t.chop(noRcMark.length());
+		else
 			t.remove(rcMark);
-			dst.prepend(t);
-		}
+
+		dst.prepend(t);
 	}
 }
 
@@ -93,19 +85,6 @@ void RangeSelectImpl::checkBoxDiffCache_toggled(bool b) {
 void RangeSelectImpl::checkBoxShowDialog_toggled(bool b) {
 
 	setFlag(RANGE_SELECT_F, b);
-}
-
-void RangeSelectImpl::pushButtonOk_clicked() {
-
-	*range = comboBoxFrom->currentText();
-	if (!range->isEmpty())
-		range->append("..");
-
-	range->append(comboBoxTo->currentText());
-	range->prepend(lineEditOptions->text() + " ");
-	*range = range->stripWhiteSpace();
-	*quit = false;
-	close();
 }
 
 void RangeSelectImpl::checkBoxShowAll_toggled(bool b) {
@@ -121,17 +100,23 @@ void RangeSelectImpl::checkBoxShowAll_toggled(bool b) {
 
 void RangeSelectImpl::checkBoxShowWholeHistory_toggled(bool b) {
 
-	if (b) {
-		fromBckUp = comboBoxFrom->currentText();
-		toBckUp = comboBoxTo->currentText();
-		comboBoxFrom->setCurrentText("");
-		comboBoxTo->setCurrentText("HEAD");
-
-	} else {
-		comboBoxFrom->setCurrentText(fromBckUp);
-		comboBoxTo->setCurrentText(toBckUp);
-	}
 	comboBoxFrom->setEnabled(!b);
 	comboBoxTo->setEnabled(!b);
 	setFlag(WHOLE_HISTORY_F, b);
+}
+
+void RangeSelectImpl::pushButtonOk_clicked() {
+
+	if (testFlag(WHOLE_HISTORY_F))
+		*range = "HEAD";
+	else {
+		*range = comboBoxFrom->currentText();
+		if (!range->isEmpty())
+			range->append("..");
+
+		range->append(comboBoxTo->currentText());
+		range->prepend(lineEditOptions->text() + " ");
+		*range = range->stripWhiteSpace();
+	}
+	done(QDialog::Accepted);
 }

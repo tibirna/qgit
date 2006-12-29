@@ -1,11 +1,11 @@
 # General stuff
 TEMPLATE = app
-CONFIG += qt warn_on exceptions
+CONFIG += qt warn_on exceptions debug_and_release
 QT += qt3support
 win32:DEFINES += ON_WINDOWS
 INCLUDEPATH += ../src
 MAKEFILE = qmake
-QMAKE_CXXFLAGS_RELEASE += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long
+QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -frepo -Wno-long-long
 QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long
 
 # Directories

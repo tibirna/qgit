@@ -233,9 +233,9 @@ void PatchView::procFinished() {
 int PatchView::doSearch(SCRef txt, int pos) {
 
 	if (isRegExp)
-		return pickAxeRE.search(txt, pos);
+		return txt.indexOf(pickAxeRE, pos);
 
-	return txt.find(pickAxeRE.pattern(), pos, true);
+	return txt.indexOf(pickAxeRE.pattern(), pos, Qt::CaseInsensitive);
 }
 
 void PatchView::computeMatches() {

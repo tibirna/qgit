@@ -1538,7 +1538,7 @@ void MainImpl::ActTagDelete_activated() {
 
 	if (QMessageBox::question(this, "Delete tag - QGit",
 	                 "Do you want to un-tag selected revision?",
-	                 "&Yes", "&No", QString::null, 0, 1) == 1)
+	                 "&Yes", "&No", QString(), 0, 1) == 1)
 		return;
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

@@ -263,11 +263,11 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 	ulong cnt = 0;
 	qint64 readPos = dataFile.pos();
 
-	while (!dataFile.atEnd()) { // dataFile.bytesAvailable()
+	while (!dataFile.atEnd()) {
 
 		// this is the ONLY deep copy involved in the whole loading
-		// QFile::readBlock() calls standard C read() function when
-		// file is open with IO_Raw flag, or fread() otherwise
+		// QFile::read() calls standard C read() function when
+		// file is open with Unbuffered flag, or fread() otherwise
 		QByteArray* ba = new QByteArray(READ_BLOCK_SIZE);
 		uint len = dataFile.read(ba->data(), READ_BLOCK_SIZE);
 		if (len <= 0) {

@@ -974,7 +974,7 @@ void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 		// case insensitive, wildcard search
 		const RevFile* rf = revsFiles[*it];
 		for (int i = 0; i < rf->names.count(); ++i)
-			if (rx.search(filePath(*rf, i)) != -1) {
+			if (filePath(*rf, i).indexOf(rx) != -1) {
 				shaMap.insert(*it, true);
 				break;
 			}

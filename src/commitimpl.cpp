@@ -241,7 +241,7 @@ bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles) {
 	QTextCodec::setCodecForCStrings(tc);
 
 	if (QMessageBox::question(this, "Commit changes - QGit", text, "&Yes",
-	                          "&No", QString::null, 0, 1) == 1)
+	                          "&No", QString(), 0, 1) == 1)
 		return false;
 
 	return true;
@@ -288,7 +288,7 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 	if (git->isStGITStack())
 		if (QMessageBox::question(this, "Refresh stack - QGit",
 			"Do you want to refresh current top stack patch?",
-			"&Yes", "&No", QString::null, 0, 1) == 1)
+			"&Yes", "&No", QString(), 0, 1) == 1)
 			return;
 
 	QString msg(textEditMsg->text());

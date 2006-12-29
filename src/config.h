@@ -8,16 +8,16 @@
 #define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "qgit"
+#define PACKAGE_NAME "qgit4"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "qgit 1.5.3"
+#define PACKAGE_STRING "qgit4"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "qgit"
+#define PACKAGE_TARNAME "qgit4"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.5.3"
+#define PACKAGE_VERSION "xxxx"
 
 /* Version number of package */
-#define VERSION "1.5.3"
+#define VERSION "xxxx"

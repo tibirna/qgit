@@ -14,7 +14,7 @@ class Git;
 class RangeSelectImpl: public QDialog, public Ui_RangeSelectBase {
 Q_OBJECT
 public:
-	RangeSelectImpl(QWidget* par, QString* range, const QStringList& tl, bool* quit, Git* g);
+	RangeSelectImpl(QWidget* par, QString* range, const QStringList& tl, Git* g);
 
 public slots:
 	void pushButtonOk_clicked();
@@ -26,11 +26,8 @@ public slots:
 private:
 	void orderTags(const QStringList& src, QStringList& dst);
 
-	QString* range;
-	bool* quit;
 	Git* git;
-	QString fromBckUp;
-	QString toBckUp;
+	QString* range;
 };
 
 #endif

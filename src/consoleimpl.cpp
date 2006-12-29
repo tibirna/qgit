@@ -40,7 +40,7 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 		if (QMessageBox::question(this, "Action output window - QGit",
 		    "Action is still running.\nAre you sure you want to close "
 		    "the window and leave the action running in background?",
-		    "&Yes", "&No", QString::null, 1, 1) == 1) {
+		    "&Yes", "&No", QString(), 1, 1) == 1) {
 			ce->ignore();
 			return;
 		}

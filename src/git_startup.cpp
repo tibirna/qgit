@@ -44,9 +44,9 @@ const QString Git::getArgs(bool askForRange, bool* quit) {
 	    &&  testFlag(RANGE_SELECT_F)
 	    && (!startup || curRange.isEmpty())) {
 
-		RangeSelectImpl rs((QWidget*)parent(), &curRange,
-		                    getAllRefNames(TAG, !optOnlyLoaded), quit, this);
-		rs.exec(); // modal execution
+		SCList names = getAllRefNames(TAG, !optOnlyLoaded);
+		RangeSelectImpl rs((QWidget*)parent(), &curRange, names, this);
+		*quit = (rs.exec() == QDialog::Rejected); // modal execution
 		if (*quit)
 			return "";
 	}
