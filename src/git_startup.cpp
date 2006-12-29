@@ -682,7 +682,7 @@ void Git::loadFileNames() {
 
 	QString diffTreeBuf;
 	FOREACH (StrVect, it, revData.revOrder) {
-		if (!revsFiles.find(*it)) {
+		if (!revsFiles.contains(*it)) {
 			const Rev* c = revLookup(*it);
 			if (c->parentsCount() == 1) // skip initials and merges
 				diffTreeBuf.append(*it).append('\n');
@@ -733,7 +733,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 				return nextStart;
 			}
 		}
-		if (r.find(sha)) {
+		if (r.contains(sha)) {
 			// StGIT unapplied patches could be sent again by
 			// git rev-list as example if called with --all option.
 			if (r[sha]->isUnApplied) {
@@ -870,7 +870,10 @@ void Git::procReadyRead(const QString& fileChunk) {
 	else
 		filesLoadingPending.append(fileChunk); // add to previous half lines
 
-	RevFile* rf = const_cast<RevFile*>(revsFiles[filesLoadingCurSha]);
+	RevFile* rf = NULL;
+	if (revsFiles.contains(filesLoadingCurSha))
+		rf = const_cast<RevFile*>(revsFiles[filesLoadingCurSha]);
+
 	int nextEOL = filesLoadingPending.find('\n');
 	int lastEOL = -1;
 	while (nextEOL != -1) {

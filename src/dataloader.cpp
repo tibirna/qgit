@@ -6,8 +6,9 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qdir.h>
 #include <q3process.h>
+#include <QDir>
+#include "myprocess.h"
 #include "git.h"
 #include "dataloader.h"
 
@@ -260,20 +261,27 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		return 0;
 
 	ulong cnt = 0;
-	while (!dataFile.atEnd()) {
+	qint64 readPos = dataFile.pos();
 
-		QByteArray* ba = new QByteArray(READ_BLOCK_SIZE);
+	while (!dataFile.atEnd()) { // dataFile.bytesAvailable()
 
 		// this is the ONLY deep copy involved in the whole loading
 		// QFile::readBlock() calls standard C read() function when
 		// file is open with IO_Raw flag, or fread() otherwise
-		uint len = dataFile.readBlock(ba->data(), READ_BLOCK_SIZE);
+		QByteArray* ba = new QByteArray(READ_BLOCK_SIZE);
+		uint len = dataFile.read(ba->data(), READ_BLOCK_SIZE);
 		if (len <= 0) {
 			delete ba;
 			break;
 
 		} else if (len < READ_BLOCK_SIZE) // unlikely
 			ba->resize(len);
+
+		// current read position must be updated manually, it's
+		// not correctly incremented by read() if the producer
+		// process has already finished
+		readPos += len;
+		dataFile.seek(readPos);
 
 		cnt += len;
 		fh->rowData.append(ba);

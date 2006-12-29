@@ -7,10 +7,10 @@
 #ifndef DATALOADER_H
 #define DATALOADER_H
 
-#include <qobject.h>
-#include <qtimer.h>
-#include <qdatetime.h>
-#include <qfile.h>
+#include <QObject>
+#include <QTime>
+#include <QTimer>
+#include <QFile>
 
 class QString;
 class Git;
@@ -23,7 +23,7 @@ class MyProcess;
 #else
 // data exchange facility with git-rev-list could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
-#define USE_QPROCESS
+// #define USE_QPROCESS
 #endif
 
 class DataLoader : public QObject {

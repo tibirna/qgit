@@ -408,7 +408,7 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
 
 	const RevMap& r = (fh ? fh->revs : revData.revs);
-	return r[sha];
+	return (r.contains(sha) ? r[sha] : NULL);
 }
 
 bool Git::run(SCRef runCmd, QString* runOutput, QObject* receiver, SCRef buf) {
@@ -683,8 +683,11 @@ void Git::getWorkDirFiles(SList files, SList dirs, const QChar& status) {
 
 bool Git::isNothingToCommit() {
 
+	if (!revsFiles.contains(ZERO_SHA))
+		return true;
+
 	const RevFile* rf = revsFiles[ZERO_SHA];
-	return (!rf || (rf->names.count() == _wd.otherFiles.count()));
+	return (rf->names.count() == _wd.otherFiles.count());
 }
 
 bool Git::isTreeModified(SCRef sha) {
@@ -899,9 +902,8 @@ const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	SCRef mySha(ALL_MERGE_FILES + r->sha());
-	const RevFile* rf = revsFiles[mySha];
-	if (rf)
-		return rf;
+	if (revsFiles.contains(mySha))
+		return revsFiles[mySha];
 
 	QString runCmd("git diff-tree -r -m -C " + r->sha()), runOutput;
 	if (!run(runCmd, &runOutput))
@@ -937,10 +939,8 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 		// overwritten at each request but we don't care.
 		return insertNewFiles(CUSTOM_SHA, runOutput);
 	}
-	const RevFile* rf = revsFiles[sha]; // ZERO_SHA search arrives here
-	if (rf)
-		return rf;
-
+	if (revsFiles.contains(sha))
+		return revsFiles[sha]; // ZERO_SHA search arrives here
 
 	if (sha == ZERO_SHA) {
 		dbs("ASSERT in Git::getFiles, ZERO_SHA not found");
@@ -950,7 +950,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	if (!run(runCmd, &runOutput))
 		return false;
 
-	if (revsFiles.find(sha)) // has been created in the mean time?
+	if (revsFiles.contains(sha)) // has been created in the mean time?
 		return revsFiles[sha];
 
 	cacheNeedsUpdate = true;
@@ -967,11 +967,12 @@ void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 	shaMap.clear();
 	QRegExp rx(path, false, true); // not case sensitive and with wildcard
 	FOREACH (StrVect, it, revData.revOrder) {
-		const RevFile* rf = revsFiles[*it];
-		if (!rf)
+
+		if (!revsFiles.contains(*it))
 			continue;
 
 		// case insensitive, wildcard search
+		const RevFile* rf = revsFiles[*it];
 		for (int i = 0; i < rf->names.count(); ++i)
 			if (rx.search(filePath(*rf, i)) != -1) {
 				shaMap.insert(*it, true);
