@@ -191,9 +191,11 @@ namespace QGit {
 	extern const QString ALL_MERGE_FILES;
 
 	// settings keys
+	extern const QString ORG_KEY;
 	extern const QString APP_KEY;
-	extern const QString FP_DIR_KEY;
-	extern const QString FPATCH_ARGS_KEY;
+	extern const QString PATCH_DIR_KEY;
+	extern const QString PATCH_ARGS_KEY;
+	extern const QString TYPWRT_FNT_KEY;
 	extern const QString FLAGS_KEY;
 	extern const QString CMT_GEOM_KEY;
 	extern const QString CMT_SPLIT_KEY;
@@ -203,10 +205,10 @@ namespace QGit {
 	extern const QString EX_PER_DIR_KEY;
 	extern const QString EXT_DIFF_KEY;
 	extern const QString REC_REP_KEY;
-	extern const QString MCR_NAME_KEY;
-	extern const QString MCR_TEXT_KEY;
-	extern const QString MCR_LIST_KEY;
-	extern const QString FONT_KEY;
+	extern const QString ACT_LIST_KEY;
+	extern const QString ACT_GROUP_KEY;
+	extern const QString ACT_TEXT_KEY;
+	extern const QString ACT_FLAGS_KEY;
 
 	// settings default values
 	extern const QString CMT_GEOM_DEF;
@@ -215,15 +217,14 @@ namespace QGit {
 	extern const QString EX_DEF;
 	extern const QString EX_PER_DIR_DEF;
 	extern const QString EXT_DIFF_DEF;
-	extern const QString MCR_NAME_DEF;
 
 	// settings booleans
 	enum FlagType {
 		// removed obsolete option
-		MCR_REFRESH_F   = 2,
+		ACT_REFRESH_F   = 2,
 		NUMBERS_F       = 4,
 		// removed obsolete option
-		MCR_CMD_LINE_F  = 16,
+		ACT_CMD_LINE_F  = 16,
 		DIFF_INDEX_F    = 32,
 		SIGN_PATCH_F    = 64,
 		SIGN_CMT_F      = 128,
@@ -237,10 +238,9 @@ namespace QGit {
 	const int FLAGS_DEF = 8512;
 
 	// settings helpers
-	uint flags(SCRef group = "");
-	bool testFlag(uint f, SCRef group = "");
-	void setFlag(uint f, bool b, SCRef group = "");
-	void writeSetting(SCRef key, SCRef value, SCRef group = "");
+	uint flags(SCRef flagsVariable);
+	bool testFlag(uint f, SCRef fv = FLAGS_KEY);
+	void setFlag(uint f, bool b, SCRef fv = FLAGS_KEY);
 
 	// tree view icons helpers
 	void initMimePix();

@@ -9,6 +9,7 @@
 
 #include "ui_settings.h"
 
+class QVariant;
 class Git;
 
 class SettingsImpl: public QDialog, public Ui_settingsBase {
@@ -35,6 +36,7 @@ protected slots:
 	void pushButtonFont_clicked();
 
 private:
+	void writeSetting(const QString& key, const QVariant& value);
 	void setupCodecList(QStringList& list);
 	void setupCodecsCombo();
 

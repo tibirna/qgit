@@ -36,7 +36,7 @@ protected slots:
 
 private:
 	Git* git;
-	QString name;
+	QString actionName;
 	QPointer<MyProcess> proc;
 	QString inpBuf;
 };

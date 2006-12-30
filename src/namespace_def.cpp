@@ -69,22 +69,24 @@ const QChar QGit::IN_INDEX          = 'I';
 const QChar QGit::NOT_IN_INDEX      = 'N';
 
 // settings keys
-const QString QGit::APP_KEY         = "/qgit/";
-const QString QGit::FP_DIR_KEY      = "format_patch_last_dir";
-const QString QGit::FPATCH_ARGS_KEY = "format_patch_args";
-const QString QGit::FLAGS_KEY       = "patch_flags";
-const QString QGit::CMT_GEOM_KEY    = "commit_viewer_geometry";
-const QString QGit::CMT_SPLIT_KEY   = "commit_viewer_splitter_sizes";
-const QString QGit::CMT_TEMPL_KEY   = "commit_template_file_path";
-const QString QGit::CMT_ARGS_KEY    = "commit_args";
-const QString QGit::EX_KEY          = "exclude_file_path";
-const QString QGit::EX_PER_DIR_KEY  = "exclude_per_directory_file_name";
+const QString QGit::ORG_KEY         = "qgit";
+const QString QGit::APP_KEY         = "qgit4";
 const QString QGit::EXT_DIFF_KEY    = "external_diff_viewer";
 const QString QGit::REC_REP_KEY     = "recent_open_repos";
-const QString QGit::MCR_NAME_KEY    = "macro_name";
-const QString QGit::MCR_TEXT_KEY    = "commands";
-const QString QGit::MCR_LIST_KEY    = "macro_list";
-const QString QGit::FONT_KEY        = "typewriter_font";
+const QString QGit::TYPWRT_FNT_KEY  = "typewriter_font";
+const QString QGit::FLAGS_KEY       = "flags";
+const QString QGit::ACT_LIST_KEY    = "custom_actions_list";
+const QString QGit::PATCH_DIR_KEY   = "Patch/last_dir";
+const QString QGit::PATCH_ARGS_KEY  = "Patch/args";
+const QString QGit::EX_KEY          = "Working_dir/exclude_file_path";
+const QString QGit::EX_PER_DIR_KEY  = "Working_dir/exclude_per_directory_file_name";
+const QString QGit::CMT_GEOM_KEY    = "Commit/geometry";
+const QString QGit::CMT_SPLIT_KEY   = "Commit/splitter_sizes";
+const QString QGit::CMT_TEMPL_KEY   = "Commit/template_file_path";
+const QString QGit::CMT_ARGS_KEY    = "Commit/args";
+const QString QGit::ACT_GROUP_KEY   = "Custom_actions/";
+const QString QGit::ACT_TEXT_KEY    = "/commands";
+const QString QGit::ACT_FLAGS_KEY   = "/flags";
 
 // settings default values
 const QString QGit::CMT_GEOM_DEF    = "290,140,495,540";
@@ -93,7 +95,6 @@ const QString QGit::CMT_TEMPL_DEF   = ".git/commit-template";
 const QString QGit::EX_DEF          = ".git/info/exclude";
 const QString QGit::EX_PER_DIR_DEF  = ".gitignore";
 const QString QGit::EXT_DIFF_DEF    = "kompare";
-const QString QGit::MCR_NAME_DEF    = "New macro";
 
 // cache file
 const QString QGit::BAK_EXT          = ".bak";
@@ -105,29 +106,23 @@ const QString QGit::QUOTE_CHAR = "$";
 using namespace QGit;
 
 // settings helpers
-uint QGit::flags(SCRef group) {
+uint QGit::flags(SCRef flagsVariable) {
 
 	QSettings settings;
-	return settings.readNumEntry(APP_KEY + group + FLAGS_KEY, FLAGS_DEF);
+	return settings.value(flagsVariable, FLAGS_DEF).toUInt();
 }
 
-bool QGit::testFlag(uint f, SCRef group) {
+bool QGit::testFlag(uint f, SCRef flagsVariable) {
 
-	return (flags(group) & f);
+	return (flags(flagsVariable) & f);
 }
 
-void QGit::setFlag(uint f, bool b, SCRef group) {
+void QGit::setFlag(uint f, bool b, SCRef flagsVariable) {
 
 	QSettings settings;
-	int flags = settings.readNumEntry(APP_KEY + group + FLAGS_KEY, FLAGS_DEF);
+	uint flags = settings.value(flagsVariable, FLAGS_DEF).toUInt();
 	flags = (b) ? flags | f : flags & ~f;
-	settings.writeEntry(APP_KEY + group + FLAGS_KEY, flags);
-}
-
-void QGit::writeSetting(SCRef key, SCRef value, SCRef group) {
-
-	QSettings settings;
-	settings.writeEntry(APP_KEY + group + key, value);
+	settings.setValue(flagsVariable, flags);
 }
 
 // tree view icons helpers

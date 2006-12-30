@@ -1036,7 +1036,7 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 
 	bool remote = !remoteDir.isEmpty();
 	QSettings settings;
-	const QString FPArgs = settings.readEntry(APP_KEY + FPATCH_ARGS_KEY, "");
+	const QString FPArgs = settings.readEntry(PATCH_ARGS_KEY, "");
 
 	QString runCmd("git format-patch");
 	if (testFlag(NUMBERS_F) && !remote)
@@ -1089,7 +1089,7 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 
 	// add user selectable commit options
 	QSettings settings;
-	const QString CMArgs = settings.readEntry(APP_KEY + CMT_ARGS_KEY, "");
+	const QString CMArgs = settings.readEntry(CMT_ARGS_KEY, "");
 
 	QString cmtOptions;
 	if (!CMArgs.isEmpty())

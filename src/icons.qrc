@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/icons" >
         <file>resources/cancel.png</file>
+        <file>resources/configure.png</file>
         <file>resources/filter.png</file>
         <file>resources/find.png</file>
         <file>resources/folder.png</file>

@@ -13,14 +13,14 @@
 #include "consoleimpl.h"
 
 ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) :
-             QMainWindow(0, 0, Qt::WDestructiveClose), git(g), name(nm) {
+             QMainWindow(0, 0, Qt::WDestructiveClose), git(g), actionName(nm) {
 
 	setupUi(this);
 	textEditOutput->setCurrentFont(QGit::TYPE_WRITER_FONT);
 	QFont f = textLabelCmd->font();
 	f.setBold(true);
 	textLabelCmd->setFont(f);
-	setCaption("\'" + name + "\' output window - QGit");
+	setCaption("\'" + actionName + "\' output window - QGit");
 }
 
 void ConsoleImpl::pushButtonOk_clicked() {
@@ -52,7 +52,7 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 
 bool ConsoleImpl::start(const QString& cmd, const QString& cmdArgs) {
 
-	statusBar()->message("Executing \'" + name + "\' action...");
+	statusBar()->message("Executing \'" + actionName + "\' action...");
 
 	QString t(cmd.section('\n', 1, 0xffffffff, QString::SectionIncludeLeadingSep));
 
@@ -88,7 +88,7 @@ void ConsoleImpl::procFinished() {
 	textEditOutput->append(inpBuf);
 	inpBuf = "";
 	QApplication::restoreOverrideCursor();
-	statusBar()->message("End of \'" + name + "\' execution.");
+	statusBar()->message("End of \'" + actionName + "\' execution.");
 	pushButtonTerminate->setEnabled(false);
-	emit customAction_exited(name);
+	emit customAction_exited(actionName);
 }

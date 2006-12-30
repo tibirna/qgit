@@ -24,7 +24,7 @@ CustomActionImpl::CustomActionImpl() : QWidget(0, 0, Qt::WDestructiveClose) {
 	listViewNames->setSorting(-1);
 
 	QSettings set;
-	actionList = QStringList::split(",", set.readEntry(APP_KEY + MCR_LIST_KEY, ""));
+	actionList = set.value(ACT_LIST_KEY).toStringList();
 	Q3ListViewItem* lastItem = NULL;
 	FOREACH_SL (it, actionList)
 		lastItem = new Q3ListViewItem(listViewNames, lastItem, *it);
@@ -37,17 +37,17 @@ CustomActionImpl::CustomActionImpl() : QWidget(0, 0, Qt::WDestructiveClose) {
 
 void CustomActionImpl::loadAction(const QString& name) {
 
-	checkBoxRefreshAfterAction->setChecked(testFlag(MCR_REFRESH_F, name));
-	checkBoxAskArgs->setChecked(testFlag(MCR_CMD_LINE_F, name));
+	const QString flags(ACT_GROUP_KEY + name + ACT_FLAGS_KEY);
+	checkBoxRefreshAfterAction->setChecked(testFlag(ACT_REFRESH_F, flags));
+	checkBoxAskArgs->setChecked(testFlag(ACT_CMD_LINE_F, flags));
 	QSettings set;
-	textEditAction->setText(set.readEntry(APP_KEY + name + MCR_TEXT_KEY, ""));
+	textEditAction->setText(set.value(ACT_GROUP_KEY + name + ACT_TEXT_KEY, "").toString());
 }
 
 void CustomActionImpl::removeAction(const QString& name) {
 
 	QSettings set;
-	set.removeEntry(APP_KEY + name + FLAGS_KEY);
-	set.removeEntry(APP_KEY + name + MCR_TEXT_KEY);
+	set.remove(ACT_GROUP_KEY + name);
 }
 
 void CustomActionImpl::updateActionList() {
@@ -58,7 +58,8 @@ void CustomActionImpl::updateActionList() {
 		actionList.append(it.current()->text(0));
 		++it;
 	}
-	writeSetting(MCR_LIST_KEY, actionList.join(","));
+	QSettings settings;
+	settings.setValue(ACT_LIST_KEY, actionList);
 	emit listChanged(actionList);
 }
 
@@ -67,7 +68,7 @@ void CustomActionImpl::listViewNames_currentChanged(Q3ListViewItem* item) {
 	bool emptyList = (item == NULL);
 
 	if (!emptyList) {
-		curAction = "Macro " + item->text(0) + "/";
+		curAction = item->text(0);
 		loadAction(curAction);
 		listViewNames->ensureItemVisible(item);
 	} else {
@@ -146,10 +147,15 @@ void CustomActionImpl::pushButtonRemove_clicked() {
 		return;
 
 	removeAction(curAction);
+	Q3ListViewItem* prevItem = item->itemAbove();
 	delete item;
 	updateActionList();
-	if (listViewNames->currentItem())
-		listViewNames->currentItem()->setSelected(true);
+	if (prevItem)
+		listViewNames->setCurrentItem(prevItem);
+	else if (listViewNames->firstChild())
+		listViewNames->setCurrentItem(listViewNames->firstChild());
+	else
+		textEditAction->clear();
 }
 
 void CustomActionImpl::pushButtonMoveUp_clicked() {
@@ -176,20 +182,27 @@ void CustomActionImpl::pushButtonMoveDown_clicked() {
 
 void CustomActionImpl::textEditAction_textChanged() {
 
-	if (!curAction.isEmpty())
-		writeSetting(MCR_TEXT_KEY, textEditAction->text(), curAction);
+	if (!curAction.isEmpty()) {
+		QSettings s;
+		QString key(ACT_GROUP_KEY + curAction + ACT_TEXT_KEY);
+		s.setValue(key, textEditAction->text());
+	}
 }
 
 void CustomActionImpl::checkBoxRefreshAfterAction_toggled(bool b) {
 
-	if (!curAction.isEmpty())
-		setFlag(MCR_REFRESH_F, b, curAction);
+	if (!curAction.isEmpty()) {
+		QString flags(ACT_GROUP_KEY + curAction + ACT_FLAGS_KEY);
+		setFlag(ACT_REFRESH_F, b, flags);
+	}
 }
 
 void CustomActionImpl::checkBoxAskArgs_toggled(bool b) {
 
-	if (!curAction.isEmpty())
-		setFlag(MCR_CMD_LINE_F, b, curAction);
+	if (!curAction.isEmpty()) {
+		QString flags(ACT_GROUP_KEY + curAction + ACT_FLAGS_KEY);
+		setFlag(ACT_CMD_LINE_F, b, flags);
+	}
 }
 
 void CustomActionImpl::pushButtonOk_clicked() {

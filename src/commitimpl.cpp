@@ -75,19 +75,19 @@ CommitImpl::CommitImpl(Git* g) : QWidget(0, 0, Qt::WDestructiveClose), git(g) {
 
 	// read settings
 	QSettings settings;
-	QString tmp = settings.readEntry(APP_KEY + CMT_GEOM_KEY, CMT_GEOM_DEF);
+	QString tmp = settings.readEntry(CMT_GEOM_KEY, CMT_GEOM_DEF);
 	QStringList sl = QStringList::split(',', tmp);
 	QPoint pos(sl[0].toInt(), sl[1].toInt());
 	QSize size(sl[2].toInt(), sl[3].toInt());
 	resize(size);
 	move(pos);
-	tmp = settings.readEntry(APP_KEY + CMT_SPLIT_KEY, CMT_SPLIT_DEF);
+	tmp = settings.readEntry(CMT_SPLIT_KEY, CMT_SPLIT_DEF);
 	sl = QStringList::split(',', tmp);
 	QList<int> sz;
 	sz.append(sl[0].toInt());
 	sz.append(sl[1].toInt());
 	splitter->setSizes(sz);
-	tmp = settings.readEntry(APP_KEY + CMT_TEMPL_KEY, CMT_TEMPL_DEF);
+	tmp = settings.readEntry(CMT_TEMPL_KEY, CMT_TEMPL_DEF);
 	QString msg;
 	QDir d;
 	if (d.exists(tmp))
@@ -142,10 +142,10 @@ CommitImpl::~CommitImpl() {
 	QSettings settings;
 	QString tmp = QString("%1,%2,%3,%4").arg(pos().x()).arg(pos().y())
 	                      .arg(size().width()).arg(size().height());
-	settings.writeEntry(APP_KEY + CMT_GEOM_KEY, tmp);
+	settings.writeEntry(CMT_GEOM_KEY, tmp);
 	QList<int> sz = splitter->sizes();
 	tmp = QString::number(sz[0]) + "," + QString::number(sz[1]);
-	settings.writeEntry(APP_KEY + CMT_SPLIT_KEY, tmp);
+	settings.writeEntry(CMT_SPLIT_KEY, tmp);
 	close();
 }
 
@@ -310,9 +310,8 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 
 void CommitImpl::pushButtonSettings_clicked() {
 
-	SettingsImpl* setView = new SettingsImpl(this, git, 3);
-	setView->exec();
-	// SettingsImpl has Qt::WDestructiveClose, no need to delete
+	SettingsImpl setView(this, git, 3);
+	setView.exec();
 }
 
 void CommitImpl::pushButtonCancel_clicked() {

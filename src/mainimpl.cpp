@@ -110,8 +110,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	longLogRE.setCaseSensitive(false);
 
 	// set-up typewriter (fixed width) font
-	QSettings set;
-	QString font(set.readEntry(APP_KEY + FONT_KEY));
+	QSettings settings;
+	QString font(settings.value(TYPWRT_FNT_KEY).toString());
 	if (font.isEmpty()) { // choose a sensible default
 		QFont fnt = QApplication::font();
 		fnt.setStyleHint(QFont::TypeWriter, QFont::PreferDefault);
@@ -145,8 +145,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 
 	// set-up menu for custom actions
 	connect(Actions, SIGNAL(activated(int)), this, SLOT(customAction_activated(int)));
-	QStringList sl(QStringList::split(",", set.readEntry(APP_KEY + MCR_LIST_KEY, "")));
-	doUpdateCustomActionMenu(sl);
+	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
 
 	// create light and dark colors for alternate background
 	QColor l(rv->tab()->listViewLog->paletteBackgroundColor());
@@ -249,7 +248,7 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 
 	// get external diff viewer
 	QSettings settings;
-	SCRef extDiff(settings.readEntry(APP_KEY + EXT_DIFF_KEY, EXT_DIFF_DEF));
+	SCRef extDiff(settings.readEntry(EXT_DIFF_KEY, EXT_DIFF_DEF));
 
 	QApplication::restoreOverrideCursor();
 
@@ -1042,11 +1041,10 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 		File->removeItemAt(recentRepoMenuPos); // removes also any separator
 
 	QSettings settings;
-	SCRef r(settings.readEntry(APP_KEY + REC_REP_KEY, ""));
-	if (r.isEmpty() && newEntry.isEmpty())
+	QStringList recents(settings.value(REC_REP_KEY).toStringList());
+	if (recents.isEmpty() && newEntry.isEmpty())
 		return;
 
-	QStringList recents(QStringList::split(',', r));
 	QStringList::iterator it = recents.find(newEntry);
 	if (it != recents.end())
 		recents.remove(it);
@@ -1063,7 +1061,7 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 	for (int i = recents.count() - MAX_RECENT_REPOS; i > 0; i--)
 		recents.pop_back();
 
-	settings.writeEntry(APP_KEY + REC_REP_KEY, recents.join(","));
+	settings.setValue(REC_REP_KEY, recents);
 }
 
 void MainImpl::doContexPopup(SCRef sha) {
@@ -1310,14 +1308,14 @@ void MainImpl::ActMailFormatPatch_activated() {
 		return;
 	}
 	QSettings settings;
-	QString outDir(settings.readEntry(APP_KEY + FP_DIR_KEY, curDir));
+	QString outDir(settings.readEntry(PATCH_DIR_KEY, curDir));
 	QString dirPath(Q3FileDialog::getExistingDirectory(outDir, this, "",
 	                "Choose destination directory - Format Patch"));
 	if (dirPath.isEmpty())
 		return;
 
 	QDir d(dirPath);
-	settings.writeEntry(APP_KEY + FP_DIR_KEY, d.absPath());
+	settings.writeEntry(PATCH_DIR_KEY, d.absPath());
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	git->formatPatch(selectedItems, d.absPath());
 	QApplication::restoreOverrideCursor();
@@ -1347,14 +1345,14 @@ bool MainImpl::askApplyPatchParameters(bool* commit, bool* fold) {
 void MainImpl::ActMailApplyPatch_activated() {
 
 	QSettings settings;
-	QString outDir(settings.readEntry(APP_KEY + FP_DIR_KEY, curDir));
+	QString outDir(settings.readEntry(PATCH_DIR_KEY, curDir));
 	QString patchName(Q3FileDialog::getOpenFileName(outDir, NULL, this,
 	                  "", "Choose the patch file - Apply Patch"));
 	if (patchName.isEmpty())
 		return;
 
 	QFileInfo f(patchName);
-	settings.writeEntry(APP_KEY + FP_DIR_KEY, f.dirPath(true));
+	settings.writeEntry(PATCH_DIR_KEY, f.dirPath(true));
 
 	bool commit, fold;
 	if (!askApplyPatchParameters(&commit, &fold))
@@ -1381,8 +1379,8 @@ void MainImpl::ActCheckWorkDir_toggled(bool b) {
 
 void MainImpl::ActSettings_activated() {
 
-	SettingsImpl* setView = new SettingsImpl(this, git);
-	setView->exec(); // modal exec, has Qt::WDestructiveClose
+	SettingsImpl setView(this, git);
+	setView.exec();
 
 	// update ActCheckWorkDir if necessary
 	if (ActCheckWorkDir->isChecked() != testFlag(DIFF_INDEX_F))
@@ -1427,33 +1425,29 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 
 void MainImpl::customAction_activated(int id) {
 
-	const QString name(Actions->text(id));
-	if (name == "Setup actions...")
+	const QString actionName(Actions->text(id));
+	if (actionName == "Setup actions...")
 		return;
 
 	QSettings set;
-	const QStringList sl(QStringList::split(",", set.readEntry(APP_KEY + MCR_LIST_KEY, "")));
-
-	if (sl.findIndex(name) == -1) {
-		dbp("ASSERT in customAction_activated, action %1 not found", name);
+	if (!set.value(ACT_LIST_KEY).toStringList().contains(actionName)) {
+		dbp("ASSERT in customAction_activated, action %1 not found", actionName);
 		return;
 	}
-	const QString header("Macro " + name + "/");
 	QString cmdArgs;
-
-	if (testFlag(MCR_CMD_LINE_F, header)) {
+	if (testFlag(ACT_CMD_LINE_F, ACT_GROUP_KEY + actionName + ACT_FLAGS_KEY)) {
 		bool ok;
 		cmdArgs = QInputDialog::getText("Run action - QGit", "Enter command line "
-		          "arguments for '" + name + "'", QLineEdit::Normal, "", &ok, this);
+		          "arguments for '" + actionName + "'", QLineEdit::Normal, "", &ok, this);
 		cmdArgs.prepend(' ');
 		if (!ok)
 			return;
 	}
-	SCRef cmd = set.readEntry(APP_KEY + header + MCR_TEXT_KEY, "");
+	SCRef cmd = set.value(ACT_GROUP_KEY + actionName + ACT_TEXT_KEY).toString();
 	if (cmd.isEmpty())
 		return;
 
-	ConsoleImpl* c = new ConsoleImpl(name, git); // has Qt::WDestructiveClose
+	ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WDestructiveClose
 
 	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
 
@@ -1466,8 +1460,8 @@ void MainImpl::customAction_activated(int id) {
 
 void MainImpl::customAction_exited(const QString& name) {
 
-	const QString header("Macro " + name + "/");
-	if (testFlag(MCR_REFRESH_F, header))
+	const QString flags(ACT_GROUP_KEY + name + ACT_FLAGS_KEY);
+	if (testFlag(ACT_REFRESH_F, flags))
 		QTimer::singleShot(10, this, SLOT(refreshRepo())); // outside of event handler
 }
 

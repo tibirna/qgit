@@ -32,7 +32,7 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl
 	comboBoxFrom->insertItems(0, otl);
 	comboBoxFrom->setFocus();
 
-	int f = flags();
+	int f = flags(FLAGS_KEY);
 	checkBoxDiffCache->setChecked(f & DIFF_INDEX_F);
 	checkBoxShowAll->setChecked(f & ALL_BRANCHES_F);
 	checkBoxShowWholeHistory->setChecked(f & WHOLE_HISTORY_F);

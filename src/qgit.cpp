@@ -8,16 +8,20 @@
 #include "common.h"
 #include "mainimpl.h"
 
+using namespace QGit;
+
 int main(int argc, char* argv[]) {
 
 	QApplication app(argc, argv);
-	QGit::initMimePix();
+	QCoreApplication::setOrganizationName(ORG_KEY);
+	QCoreApplication::setApplicationName(APP_KEY);
+	initMimePix();
 
 	MainImpl* mainWin = new MainImpl;
 	mainWin->show();
 	QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
 	bool ret = app.exec();
 
-	QGit::freeMimePix();
+	freeMimePix();
 	return ret;
 }

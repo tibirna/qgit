@@ -6,16 +6,10 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qlineedit.h>
-#include <qcheckbox.h>
-#include <qtabwidget.h>
-#include <qcombobox.h>
-#include <qpushbutton.h>
-#include <qtextcodec.h>
-#include <q3textedit.h>
-#include <q3filedialog.h>
-#include <qsettings.h>
-#include <qfontdialog.h>
+#include <QTextCodec>
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QSettings>
 #include "common.h"
 #include "git.h"
 #include "settingsimpl.h"
@@ -28,27 +22,26 @@ By default, there are two entries in the search path:
    2. $HOME/.qt/ - where $HOME is the user's home directory.
 */
 
-const char* SettingsImpl::en[] = {"Latin1", "Big5 -- Chinese", "EUC-JP -- Japanese",
-	"EUC-KR -- Korean", "GB2312 -- Chinese", "GBK -- Chinese",
-	"ISO-2022-JP -- Japanese", "Shift_JIS -- Japanese", "UTF-8 -- Unicode, 8-bit",
+const char* SettingsImpl::en[] = { "Latin1", "Big5 -- Chinese", "EUC-JP -- Japanese",
+	"EUC-KR -- Korean", "GB18030 -- Chinese", "ISO-2022-JP -- Japanese",
+	"Shift_JIS -- Japanese", "UTF-8 -- Unicode, 8-bit",
 	"KOI8-R -- Russian", "KOI8-U -- Ukrainian", "ISO-8859-1 -- Western",
 	"ISO-8859-2 -- Central European", "ISO-8859-3 -- Central European",
 	"ISO-8859-4 -- Baltic", "ISO-8859-5 -- Cyrillic", "ISO-8859-6 -- Arabic",
 	"ISO-8859-7 -- Greek", "ISO-8859-8 -- Hebrew, visually ordered",
 	"ISO-8859-8-i -- Hebrew, logically ordered", "ISO-8859-9 -- Turkish",
-	"ISO-8859-10", "ISO-8859-13", "ISO-8859-14", "ISO-8859-15 -- Western", "CP 850",
-	"IBM 866", "CP 874", "windows-1250 -- Central European", "windows-1251 -- Cyrillic",
+	"ISO-8859-10", "ISO-8859-13", "ISO-8859-14", "ISO-8859-15 -- Western",
+	"windows-1250 -- Central European", "windows-1251 -- Cyrillic",
 	"windows-1252 -- Western", "windows-1253 -- Greek", "windows-1254 -- Turkish",
 	"windows-1255 -- Hebrew", "windows-1256 -- Arabic", "windows-1257 -- Baltic",
-	"windows-1258", 0};
+	"windows-1258", 0 };
 
 using namespace QGit;
 
-SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) :
-              QDialog(p, "", true, Qt::WDestructiveClose), git(g) {
+SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) {
 
 	setupUi(this);
-	int f = flags();
+	int f = flags(FLAGS_KEY);
 	checkBoxDiffCache->setChecked(f & DIFF_INDEX_F);
 	checkBoxNumbers->setChecked(f & NUMBERS_F);
 	checkBoxSign->setChecked(f & SIGN_PATCH_F);
@@ -58,12 +51,12 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) :
 	checkBoxRelativeDate->setChecked(f & REL_DATE_F);
 
 	QSettings set;
-	SCRef FPArgs(set.readEntry(APP_KEY + FPATCH_ARGS_KEY, ""));
-	SCRef extDiff(set.readEntry(APP_KEY + EXT_DIFF_KEY, EXT_DIFF_DEF));
-	SCRef exFile(set.readEntry(APP_KEY + EX_KEY, EX_DEF));
-	SCRef exPDir(set.readEntry(APP_KEY + EX_PER_DIR_KEY, EX_PER_DIR_DEF));
-	SCRef tmplt(set.readEntry(APP_KEY + CMT_TEMPL_KEY, CMT_TEMPL_DEF));
-	SCRef CMArgs(set.readEntry(APP_KEY + CMT_ARGS_KEY, ""));
+	SCRef FPArgs(set.readEntry(PATCH_ARGS_KEY, ""));
+	SCRef extDiff(set.readEntry(EXT_DIFF_KEY, EXT_DIFF_DEF));
+	SCRef exFile(set.readEntry(EX_KEY, EX_DEF));
+	SCRef exPDir(set.readEntry(EX_PER_DIR_KEY, EX_PER_DIR_DEF));
+	SCRef tmplt(set.readEntry(CMT_TEMPL_KEY, CMT_TEMPL_DEF));
+	SCRef CMArgs(set.readEntry(CMT_ARGS_KEY, ""));
 
 	lineEditExtraOptions->setText(FPArgs);
 	lineEditExternalDiffViewer->setText(extDiff);
@@ -72,10 +65,17 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) :
 	lineEditTemplate->setText(tmplt);
 	lineEditCommitExtraOptions->setText(CMArgs);
 	lineEditTypeWriterFont->setText(TYPE_WRITER_FONT.toString());
+	lineEditTypeWriterFont->setCursorPosition(0); // font description could be long
 
 	setupCodecsCombo();
 	checkBoxDiffCache_toggled(checkBoxDiffCache->isChecked());
 	tabDialog->setCurrentPage(defTab);
+}
+
+void SettingsImpl::writeSetting(const QString& key, const QVariant& value) {
+
+	QSettings settings;
+	settings.setValue(key, value);
 }
 
 void SettingsImpl::setupCodecList(QStringList& list) {
@@ -87,11 +87,11 @@ void SettingsImpl::setupCodecList(QStringList& list) {
 
 void SettingsImpl::setupCodecsCombo() {
 
-	const QString localCodec(QTextCodec::codecForLocale()->mimeName());
+	const QString localCodec(QTextCodec::codecForLocale()->name());
 	QStringList codecs;
 	codecs.append(QString("Local Codec (" + localCodec + ")"));
 	setupCodecList(codecs);
-	comboBoxCodecs->insertStringList(codecs);
+	comboBoxCodecs->insertItems(0, codecs);
 
 	bool isGitArchive;
 	QTextCodec* tc = git->getTextCodec(&isGitArchive);
@@ -99,24 +99,21 @@ void SettingsImpl::setupCodecsCombo() {
 		comboBoxCodecs->setEnabled(false);
 		return;
 	}
-	const QString curCodec((tc == 0) ? "Latin1" : tc->mimeName());
-	if (curCodec == localCodec) {
-		comboBoxCodecs->setCurrentItem(0);
-		return;
+	const QString curCodec(tc != 0 ? tc->name() : "Latin1");
+	QRegExp re("*" + curCodec + "*", Qt::CaseInsensitive, QRegExp::Wildcard);
+	int idx = codecs.indexOf(re);
+	if (idx == -1) {
+		dbp("ASSERT: codec <%1> not available, using local codec", curCodec);
+		idx = 0;
 	}
-	int idx = codecs.findIndex(codecs.grep(curCodec, false).first());
-	if (idx != -1) {
-		comboBoxCodecs->setCurrentItem(idx);
-		return;
-	}
-	dbp("ASSERT: codec <%1> not available, using local codec", curCodec);
-	comboBoxCodecs->setCurrentItem(0);
-	comboBoxCodecs_activated(0);
+	comboBoxCodecs->setCurrentItem(idx);
+	if (idx == 0) // signal activated() will not fire in this case
+		comboBoxCodecs_activated(0);
 }
 
 void SettingsImpl::comboBoxCodecs_activated(int idx) {
 
-	QString codecName(QTextCodec::codecForLocale()->mimeName());
+	QString codecName(QTextCodec::codecForLocale()->name());
 	if (idx != 0)
 		codecName = comboBoxCodecs->currentText().section(" --", 0, 0);
 
@@ -125,8 +122,8 @@ void SettingsImpl::comboBoxCodecs_activated(int idx) {
 
 void SettingsImpl::pushButtonExtDiff_clicked() {
 
-	QString extDiffName(Q3FileDialog::getOpenFileName("", NULL, this, "",
-	                    "Choose the diff viewer - External diff viewer"));
+	QString extDiffName(QFileDialog::getOpenFileName(this,
+	                    "Select the patch viewer"));
 	if (!extDiffName.isEmpty())
 		lineEditExternalDiffViewer->setText(extDiffName);
 }
@@ -138,7 +135,8 @@ void SettingsImpl::pushButtonFont_clicked() {
 	if (ok) {
 		TYPE_WRITER_FONT = fnt;
 		lineEditTypeWriterFont->setText(fnt.toString());
-		writeSetting(FONT_KEY, fnt.toString());
+		lineEditTypeWriterFont->setCursorPosition(0);
+		writeSetting(TYPWRT_FNT_KEY, fnt.toString());
 	}
 }
 
@@ -186,7 +184,7 @@ void SettingsImpl::lineEditExternalDiffViewer_textChanged(const QString& s) {
 
 void SettingsImpl::lineEditExtraOptions_textChanged(const QString& s) {
 
-	writeSetting(FPATCH_ARGS_KEY, s);
+	writeSetting(PATCH_ARGS_KEY, s);
 }
 
 void SettingsImpl::lineEditExcludeFile_textChanged(const QString& s) {

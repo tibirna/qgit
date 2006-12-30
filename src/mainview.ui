@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>MainBase</class>
  <widget class="QMainWindow" name="MainBase" >
   <property name="geometry" >
@@ -81,9 +78,49 @@
      <x>0</x>
      <y>0</y>
      <width>975</width>
-     <height>28</height>
+     <height>29</height>
     </rect>
    </property>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="ActCommit" />
+    <addaction name="ActTag" />
+    <addaction name="ActTagDelete" />
+    <addaction name="ActPush" />
+    <addaction name="ActPop" />
+    <addaction name="separator" />
+    <addaction name="ActFind" />
+    <addaction name="ActFindNext" />
+    <addaction name="separator" />
+    <addaction name="ActSettings" />
+   </widget>
+   <widget class="QMenu" name="View" >
+    <property name="title" >
+     <string>&amp;View</string>
+    </property>
+    <addaction name="ActBack" />
+    <addaction name="ActForward" />
+    <addaction name="separator" />
+    <addaction name="ActCheckWorkDir" />
+    <addaction name="separator" />
+    <addaction name="ActViewRev" />
+    <addaction name="ActViewDiff" />
+    <addaction name="ActViewDiffNewTab" />
+    <addaction name="ActViewFile" />
+    <addaction name="ActViewFileNewTab" />
+    <addaction name="ActExternalDiff" />
+    <addaction name="ActShowTree" />
+    <addaction name="ActSplitView" />
+    <addaction name="ActFilterTree" />
+   </widget>
+   <widget class="QMenu" name="Actions" >
+    <property name="title" >
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="ActCustomActionSetup" />
+   </widget>
    <widget class="QMenu" name="Help" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -104,46 +141,6 @@
     <addaction name="separator" />
     <addaction name="ActClose" />
     <addaction name="ActExit" />
-   </widget>
-   <widget class="QMenu" name="Edit" >
-    <property name="title" >
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="ActCommit" />
-    <addaction name="ActTag" />
-    <addaction name="ActTagDelete" />
-    <addaction name="ActPush" />
-    <addaction name="ActPop" />
-    <addaction name="separator" />
-    <addaction name="ActFind" />
-    <addaction name="ActFindNext" />
-    <addaction name="separator" />
-    <addaction name="ActSettings" />
-   </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
-     <string>&amp;Actions</string>
-    </property>
-    <addaction name="ActCustomActionSetup" />
-   </widget>
-   <widget class="QMenu" name="View" >
-    <property name="title" >
-     <string>&amp;View</string>
-    </property>
-    <addaction name="ActBack" />
-    <addaction name="ActForward" />
-    <addaction name="separator" />
-    <addaction name="ActCheckWorkDir" />
-    <addaction name="separator" />
-    <addaction name="ActViewRev" />
-    <addaction name="ActViewDiff" />
-    <addaction name="ActViewDiffNewTab" />
-    <addaction name="ActViewFile" />
-    <addaction name="ActViewFileNewTab" />
-    <addaction name="ActExternalDiff" />
-    <addaction name="ActShowTree" />
-    <addaction name="ActSplitView" />
-    <addaction name="ActFilterTree" />
    </widget>
    <addaction name="File" />
    <addaction name="Edit" />
@@ -217,6 +214,9 @@
    </property>
   </action>
   <action name="ActSettings" >
+   <property name="icon" >
+    <iconset resource="icons.qrc" >:/icons/resources/configure.png</iconset>
+   </property>
    <property name="text" >
     <string>&amp;Settings...</string>
    </property>
@@ -634,14 +634,11 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
  <customwidgets>
   <customwidget>
    <class>Q3ListView</class>
    <extends>Q3Frame</extends>
    <header>q3listview.h</header>
-   <container>0</container>
-   <pixmap></pixmap>
   </customwidget>
  </customwidgets>
  <resources>

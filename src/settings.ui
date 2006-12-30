@@ -1,720 +1,991 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>settingsBase</class>
-  <widget class="QDialog" name="settingsBase" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>421</width>
-        <height>354</height>
-      </rect>
-    </property>
-    <property name="sizePolicy" >
-      <sizepolicy>
-        <hsizetype>5</hsizetype>
-        <vsizetype>5</vsizetype>
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-      </sizepolicy>
-    </property>
-    <property name="windowTitle" >
-      <string>Settings</string>
-    </property>
-    <property name="windowIcon" >
-      <pixmap>image0</pixmap>
-    </property>
-    <property name="sizeGripEnabled" >
-      <bool>false</bool>
-    </property>
-    <property name="modal" >
-      <bool>true</bool>
-    </property>
-    <layout class="QHBoxLayout" >
-      <property name="margin" >
-        <number>2</number>
-      </property>
-      <property name="spacing" >
-        <number>2</number>
-      </property>
-      <item>
-        <layout class="QVBoxLayout" >
-          <property name="margin" >
+<ui version="4.0" >
+ <class>settingsBase</class>
+ <widget class="QDialog" name="settingsBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>505</width>
+    <height>321</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>5</hsizetype>
+    <vsizetype>5</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>Settings</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="icons.qrc" >:/icons/resources/configure.png</iconset>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>false</bool>
+  </property>
+  <property name="modal" >
+   <bool>true</bool>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="margin" >
+    <number>5</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QTabWidget" name="tabDialog" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="General" >
+        <attribute name="title" >
+         <string>&amp;General</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>5</number>
+           </property>
+           <property name="spacing" >
             <number>0</number>
-          </property>
-          <item>
-            <widget class="QTabWidget" name="tabDialog" >
-              <widget class="QWidget" name="General" >
-                <attribute name="title" >
-                  <string>&amp;General</string>
-                </attribute>
-                <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <layout class="QVBoxLayout" >
-                      <property name="spacing" >
-                        <number>15</number>
-                      </property>
-                      <property name="margin" >
-                        <number>0</number>
-                      </property>
-                      <item>
-                        <widget class="Q3ButtonGroup" name="buttonGroupPatch_2" >
-                          <property name="title" >
-                            <string/>
-                          </property>
-                          <layout class="QHBoxLayout" >
-                            <property name="margin" >
-                              <number>0</number>
-                            </property>
-                            <item>
-                              <layout class="QVBoxLayout" >
-                                <property name="margin" >
-                                  <number>0</number>
-                                </property>
-                                <item>
-                                  <widget class="QCheckBox" name="checkBoxRelativeDate" >
-                                    <property name="text" >
-                                      <string>Relati&amp;ve time in date column</string>
-                                    </property>
-                                    <property name="shortcut" >
-                                      <string>Alt+V</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0" >
-                                      <string>Check to see commit author date as relative time from now</string>
-                                    </property>
-                                  </widget>
-                                </item>
-                                <item>
-                                  <widget class="QCheckBox" name="checkBoxRangeSelectDialog" >
-                                    <property name="text" >
-                                      <string>Show range select when opening a repositor&amp;y</string>
-                                    </property>
-                                    <property name="shortcut" >
-                                      <string>Alt+Y</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0" >
-                                      <string>Check to view range select dialog at repository opening</string>
-                                    </property>
-                                  </widget>
-                                </item>
-                              </layout>
-                            </item>
-                          </layout>
-                        </widget>
-                      </item>
-                      <item>
-                        <layout class="QVBoxLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item>
-                            <widget class="QLabel" name="textLabelTypewriterFont" >
-                              <property name="sizePolicy" >
-                                <sizepolicy>
-                                  <hsizetype>5</hsizetype>
-                                  <vsizetype>0</vsizetype>
-                                  <horstretch>0</horstretch>
-                                  <verstretch>0</verstretch>
-                                </sizepolicy>
-                              </property>
-                              <property name="text" >
-                                <string>Fixed width font</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditTypewriterFont</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <layout class="QHBoxLayout" >
-                              <property name="margin" >
-                                <number>0</number>
-                              </property>
-                              <item>
-                                <widget class="QLineEdit" name="lineEditTypeWriterFont" >
-                                  <property name="readOnly" >
-                                    <bool>true</bool>
-                                  </property>
-                                  <property name="toolTip" stdset="0" >
-                                    <string>Typewriter (fixed width) font used by patch and file viewers</string>
-                                  </property>
-                                </widget>
-                              </item>
-                              <item>
-                                <widget class="QPushButton" name="pushButtonFont" >
-                                  <property name="text" >
-                                    <string>...</string>
-                                  </property>
-                                  <property name="shortcut" >
-                                    <string/>
-                                  </property>
-                                  <property name="toolTip" stdset="0" >
-                                    <string>Choose font</string>
-                                  </property>
-                                </widget>
-                              </item>
-                            </layout>
-                          </item>
-                        </layout>
-                      </item>
-                      <item>
-                        <layout class="QVBoxLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item>
-                            <widget class="QLabel" name="textLabelExternalDiffViewer" >
-                              <property name="sizePolicy" >
-                                <sizepolicy>
-                                  <hsizetype>5</hsizetype>
-                                  <vsizetype>0</vsizetype>
-                                  <horstretch>0</horstretch>
-                                  <verstretch>0</verstretch>
-                                </sizepolicy>
-                              </property>
-                              <property name="text" >
-                                <string>&amp;External diff viewer</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditExternalDiffViewer</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <layout class="QHBoxLayout" >
-                              <property name="margin" >
-                                <number>0</number>
-                              </property>
-                              <item>
-                                <widget class="QLineEdit" name="lineEditExternalDiffViewer" >
-                                  <property name="toolTip" stdset="0" >
-                                    <string>Set path of the external diff viewer</string>
-                                  </property>
-                                </widget>
-                              </item>
-                              <item>
-                                <widget class="QPushButton" name="pushButtonExtDiff" >
-                                  <property name="text" >
-                                    <string>...</string>
-                                  </property>
-                                  <property name="shortcut" >
-                                    <string/>
-                                  </property>
-                                  <property name="toolTip" stdset="0" >
-                                    <string>Browse directories</string>
-                                  </property>
-                                </widget>
-                              </item>
-                            </layout>
-                          </item>
-                        </layout>
-                      </item>
-                      <item>
-                        <layout class="QVBoxLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item>
-                            <widget class="QLabel" name="textLabelCodecs" >
-                              <property name="sizePolicy" >
-                                <sizepolicy>
-                                  <hsizetype>5</hsizetype>
-                                  <vsizetype>0</vsizetype>
-                                  <horstretch>0</horstretch>
-                                  <verstretch>0</verstretch>
-                                </sizepolicy>
-                              </property>
-                              <property name="text" >
-                                <string>Te&amp;xt codec</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>comboBoxCodecs</cstring>
-                              </property>
-                              <property name="toolTip" stdset="0" >
-                                <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <widget class="QComboBox" name="comboBoxCodecs" >
-                              <property name="toolTip" stdset="0" >
-                                <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
-                              </property>
-                            </widget>
-                          </item>
-                        </layout>
-                      </item>
-                    </layout>
-                  </item>
-                </layout>
-              </widget>
-              <widget class="QWidget" name="Patch" >
-                <attribute name="title" >
-                  <string>Patc&amp;h</string>
-                </attribute>
-                <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <layout class="QVBoxLayout" >
-                      <property name="margin" >
-                        <number>0</number>
-                      </property>
-                      <item>
-                        <widget class="Q3ButtonGroup" name="buttonGroupPatch" >
-                          <property name="title" >
-                            <string/>
-                          </property>
-                          <layout class="QHBoxLayout" >
-                            <property name="margin" >
-                              <number>0</number>
-                            </property>
-                            <item>
-                              <layout class="QVBoxLayout" >
-                                <property name="margin" >
-                                  <number>0</number>
-                                </property>
-                                <item>
-                                  <widget class="QCheckBox" name="checkBoxNumbers" >
-                                    <property name="text" >
-                                      <string>Num&amp;bered patches</string>
-                                    </property>
-                                    <property name="shortcut" >
-                                      <string>Alt+B</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0" >
-                                      <string>Check to see patch numbers on patch series header</string>
-                                    </property>
-                                  </widget>
-                                </item>
-                                <item>
-                                  <widget class="QCheckBox" name="checkBoxSign" >
-                                    <property name="text" >
-                                      <string>&amp;Sign off patch</string>
-                                    </property>
-                                    <property name="shortcut" >
-                                      <string>Alt+S</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0" >
-                                      <string>Check to add a 'Signed-off-by:' line if not already existent</string>
-                                    </property>
-                                  </widget>
-                                </item>
-                              </layout>
-                            </item>
-                          </layout>
-                        </widget>
-                      </item>
-                      <item>
-                        <layout class="QHBoxLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item>
-                            <widget class="QLabel" name="textLabelDiffTreeArgs" >
-                              <property name="text" >
-                                <string>&amp;Extra options</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditExtraOptions</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <widget class="QLineEdit" name="lineEditExtraOptions" >
-                              <property name="toolTip" stdset="0" >
-                                <string>Extra options to pass to git format-patch-script</string>
-                              </property>
-                            </widget>
-                          </item>
-                        </layout>
-                      </item>
-                    </layout>
-                  </item>
-                </layout>
-              </widget>
-              <widget class="QWidget" name="WorkingDir" >
-                <attribute name="title" >
-                  <string>&amp;Working dir</string>
-                </attribute>
-                <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <layout class="QVBoxLayout" >
-                      <property name="margin" >
-                        <number>0</number>
-                      </property>
-                      <item>
-                        <widget class="Q3ButtonGroup" name="buttonGroup5" >
-                          <property name="title" >
-                            <string/>
-                          </property>
-                          <layout class="QHBoxLayout" >
-                            <property name="margin" >
-                              <number>0</number>
-                            </property>
-                            <item>
-                              <widget class="QCheckBox" name="checkBoxDiffCache" >
-                                <property name="text" >
-                                  <string>Diff again&amp;st working dir</string>
-                                </property>
-                                <property name="shortcut" >
-                                  <string>Alt+S</string>
-                                </property>
-                                <property name="toolTip" stdset="0" >
-                                  <string>Check to see git status. You need this to commit changes</string>
-                                </property>
-                              </widget>
-                            </item>
-                          </layout>
-                        </widget>
-                      </item>
-                      <item>
-                        <layout class="QGridLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item row="1" column="1" >
-                            <widget class="QLineEdit" name="lineEditExcludePerDir" >
-                              <property name="toolTip" stdset="0" >
-                                <string>Exclude patterns file that apply only to the
-	directory and its subdirectories</string>
-                              </property>
-                            </widget>
-                          </item>
-                          <item row="0" column="1" >
-                            <widget class="QLineEdit" name="lineEditExcludeFile" >
-                              <property name="toolTip" stdset="0" >
-                                <string>Exclude patterns are read from this file one per line</string>
-                              </property>
-                            </widget>
-                          </item>
-                          <item row="1" column="0" >
-                            <widget class="QLabel" name="textLabelExcludePerDir" >
-                              <property name="text" >
-                                <string>E&amp;xc. per dir</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditExcludePerDir</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item row="0" column="0" >
-                            <widget class="QLabel" name="textLabelExcludeFile" >
-                              <property name="text" >
-                                <string>&amp;Exc. file path</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditExcludeFile</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                        </layout>
-                      </item>
-                    </layout>
-                  </item>
-                </layout>
-              </widget>
-              <widget class="QWidget" name="Commit" >
-                <attribute name="title" >
-                  <string>&amp;Commit</string>
-                </attribute>
-                <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <layout class="QVBoxLayout" >
-                      <property name="margin" >
-                        <number>0</number>
-                      </property>
-                      <item>
-                        <widget class="Q3ButtonGroup" name="buttonGroup6" >
-                          <property name="title" >
-                            <string/>
-                          </property>
-                          <layout class="QHBoxLayout" >
-                            <property name="margin" >
-                              <number>0</number>
-                            </property>
-                            <item>
-                              <layout class="QVBoxLayout" >
-                                <property name="margin" >
-                                  <number>0</number>
-                                </property>
-                                <item>
-                                  <widget class="QCheckBox" name="checkBoxCommitSign" >
-                                    <property name="text" >
-                                      <string>&amp;Sign off commit</string>
-                                    </property>
-                                    <property name="shortcut" >
-                                      <string>Alt+S</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0" >
-                                      <string>Check to add -s option to git commit-script</string>
-                                    </property>
-                                  </widget>
-                                </item>
-                                <item>
-                                  <widget class="QCheckBox" name="checkBoxCommitVerify" >
-                                    <property name="text" >
-                                      <string>&amp;Verify commit</string>
-                                    </property>
-                                    <property name="shortcut" >
-                                      <string>Alt+V</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0" >
-                                      <string>Check to add -v option to git commit-script</string>
-                                    </property>
-                                  </widget>
-                                </item>
-                              </layout>
-                            </item>
-                          </layout>
-                        </widget>
-                      </item>
-                      <item>
-                        <layout class="QGridLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item row="1" column="0" >
-                            <widget class="QLabel" name="textLabelDiffTreeArgs_2" >
-                              <property name="text" >
-                                <string>&amp;Extra options</string>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditCommitExtraOptions</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item row="0" column="1" >
-                            <widget class="QLineEdit" name="lineEditTemplate" >
-                              <property name="toolTip" stdset="0" >
-                                <string>Commit message template file</string>
-                              </property>
-                            </widget>
-                          </item>
-                          <item row="1" column="1" >
-                            <widget class="QLineEdit" name="lineEditCommitExtraOptions" >
-                              <property name="toolTip" stdset="0" >
-                                <string>Extra options to pass to git commit-script</string>
-                              </property>
-                            </widget>
-                          </item>
-                          <item row="0" column="0" >
-                            <widget class="QLabel" name="textLabelTemplate" >
-                              <property name="text" >
-                                <string>Ms&amp;g template</string>
-                              </property>
-                              <property name="textFormat" >
-                                <enum>Qt::PlainText</enum>
-                              </property>
-                              <property name="buddy" stdset="0" >
-                                <cstring>lineEditTemplate</cstring>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                        </layout>
-                      </item>
-                    </layout>
-                  </item>
-                </layout>
-              </widget>
-            </widget>
-          </item>
-          <item>
-            <layout class="QHBoxLayout" >
+           </property>
+           <item>
+            <widget class="QFrame" name="frame" >
+             <property name="frameShape" >
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" >
               <property name="margin" >
-                <number>0</number>
+               <number>2</number>
               </property>
               <property name="spacing" >
-                <number>6</number>
+               <number>0</number>
               </property>
               <item>
-                <spacer name="Horizontal Spacing2" >
-                  <property name="sizeHint" >
-                    <size>
-                      <width>202</width>
-                      <height>20</height>
-                    </size>
-                  </property>
-                  <property name="sizeType" >
-                    <enum>Expanding</enum>
-                  </property>
-                  <property name="orientation" >
-                    <enum>Horizontal</enum>
-                  </property>
-                </spacer>
-              </item>
-              <item>
-                <widget class="QPushButton" name="buttonOk" >
-                  <property name="minimumSize" >
-                    <size>
-                      <width>80</width>
-                      <height>0</height>
-                    </size>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>5</number>
+                </property>
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxRelativeDate" >
+                  <property name="toolTip" >
+                   <string>Check to see commit author date as relative time from now</string>
                   </property>
                   <property name="text" >
-                    <string>O&amp;K</string>
+                   <string>Relati&amp;ve time in date column</string>
                   </property>
                   <property name="shortcut" >
-                    <string>Alt+K</string>
+                   <string>Alt+V</string>
                   </property>
-                  <property name="autoDefault" >
-                    <bool>false</bool>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxRangeSelectDialog" >
+                  <property name="toolTip" >
+                   <string>Check to view range select dialog at repository opening</string>
                   </property>
-                  <property name="default" >
-                    <bool>false</bool>
+                  <property name="text" >
+                   <string>Show range select when opening a repositor&amp;y</string>
                   </property>
-                </widget>
+                  <property name="shortcut" >
+                   <string>Alt+Y</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>21</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>5</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="1" column="2" >
+              <widget class="QPushButton" name="pushButtonExtDiff" >
+               <property name="maximumSize" >
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip" >
+                <string>Browse directories</string>
+               </property>
+               <property name="text" >
+                <string>...</string>
+               </property>
+               <property name="shortcut" >
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QLineEdit" name="lineEditTypeWriterFont" >
+               <property name="toolTip" >
+                <string>Typewriter (fixed width) font used by patch and file viewers</string>
+               </property>
+               <property name="readOnly" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" >
+              <widget class="QLabel" name="textLabelTypewriterFont" >
+               <property name="text" >
+                <string>Fixed width font</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditTypeWriterFont</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QLineEdit" name="lineEditExternalDiffViewer" >
+               <property name="toolTip" >
+                <string>Set path of the external diff viewer</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="textLabelExternalDiffViewer" >
+               <property name="text" >
+                <string>&amp;External patch viewer</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditExternalDiffViewer</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2" >
+              <widget class="QPushButton" name="pushButtonFont" >
+               <property name="maximumSize" >
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip" >
+                <string>Choose font</string>
+               </property>
+               <property name="text" >
+                <string>...</string>
+               </property>
+               <property name="shortcut" >
+                <string/>
+               </property>
+              </widget>
+             </item>
             </layout>
-          </item>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>5</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="textLabelCodecs" >
+               <property name="toolTip" >
+                <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
+               </property>
+               <property name="text" >
+                <string>Te&amp;xt codec</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>comboBoxCodecs</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBoxCodecs" >
+               <property name="sizePolicy" >
+                <sizepolicy>
+                 <hsizetype>5</hsizetype>
+                 <vsizetype>0</vsizetype>
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip" >
+                <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
         </layout>
-      </item>
+       </widget>
+       <widget class="QWidget" name="Patch" >
+        <attribute name="title" >
+         <string>Patc&amp;h</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>5</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="frame_2" >
+             <property name="frameShape" >
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>2</number>
+              </property>
+              <property name="spacing" >
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>5</number>
+                </property>
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxNumbers" >
+                  <property name="toolTip" >
+                   <string>Check to see patch numbers on patch series header</string>
+                  </property>
+                  <property name="text" >
+                   <string>Num&amp;bered patches</string>
+                  </property>
+                  <property name="shortcut" >
+                   <string>Alt+B</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxSign" >
+                  <property name="toolTip" >
+                   <string>Check to add a 'Signed-off-by:' line if not already existent</string>
+                  </property>
+                  <property name="text" >
+                   <string>&amp;Sign off patch</string>
+                  </property>
+                  <property name="shortcut" >
+                   <string>Alt+S</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>5</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="textLabelDiffTreeArgs" >
+               <property name="text" >
+                <string>&amp;Extra options</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditExtraOptions</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditExtraOptions" >
+               <property name="toolTip" >
+                <string>Extra options to pass to git format-patch-script</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="WorkingDir" >
+        <attribute name="title" >
+         <string>&amp;Working dir</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>5</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="frame_3" >
+             <property name="frameShape" >
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>2</number>
+              </property>
+              <property name="spacing" >
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="checkBoxDiffCache" >
+                <property name="toolTip" >
+                 <string>Check to see git status. You need this to commit changes</string>
+                </property>
+                <property name="text" >
+                 <string>Diff again&amp;st working dir</string>
+                </property>
+                <property name="shortcut" >
+                 <string>Alt+S</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>5</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="1" column="1" >
+              <widget class="QLineEdit" name="lineEditExcludePerDir" >
+               <property name="toolTip" >
+                <string>Exclude patterns file that apply only to the
+	directory and its subdirectories</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QLineEdit" name="lineEditExcludeFile" >
+               <property name="toolTip" >
+                <string>Exclude patterns are read from this file one per line</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="textLabelExcludePerDir" >
+               <property name="text" >
+                <string>E&amp;xc. per dir</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditExcludePerDir</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" >
+              <widget class="QLabel" name="textLabelExcludeFile" >
+               <property name="text" >
+                <string>&amp;Exc. file path</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditExcludeFile</cstring>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="Commit" >
+        <attribute name="title" >
+         <string>&amp;Commit</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>5</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="frame_4" >
+             <property name="frameShape" >
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>2</number>
+              </property>
+              <property name="spacing" >
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>5</number>
+                </property>
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxCommitSign" >
+                  <property name="toolTip" >
+                   <string>Check to add -s option to git commit-script</string>
+                  </property>
+                  <property name="text" >
+                   <string>&amp;Sign off commit</string>
+                  </property>
+                  <property name="shortcut" >
+                   <string>Alt+S</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxCommitVerify" >
+                  <property name="toolTip" >
+                   <string>Check to add -v option to git commit-script</string>
+                  </property>
+                  <property name="text" >
+                   <string>&amp;Verify commit</string>
+                  </property>
+                  <property name="shortcut" >
+                   <string>Alt+V</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QGridLayout" >
+             <property name="margin" >
+              <number>5</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="textLabelDiffTreeArgs_2" >
+               <property name="text" >
+                <string>&amp;Extra options</string>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditCommitExtraOptions</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QLineEdit" name="lineEditTemplate" >
+               <property name="toolTip" >
+                <string>Commit message template file</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QLineEdit" name="lineEditCommitExtraOptions" >
+               <property name="toolTip" >
+                <string>Extra options to pass to git commit-script</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" >
+              <widget class="QLabel" name="textLabelTemplate" >
+               <property name="text" >
+                <string>Ms&amp;g template</string>
+               </property>
+               <property name="textFormat" >
+                <enum>Qt::PlainText</enum>
+               </property>
+               <property name="wordWrap" >
+                <bool>false</bool>
+               </property>
+               <property name="buddy" >
+                <cstring>lineEditTemplate</cstring>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>181</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonOk" >
+         <property name="text" >
+          <string>O&amp;K</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+K</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>false</bool>
+         </property>
+         <property name="default" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <images>
-    <image name="image0" >
-      <data format="PNG" length="847" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000031649444154388d85d04b4f5c751c87f1e77fce9973e60093c240196ed35a400b03559b80c601a209a5919026c6a6f505b83271675c9998b847928eae3571a3be80ba20a989095a2fb8d000822222cdd061a6c35ccffdf277d1b4aeaa4ff25dfd92cfe22756573f63783803c81ec3d0bf9f9c1c1d8ee34856ab8dd2f171f956abe57c1a04a125048f73dd80d9d91cf9fcb328aeeb737858c4f3fcb66d7b9f388ed3313979a16b7efef9f19999dc479aa67e0832218440081eef51ea952baf251cc78d1b8d566c18896ff7f78bb5280ae78787cf1abdbddd280a333b3b7fedb8aebfe579214110d06c5a643269c6c6465080cf41ccb65a16dbdbfb148ba5c2e6e6ce0ff57a0b8073e786e8ea32975dd7557ddfc7763c745d6768a81f00656424733d9bcd7ce9fbc1a5288a48268df7e6e62ecfa7529d785e0080a6a9d95ad3ebb42c8766a34d2a65323d3dfaf0a6ebaabdb4b470a15a6d7c512a3df86671f185b72e5e7c8a46c342d3344e4febdc3baedd4f877bcdc5d43a4dc723694d016f3c04f6f6fe3ecce79fcbadac2ce42a95d3dcf878965aad01c408a152a9d468db7166d9bc33ddabd4b76211a2d3faf789fdfd93a1945c9b98384f5f5f37b6ed13c7922088383a2a516fc379737f7440dcbd16f971e838f247d19126bbf0660250d48989977ededd3d88cae55a5e4a34db762997ab388e8b6e76a33ef88ec1e22d06dde2197a8ce596adb79b2727771ba55d2934538a1b37dea5dd6ee338de8a69265f4ea53a262ccb2ba5fb072fdf7ca57b66a45c602838a00fb0cd04472215fef987fa8e65b985961da10108a1904868b72dcbb9dd6cda662c14a73fbef3a2fc65efabd15c239d323a00e89430a6b85a24cdb5ad6d1ddda0a04e4dcd110401711c232548a18703669dd7b33f15dbadd8d6bbf4a58167122a670c48a8a891e46c87afc48afaeafd8a38d1784212811f291f6f6ca2fb92d5d9ab09c1a90b876d4428b9d41b887b3d9d1f3c110050558822d6bede20f41c776dfee94825a9402d40f1023a9528fd9fc023444a0aeb1be01dcbb5c5bca662486a27b075a4fefabf0080a2402c28acff6e7270e2be9feec238a819bf555de5ed7f00ef6178a8ad6a6f920000000049454e44ae426082</data>
-    </image>
-  </images>
-  <connections>
-    <connection>
-      <sender>buttonOk</sender>
-      <signal>clicked()</signal>
-      <receiver>settingsBase</receiver>
-      <slot>close()</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxNumbers</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxNumbers_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>lineEditExtraOptions</sender>
-      <signal>textChanged(QString)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>lineEditExtraOptions_textChanged(QString)</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxDiffCache</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxDiffCache_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>lineEditExcludePerDir</sender>
-      <signal>textChanged(QString)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>lineEditExcludePerDir_textChanged(QString)</slot>
-    </connection>
-    <connection>
-      <sender>lineEditExcludeFile</sender>
-      <signal>textChanged(QString)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>lineEditExcludeFile_textChanged(QString)</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxSign</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxSign_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>lineEditTemplate</sender>
-      <signal>textChanged(QString)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>lineEditTemplate_textChanged(QString)</slot>
-    </connection>
-    <connection>
-      <sender>lineEditCommitExtraOptions</sender>
-      <signal>textChanged(QString)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>lineEditCommitExtraOptions_textChanged(QString)</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxRelativeDate</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxRelativeDate_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxRangeSelectDialog</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxRangeSelectDialog_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>comboBoxCodecs</sender>
-      <signal>activated(int)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>comboBoxCodecs_activated(int)</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxCommitVerify</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxCommitVerify_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxCommitSign</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>checkBoxCommitSign_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>lineEditExternalDiffViewer</sender>
-      <signal>textChanged(QString)</signal>
-      <receiver>settingsBase</receiver>
-      <slot>lineEditExternalDiffViewer_textChanged(QString)</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonExtDiff</sender>
-      <signal>clicked()</signal>
-      <receiver>settingsBase</receiver>
-      <slot>pushButtonExtDiff_clicked()</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonFont</sender>
-      <signal>clicked()</signal>
-      <receiver>settingsBase</receiver>
-      <slot>pushButtonFont_clicked()</slot>
-    </connection>
-  </connections>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>settingsBase</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxNumbers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxNumbers_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditExtraOptions</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>lineEditExtraOptions_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDiffCache</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxDiffCache_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditExcludePerDir</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>lineEditExcludePerDir_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditExcludeFile</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>lineEditExcludeFile_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxSign</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxSign_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditTemplate</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>lineEditTemplate_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditCommitExtraOptions</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>lineEditCommitExtraOptions_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxRelativeDate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxRelativeDate_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxRangeSelectDialog</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxRangeSelectDialog_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxCodecs</sender>
+   <signal>activated(int)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>comboBoxCodecs_activated(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCommitVerify</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxCommitVerify_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCommitSign</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxCommitSign_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditExternalDiffViewer</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>lineEditExternalDiffViewer_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonExtDiff</sender>
+   <signal>clicked()</signal>
+   <receiver>settingsBase</receiver>
+   <slot>pushButtonExtDiff_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonFont</sender>
+   <signal>clicked()</signal>
+   <receiver>settingsBase</receiver>
+   <slot>pushButtonFont_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

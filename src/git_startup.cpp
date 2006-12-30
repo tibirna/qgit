@@ -277,13 +277,13 @@ const QStringList Git::getOthersFiles() {
 
 	QString runCmd("git ls-files --others ");
 	QSettings settings;
-	QString exFile(settings.readEntry(APP_KEY + EX_KEY, EX_DEF));
+	QString exFile(settings.readEntry(EX_KEY, EX_DEF));
 	if (!exFile.isEmpty()) {
 		QString path = (exFile.startsWith("/")) ? exFile : workDir + "/" + exFile;
 		if (QFile::exists(path))
 			runCmd.append(" --exclude-from=" + quote(exFile));
 	}
-	QString exPerDir(settings.readEntry(APP_KEY + EX_PER_DIR_KEY, EX_PER_DIR_DEF));
+	QString exPerDir(settings.readEntry(EX_PER_DIR_KEY, EX_PER_DIR_DEF));
 	if (!exPerDir.isEmpty())
 		runCmd.append(" --exclude-per-directory=" + quote(exPerDir));
 

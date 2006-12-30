@@ -13,7 +13,7 @@
    <string>Range select</string>
   </property>
   <property name="windowIcon" >
-   <iconset/>
+   <iconset resource="icons.qrc" >:/icons/resources/wizard.png</iconset>
   </property>
   <property name="modal" >
    <bool>true</bool>
@@ -329,7 +329,9 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <resources/>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>pushButtonOk</sender>
