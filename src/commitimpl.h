@@ -7,13 +7,9 @@
 #ifndef COMMITIMPL_H
 #define COMMITIMPL_H
 
-#include <q3process.h>
-//Added by qt3to4:
-#include <Q3PopupMenu>
 #include "ui_commit.h"
 #include "common.h"
 
-class Q3PopupMenu;
 class Git;
 
 class CommitImpl : public QWidget, public Ui_CommitBase {
@@ -33,10 +29,12 @@ public slots:
 	void textEditMsg_cursorPositionChanged(int,int);
 
 private slots:
-	void contextMenuPopup(Q3ListViewItem*, const QPoint&, int);
-	void checkUncheck(int);
+	void contextMenuPopup(const QPoint&);
+	void checkAll();
+	void unCheckAll();
 
 private:
+	void checkUncheck(bool checkAll);
 	bool checkFiles(SList selFiles);
 	bool checkMsg(QString& msg);
 	bool checkPatchName(QString& patchName);
@@ -44,10 +42,7 @@ private:
 	void computePosition(int para, int pos, int &col_pos, int &line_pos);
 
 	Git* git;
-	Q3PopupMenu* contextMenu;
 	QString origMsg;
-	int CHECK_ALL;
-	int UNCHECK_ALL;
 };
 
 #endif

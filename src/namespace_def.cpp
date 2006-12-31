@@ -89,8 +89,6 @@ const QString QGit::ACT_TEXT_KEY    = "/commands";
 const QString QGit::ACT_FLAGS_KEY   = "/flags";
 
 // settings default values
-const QString QGit::CMT_GEOM_DEF    = "290,140,495,540";
-const QString QGit::CMT_SPLIT_DEF   = "155,342";
 const QString QGit::CMT_TEMPL_DEF   = ".git/commit-template";
 const QString QGit::EX_DEF          = ".git/info/exclude";
 const QString QGit::EX_PER_DIR_DEF  = ".gitignore";

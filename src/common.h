@@ -211,8 +211,6 @@ namespace QGit {
 	extern const QString ACT_FLAGS_KEY;
 
 	// settings default values
-	extern const QString CMT_GEOM_DEF;
-	extern const QString CMT_SPLIT_DEF;
 	extern const QString CMT_TEMPL_DEF;
 	extern const QString EX_DEF;
 	extern const QString EX_PER_DIR_DEF;

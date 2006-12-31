@@ -12,9 +12,9 @@
 #include "git.h"
 #include "consoleimpl.h"
 
-ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) :
-             QMainWindow(0, 0, Qt::WDestructiveClose), git(g), actionName(nm) {
+ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) : git(g), actionName(nm) {
 
+	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 	textEditOutput->setCurrentFont(QGit::TYPE_WRITER_FONT);
 	QFont f = textLabelCmd->font();

@@ -51,12 +51,12 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxRelativeDate->setChecked(f & REL_DATE_F);
 
 	QSettings set;
-	SCRef FPArgs(set.readEntry(PATCH_ARGS_KEY, ""));
-	SCRef extDiff(set.readEntry(EXT_DIFF_KEY, EXT_DIFF_DEF));
-	SCRef exFile(set.readEntry(EX_KEY, EX_DEF));
-	SCRef exPDir(set.readEntry(EX_PER_DIR_KEY, EX_PER_DIR_DEF));
-	SCRef tmplt(set.readEntry(CMT_TEMPL_KEY, CMT_TEMPL_DEF));
-	SCRef CMArgs(set.readEntry(CMT_ARGS_KEY, ""));
+	SCRef FPArgs(set.value(PATCH_ARGS_KEY).toString());
+	SCRef extDiff(set.value(EXT_DIFF_KEY, EXT_DIFF_DEF).toString());
+	SCRef exFile(set.value(EX_KEY, EX_DEF).toString());
+	SCRef exPDir(set.value(EX_PER_DIR_KEY, EX_PER_DIR_DEF).toString());
+	SCRef tmplt(set.value(CMT_TEMPL_KEY, CMT_TEMPL_DEF).toString());
+	SCRef CMArgs(set.value(CMT_ARGS_KEY).toString());
 
 	lineEditExtraOptions->setText(FPArgs);
 	lineEditExternalDiffViewer->setText(extDiff);

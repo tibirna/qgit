@@ -6,4 +6,4 @@ and stop highlight when closing.(?)
 RFC822-valid Subject lines
 which wrap across multiple text lines.
 
-remove writeEntry, readEntry in settings
+Save consoleimpl sizes

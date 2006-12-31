@@ -248,7 +248,7 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 
 	// get external diff viewer
 	QSettings settings;
-	SCRef extDiff(settings.readEntry(EXT_DIFF_KEY, EXT_DIFF_DEF));
+	SCRef extDiff(settings.value(EXT_DIFF_KEY, EXT_DIFF_DEF).toString());
 
 	QApplication::restoreOverrideCursor();
 
@@ -1308,14 +1308,14 @@ void MainImpl::ActMailFormatPatch_activated() {
 		return;
 	}
 	QSettings settings;
-	QString outDir(settings.readEntry(PATCH_DIR_KEY, curDir));
+	QString outDir(settings.value(PATCH_DIR_KEY, curDir).toString());
 	QString dirPath(Q3FileDialog::getExistingDirectory(outDir, this, "",
 	                "Choose destination directory - Format Patch"));
 	if (dirPath.isEmpty())
 		return;
 
 	QDir d(dirPath);
-	settings.writeEntry(PATCH_DIR_KEY, d.absPath());
+	settings.setValue(PATCH_DIR_KEY, d.absPath());
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	git->formatPatch(selectedItems, d.absPath());
 	QApplication::restoreOverrideCursor();
@@ -1345,14 +1345,14 @@ bool MainImpl::askApplyPatchParameters(bool* commit, bool* fold) {
 void MainImpl::ActMailApplyPatch_activated() {
 
 	QSettings settings;
-	QString outDir(settings.readEntry(PATCH_DIR_KEY, curDir));
+	QString outDir(settings.value(PATCH_DIR_KEY, curDir).toString());
 	QString patchName(Q3FileDialog::getOpenFileName(outDir, NULL, this,
 	                  "", "Choose the patch file - Apply Patch"));
 	if (patchName.isEmpty())
 		return;
 
 	QFileInfo f(patchName);
-	settings.writeEntry(PATCH_DIR_KEY, f.dirPath(true));
+	settings.setValue(PATCH_DIR_KEY, f.dirPath(true));
 
 	bool commit, fold;
 	if (!askApplyPatchParameters(&commit, &fold))
@@ -1447,10 +1447,9 @@ void MainImpl::customAction_activated(int id) {
 	if (cmd.isEmpty())
 		return;
 
-	ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WDestructiveClose
+	ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WA_DeleteOnClose attribute
 
 	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
-
 	connect(c, SIGNAL(customAction_exited(const QString&)),
 	        this, SLOT(customAction_exited(const QString&)));
 
@@ -1467,10 +1466,9 @@ void MainImpl::customAction_exited(const QString& name) {
 
 void MainImpl::ActCommit_activated() {
 
-	CommitImpl* c = new CommitImpl(git); // has WDestructiveClose
-
+	CommitImpl* c = new CommitImpl(git); // has Qt::WA_DeleteOnClose attribute
 	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
-	QObject::connect(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
+	connect(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
 	c->show();
 }
 

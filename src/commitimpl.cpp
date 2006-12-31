@@ -4,27 +4,15 @@
 	Author: Marco Costalba (C) 2005-2006
 
 	Copyright: See COPYING file that comes with this distribution
-
-   Part of this code is taken from Fredrik Kuivinen "Gct"
-   tool. I have just translated from Python to C++
 */
-#include <q3listview.h>
-#include <qsettings.h>
-#include <qlabel.h>
-#include <q3textedit.h>
-#include <qmessagebox.h>
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qsplitter.h>
-#include <qpushbutton.h>
-#include <qinputdialog.h>
-#include <q3popupmenu.h>
-#include <qregexp.h>
-#include <qtooltip.h>
-#include <q3stylesheet.h>
-#include <qtextcodec.h>
-//Added by qt3to4:
-#include <QList>
+#include <QTextCodec>
+#include <QSettings>
+#include <QMenu>
+#include <QRegExp>
+#include <QDir>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QToolTip>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "git.h"
@@ -33,85 +21,62 @@
 
 using namespace QGit;
 
-// ******************************* CheckListFileItem ****************************
-
-class CheckListFileItem: public Q3CheckListItem {
-public:
-	CheckListFileItem(Q3ListView* lv, SCRef file, SCRef status, SCRef index) :
-	                  Q3CheckListItem(lv, file, Q3CheckListItem::CheckBox) {
-
-		setText(1, status);
-		setText(2, index);
-		myColor = Qt::black;
-
-		if (status == NEW || status == UNKNOWN)
-			myColor = Qt::darkGreen;
-
-		else if (status == DELETED)
-			myColor = Qt::red;
-	}
-	virtual void paintCell(QPainter *p, const QColorGroup& cg, int column,
-	                       int width, int alignment) {
-
-		QColorGroup _cg(cg);
-		if (column == 0)
-			_cg.setColor(QColorGroup::Text, myColor);
-
-		Q3CheckListItem::paintCell(p, _cg, column, width, alignment);
-	}
-private:
-	QColor myColor;
-};
-
-// ******************************* CommitImpl ****************************
-
-CommitImpl::CommitImpl(Git* g) : QWidget(0, 0, Qt::WDestructiveClose), git(g) {
+CommitImpl::CommitImpl(Git* g) : git(g) {
 
 	// adjust GUI
+	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
-	listViewFiles->setColumnAlignment(1, Qt::AlignHCenter);
-	listViewFiles->setColumnAlignment(2, Qt::AlignHCenter);
 	textEditMsg->setFont(TYPE_WRITER_FONT);
 
 	// read settings
 	QSettings settings;
-	QString tmp = settings.readEntry(CMT_GEOM_KEY, CMT_GEOM_DEF);
-	QStringList sl = QStringList::split(',', tmp);
-	QPoint pos(sl[0].toInt(), sl[1].toInt());
-	QSize size(sl[2].toInt(), sl[3].toInt());
-	resize(size);
-	move(pos);
-	tmp = settings.readEntry(CMT_SPLIT_KEY, CMT_SPLIT_DEF);
-	sl = QStringList::split(',', tmp);
-	QList<int> sz;
-	sz.append(sl[0].toInt());
-	sz.append(sl[1].toInt());
-	splitter->setSizes(sz);
-	tmp = settings.readEntry(CMT_TEMPL_KEY, CMT_TEMPL_DEF);
+	QRect r(settings.value(CMT_GEOM_KEY).toRect());
+	if (r.isValid()) {
+		resize(r.size());
+		move(r.topLeft());
+	}
+	QSize sz(settings.value(CMT_SPLIT_KEY).toSize());
+	if (sz.isValid()) {
+		QList<int> szList;
+		szList.append(sz.width());
+		szList.append(sz.height());
+		splitter->setSizes(szList);
+	}
+	QString templ(settings.value(CMT_TEMPL_KEY, CMT_TEMPL_DEF).toString());
 	QString msg;
 	QDir d;
-	if (d.exists(tmp))
-		readFromFile(tmp, msg);
+	if (d.exists(templ))
+		readFromFile(templ, msg);
 
 	// set-up files list
 	const RevFile* files = git->getFiles(ZERO_SHA);
 	for (int i = 0; i < files->names.count(); ++i) {
 
-		SCRef lbl(files->isInIndex(i) ? "In sync" : "Out of sync");
+		SCRef status = files->getStatus(i);
+		QColor myColor = Qt::black;
+		if (status == NEW || status == UNKNOWN)
+			myColor = Qt::darkGreen;
+		else if (status == DELETED)
+			myColor = Qt::red;
 
-		CheckListFileItem* item = new CheckListFileItem(listViewFiles,
-		                          git->filePath(*files, i), files->getStatus(i), lbl);
-
-		item->setOn(!files->statusCmp(i, UNKNOWN));
+		QTreeWidgetItem* item = new QTreeWidgetItem(treeWidgetFiles);
+		item->setText(0, git->filePath(*files, i));
+		item->setText(1, status);
+		item->setText(2, files->isInIndex(i) ? "In sync" : "Out of sync");
+		item->setCheckState(0, files->statusCmp(i, UNKNOWN) ? Qt::Unchecked : Qt::Checked);
+		item->setForeground(0, myColor);
+		item->setTextAlignment(1, Qt::AlignHCenter);
+		item->setTextAlignment(2, Qt::AlignHCenter);
 	}
+	treeWidgetFiles->resizeColumnToContents(0);
+	treeWidgetFiles->resizeColumnToContents(1);
+	treeWidgetFiles->resizeColumnToContents(2);
+
 	// setup textEditMsg with default value
 	QString status(git->getDefCommitMsg());
-	if (status != "nothing to commit") { // FIXME: dirty hack!!
-		status.remove("\nnothing to commit", false);
-		msg.append(status);
-	}
-	textEditMsg->setText(msg);
-	textEditMsg->setCursorPosition(0, 0);
+	status.replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment any line
+	msg.append(status);
+	textEditMsg->setPlainText(msg);
 
 	// if message is not changed we avoid calling refresh
 	// to change patch name in stgCommit()
@@ -128,37 +93,36 @@ CommitImpl::CommitImpl(Git* g) : QWidget(0, 0, Qt::WDestructiveClose), git(g) {
 		QToolTip::remove(pushButtonUpdateCache);
 		QToolTip::add(pushButtonUpdateCache, "Refresh top stack patch");
 	}
-	// setup listViewFiles popup
-	contextMenu = new Q3PopupMenu(this); // will be deleted when this is destroyed
-	CHECK_ALL = contextMenu->insertItem("Select All");
-	UNCHECK_ALL = contextMenu->insertItem("Unselect All");
-	connect(contextMenu, SIGNAL(activated(int)), this, SLOT(checkUncheck(int)));
-	connect(listViewFiles, SIGNAL(contextMenuRequested(Q3ListViewItem*, const QPoint&, int)),
-	        this, SLOT(contextMenuPopup(Q3ListViewItem*, const QPoint&, int)));
+	connect(treeWidgetFiles, SIGNAL(customContextMenuRequested(const QPoint&)),
+	        this, SLOT(contextMenuPopup(const QPoint&)));
 }
 
 CommitImpl::~CommitImpl() {
 
 	QSettings settings;
-	QString tmp = QString("%1,%2,%3,%4").arg(pos().x()).arg(pos().y())
-	                      .arg(size().width()).arg(size().height());
-	settings.writeEntry(CMT_GEOM_KEY, tmp);
+	settings.setValue(CMT_GEOM_KEY, QRect(pos(), size()));
 	QList<int> sz = splitter->sizes();
-	tmp = QString::number(sz[0]) + "," + QString::number(sz[1]);
-	settings.writeEntry(CMT_SPLIT_KEY, tmp);
-	close();
+	settings.setValue(CMT_SPLIT_KEY, QSize(sz[0], sz[1]));
 }
 
-void CommitImpl::contextMenuPopup(Q3ListViewItem*, const QPoint& pos, int)  {
+void CommitImpl::contextMenuPopup(const QPoint& pos)  {
 
-	contextMenu->popup(pos);
+	QMenu* contextMenu = new QMenu(this);
+	QAction* a = contextMenu->addAction("Select All");
+	connect(a, SIGNAL(triggered()), this, SLOT(checkAll()));
+	a = contextMenu->addAction("Unselect All");
+	connect(a, SIGNAL(triggered()), this, SLOT(unCheckAll()));
+	contextMenu->popup(mapToGlobal(pos));
 }
 
-void CommitImpl::checkUncheck(int id) {
+void CommitImpl::checkAll() { checkUncheck(true); }
+void CommitImpl::unCheckAll() { checkUncheck(false); }
 
-	Q3ListViewItemIterator it(listViewFiles);
-	while (it.current()) {
-		((Q3CheckListItem*)it.current())->setOn(id == CHECK_ALL);
+void CommitImpl::checkUncheck(bool checkAll) {
+
+	QTreeWidgetItemIterator it(treeWidgetFiles);
+	while (*it) {
+		(*it)->setCheckState(0, checkAll ? Qt::Checked : Qt::Unchecked);
 		++it;
 	}
 }
@@ -167,10 +131,10 @@ bool CommitImpl::checkFiles(SList selFiles) {
 
 	// check for files to commit
 	selFiles.clear();
-	Q3ListViewItemIterator it(listViewFiles);
-	while (it.current()) {
-		if (((Q3CheckListItem*)it.current())->isOn())
-			selFiles.append(it.current()->text(0));
+	QTreeWidgetItemIterator it(treeWidgetFiles);
+	while (*it) {
+		if ((*it)->checkState(0) == Qt::Checked)
+			selFiles.append((*it)->text(0));
 		++it;
 	}
 	if (selFiles.isEmpty())
@@ -210,17 +174,17 @@ bool CommitImpl::checkPatchName(QString& patchName) {
 		return false;
 
 	QString tmp(patchName.simplifyWhiteSpace());
-	if (patchName != tmp.remove(' ')) {
+	if (patchName != tmp.remove(' '))
 		QMessageBox::warning(this, "Create new patch - QGit", "Sorry, control "
 		                     "characters or spaces\n are not allowed in patch name.");
-		return false;
-	}
-	if (git->isPatchName(patchName)) {
+
+	else if (git->isPatchName(patchName))
 		QMessageBox::warning(this, "Create new patch - QGit", "Sorry, patch name "
-			             "already exists.\nPlease choose a different name.");
-		return false;
-	}
-	return true;
+		                     "already exists.\nPlease choose a different name.");
+	else
+		return true;
+
+	return false;
 }
 
 bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles) {
@@ -229,22 +193,28 @@ bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles) {
 	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1
 
 	QString whatToDo = (git->isStGITStack()) ? "create a new patch with" : "commit";
-	QString text(msg);
-	text.replace("\n", "\n\t");
-	text.prepend("Do you want to " + whatToDo + " the following file(s)?\n\n\t" +
-	             selFiles.join("\n\t") +"\n\nwith the message:\n\n\t");
-
+	QString text("Do you want to " + whatToDo + " the following file(s)?\n\n" +
+	             selFiles.join("\n") + "\n\nwith the message:\n\n");
+	text.append(msg);
 	if (git->isStGITStack())
 		text.append("\n\nAnd patch name: " + patchName);
 
-	text = Q3StyleSheet::convertFromPlainText(text);
 	QTextCodec::setCodecForCStrings(tc);
 
-	if (QMessageBox::question(this, "Commit changes - QGit", text, "&Yes",
-	                          "&No", QString(), 0, 1) == 1)
-		return false;
+	int but = QMessageBox::question(this, "Commit changes - QGit",
+	                                text, "&Yes", "&No", QString(), 0, 1);
+	return (but != 1);
+}
 
-	return true;
+void CommitImpl::pushButtonSettings_clicked() {
+
+	SettingsImpl setView(this, git, 3);
+	setView.exec();
+}
+
+void CommitImpl::pushButtonCancel_clicked() {
+
+	close();
 }
 
 void CommitImpl::pushButtonOk_clicked() {
@@ -308,17 +278,6 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 	close();
 }
 
-void CommitImpl::pushButtonSettings_clicked() {
-
-	SettingsImpl setView(this, git, 3);
-	setView.exec();
-}
-
-void CommitImpl::pushButtonCancel_clicked() {
-
-	close();
-}
-
 void CommitImpl::textEditMsg_cursorPositionChanged(int para, int pos) {
 
 	int col_pos, line_pos;
@@ -334,54 +293,54 @@ void CommitImpl::textEditMsg_cursorPositionChanged(int para, int pos) {
 	http://websvn.kde.org/branches/KDE/3.4/kdelibs/kdeui/keditcl1.cpp
 */
 void CommitImpl::computePosition(int line, int col, int &col_pos, int &line_pos) {
-
-	// line is expressed in paragraphs, we now need to convert to lines
-	line_pos = 0;
-	if (textEditMsg->wordWrap() == Q3TextEdit::NoWrap)
-		line_pos = line;
-	else {
-		for (int i = 0; i < line; i++)
-			line_pos += textEditMsg->linesOfParagraph(i);
-	}
-	int line_offset = textEditMsg->lineOfChar(line, col);
-	line_pos += line_offset;
-
-	// We now calculate where the current line starts in the paragraph.
-	const QString linetext(QString::number(line));
-	int start_of_line = 0;
-	if (line_offset > 0) {
-		start_of_line = col;
-		while (textEditMsg->lineOfChar(line, --start_of_line) == line_offset);
-			start_of_line++;
-	}
-	// O.K here is the deal: The function getCursorPositoin returns the character
-	// position of the cursor, not the screenposition. I.e,. assume the line
-	// consists of ab\tc then the character c will be on the screen on position 8
-	// whereas getCursorPosition will return 3 if the cursors is on the character c.
-	// Therefore we need to compute the screen position from the character position.
-	// That's what all the following trouble is all about:
-	int coltemp = col - start_of_line;
-	int pos  = 0;
-	int find = 0;
-	int mem  = 0;
-	bool found_one = false;
-
-	// if you understand the following algorithm you are worthy to look at the
-	// kedit+ sources -- if not, go away ;-)
-	while (find >= 0 && find <= coltemp - 1) {
-		find = linetext.find('\t', find + start_of_line, true) - start_of_line;
-		if (find >=0 && find <= coltemp - 1) {
-			found_one = true;
-			pos = pos + find - mem;
-			pos = pos + 8 - pos % 8;
-			mem = find;
-			find ++;
-		}
-	}
-	// add the number of characters behind the last tab on the line.
-	pos = pos + coltemp - mem;
-	if (found_one)
-		pos = pos - 1;
-
-	col_pos = pos;
+	return;
+// 	// line is expressed in paragraphs, we now need to convert to lines FIXME
+// 	line_pos = 0;
+// 	if (textEditMsg->wordWrap() == Q3TextEdit::NoWrap)
+// 		line_pos = line;
+// 	else {
+// 		for (int i = 0; i < line; i++)
+// 			line_pos += textEditMsg->linesOfParagraph(i);
+// 	}
+// 	int line_offset = textEditMsg->lineOfChar(line, col);
+// 	line_pos += line_offset;
+//
+// 	// We now calculate where the current line starts in the paragraph.
+// 	const QString linetext(QString::number(line));
+// 	int start_of_line = 0;
+// 	if (line_offset > 0) {
+// 		start_of_line = col;
+// 		while (textEditMsg->lineOfChar(line, --start_of_line) == line_offset);
+// 			start_of_line++;
+// 	}
+// 	// O.K here is the deal: The function getCursorPositoin returns the character
+// 	// position of the cursor, not the screenposition. I.e,. assume the line
+// 	// consists of ab\tc then the character c will be on the screen on position 8
+// 	// whereas getCursorPosition will return 3 if the cursors is on the character c.
+// 	// Therefore we need to compute the screen position from the character position.
+// 	// That's what all the following trouble is all about:
+// 	int coltemp = col - start_of_line;
+// 	int pos  = 0;
+// 	int find = 0;
+// 	int mem  = 0;
+// 	bool found_one = false;
+//
+// 	// if you understand the following algorithm you are worthy to look at the
+// 	// kedit+ sources -- if not, go away ;-)
+// 	while (find >= 0 && find <= coltemp - 1) {
+// 		find = linetext.find('\t', find + start_of_line, true) - start_of_line;
+// 		if (find >=0 && find <= coltemp - 1) {
+// 			found_one = true;
+// 			pos = pos + find - mem;
+// 			pos = pos + 8 - pos % 8;
+// 			mem = find;
+// 			find ++;
+// 		}
+// 	}
+// 	// add the number of characters behind the last tab on the line.
+// 	pos = pos + coltemp - mem;
+// 	if (found_one)
+// 		pos = pos - 1;
+//
+// 	col_pos = pos;
 }
