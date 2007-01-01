@@ -38,11 +38,15 @@ Qt::ItemFlags MVCModel::flags(const QModelIndex& index ) const {
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable; // read only
 }
 
-QVariant MVCModel::headerData(int, Qt::Orientation, int) const {
+QVariant MVCModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-/*	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-		return rootItem->data(section);*/
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 
+		QList<QVariant> headerData;
+     		headerData << "Graph" << "Ann id" << "Short Log"
+     		           << "Author" << "Author Date";
+		return headerData[section];
+	}
 	return QVariant();
 }
 
