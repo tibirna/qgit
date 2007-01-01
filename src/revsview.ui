@@ -66,11 +66,6 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>Q3ListView</class>
-   <extends>Q3Frame</extends>
-   <header>q3listview.h</header>
-  </customwidget>
-  <customwidget>
    <class>RevDesc</class>
    <extends>Q3TextBrowser</extends>
    <header>revdesc.h</header>
@@ -84,6 +79,11 @@
    <class>Q3ListBox</class>
    <extends>Q3Frame</extends>
    <header>q3listbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Q3ListView</class>
+   <extends>Q3Frame</extends>
+   <header>q3listview.h</header>
   </customwidget>
  </customwidgets>
  <includes>

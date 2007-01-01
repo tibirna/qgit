@@ -148,10 +148,11 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
 
 	// create light and dark colors for alternate background
-	QColor l(rv->tab()->listViewLog->paletteBackgroundColor());
-	QColor d(int(l.red() * 0.97), int(l.green() * 0.97), int(l.blue() * 0.97));
-	QGit::ODD_LINE_COL = l;
-	QGit::EVEN_LINE_COL = d;
+	QPalette pl(QApplication::palette());
+	pl.setColor(QPalette::AlternateBase, pl.color(QPalette::Base).dark(103));
+	QGit::ODD_LINE_COL = pl.color(QPalette::Base);
+	QGit::EVEN_LINE_COL = pl.color(QPalette::AlternateBase);
+	QApplication::setPalette(pl);
 
 	// manual adjust lineEditSHA width
 	QString tmp;
