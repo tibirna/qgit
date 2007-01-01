@@ -51,6 +51,7 @@
 #include "ui_patchview.h"
 #include "common.h"
 #include "git.h"
+#include "model_view.h"
 #include "listview.h"
 #include "treeview.h"
 #include "patchview.h"
@@ -125,6 +126,10 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	delete tabWdg->currentPage(); // cannot be done in Qt Designer
 	rv = new RevsView(this, git);
 
+	// model view component
+	mvc = new MVC(git, &git->revData, this); // has Qt::WA_DeleteOnClose
+	connect(this, SIGNAL(closeAllWindows()), mvc, SLOT(close()));
+
 	// set-up tab corner widget ('close tab' button)
 	MyPushButton* pb = new MyPushButton(tabWdg);
 	pb->setIcon(QIcon(QString::fromUtf8(":/icons/resources/tab_remove.png")));
@@ -179,6 +184,9 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 }
 
 void MainImpl::initWithEventLoopActive() {
+
+	mvc->show();
+	mvc->raise();
 
 	git->checkEnvironment();
 	setRepository(startUpDir, false, false);
@@ -1658,6 +1666,9 @@ void MainImpl::ActFind_activated() {
 }
 
 void MainImpl::ActHelp_activated() {
+
+	mvc->populate(); // DEBUG
+	return;
 
 	QDialog* dlg = new QDialog();
 	dlg->setAttribute(Qt::WA_DeleteOnClose);

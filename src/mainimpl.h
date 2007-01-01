@@ -29,6 +29,7 @@ class ListViewItem;
 class RevsView;
 class FileView;
 class FileHistory;
+class MVC;
 
 class QComboBox;
 
@@ -144,6 +145,7 @@ private:
 
 	Git* git;
 	RevsView* rv;
+	MVC* mvc;
 
 	// curDir is the repository working dir, could be different from qgit running
 	// directory QDir::current(). Note that qgit could be run from subdirectory

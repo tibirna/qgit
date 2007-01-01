@@ -7,3 +7,5 @@ RFC822-valid Subject lines
 which wrap across multiple text lines.
 
 Save consoleimpl sizes
+Use back and forward icons instead of undo/redo
+
