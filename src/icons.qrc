@@ -6,11 +6,13 @@
         <file>resources/find.png</file>
         <file>resources/folder.png</file>
         <file>resources/folder_open.png</file>
+        <file>resources/help.png</file>
         <file>resources/mail_get.png</file>
         <file>resources/mail_send.png</file>
         <file>resources/misc.png</file>
+        <file>resources/next.png</file>
         <file>resources/openterm.png</file>
-        <file>resources/redo.png</file>
+        <file>resources/previous.png</file>
         <file>resources/reload.png</file>
         <file>resources/shellscript.png</file>
         <file>resources/source_c.png</file>
@@ -22,7 +24,6 @@
         <file>resources/tab_remove.png</file>
         <file>resources/tar.png</file>
         <file>resources/txt.png</file>
-        <file>resources/undo.png</file>
         <file>resources/view_top_bottom.png</file>
         <file>resources/view_tree.png</file>
         <file>resources/wizard.png</file>

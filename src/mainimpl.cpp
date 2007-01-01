@@ -1659,14 +1659,12 @@ void MainImpl::ActFind_activated() {
 
 void MainImpl::ActHelp_activated() {
 
-	// helpInfo is defined in help.h
-	QDialog* dlg = new QDialog(NULL, "", Qt::WDestructiveClose);
-	Ui_HelpBase* helpDlg = new Ui_HelpBase(); // FIXME how to delete helpDlg?
-	helpDlg->setupUi(dlg);
-
+	QDialog* dlg = new QDialog();
+	dlg->setAttribute(Qt::WA_DeleteOnClose);
+	Ui::HelpBase ui;
+	ui.setupUi(dlg);
+	ui.textEditHelp->setHtml(QString::fromLatin1(helpInfo)); // defined in help.h
 	connect(this, SIGNAL(closeAllWindows()), dlg, SLOT(close()));
-
-	helpDlg->textEditHelp->setText(QString::fromLatin1(helpInfo));
 	dlg->show();
 	dlg->raise();
 }

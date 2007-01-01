@@ -1,118 +1,122 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>HelpBase</class>
-  <widget class="QWidget" name="HelpBase" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>618</width>
-        <height>451</height>
-      </rect>
-    </property>
-    <property name="windowTitle" >
-      <string>Help</string>
-    </property>
-    <property name="windowIcon" >
-      <pixmap>image0</pixmap>
-    </property>
-    <layout class="QHBoxLayout" >
-      <property name="margin" >
+<ui version="4.0" >
+ <class>HelpBase</class>
+ <widget class="QWidget" name="HelpBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>631</width>
+    <height>451</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Help</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="icons.qrc" >:/icons/resources/help.png</iconset>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>5</number>
+     </property>
+     <item>
+      <widget class="QSplitter" name="splitter" >
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QTextEdit" name="textEditHelp" >
+        <property name="undoRedoEnabled" >
+         <bool>false</bool>
+        </property>
+        <property name="readOnly" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
         <number>0</number>
-      </property>
-      <property name="spacing" >
-        <number>0</number>
-      </property>
-      <item>
-        <layout class="QVBoxLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <property name="spacing" >
-            <number>0</number>
-          </property>
-          <item>
-            <widget class="Q3TextEdit" name="textEditHelp" >
-              <property name="textFormat" >
-                <enum>Qt::RichText</enum>
-              </property>
-              <property name="readOnly" >
-                <bool>true</bool>
-              </property>
-              <property name="undoRedoEnabled" >
-                <bool>false</bool>
-              </property>
-              <property name="autoFormatting" >
-                <set>Q3TextEdit::AutoAll</set>
-              </property>
-            </widget>
-          </item>
-          <item>
-            <layout class="QHBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <property name="spacing" >
-                <number>6</number>
-              </property>
-              <item>
-                <spacer name="Horizontal Spacing2" >
-                  <property name="sizeHint" >
-                    <size>
-                      <width>20</width>
-                      <height>20</height>
-                    </size>
-                  </property>
-                  <property name="sizeType" >
-                    <enum>Expanding</enum>
-                  </property>
-                  <property name="orientation" >
-                    <enum>Horizontal</enum>
-                  </property>
-                </spacer>
-              </item>
-              <item>
-                <widget class="QPushButton" name="buttonOk" >
-                  <property name="minimumSize" >
-                    <size>
-                      <width>80</width>
-                      <height>0</height>
-                    </size>
-                  </property>
-                  <property name="text" >
-                    <string>O&amp;K</string>
-                  </property>
-                  <property name="shortcut" >
-                    <string>Alt+K</string>
-                  </property>
-                  <property name="autoDefault" >
-                    <bool>true</bool>
-                  </property>
-                  <property name="default" >
-                    <bool>true</bool>
-                  </property>
-                </widget>
-              </item>
-            </layout>
-          </item>
-        </layout>
-      </item>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonOk" >
+         <property name="minimumSize" >
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text" >
+          <string>O&amp;K</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+K</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <images>
-    <image name="image0" >
-      <data format="PNG" length="688" >89504e470d0a1a0a0000000d49484452000000100000001008060000001ff3ff610000027749444154388d7593cb4bd46114869fef771b674653236146b38b433a50d8409097a87fa0695594eedcb970e15e125a86e4c2b6b97095046da459b62c23d418246814532291c95b3a3a3ab7ef3b2d74462a3d7036e7f2bee79c97a338c3ba8624244254044a86d4dc884a9f56a7fe0ddc792a7d0a065d8758535d1105ac6cba1c1448963463f3a36ae25480bbc3526d84c950adc41f770b5dad8a5cbe8031e0ba36cbbf0cafde5b7c5d7512dad0bbf052ed03586500234cb65fd2f1e14770b5a144a158e05a938fb6661ff54145b84e78d663f320968d8b3059eeb3ca635fa896f8c34e8bed3d4d24641109fbd8c8c0cf2d3817b4b97ed947be60b87f3b40b451c72303d257015030d8d92aece714f9a270bec661f700a617e0cb32cc2ce601a80ddaa477207645233008e0740d49c8b189d5f815eb19f06c87950df8b60aeb194017b8d16800985d32bcfdac30e2515d45acb95f428e08d18067d839b4e0f0689ed71f8ef733399e74434bd8cfe29a616a168c1cddbdca052d1275b4016314e9dfffebdbd351a4255c436ad5f07c0a0ada421deb260808384648658b8acc01a00444210246a0b5c9235f8417ef1445ad70ed1382839c8048ca9a1b51e9fd4392c608160a4b816d816bc3ccb243620eb45178361547849dac24d7c69db405a00d635b7b8673012a5e53a5f1db392ed617a90bf2576e75b3848819abc8383faa267e6cda89ddcc61a5a8daa7b9d71ea4a3cd25547fd2bcb19d65294d626ddc9b0070ca3b6943eff477ffe4cd422e7e2b62e3063cde7c04cf01c782a093e7d3826676c54b80f49ef94c2d03d2e759a5c148432e160cf80121b39f65315d95cc95acb132f39900656bee97901689620490d4dab873ea3bff0189ee18bf277514f60000000049454e44ae426082</data>
-    </image>
-  </images>
-  <connections>
-    <connection>
-      <sender>buttonOk</sender>
-      <signal>clicked()</signal>
-      <receiver>HelpBase</receiver>
-      <slot>close()</slot>
-    </connection>
-  </connections>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>HelpBase</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

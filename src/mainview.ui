@@ -56,6 +56,12 @@
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
    </property>
+   <property name="iconSize" >
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
    <attribute name="toolBarArea" >
     <number>4</number>
    </attribute>
@@ -539,7 +545,7 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/redo.png</iconset>
+    <iconset resource="icons.qrc" >:/icons/resources/next.png</iconset>
    </property>
    <property name="text" >
     <string>Forward</string>
@@ -553,7 +559,7 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/undo.png</iconset>
+    <iconset resource="icons.qrc" >:/icons/resources/previous.png</iconset>
    </property>
    <property name="text" >
     <string>Back</string>
