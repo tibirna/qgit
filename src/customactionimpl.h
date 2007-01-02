@@ -9,6 +9,7 @@
 #ifndef CUSTOMACTIONIMPL_H
 #define CUSTOMACTIONIMPL_H
 
+#include <QWidget>
 #include "ui_customaction.h"
 
 class CustomActionImpl : public QWidget, public Ui_CustomActionBase {
@@ -20,7 +21,7 @@ signals:
 	void listChanged(const QStringList&);
 
 protected slots:
-	void listViewNames_currentChanged(Q3ListViewItem*);
+	void listWidgetNames_currentItemChanged(QListWidgetItem*, QListWidgetItem*);
 	void pushButtonNew_clicked();
 	void pushButtonRename_clicked();
 	void pushButtonRemove_clicked();
@@ -32,14 +33,11 @@ protected slots:
 	void pushButtonOk_clicked();
 
 private:
-	void updateActionList();
+	const QStringList actions();
+	void updateActions();
 	bool getNewName(QString& name, const QString& caption);
 	void loadAction(const QString& name);
 	void removeAction(const QString& name);
-
-	QStringList actionList;
-	QString curAction;
 };
 
 #endif
-

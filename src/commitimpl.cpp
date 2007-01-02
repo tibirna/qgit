@@ -74,8 +74,8 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 
 	// setup textEditMsg with default value
 	QString status(git->getDefCommitMsg());
-	status.replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment any line
-	msg.append(status);
+	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	msg.append(status.stripWhiteSpace());
 	textEditMsg->setPlainText(msg);
 
 	// if message is not changed we avoid calling refresh
@@ -146,8 +146,8 @@ bool CommitImpl::checkFiles(SList selFiles) {
 
 bool CommitImpl::checkMsg(QString& msg) {
 
-	msg = textEditMsg->text();
-	msg.remove(QRegExp("\\n\\s*#[^\\n]*")); // strip comments
+	msg = textEditMsg->toPlainText();
+	msg.remove(QRegExp("(^|\\n)\\s*#[^\\n]*")); // strip comments
 	msg.replace(QRegExp("[ \\t\\r\\f\\v]+\\n"), "\n"); // strip line trailing cruft
 	msg = msg.stripWhiteSpace();
 	if (msg.isEmpty()) {
@@ -261,7 +261,7 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 			"&Yes", "&No", QString(), 0, 1) == 1)
 			return;
 
-	QString msg(textEditMsg->text());
+	QString msg(textEditMsg->toPlainText());
 	if (msg == origMsg)
 		msg = ""; // to tell stgCommit() not to refresh patch name
 

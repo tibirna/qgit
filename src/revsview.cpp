@@ -48,7 +48,7 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	treeView = new TreeView(this, git, m()->treeView);
 
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+	        listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));

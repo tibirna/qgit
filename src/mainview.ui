@@ -84,7 +84,7 @@
      <x>0</x>
      <y>0</y>
      <width>975</width>
-     <height>29</height>
+     <height>32</height>
     </rect>
    </property>
    <widget class="QMenu" name="Edit" >
@@ -121,12 +121,6 @@
     <addaction name="ActSplitView" />
     <addaction name="ActFilterTree" />
    </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
-     <string>&amp;Actions</string>
-    </property>
-    <addaction name="ActCustomActionSetup" />
-   </widget>
    <widget class="QMenu" name="Help" >
     <property name="title" >
      <string>&amp;Help</string>
@@ -147,6 +141,12 @@
     <addaction name="separator" />
     <addaction name="ActClose" />
     <addaction name="ActExit" />
+   </widget>
+   <widget class="QMenu" name="Actions" >
+    <property name="title" >
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="ActCustomActionSetup" />
    </widget>
    <addaction name="File" />
    <addaction name="Edit" />
@@ -569,6 +569,9 @@
    </property>
   </action>
   <action name="ActCustomActionSetup" >
+   <property name="icon" >
+    <iconset resource="icons.qrc" >:/icons/resources/bookmark.png</iconset>
+   </property>
    <property name="text" >
     <string>Setup actions...</string>
    </property>

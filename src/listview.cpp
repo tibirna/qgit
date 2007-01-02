@@ -223,10 +223,12 @@ void ListView::on_newRevsAdded(const FileHistory* f, const QVector<QString>& sha
 	if (lv->childCount() == 0)
 		lastItem = NULL;
 
+	lv->setUpdatesEnabled(false);
 	for (int i = lv->childCount(); i < shaVec.count(); i++) {
 		lastItem = new ListViewItem(lv, lastItem, git, shaVec[i], evenLine, secs, fh);
 		evenLine = !evenLine;
 	}
+	lv->setUpdatesEnabled(true);
 }
 
 void ListView::on_currentChanged(Q3ListViewItem* item) {

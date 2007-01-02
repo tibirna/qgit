@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/icons" >
+        <file>resources/1downarrow.png</file>
+        <file>resources/1uparrow.png</file>
+        <file>resources/bookmark.png</file>
+        <file>resources/bookmark_add.png</file>
         <file>resources/cancel.png</file>
         <file>resources/configure.png</file>
         <file>resources/filter.png</file>
@@ -12,8 +16,10 @@
         <file>resources/misc.png</file>
         <file>resources/next.png</file>
         <file>resources/openterm.png</file>
+        <file>resources/pencil.png</file>
         <file>resources/previous.png</file>
         <file>resources/reload.png</file>
+        <file>resources/remove.png</file>
         <file>resources/shellscript.png</file>
         <file>resources/source_c.png</file>
         <file>resources/source_cpp.png</file>
