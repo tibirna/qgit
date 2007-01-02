@@ -223,10 +223,12 @@ void ListView::on_newRevsAdded(const FileHistory* f, const QVector<QString>& sha
 	if (lv->childCount() == 0)
 		lastItem = NULL;
 
+	lv->setUpdatesEnabled(false);
 	for (int i = lv->childCount(); i < shaVec.count(); i++) {
 		lastItem = new ListViewItem(lv, lastItem, git, shaVec[i], evenLine, secs, fh);
 		evenLine = !evenLine;
 	}
+	lv->setUpdatesEnabled(true);
 }
 
 void ListView::on_currentChanged(Q3ListViewItem* item) {
@@ -538,11 +540,11 @@ void ListViewItem::paintGraph(const Rev& c, QPainter* p, const QColorGroup& cg, 
 	if (!lv)
 		return;
 
-	QColorGroup::ColorRole crole = QColorGroup::Base;
+	QPalette::ColorRole cr = QPalette::Base;
 	if (isSelected() && lv->allColumnsShowFocus())
-		crole = QColorGroup::Highlight;
+		cr = QPalette::Highlight;
 
-	QBrush back = cg.brush(crole);
+	QBrush back = cg.brush(cr);
 	p->fillRect(0, 0, width, height(), back);
 
 	const QVector<int>& lanes(c.lanes);
@@ -596,7 +598,7 @@ void ListViewItem::paintCell(QPainter* p, const QColorGroup& cg,
 
 	// alternate background color
 	if (isInfoCol(mycolumn))
-		_cg.setColor(QColorGroup::Base, isEvenLine ? EVEN_LINE_COL : ODD_LINE_COL);
+		_cg.setColor(QPalette::Window, isEvenLine ? EVEN_LINE_COL : ODD_LINE_COL);
 
 	// tags, heads, refs and working dir colouring
 	if (mycolumn == LOG_COL) {
@@ -611,14 +613,14 @@ void ListViewItem::paintCell(QPainter* p, const QColorGroup& cg,
 		}
 		if (c.isDiffCache) {
 			if (changedFiles(ZERO_SHA))
-				_cg.setColor(QColorGroup::Base, ORANGE);
+				_cg.setColor(QPalette::Window, ORANGE);
 			else
-				_cg.setColor(QColorGroup::Base, DARK_ORANGE);
+				_cg.setColor(QPalette::Window, DARK_ORANGE);
 		}
 	}
 	// diff target colouring
 	if (isDiffTarget && isInfoCol(mycolumn))
-		_cg.setColor(QColorGroup::Base, LIGHT_BLUE);
+		_cg.setColor(QPalette::Window, LIGHT_BLUE);
 
 	Q3ListViewItem::paintCell(p, _cg, column, width, alignment);
 

@@ -153,10 +153,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
 
 	// create light and dark colors for alternate background
-	QColor l(rv->tab()->listViewLog->paletteBackgroundColor());
-	QColor d(int(l.red() * 0.97), int(l.green() * 0.97), int(l.blue() * 0.97));
-	QGit::ODD_LINE_COL = l;
-	QGit::EVEN_LINE_COL = d;
+	QGit::ODD_LINE_COL = palette().color(QPalette::Base);
+	QGit::EVEN_LINE_COL = QGit::ODD_LINE_COL.dark(103);
 
 	// manual adjust lineEditSHA width
 	QString tmp;
@@ -1397,10 +1395,9 @@ void MainImpl::ActSettings_activated() {
 
 void MainImpl::ActCustomActionSetup_activated() {
 
-	CustomActionImpl* ca = new CustomActionImpl(); // has Qt::WDestructiveClose
+	CustomActionImpl* ca = new CustomActionImpl(); // has Qt::WA_DeleteOnClose
 
 	connect(this, SIGNAL(closeAllWindows()), ca, SLOT(close()));
-
 	connect(ca, SIGNAL(listChanged(const QStringList&)),
 	        this, SLOT(customActionListChanged(const QStringList&)));
 

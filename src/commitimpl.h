@@ -16,12 +16,12 @@ class CommitImpl : public QWidget, public Ui_CommitBase {
 Q_OBJECT
 public:
 	explicit CommitImpl(Git* git);
-	~CommitImpl();
 
 signals:
 	void changesCommitted(bool);
 
 public slots:
+	virtual void closeEvent(QCloseEvent*);
 	void pushButtonOk_clicked();
 	void pushButtonCancel_clicked();
 	void pushButtonUpdateCache_clicked();

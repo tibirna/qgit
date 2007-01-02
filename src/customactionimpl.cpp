@@ -6,33 +6,35 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qsettings.h>
-#include <q3listview.h>
-#include <qinputdialog.h>
-#include <qmessagebox.h>
-#include <qpushbutton.h>
-#include <q3textedit.h>
-#include <qcheckbox.h>
+#include <QSettings>
+#include <QMessageBox>
+#include <QInputDialog>
 #include "common.h"
 #include "customactionimpl.h"
 
 using namespace QGit;
 
-CustomActionImpl::CustomActionImpl() : QWidget(0, 0, Qt::WDestructiveClose) {
+CustomActionImpl::CustomActionImpl() {
 
+	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
-	listViewNames->setSorting(-1);
 
-	QSettings set;
-	actionList = set.value(ACT_LIST_KEY).toStringList();
-	Q3ListViewItem* lastItem = NULL;
-	FOREACH_SL (it, actionList)
-		lastItem = new Q3ListViewItem(listViewNames, lastItem, *it);
+	QSettings settings;
+	restoreGeometry(settings.value(ACT_GEOM_KEY).toByteArray());
+	QStringList actions = settings.value(ACT_LIST_KEY).toStringList();
 
-	Q3ListViewItem* item = listViewNames->currentItem();
-	listViewNames_currentChanged(item);
-	if (item)
-		item->setSelected(true);
+	listWidgetNames->insertItems(0, actions);
+	if (listWidgetNames->count())
+		listWidgetNames->setCurrentItem(listWidgetNames->item(0));
+	else
+		listWidgetNames_currentItemChanged(NULL, NULL);
+}
+
+void CustomActionImpl::closeEvent(QCloseEvent* ce) {
+
+	QSettings settings;
+	settings.setValue(ACT_GEOM_KEY, saveGeometry());
+	QWidget::closeEvent(ce);
 }
 
 void CustomActionImpl::loadAction(const QString& name) {
@@ -41,7 +43,8 @@ void CustomActionImpl::loadAction(const QString& name) {
 	checkBoxRefreshAfterAction->setChecked(testFlag(ACT_REFRESH_F, flags));
 	checkBoxAskArgs->setChecked(testFlag(ACT_CMD_LINE_F, flags));
 	QSettings set;
-	textEditAction->setText(set.value(ACT_GROUP_KEY + name + ACT_TEXT_KEY, "").toString());
+	const QString& data(set.value(ACT_GROUP_KEY + name + ACT_TEXT_KEY, "").toString());
+	textEditAction->setPlainText(data);
 }
 
 void CustomActionImpl::removeAction(const QString& name) {
@@ -50,29 +53,33 @@ void CustomActionImpl::removeAction(const QString& name) {
 	set.remove(ACT_GROUP_KEY + name);
 }
 
-void CustomActionImpl::updateActionList() {
+const QStringList CustomActionImpl::actions() {
 
-	actionList.clear();
-	Q3ListViewItemIterator it(listViewNames);
-	while (it.current()) {
-		actionList.append(it.current()->text(0));
-		++it;
+	QStringList actionsList;
+	QListWidgetItem* item;
+	int row = 0;
+	while ((item = listWidgetNames->item(row)) != 0) {
+		actionsList.append(item->text());
+		row++;
 	}
-	QSettings settings;
-	settings.setValue(ACT_LIST_KEY, actionList);
-	emit listChanged(actionList);
+	return actionsList;
 }
 
-void CustomActionImpl::listViewNames_currentChanged(Q3ListViewItem* item) {
+void CustomActionImpl::updateActions() {
 
-	bool emptyList = (item == NULL);
+	QSettings settings;
+	settings.setValue(ACT_LIST_KEY, actions());
+	emit listChanged(actions());
+}
 
-	if (!emptyList) {
-		curAction = item->text(0);
-		loadAction(curAction);
-		listViewNames->ensureItemVisible(item);
+void CustomActionImpl::listWidgetNames_currentItemChanged(QListWidgetItem* item, QListWidgetItem*) {
+
+	bool empty = (item == NULL);
+
+	if (!empty) {
+		loadAction(item->text());
+		listWidgetNames->scrollToItem(item);
 	} else {
-		curAction = "";
 		textEditAction->clear();
 		if (checkBoxRefreshAfterAction->isChecked())
 			checkBoxRefreshAfterAction->toggle();
@@ -80,13 +87,14 @@ void CustomActionImpl::listViewNames_currentChanged(Q3ListViewItem* item) {
 		if (checkBoxAskArgs->isChecked())
 			checkBoxAskArgs->toggle();
 	}
-	textEditAction->setEnabled(!emptyList);
-	checkBoxRefreshAfterAction->setEnabled(!emptyList);
-	checkBoxAskArgs->setEnabled(!emptyList);
-	pushButtonRename->setEnabled(!emptyList);
-	pushButtonRemove->setEnabled(!emptyList);
-	pushButtonMoveUp->setEnabled(!emptyList && (item != listViewNames->firstChild()));
-	pushButtonMoveDown->setEnabled(!emptyList && (item != listViewNames->lastItem()));
+	textEditAction->setEnabled(!empty);
+	checkBoxRefreshAfterAction->setEnabled(!empty);
+	checkBoxAskArgs->setEnabled(!empty);
+	pushButtonRename->setEnabled(!empty);
+	pushButtonRemove->setEnabled(!empty);
+	pushButtonMoveUp->setEnabled(!empty && (item != listWidgetNames->item(0)));
+	int lastRow = listWidgetNames->count() - 1;
+	pushButtonMoveDown->setEnabled(!empty && (item != listWidgetNames->item(lastRow)));
 }
 
 bool CustomActionImpl::getNewName(QString& name, const QString& caption) {
@@ -99,7 +107,7 @@ bool CustomActionImpl::getNewName(QString& name, const QString& caption) {
 	if (!ok || name.isEmpty() || name == oldName)
 		return false;
 
-	if (actionList.contains(name)) {
+	if (actions().contains(name)) {
 		QMessageBox::warning(this, caption + " - QGit", "Sorry, action name "
 		                     "already exists.\nPlease choose a different name.");
 		return false;
@@ -113,94 +121,96 @@ void CustomActionImpl::pushButtonNew_clicked() {
 	if (!getNewName(name, "Create new action"))
 		return;
 
-	Q3ListViewItem* item = new Q3ListViewItem(listViewNames, listViewNames->lastItem(), name);
-	listViewNames->setCurrentItem(item);
-	listViewNames_currentChanged(item);
-	updateActionList();
-	textEditAction->setText("<write here your action's commands sequence>");
+	QListWidgetItem* item = new QListWidgetItem(name);
+	listWidgetNames->addItem(item);
+	updateActions();
+	listWidgetNames->setCurrentItem(item);
+	textEditAction->setPlainText("<write here your action's commands sequence>");
 	textEditAction->selectAll();
 	textEditAction->setFocus();
 }
 
 void CustomActionImpl::pushButtonRename_clicked() {
 
-	Q3ListViewItem* item = listViewNames->currentItem();
+	QListWidgetItem* item = listWidgetNames->currentItem();
 	if (!item || !item->isSelected())
 		return;
 
-	QString newName(item->text(0));
+	QString newName(item->text());
 	if (!getNewName(newName, "Rename action"))
 		return;
 
-	item->setText(0, newName);
-	updateActionList();
-	const QString oldActionName(curAction);
-	listViewNames_currentChanged(listViewNames->currentItem()); // updates curAction
+	const QString oldActionName(item->text());
+	item->setText(newName);
+	updateActions();
+	listWidgetNames_currentItemChanged(item, item);
 	loadAction(oldActionName);
 	removeAction(oldActionName);
 }
 
 void CustomActionImpl::pushButtonRemove_clicked() {
 
-	Q3ListViewItem* item = listViewNames->currentItem();
+	QListWidgetItem* item = listWidgetNames->currentItem();
 	if (!item || !item->isSelected())
 		return;
 
-	removeAction(curAction);
-	Q3ListViewItem* prevItem = item->itemAbove();
+	removeAction(item->text());
 	delete item;
-	updateActionList();
-	if (prevItem)
-		listViewNames->setCurrentItem(prevItem);
-	else if (listViewNames->firstChild())
-		listViewNames->setCurrentItem(listViewNames->firstChild());
-	else
-		textEditAction->clear();
+	updateActions();
+	if (!listWidgetNames->count())
+		listWidgetNames_currentItemChanged(NULL, NULL);
 }
 
 void CustomActionImpl::pushButtonMoveUp_clicked() {
 
-	Q3ListViewItem* item = listViewNames->currentItem();
-	if (!item || item == listViewNames->firstChild())
+	QListWidgetItem* item = listWidgetNames->currentItem();
+	int row = listWidgetNames->row(item);
+	if (!item || row == 0)
 		return;
 
-	item->itemAbove()->moveItem(item);
-	updateActionList();
-	listViewNames_currentChanged(item);
+	item = listWidgetNames->takeItem(row);
+	listWidgetNames->insertItem(row - 1, item);
+	updateActions();
+	listWidgetNames->setCurrentItem(item);
 }
 
 void CustomActionImpl::pushButtonMoveDown_clicked() {
 
-	Q3ListViewItem* item = listViewNames->currentItem();
-	if (!item || item == listViewNames->lastItem())
+	QListWidgetItem* item = listWidgetNames->currentItem();
+	int row = listWidgetNames->row(item);
+	if (!item || row == listWidgetNames->count() - 1)
 		return;
 
-	item->moveItem(item->itemBelow());
-	updateActionList();
-	listViewNames_currentChanged(item);
+	item = listWidgetNames->takeItem(row);
+	listWidgetNames->insertItem(row + 1, item);
+	updateActions();
+	listWidgetNames->setCurrentItem(item);
 }
 
 void CustomActionImpl::textEditAction_textChanged() {
 
-	if (!curAction.isEmpty()) {
+	QListWidgetItem* item = listWidgetNames->currentItem();
+	if (item) {
 		QSettings s;
-		QString key(ACT_GROUP_KEY + curAction + ACT_TEXT_KEY);
-		s.setValue(key, textEditAction->text());
+		QString key(ACT_GROUP_KEY + item->text() + ACT_TEXT_KEY);
+		s.setValue(key, textEditAction->toPlainText());
 	}
 }
 
 void CustomActionImpl::checkBoxRefreshAfterAction_toggled(bool b) {
 
-	if (!curAction.isEmpty()) {
-		QString flags(ACT_GROUP_KEY + curAction + ACT_FLAGS_KEY);
+	QListWidgetItem* item = listWidgetNames->currentItem();
+	if (item) {
+		QString flags(ACT_GROUP_KEY + item->text() + ACT_FLAGS_KEY);
 		setFlag(ACT_REFRESH_F, b, flags);
 	}
 }
 
 void CustomActionImpl::checkBoxAskArgs_toggled(bool b) {
 
-	if (!curAction.isEmpty()) {
-		QString flags(ACT_GROUP_KEY + curAction + ACT_FLAGS_KEY);
+	QListWidgetItem* item = listWidgetNames->currentItem();
+	if (item) {
+		QString flags(ACT_GROUP_KEY + item->text() + ACT_FLAGS_KEY);
 		setFlag(ACT_CMD_LINE_F, b, flags);
 	}
 }

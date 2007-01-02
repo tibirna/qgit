@@ -1,342 +1,474 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>CustomActionBase</class>
-  <widget class="QWidget" name="CustomActionBase" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>630</width>
-        <height>445</height>
-      </rect>
-    </property>
-    <property name="windowTitle" >
-      <string>Actions builder</string>
-    </property>
-    <layout class="QHBoxLayout" >
-      <item>
-        <layout class="QVBoxLayout" >
+<ui version="4.0" >
+ <class>CustomActionBase</class>
+ <widget class="QWidget" name="CustomActionBase" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>564</width>
+    <height>492</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Actions builder</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="icons.qrc" >:/icons/resources/bookmark.png</iconset>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="margin" >
+    <number>5</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QFrame" name="frame" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>5</hsizetype>
+         <vsizetype>0</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>9</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" >
           <property name="margin" >
-            <number>0</number>
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>15</number>
           </property>
           <item>
-            <widget class="Q3ButtonGroup" name="buttonGroup7" >
-              <property name="title" >
-                <string/>
-              </property>
-              <layout class="QHBoxLayout" >
-                <property name="margin" >
-                  <number>0</number>
-                </property>
-                <item>
-                  <layout class="QHBoxLayout" >
-                    <property name="margin" >
-                      <number>0</number>
-                    </property>
-                    <item>
-                      <widget class="QPushButton" name="pushButtonNew" >
-                        <property name="text" >
-                          <string>&amp;New</string>
-                        </property>
-                        <property name="shortcut" >
-                          <string>Alt+N</string>
-                        </property>
-                        <property name="icon" >
-                          <iconset>image0</iconset>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QPushButton" name="pushButtonRename" >
-                        <property name="text" >
-                          <string>&amp;Rename</string>
-                        </property>
-                        <property name="shortcut" >
-                          <string>Alt+R</string>
-                        </property>
-                        <property name="icon" >
-                          <iconset>image1</iconset>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QPushButton" name="pushButtonRemove" >
-                        <property name="text" >
-                          <string>R&amp;emove</string>
-                        </property>
-                        <property name="shortcut" >
-                          <string>Alt+E</string>
-                        </property>
-                        <property name="icon" >
-                          <iconset>image2</iconset>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QPushButton" name="pushButtonMoveUp" >
-                        <property name="text" >
-                          <string>Move &amp;up</string>
-                        </property>
-                        <property name="shortcut" >
-                          <string>Alt+U</string>
-                        </property>
-                        <property name="icon" >
-                          <iconset>image3</iconset>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QPushButton" name="pushButtonMoveDown" >
-                        <property name="text" >
-                          <string>Move &amp;down</string>
-                        </property>
-                        <property name="shortcut" >
-                          <string>Alt+D</string>
-                        </property>
-                        <property name="icon" >
-                          <iconset>image4</iconset>
-                        </property>
-                      </widget>
-                    </item>
-                  </layout>
-                </item>
-              </layout>
-            </widget>
+           <widget class="QPushButton" name="pushButtonNew" >
+            <property name="text" >
+             <string>&amp;New</string>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/icons/resources/bookmark_add.png</iconset>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+N</string>
+            </property>
+           </widget>
           </item>
           <item>
-            <widget class="QSplitter" name="splitter1" >
-              <property name="sizePolicy" >
-                <sizepolicy>
-                  <hsizetype>7</hsizetype>
-                  <vsizetype>7</vsizetype>
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                </sizepolicy>
-              </property>
-              <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-              </property>
-              <widget class="Q3ListView" name="listViewNames" >
-                <property name="resizeMode" >
-                  <enum>Q3ListView::AllColumns</enum>
-                </property>
-                <column>
-                  <property name="text" >
-                    <string>Name</string>
-                  </property>
-                  <property name="clickable" >
-                    <bool>false</bool>
-                  </property>
-                  <property name="resizable" >
-                    <bool>true</bool>
-                  </property>
-                </column>
-              </widget>
-              <widget class="Q3ButtonGroup" name="buttonGroup6" >
-                <property name="title" >
-                  <string/>
-                </property>
-                <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <layout class="QVBoxLayout" >
-                      <property name="margin" >
-                        <number>0</number>
-                      </property>
-                      <item>
-                        <layout class="QVBoxLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item>
-                            <widget class="QLabel" name="textLabel1" >
-                              <property name="text" >
-                                <string>Insert commands to run:</string>
-                              </property>
-                              <property name="wordWrap" >
-                                <bool>false</bool>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <widget class="Q3TextEdit" name="textEditAction" >
-                              <property name="text" >
-                                <string/>
-                              </property>
-                              <property name="wordWrap" >
-                                <enum>Q3TextEdit::WidgetWidth</enum>
-                              </property>
-                              <property name="toolTip" stdset="0" >
-                                <string>Insert commands to run. See handbook (F1) for some examples.</string>
-                              </property>
-                            </widget>
-                          </item>
-                        </layout>
-                      </item>
-                      <item>
-                        <layout class="QHBoxLayout" >
-                          <property name="margin" >
-                            <number>0</number>
-                          </property>
-                          <item>
-                            <widget class="QCheckBox" name="checkBoxRefreshAfterAction" >
-                              <property name="text" >
-                                <string>Refresh &amp;view at the end</string>
-                              </property>
-                              <property name="shortcut" >
-                                <string>Alt+V</string>
-                              </property>
-                              <property name="toolTip" stdset="0" >
-                                <string>If checked main view will be automatically refreshed when done</string>
-                              </property>
-                            </widget>
-                          </item>
-                          <item>
-                            <widget class="QCheckBox" name="checkBoxAskArgs" >
-                              <property name="text" >
-                                <string>A&amp;sk for command line arguments</string>
-                              </property>
-                              <property name="shortcut" >
-                                <string>Alt+S</string>
-                              </property>
-                              <property name="toolTip" stdset="0" >
-                                <string>Check if you want to be prompted for command line arguments. Args will be appended after the first command only.</string>
-                              </property>
-                            </widget>
-                          </item>
-                        </layout>
-                      </item>
-                    </layout>
-                  </item>
-                </layout>
-              </widget>
-            </widget>
+           <widget class="QPushButton" name="pushButtonRename" >
+            <property name="text" >
+             <string>&amp;Rename</string>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/icons/resources/pencil.png</iconset>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+R</string>
+            </property>
+           </widget>
           </item>
           <item>
-            <layout class="QHBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <spacer name="spacer7" >
-                  <property name="sizeHint" >
-                    <size>
-                      <width>101</width>
-                      <height>20</height>
-                    </size>
-                  </property>
-                  <property name="sizeType" >
-                    <enum>Expanding</enum>
-                  </property>
-                  <property name="orientation" >
-                    <enum>Horizontal</enum>
-                  </property>
-                </spacer>
-              </item>
-              <item>
-                <widget class="QPushButton" name="pushButtonOk" >
-                  <property name="text" >
-                    <string>&amp;Ok</string>
-                  </property>
-                  <property name="shortcut" >
-                    <string>Alt+O</string>
-                  </property>
-                  <property name="autoDefault" >
-                    <bool>true</bool>
-                  </property>
-                  <property name="default" >
-                    <bool>true</bool>
-                  </property>
-                </widget>
-              </item>
-            </layout>
+           <widget class="QPushButton" name="pushButtonRemove" >
+            <property name="text" >
+             <string>R&amp;emove</string>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/icons/resources/remove.png</iconset>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+E</string>
+            </property>
+           </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonMoveUp" >
+            <property name="layoutDirection" >
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text" >
+             <string>Move &amp;up</string>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/icons/resources/1uparrow.png</iconset>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+U</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonMoveDown" >
+            <property name="text" >
+             <string>Move &amp;down</string>
+            </property>
+            <property name="icon" >
+             <iconset resource="icons.qrc" >:/icons/resources/1downarrow.png</iconset>
+            </property>
+            <property name="shortcut" >
+             <string>Alt+D</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSplitter" name="splitter" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QFrame" name="frame_3" >
+        <property name="frameShape" >
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow" >
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="labelActionName" >
+             <property name="text" >
+              <string>Name</string>
+             </property>
+             <property name="buddy" >
+              <cstring>listWidgetNames</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="listWidgetNames" />
+           </item>
+          </layout>
+         </item>
         </layout>
-      </item>
+       </widget>
+       <widget class="QFrame" name="frame_2" >
+        <property name="frameShape" >
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow" >
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="textLabel1" >
+             <property name="text" >
+              <string>Insert commands to run:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTextEdit" name="textEditAction" >
+             <property name="toolTip" >
+              <string>Insert commands to run. See handbook (F1) for some examples.</string>
+             </property>
+             <property name="acceptRichText" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="checkBoxRefreshAfterAction" >
+               <property name="toolTip" >
+                <string>If checked main view will be automatically refreshed when done</string>
+               </property>
+               <property name="text" >
+                <string>Refresh &amp;view at the end</string>
+               </property>
+               <property name="shortcut" >
+                <string>Alt+V</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBoxAskArgs" >
+               <property name="toolTip" >
+                <string>Check if you want to be prompted for command line arguments. Args will be appended after the first command only.</string>
+               </property>
+               <property name="text" >
+                <string>A&amp;sk for command line arguments</string>
+               </property>
+               <property name="shortcut" >
+                <string>Alt+S</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>101</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonOk" >
+         <property name="text" >
+          <string>&amp;Ok</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+O</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <images>
-    <image name="image0" >
-      <data format="PNG" length="766" >89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000002c549444154388dad954d48545114c77f6f3e1c2393b188a2405f442044f85a4562e88451bb326815d118116dc224fba04dd84677491f106d741fa412548b48ab45ade20945f6418e915450cecb1967c6997bee6da199faa61ca8b3bcf7ffffdd730ef79e0b2546ee3cbde9b3f496aab74a1165ce11c590540a44a8aaba8ab79c27506202a783b56b08d5aec1684e97622809ac3547cb1a9b298f35a31447ff0b38ddc1012ab1d93c8ab5c52350893d719c03ff0cd686b6150d3b8197c0432a76ef411768fb27f0d4196cca680aec5a07082044622b31119ac60e63ffcd6b01986e6c04db28a252c01101a56814851dd95e6d478e7c07a6e72c1bf97e2388f7f4634284842af05804447045f04493d8f1908465ba311860c34a8c006b6b20b20a13a924b0b10e6a7210babe389d998ba8f779326f4728a4a628fc48917a3f8e11cde4ab2c2260992ee284e8e55007547f00f36caeb95f00b35c2b678b0eac877439d38f72bcbaf9997c86560b4077129702bda17d51a85df6ee2f0e015241920f84d7b7c1685a1b9ed237fff2662e1217c595f2bdd1a86597085780574ef2598e37837822b4373ca16fae8edf91eec011c550452c120d54cffc1d9a07d22b48bec8f2ee1e9e32c4ea878cfb6bdb372b264fe168c550553dd140b59fd772bfceb7e63e1f616cc82c6285968a565fc3fd7a8281c237e29168f164fbbb5cdcd98a191eefc37deed7f8c000dae084c340aa38d8a58fe1f1597062345154531c2c388185e00c50002a8a1f541278e2184de1b239a801a6c0e4e060b00e26ff0cda14b30c30df6bdfacd082130e021e3001c94ff0f61d5c7e39d233363ac2a52eff38de7fa18685d0a2198ba6319c857c063e4d432e8f6b34eddbee9a6117da9d16cbc47b1a177906bbc797bf15c6e024b39055785ae8dc3a400ffc7edc6ebfb19c16cb349dac9987def4482ce5f8c05a6367850103adb5778aff6d6ebfb17ef5f4d60f0694f60ffe9f4fd5375c3b1a3f4e0000000049454e44ae426082</data>
-    </image>
-    <image name="image1" >
-      <data format="PNG" length="287" >89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000e649444154388db5d4318e83301085e19f28450ec00db80065bae5683e0f15450e30e98c44b1155568a839c0766f0b48a24449009b4c618d3dd6578d1e6c540e24909c938136430d2433d9d47f053550128b16c08f19e7a2b8bd1b100c7f420985e75017022f41816415bc14bd1d5ba38be1b5e82238049d8543d18f700cfa76108bbe1c0a40525dd7fc1d8f4128c0ee19ed2e1701a469cac1fb20f401d698a6645946d7750cc330a2cead4601f64f775dd1beef69db96aaaaf85d89de35094918c87bafb22c95e7b9880dec0630901bb7414c5b1153493335a731f9b1888c7ea866fe4b50fd036254a77a6cb411ba0000000049454e44ae426082</data>
-    </image>
-    <image name="image2" >
-      <data format="PNG" length="710" >89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000028d49444154388db5d5cb6b534114c7f16f1aad11b599caed43b4362182b4a8bd2eeac256245871610b2a08a27fa12bff02994dac1295581f5069d1504b2144edf5d5fb48668e8b24e6dd74e3d9df0fe79ef99d999888f05faa132e2da14a37481df4fbb7d3a4d6cea23acda14e54046daa14b617710f80ba221430e8c2643bfe0f6ea0230fefb8c9472bca56d1c5f9fe781dd553d96975e6fa946b05fdca69e2439d68e2d23d8e5e5861f4c14d650d7a63ae1b6f45d59929462727989e1f7331e87cb286d73a1694ad921263a01240e4736c7609e7fe352506bd3ed3c43b51fc00fc00a918ac250535382622c46231b617716d153dfae0a63a36bb04910f51c0cfc253761ebff4c4903555e8857efbb4c3e717df3d84ec959fbc1191260c509cc7b506eddcbfa68e9f5f802880708f1f6bcfd97ef2ceb30606a18d54b4c1001b73b862d0e377e7d5c8b9cb108510f8fcfaf81ec20a27c627f645fbc200eb33b5ce4f2d5f54c9f40c043e8401f8fe40745f18e04306d75af4d9dbb3eac4e4e936d4db2ab1992bf7441bf0a17e39ad1f14849536143f84a0820888edf735ed9bd7a8d648b5ce143f84bd009518269d4e2831e8d523bd97a80bee97536fab84f7a50c7f42f813e10cc7c9387105e8d5c3dd78db8cfba18d831281743aa19ce138fcaec08f2ae55dcb66840764174c8fb80d4211b2d6821874c6892bc7087816f6a00c6c50c31769599077a9584a84c241c25f9fa9ce0ca1c6fce6afb7e09717448a43b5d6f13014a56207e6f46ac81b2cd9cd08afdc7d66456a78f3a22f4ca25e4f50f8ba3c26e55b27259f64373fd2ffda7c16c7cdc16e09a404928342ae7e01752dc82b0785415b4baa5ff85b2b476d2cf54eb38bf56e45a4fb69ca2751f9e4c19fa61ca41a9d36ea5fc7ffa3fe021080f8d83c9fb0540000000049454e44ae426082</data>
-    </image>
-    <image name="image3" >
-      <data format="PNG" length="653" >89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000025449444154388dedd54b48546114c0f1ff9db933a5a33651a21934168e11045e7c1521d92c0ab39541ee72ca966d5ab6095ab52d08722556502004838bcaf031aea255cc426c11e64483f94891a679dcb9dfa3c5e8d094a354b808fae0f2c1e1dc1fe71ceefd3e436bcd4e2cd78ea8ff246c6c97d0d037e6d74a45b490679423508e98528eec49bcbcb4f6c7704378cc8fd2d1ac596ed5b435039a44f435eeb52f31e588d0c2d4e59278c95104c3e379d4e3b33a2eb4331a2e63345c4ea8b7935c5995a5858c569f18f4977adfbd297a65dcafb58e66bd3eabf96c1bb73a3d247390cc4147c0cdfbf20073339f6a4925bbcaaacf0f67165f64b785835727f2a8c7671d3dddcef5760f5f6d8a9e96836ee27b8e9098f958cbb76497d77f6ed85e7d558417cd38d83f519869ddc936fa9acc529d02f0e8adcdccd03358fc1cd38e0ca512370b332fc08dfd937ead54346bfaacaae656ba1b8b515be6f75d3ff5f8fc9dcddce05358988f294784ec95db6b05b8f1daa45faf57aa8eb572ead0e695daf25778350b6fe2599c278f613e11538e0c89f49d3513406b1d91da65ad045a0956987cd8f20b85740e9652b092d988ecc6e8eec53d74df52193b02848c60ffc45da55d37160eb4e0aeacc4ed290d1a1aec1cd84e8984a579e4c301743a7dcf68088f69fb700bb2622f004a434e83a3406af0b8c06d80d700d7b6ff2938b3b32c0f3cc0d442b27f5f05ae2d2afd9d2582752c03a612322e67a7eb6b9a8e637aff4ecfa5324c474600e246e0e288a5858c2847d4e70f19c9fa618372047a232644517c234f3b0225e48f7e1ce831fedf203b0e7f07b6cc32072013e5190000000049454e44ae426082</data>
-    </image>
-    <image name="image4" >
-      <data format="PNG" length="592" >89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000021749444154388dedd54d48545114c0f1ff9b79e37c68cd1327923ee0419144050f174111a1084614d46c5c044510ed825ab66b958ba0d1454c848151db6008dc3f2122ca84592a6d2274b2b20f317d2fef578b57e9cce844c82c822e5cb8e79ccbef9ebbb9d732c6d08c116b8afa4fc2d6be4bbe67b42e69215d2d245a488c506821d1328aa3a958ad57c7abfb1446c8375aaabc6db42e2db46d7773fbbb684ddb9bea72712160ead11397c989926da472771dea62e8c4e6d068a4b96a9fa13c39e1da5a2ae63f2c30fda9834c6273ecb280d9d715006c2de5b029bfb836183fca85230ea9bf68fcfd124c7d8ed66e16c69e56f8786f1460d802d87dfab1af4cac471febe7e4815612f1c6e097109e576066714d320ce0d64d08837128f4da005aaa3c62c517cf7c6f2cde4ff7ce963a4c1ab02df826e0e51c085d838e14210cca401ec0fa55eb3cfed0d152f92b99ac17eb3b452e5b8d2b1d61b34ba0d6be024100f78bf0ae52067aa1f0b50a06c81d1e718c50be6875bca0ef2cb164f277cd18585135d7080318ad47eb6080f683771c2d952fdbdabdeffd03d092acdd121d1406a8074598ab47d78501b6eebded68a17cb21dde96817358a954555d0701f3778bc8cafae886304066c7a0a3a5f213b99cb7e7f245e2e90897cb01d38522e1ccc6684318a0a5fd866384f2339ddbbcee2be7c1185e0d8db2f8b631fa4718209ebaee68a94a46aa9e9fa97120df0805b0feff204d877f007cf8163df7483bad0000000049454e44ae426082</data>
-    </image>
-  </images>
-  <connections>
-    <connection>
-      <sender>pushButtonNew</sender>
-      <signal>clicked()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>pushButtonNew_clicked()</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonRename</sender>
-      <signal>clicked()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>pushButtonRename_clicked()</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonRemove</sender>
-      <signal>clicked()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>pushButtonRemove_clicked()</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxRefreshAfterAction</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>checkBoxRefreshAfterAction_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>textEditAction</sender>
-      <signal>textChanged()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>textEditAction_textChanged()</slot>
-    </connection>
-    <connection>
-      <sender>listViewNames</sender>
-      <signal>currentChanged(Q3ListViewItem*)</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>listViewNames_currentChanged(Q3ListViewItem*)</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonMoveUp</sender>
-      <signal>clicked()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>pushButtonMoveUp_clicked()</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonMoveDown</sender>
-      <signal>clicked()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>pushButtonMoveDown_clicked()</slot>
-    </connection>
-    <connection>
-      <sender>checkBoxAskArgs</sender>
-      <signal>toggled(bool)</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>checkBoxAskArgs_toggled(bool)</slot>
-    </connection>
-    <connection>
-      <sender>pushButtonOk</sender>
-      <signal>clicked()</signal>
-      <receiver>CustomActionBase</receiver>
-      <slot>pushButtonOk_clicked()</slot>
-    </connection>
-  </connections>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>pushButtonNew</sender>
+   <signal>clicked()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>pushButtonNew_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonRename</sender>
+   <signal>clicked()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>pushButtonRename_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonRemove</sender>
+   <signal>clicked()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>pushButtonRemove_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxRefreshAfterAction</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>checkBoxRefreshAfterAction_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonMoveUp</sender>
+   <signal>clicked()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>pushButtonMoveUp_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonMoveDown</sender>
+   <signal>clicked()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>pushButtonMoveDown_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxAskArgs</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>checkBoxAskArgs_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonOk</sender>
+   <signal>clicked()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>pushButtonOk_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>textEditAction</sender>
+   <signal>textChanged()</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>textEditAction_textChanged()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>395</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>330</x>
+     <y>231</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listWidgetNames</sender>
+   <signal>currentItemChanged(QListWidgetItem*,QListWidgetItem*)</signal>
+   <receiver>CustomActionBase</receiver>
+   <slot>listWidgetNames_currentItemChanged(QListWidgetItem*,QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>129</x>
+     <y>256</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>337</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

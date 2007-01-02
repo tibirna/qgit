@@ -30,11 +30,7 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 
 	// read settings
 	QSettings settings;
-	QRect r(settings.value(CMT_GEOM_KEY).toRect());
-	if (r.isValid()) {
-		resize(r.size());
-		move(r.topLeft());
-	}
+	restoreGeometry(settings.value(CMT_GEOM_KEY).toByteArray());
 	QSize sz(settings.value(CMT_SPLIT_KEY).toSize());
 	if (sz.isValid()) {
 		QList<int> szList;
@@ -74,8 +70,8 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 
 	// setup textEditMsg with default value
 	QString status(git->getDefCommitMsg());
-	status.replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment any line
-	msg.append(status);
+	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	msg.append(status.stripWhiteSpace());
 	textEditMsg->setPlainText(msg);
 
 	// if message is not changed we avoid calling refresh
@@ -97,10 +93,10 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	        this, SLOT(contextMenuPopup(const QPoint&)));
 }
 
-CommitImpl::~CommitImpl() {
+void CommitImpl::closeEvent(QCloseEvent* ce) {
 
 	QSettings settings;
-	settings.setValue(CMT_GEOM_KEY, QRect(pos(), size()));
+	settings.setValue(CMT_GEOM_KEY, saveGeometry());
 	QList<int> sz = splitter->sizes();
 	settings.setValue(CMT_SPLIT_KEY, QSize(sz[0], sz[1]));
 }
@@ -146,8 +142,8 @@ bool CommitImpl::checkFiles(SList selFiles) {
 
 bool CommitImpl::checkMsg(QString& msg) {
 
-	msg = textEditMsg->text();
-	msg.remove(QRegExp("\\n\\s*#[^\\n]*")); // strip comments
+	msg = textEditMsg->toPlainText();
+	msg.remove(QRegExp("(^|\\n)\\s*#[^\\n]*")); // strip comments
 	msg.replace(QRegExp("[ \\t\\r\\f\\v]+\\n"), "\n"); // strip line trailing cruft
 	msg = msg.stripWhiteSpace();
 	if (msg.isEmpty()) {
@@ -261,7 +257,7 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 			"&Yes", "&No", QString(), 0, 1) == 1)
 			return;
 
-	QString msg(textEditMsg->text());
+	QString msg(textEditMsg->toPlainText());
 	if (msg == origMsg)
 		msg = ""; // to tell stgCommit() not to refresh patch name
 
