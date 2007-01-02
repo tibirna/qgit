@@ -13,6 +13,7 @@
 #include "git.h"
 
 class MVCModel;
+class Rev;
 
 class MVC : public QMainWindow, public Ui_MainWindowsModelView {
 Q_OBJECT
@@ -50,7 +51,9 @@ private:
 	Git* git;
 	FileHistory* fh;
 
-	typedef QPair<const Rev*, int> DataPtr;
+	QList<QVariant> headerInfo;
+	mutable int lastRow;
+	mutable const Rev* lastRev;
 };
 
 

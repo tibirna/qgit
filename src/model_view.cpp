@@ -5,6 +5,7 @@
 
 	Copyright: See COPYING file that comes with this distribution
 */
+#include <QTime>
 #include "model_view.h"
 
 MVC::MVC(Git* g, FileHistory* f, QObject* p) : git(g), m(0), fh(f), par(p) {
@@ -20,13 +21,21 @@ MVC::~MVC() {
 
 void MVC::populate() {
 
+	dbStart;
 	m = new MVCModel(git, fh, par);
 	treeViewRevs->setModel(m);
+	dbRestart;
 }
 
 // ***********************************************************************
 
-MVCModel::MVCModel(Git* g, FileHistory* f, QObject* p) : QAbstractItemModel(p), git(g), fh(f) {}
+MVCModel::MVCModel(Git* g, FileHistory* f, QObject* p) : QAbstractItemModel(p), git(g), fh(f) {
+
+	lastRev = NULL;
+	lastRow = -1;
+	headerInfo << "Graph" << "Ann id" << "Short Log"
+     		   << "Author" << "Author Date";
+}
 
 MVCModel::~MVCModel() {}
 
@@ -40,17 +49,13 @@ Qt::ItemFlags MVCModel::flags(const QModelIndex& index ) const {
 
 QVariant MVCModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+		return headerInfo[section];
 
-		QList<QVariant> headerData;
-     		headerData << "Graph" << "Ann id" << "Short Log"
-     		           << "Author" << "Author Date";
-		return headerData[section];
-	}
 	return QVariant();
 }
 
-QModelIndex MVCModel::index(int row, int column, const QModelIndex& parent) const {
+QModelIndex MVCModel::index(int row, int column, const QModelIndex&) const {
 
 	if (!git || !fh)
 		return QModelIndex();
@@ -58,13 +63,15 @@ QModelIndex MVCModel::index(int row, int column, const QModelIndex& parent) cons
 	if (row > fh->revOrder.count() || row < 0)
 		return QModelIndex();
 
-	const Rev* r = git->revLookup(fh->revOrder.at(row));
-	if (!r)
-		return QModelIndex();
-
-	void* ptr = new DataPtr(r, column); // FIXME delete pairs
-
-	return createIndex(row, column, ptr);
+	const Rev* r;
+	if (row == lastRow)
+		r = lastRev;
+	else {
+		lastRow = row;
+		lastRev = git->revLookup(fh->revOrder.at(row));
+		r = lastRev;
+	}
+	return (r ? createIndex(row, column, (void*)r) : QModelIndex());
 }
 
 QModelIndex MVCModel::parent(const QModelIndex&) const {
@@ -90,9 +97,8 @@ QVariant MVCModel::data(const QModelIndex& index, int role) const {
 	if (role != Qt::DisplayRole)
 		return QVariant();
 
-	DataPtr* ptr = static_cast<DataPtr*>(index.internalPointer());
-	const Rev* r = ptr->first;
-	int col = ptr->second;
+	const Rev* r = static_cast<const Rev*>(index.internalPointer());
+	int col = index.column();
 
 	// calculate lanes
 	if (r->lanes.count() == 0)
