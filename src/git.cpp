@@ -50,6 +50,7 @@ void FileHistory::clear(SCRef name) {
 	fileName = name;
 	qDeleteAll(rowData);
 	rowData.clear();
+	emit cleared();
 }
 
 Git::Git(QWidget* p) : QObject(p) {

@@ -1664,9 +1664,6 @@ void MainImpl::ActFind_activated() {
 
 void MainImpl::ActHelp_activated() {
 
-	mvc->populate(); // DEBUG
-	return;
-
 	QDialog* dlg = new QDialog();
 	dlg->setAttribute(Qt::WA_DeleteOnClose);
 	Ui::HelpBase ui;

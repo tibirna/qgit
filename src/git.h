@@ -21,7 +21,8 @@ class Domain;
 class Lanes;
 class MyProcess;
 
-class FileHistory {
+class FileHistory : public QObject {
+Q_OBJECT
 public:
 	FileHistory();
 	~FileHistory();
@@ -32,6 +33,8 @@ public:
 	StrVect revOrder;
 	uint firstFreeLane;
 	QList<QByteArray*> rowData;
+signals:
+	void cleared();
 };
 
 class Git : public QObject {

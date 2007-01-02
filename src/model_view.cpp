@@ -7,6 +7,7 @@
 */
 #include <QTime>
 #include <QPainter>
+#include <QHeaderView>
 #include "common.h"
 #include "model_view.h"
 
@@ -16,34 +17,65 @@ MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), git(g), m(0), d(0
 
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
-}
-
-MVC::~MVC() {}
-
-void MVC::populate() {
 
 	m = new MVCModel(git, fh, this);
 	treeViewRevs->setModel(m);
 
 	d = new MVCDelegate(git, fh, this);
 	d->setCellHeight(treeViewRevs->fontMetrics().height());
-// 	treeViewRevs->setItemDelegateForColumn(0, d);
 	treeViewRevs->setItemDelegate(d);
+
+	if (git->isMainHistory(fh))
+		treeViewRevs->hideColumn(ANN_ID_COL);
+
+	treeViewRevs->header()->setStretchLastSection(true);
+	int w = treeViewRevs->columnWidth(LOG_COL);
+	treeViewRevs->setColumnWidth(LOG_COL, w * 4);
+	treeViewRevs->setColumnWidth(AUTH_COL, w * 2);
 }
 
 // ***********************************************************************
 
 MVCModel::MVCModel(Git* g, FileHistory* f, QObject* p) : QAbstractItemModel(p), git(g), fh(f) {
 
-	lastRev = NULL;
-	lastRow = -1;
-	headerInfo << "Graph" << "Ann id" << "Short Log"
-     		   << "Author" << "Author Date";
+	_headerInfo << "Graph" << "Ann id" << "Short Log"
+	            << "Author" << "Author Date";
+
+	_lastRev = NULL;
+	_lastRow = -1;
+	dataCleared(); // after _headerInfo is set
+
+	connect(fh, SIGNAL(cleared()), this, SLOT(dataCleared()));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 }
 
 MVCModel::~MVCModel() {}
 
-Qt::ItemFlags MVCModel::flags(const QModelIndex& index ) const {
+void MVCModel::dataCleared() {
+
+	if (testFlag(REL_DATE_F)) {
+		_secs = QDateTime::currentDateTime().toTime_t();
+		_headerInfo[3] = "Last Change";
+	} else {
+		_secs = 0;
+		_headerInfo[3] = "Author Date";
+	}
+	_rowCnt = fh->revOrder.count();
+	reset();
+}
+
+void MVCModel::on_newRevsAdded(const FileHistory* f, const QVector<QString>& shaVec) {
+
+	if (f != fh) // signal newRevsAdded() is broadcast
+		return;
+
+	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count());
+	_rowCnt = shaVec.count();
+	endInsertRows();
+}
+
+Qt::ItemFlags MVCModel::flags(const QModelIndex& index) const {
 
 	if (!index.isValid())
 		return Qt::ItemIsEnabled;
@@ -54,7 +86,7 @@ Qt::ItemFlags MVCModel::flags(const QModelIndex& index ) const {
 QVariant MVCModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-		return headerInfo[section];
+		return _headerInfo.at(section);
 
 	return QVariant();
 }
@@ -64,16 +96,16 @@ QModelIndex MVCModel::index(int row, int column, const QModelIndex&) const {
 	if (!git || !fh)
 		return QModelIndex();
 
-	if (row > fh->revOrder.count() || row < 0)
+	if (row < 0 || row >= _rowCnt)
 		return QModelIndex();
 
 	const Rev* r;
-	if (row == lastRow)
-		r = lastRev;
+	if (row == _lastRow)
+		r = _lastRev;
 	else {
-		lastRow = row;
-		lastRev = git->revLookup(fh->revOrder.at(row));
-		r = lastRev;
+		_lastRow = row;
+		_lastRev = git->revLookup(fh->revOrder.at(row));
+		r = _lastRev;
 	}
 	return (r ? createIndex(row, column, (void*)r) : QModelIndex());
 }
@@ -83,14 +115,24 @@ QModelIndex MVCModel::parent(const QModelIndex&) const {
 	return QModelIndex();
 }
 
-int MVCModel::rowCount(const QModelIndex&) const {
+const QString MVCModel::timeDiff(unsigned long secs) const {
 
-	return fh->revOrder.count();
-}
+	uint days  =  secs / (3600 * 24);
+	uint hours = (secs - days * 3600 * 24) / 3600;
+	uint min   = (secs - days * 3600 * 24 - hours * 3600) / 60;
+	uint sec   =  secs - days * 3600 * 24 - hours * 3600 - min * 60;
+	QString tmp;
+	if (days > 0)
+		tmp.append(QString::number(days) + "d ");
 
-int MVCModel::columnCount(const QModelIndex&) const {
+	if (hours > 0 || !tmp.isEmpty())
+		tmp.append(QString::number(hours) + "h ");
 
-	return 5;
+	if (min > 0 || !tmp.isEmpty())
+		tmp.append(QString::number(min) + "m ");
+
+	tmp.append(QString::number(sec) + "s");
+	return tmp;
 }
 
 QVariant MVCModel::data(const QModelIndex& index, int role) const {
@@ -114,52 +156,15 @@ QVariant MVCModel::data(const QModelIndex& index, int role) const {
 	if (col == QGit::AUTH_COL)
 		return r->author();
 
-	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA)
-		return git->getLocalDate(r->authorDate());
+	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA) {
 
+		if (_secs != 0) // secs is 0 for absolute date
+			return timeDiff(_secs - r->authorDate().toULong());
+		else
+			return git->getLocalDate(r->authorDate());
+	}
 	return QVariant();
 }
-
-// void ListViewItem::setupData(const Rev& c) {
-//
-// 	// calculate lanes
-// 	if (c.lanes.count() == 0)
-// 		git->setLane(_sha, fh);
-//
-// 	// set time/date column
-// 	int adj = !git->isMainHistory(fh) ? 0 : -1;
-// 	if (_sha != ZERO_SHA) {
-// 		if (secs != 0) { // secs is 0 for absolute date
-// 			secs -= c.authorDate().toULong();
-// 			setText(TIME_COL + adj, timeDiff(secs));
-// 		} else
-// 			setText(TIME_COL + adj, git->getLocalDate(c.authorDate()));
-// 	}
-// 	setText(LOG_COL + adj, c.shortLog());
-// 	setText(AUTH_COL + adj, c.author());
-// }
-//
-// const QString ListViewItem::timeDiff(unsigned long secs) const {
-//
-// 	uint days  =  secs / (3600 * 24);
-// 	uint hours = (secs - days * 3600 * 24) / 3600;
-// 	uint min   = (secs - days * 3600 * 24 - hours * 3600) / 60;
-// 	uint sec   =  secs - days * 3600 * 24 - hours * 3600 - min * 60;
-// 	QString tmp;
-// 	if (days > 0)
-// 		tmp.append(QString::number(days) + "d ");
-//
-// 	if (hours > 0 || !tmp.isEmpty())
-// 		tmp.append(QString::number(hours) + "h ");
-//
-// 	if (min > 0 || !tmp.isEmpty())
-// 		tmp.append(QString::number(min) + "m ");
-//
-// 	tmp.append(QString::number(sec) + "s");
-// 	return tmp;
-// }
-//
-
 
 MVCDelegate::MVCDelegate(Git* g, FileHistory* f, QObject* p) : QItemDelegate(p) {
 
@@ -307,16 +312,10 @@ void MVCDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	#undef R_CENTER
 }
 
-void MVCDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
+void MVCDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
 
-	static const QColor colors[COLORS_NUM] = { Qt::black, Qt::red, DARK_GREEN,
-	                                           Qt::blue,  Qt::darkGray, BROWN,
-	                                           Qt::magenta, ORANGE };
-
-	if (i.column() != 0)
-		return QItemDelegate::paint(p, opt, i);
-
-// 	dbg(i.row());dbg(p->viewport().top());dbg(p->hasClipping());
+	static const QColor colors[COLORS_NUM] = { Qt::black, Qt::red, DARK_GREEN, Qt::blue,
+	                                           Qt::darkGray, BROWN, Qt::magenta, ORANGE };
 	if (opt.state & QStyle::State_Selected)
 		p->fillRect(opt.rect, opt.palette.highlight());
 	else
@@ -364,4 +363,125 @@ void MVCDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt, const QMod
 			paintGraphLane(p, ln, x1, x2, colors[col % COLORS_NUM], back);
 	}
 	p->restore();
+}
+
+void MVCDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
+
+	if (i.column() == GRAPH_COL)
+		return paintGraph(p, opt, i);
+
+	if (true || i.column() != LOG_COL) // FIXME
+		return QItemDelegate::paint(p, opt, i);
+
+	// LOG_COL: tags, heads, refs and working dir colouring
+	const Rev* r = static_cast<const Rev*>(i.internalPointer());
+	if (!r)
+		return;
+
+	paintTagMarks(LOG_COL, r->sha());
+
+/*	if (false) { //isHighlighted
+		QFont f(p->font());
+		f.setBold(true);
+		p->save();
+		p->setFont(f);
+	}
+	if (r->isDiffCache) {
+		if (changedFiles(ZERO_SHA))
+			_cg.setColor(QPalette::Window, ORANGE);
+		else
+			_cg.setColor(QPalette::Window, DARK_ORANGE);
+	}
+
+	// diff target colouring
+	if (isDiffTarget)
+		_cg.setColor(QPalette::Window, LIGHT_BLUE);
+
+	Q3ListViewItem::paintCell(p, _cg, column, width, alignment);
+
+	if (false) // isHighlighted
+		p->restore();	*/
+}
+
+bool MVCDelegate::changedFiles(SCRef c) const {
+
+	const RevFile* f = git->getFiles(c);
+	if (f)
+		for (int i = 0; i < f->names.count(); i++)
+			if (!f->statusCmp(i, UNKNOWN))
+				return true;
+	return false;
+}
+
+void MVCDelegate::paintTagMarks(int col, SCRef sha) const {
+
+	uint rt = git->checkRef(sha);
+
+// 	if (!pixmap(col) && rt == 0)
+// 		return; // common case
+//
+// 	QPixmap* newPm = new QPixmap();
+//
+// 	if (rt & Git::BRANCH)
+// 		addBranchPixmap(&newPm);
+//
+// 	if (rt & Git::TAG)
+// 		addRefPixmap(&newPm, git->getRefName(_sha, Git::TAG), Qt::yellow);
+//
+// 	if (rt & Git::REF)
+// 		addRefPixmap(&newPm, git->getRefName(_sha, Git::REF), PURPLE);
+//
+// 	if (!pixmap(col) || (newPm->rect() != pixmap(col)->rect()))
+// 		setPixmap(col, *newPm);
+//
+// 	delete newPm;
+}
+
+void MVCDelegate::addBranchPixmap(QPixmap** pp, SCRef sha) const {
+
+	QString curBranch;
+	SCList refs = git->getRefName(sha, Git::BRANCH, &curBranch);
+	FOREACH_SL (it, refs) {
+		bool isCur = (curBranch == *it);
+		QColor color(isCur ? Qt::green : DARK_GREEN);
+		addTextPixmap(pp, *it, color, isCur);
+	}
+}
+
+void MVCDelegate::addRefPixmap(QPixmap** pp, SCList refs, const QColor& color) const {
+
+	FOREACH_SL (it, refs)
+		addTextPixmap(pp, *it, color, false);
+}
+
+void MVCDelegate::addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, bool bold) const {
+
+	QFont fnt; //QFont fnt(myListView()->font()); FIXME
+	if (bold)
+		fnt.setBold(true);
+
+	QFontMetrics fm(fnt);
+	QPixmap* pm = *pp;
+	int ofs = pm->isNull() ? 0 : pm->width() + 2;
+	int spacing = 2;
+	int pw = fm.boundingRect(text).width() + 2 * (spacing + int(bold));
+	int ph = fm.height() + 1;
+
+	QPixmap* newPm = new QPixmap(ofs + pw, ph);
+
+	QPainter p;
+	p.begin(newPm);
+	if (!pm->isNull()) {
+// 		newPm->fill(isEvenLine ? EVEN_LINE_COL : ODD_LINE_COL); FIXME
+		p.drawPixmap(0, 0, *pm);
+	}
+	p.setPen(Qt::black);
+	p.setBrush(color);
+	p.setFont(fnt);
+	p.drawRect(ofs, 0, pw, ph);
+	p.drawText(ofs + spacing, fm.ascent(), text);
+	p.end();
+
+	delete pm;
+	*pp = newPm;
 }
