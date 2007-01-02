@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>676</width>
-    <height>466</height>
+    <width>564</width>
+    <height>492</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -17,7 +17,7 @@
   </property>
   <layout class="QHBoxLayout" >
    <property name="margin" >
-    <number>0</number>
+    <number>5</number>
    </property>
    <property name="spacing" >
     <number>0</number>
@@ -139,47 +139,46 @@
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <widget class="QWidget" name="layoutWidget" >
-        <layout class="QVBoxLayout" >
+       <widget class="QFrame" name="frame_3" >
+        <property name="frameShape" >
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow" >
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" >
          <property name="margin" >
-          <number>0</number>
+          <number>9</number>
          </property>
          <property name="spacing" >
           <number>6</number>
          </property>
          <item>
-          <widget class="QLabel" name="labelActionName" >
-           <property name="text" >
-            <string>Name</string>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
            </property>
-           <property name="buddy" >
-            <cstring>listWidgetNames</cstring>
+           <property name="spacing" >
+            <number>6</number>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QListWidget" name="listWidgetNames" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>7</hsizetype>
-             <vsizetype>7</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
+           <item>
+            <widget class="QLabel" name="labelActionName" >
+             <property name="text" >
+              <string>Name</string>
+             </property>
+             <property name="buddy" >
+              <cstring>listWidgetNames</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="listWidgetNames" />
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>
        <widget class="QFrame" name="frame_2" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>5</vsizetype>
-          <horstretch>11</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="frameShape" >
          <enum>QFrame::StyledPanel</enum>
         </property>

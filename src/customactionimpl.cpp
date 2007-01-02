@@ -19,13 +19,22 @@ CustomActionImpl::CustomActionImpl() {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 
-	QSettings set;
-	QStringList actions = set.value(ACT_LIST_KEY).toStringList();
+	QSettings settings;
+	restoreGeometry(settings.value(ACT_GEOM_KEY).toByteArray());
+	QStringList actions = settings.value(ACT_LIST_KEY).toStringList();
+
 	listWidgetNames->insertItems(0, actions);
 	if (listWidgetNames->count())
 		listWidgetNames->setCurrentItem(listWidgetNames->item(0));
 	else
 		listWidgetNames_currentItemChanged(NULL, NULL);
+}
+
+void CustomActionImpl::closeEvent(QCloseEvent* ce) {
+
+	QSettings settings;
+	settings.setValue(ACT_GEOM_KEY, saveGeometry());
+	QWidget::closeEvent(ce);
 }
 
 void CustomActionImpl::loadAction(const QString& name) {

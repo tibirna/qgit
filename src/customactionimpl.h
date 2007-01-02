@@ -9,7 +9,6 @@
 #ifndef CUSTOMACTIONIMPL_H
 #define CUSTOMACTIONIMPL_H
 
-#include <QWidget>
 #include "ui_customaction.h"
 
 class CustomActionImpl : public QWidget, public Ui_CustomActionBase {
@@ -21,6 +20,7 @@ signals:
 	void listChanged(const QStringList&);
 
 protected slots:
+	virtual void closeEvent(QCloseEvent*);
 	void listWidgetNames_currentItemChanged(QListWidgetItem*, QListWidgetItem*);
 	void pushButtonNew_clicked();
 	void pushButtonRename_clicked();

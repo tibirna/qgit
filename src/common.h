@@ -197,6 +197,7 @@ namespace QGit {
 	extern const QString PATCH_ARGS_KEY;
 	extern const QString TYPWRT_FNT_KEY;
 	extern const QString FLAGS_KEY;
+	extern const QString CON_GEOM_KEY;
 	extern const QString CMT_GEOM_KEY;
 	extern const QString CMT_SPLIT_KEY;
 	extern const QString CMT_TEMPL_KEY;
@@ -206,6 +207,7 @@ namespace QGit {
 	extern const QString EXT_DIFF_KEY;
 	extern const QString REC_REP_KEY;
 	extern const QString ACT_LIST_KEY;
+	extern const QString ACT_GEOM_KEY;
 	extern const QString ACT_GROUP_KEY;
 	extern const QString ACT_TEXT_KEY;
 	extern const QString ACT_FLAGS_KEY;

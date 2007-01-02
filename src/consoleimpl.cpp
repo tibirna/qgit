@@ -6,6 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QSettings>
 #include <QStatusBar>
 #include <QMessageBox>
 #include "myprocess.h"
@@ -21,6 +22,8 @@ ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) : git(g), actionName(nm) {
 	f.setBold(true);
 	textLabelCmd->setFont(f);
 	setCaption("\'" + actionName + "\' output window - QGit");
+	QSettings settings;
+	restoreGeometry(settings.value(QGit::CON_GEOM_KEY).toByteArray());
 }
 
 void ConsoleImpl::pushButtonOk_clicked() {
@@ -47,6 +50,8 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 	if (QApplication::overrideCursor())
 		QApplication::restoreOverrideCursor();
 
+	QSettings settings;
+	settings.setValue(QGit::CON_GEOM_KEY, saveGeometry());
 	QMainWindow::closeEvent(ce);
 }
 

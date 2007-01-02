@@ -16,7 +16,7 @@
 class MyProcess;
 class Git;
 
-class ConsoleImpl : public QMainWindow, Ui_Console {
+class ConsoleImpl : public QMainWindow, Ui_Console { // we need a statusbar
 Q_OBJECT
 public:
 	ConsoleImpl(const QString& nm, Git* g);
@@ -30,9 +30,9 @@ public slots:
 	void procFinished();
 
 protected slots:
+	virtual void closeEvent(QCloseEvent* ce);
 	void pushButtonTerminate_clicked();
 	void pushButtonOk_clicked();
-	void closeEvent(QCloseEvent* ce);
 
 private:
 	Git* git;

@@ -30,11 +30,7 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 
 	// read settings
 	QSettings settings;
-	QRect r(settings.value(CMT_GEOM_KEY).toRect());
-	if (r.isValid()) {
-		resize(r.size());
-		move(r.topLeft());
-	}
+	restoreGeometry(settings.value(CMT_GEOM_KEY).toByteArray());
 	QSize sz(settings.value(CMT_SPLIT_KEY).toSize());
 	if (sz.isValid()) {
 		QList<int> szList;
@@ -97,10 +93,10 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	        this, SLOT(contextMenuPopup(const QPoint&)));
 }
 
-CommitImpl::~CommitImpl() {
+void CommitImpl::closeEvent(QCloseEvent* ce) {
 
 	QSettings settings;
-	settings.setValue(CMT_GEOM_KEY, QRect(pos(), size()));
+	settings.setValue(CMT_GEOM_KEY, saveGeometry());
 	QList<int> sz = splitter->sizes();
 	settings.setValue(CMT_SPLIT_KEY, QSize(sz[0], sz[1]));
 }
