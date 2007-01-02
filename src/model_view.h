@@ -9,30 +9,32 @@
 #define MODEL_VIEW_H
 
 #include <QAbstractItemModel>
+#include <QItemDelegate>
 #include "ui_model_view.h"
 #include "git.h"
 
 class MVCModel;
+class MVCDelegate;
 class Rev;
 
 class MVC : public QMainWindow, public Ui_MainWindowsModelView {
 Q_OBJECT
 public:
-	MVC(Git* git, FileHistory* fh, QObject* parent);
+	MVC(Git* git, FileHistory* fh, QWidget* parent);
 	~MVC();
 	void populate();
 
 private:
 	Git* git;
 	MVCModel* m;
+	MVCDelegate* d;
 	FileHistory* fh;
-	QObject* par;
 };
 
 class MVCModel : public QAbstractItemModel {
 Q_OBJECT
 public:
-	MVCModel(Git* git, FileHistory* fh, QObject *parent = 0);
+	MVCModel(Git* git, FileHistory* fh, QObject *parent);
 	~MVCModel();
 
 	QVariant data(const QModelIndex &index, int role) const;
@@ -56,5 +58,24 @@ private:
 	mutable const Rev* lastRev;
 };
 
+class MVCDelegate : public QItemDelegate {
+Q_OBJECT
+
+public:
+	MVCDelegate(Git* git, FileHistory* fh, QObject *parent);
+
+	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
+	virtual QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &i) const;
+	void setCellHeight(int h);
+
+private:
+	void paintGraphLane(QPainter* p, int type, int x1, int x2,
+                            const QColor& col, const QBrush& back) const;
+
+	Git* git;
+	FileHistory* fh;
+	int _cellWidth;
+	int _cellHeight;
+};
 
 #endif
