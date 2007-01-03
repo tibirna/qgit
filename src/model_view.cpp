@@ -46,8 +46,6 @@ MVCModel::MVCModel(Git* g, FileHistory* f, QObject* p) : QAbstractItemModel(p), 
 	_headerInfo << "Graph" << "Ann id" << "Short Log"
 	            << "Author" << "Author Date";
 
-	_lastRev = NULL;
-	_lastRow = -1;
 	dataCleared(); // after _headerInfo is set
 
 	connect(fh, SIGNAL(cleared()), this, SLOT(dataCleared()));
@@ -97,22 +95,20 @@ QVariant MVCModel::headerData(int section, Qt::Orientation orientation, int role
 }
 
 QModelIndex MVCModel::index(int row, int column, const QModelIndex&) const {
-
+/*
+	index() is called much more then data(), also by a 100X factor on
+	big archives, so we use just the row number as QModelIndex payload
+	and defer the revision lookup later, inside data().
+	Because row and column info are	stored anyway in QModelIndex we
+	don't need to add any additional data.
+*/
 	if (!git || !fh)
 		return QModelIndex();
 
 	if (row < 0 || row >= _rowCnt)
 		return QModelIndex();
 
-	const Rev* r;
-	if (row == _lastRow)
-		r = _lastRev;
-	else {
-		_lastRow = row;
-		_lastRev = git->revLookup(fh->revOrder.at(row));
-		r = _lastRev;
-	}
-	return (r ? createIndex(row, column, (void*)r) : QModelIndex());
+	return createIndex(row, column, 0);
 }
 
 QModelIndex MVCModel::parent(const QModelIndex&) const {
@@ -142,13 +138,13 @@ const QString MVCModel::timeDiff(unsigned long secs) const {
 
 QVariant MVCModel::data(const QModelIndex& index, int role) const {
 
-	if (!index.isValid())
+	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
 
-	if (role != Qt::DisplayRole)
+	const Rev* r = git->revLookup(fh->revOrder.at(index.row()));
+	if (!r)
 		return QVariant();
 
-	const Rev* r = static_cast<const Rev*>(index.internalPointer());
 	int col = index.column();
 
 	// calculate lanes
@@ -327,7 +323,7 @@ void MVCDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt, const
 	else
 		p->fillRect(opt.rect, opt.palette.base());
 
-	const Rev* r = static_cast<const Rev*>(i.internalPointer());
+	const Rev* r = git->revLookup(fh->revOrder.at(i.row()));
 	if (!r)
 		return;
 
@@ -373,7 +369,7 @@ void MVCDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt, const
 
 void MVCDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
 
-	const Rev* r = static_cast<const Rev*>(i.internalPointer());
+	const Rev* r = git->revLookup(fh->revOrder.at(i.row()));
 	if (!r)
 		return;
 

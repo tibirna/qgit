@@ -56,8 +56,6 @@ private:
 	QList<QVariant> _headerInfo;
 	int _rowCnt;
 	unsigned long _secs;
-	mutable int _lastRow;
-	mutable const Rev* _lastRev;
 };
 
 class MVCDelegate : public QItemDelegate {
