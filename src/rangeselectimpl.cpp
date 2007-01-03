@@ -115,8 +115,8 @@ void RangeSelectImpl::pushButtonOk_clicked() {
 			range->append("..");
 
 		range->append(comboBoxTo->currentText());
-		range->prepend(lineEditOptions->text() + " ");
-		*range = range->stripWhiteSpace();
 	}
+	range->prepend(lineEditOptions->text() + " ");
+	*range = range->stripWhiteSpace();
 	done(QDialog::Accepted);
 }

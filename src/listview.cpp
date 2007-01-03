@@ -680,7 +680,7 @@ void ListViewItem::addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, 
 	int ofs = pm->isNull() ? 0 : pm->width() + 2;
 	int spacing = 2;
 	int pw = fm.boundingRect(text).width() + 2 * (spacing + int(bold));
-	int ph = fm.height() + 1;
+	int ph = fm.height() - 1; // leave vertical space between two consecutive tags
 
 	QPixmap* newPm = new QPixmap(ofs + pw, ph);
 
@@ -693,7 +693,7 @@ void ListViewItem::addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, 
 	p.setPen(Qt::black);
 	p.setBrush(color);
 	p.setFont(fnt);
-	p.drawRect(ofs, 0, pw, ph);
+	p.drawRect(ofs, 0, pw - 1, ph - 1);
 	p.drawText(ofs + spacing, fm.ascent(), text);
 	p.end();
 
