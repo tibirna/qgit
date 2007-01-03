@@ -1128,7 +1128,20 @@ const QStringList Rev::parents() const {
 }
 
 int Rev::indexData() { // fast path here, less then 4% of load time
+/*
+	When git-rev-list is called with --header option, after the first
+	line with the commit sha, the following information is produced
 
+	- one line with "tree"
+	- an arbitrary amount of "parent" lines
+	- one line with "author"
+	- one line with "committer"
+	- zero or more non blank lines with other info, as the encoding
+	- one blank line
+	- zero or one line with log title
+	- zero or more lines with log message
+	- a terminating '\0'
+*/
 	int last = ba.size() - 1;
 	boundaryOfs = uint(ba.at(start) == '-');
 
@@ -1170,7 +1183,10 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 		return -1;
 
 	// ok, from here we are sure we have a complete chunk
-	sLogStart = idx + 6;
+	while (++idx < end && ba.at(idx) != '\n') // check for the first blank line
+		idx = ba.find('\n', idx);
+
+	sLogStart = idx + 5;
 	if (end < sLogStart) { // no shortlog and no longLog
 
 		sLogStart = sLogLen = 0;
