@@ -18,6 +18,11 @@ MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), git(g), m(0), d(0
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
 
+	QPalette pl = treeViewRevs->palette();
+	pl.setColor(QPalette::Base, ODD_LINE_COL);
+	pl.setColor(QPalette::AlternateBase, EVEN_LINE_COL);
+	treeViewRevs->setPalette(pl); // does not seem to inherit application palette
+
 	m = new MVCModel(git, fh, this);
 	treeViewRevs->setModel(m);
 
@@ -316,6 +321,7 @@ void MVCDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt, const
 
 	static const QColor colors[COLORS_NUM] = { Qt::black, Qt::red, DARK_GREEN, Qt::blue,
 	                                           Qt::darkGray, BROWN, Qt::magenta, ORANGE };
+
 	if (opt.state & QStyle::State_Selected)
 		p->fillRect(opt.rect, opt.palette.highlight());
 	else
@@ -365,42 +371,47 @@ void MVCDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt, const
 	p->restore();
 }
 
-void MVCDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
+void MVCDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
 
-	if (i.column() == GRAPH_COL)
-		return paintGraph(p, opt, i);
-
-	if (true || i.column() != LOG_COL) // FIXME
-		return QItemDelegate::paint(p, opt, i);
-
-	// LOG_COL: tags, heads, refs and working dir colouring
 	const Rev* r = static_cast<const Rev*>(i.internalPointer());
 	if (!r)
 		return;
 
-	paintTagMarks(LOG_COL, r->sha());
+	if (r->isDiffCache)
+		p->fillRect(opt.rect, changedFiles(ZERO_SHA) ? ORANGE : DARK_ORANGE);
 
-/*	if (false) { //isHighlighted
+/*	if (isHighlighted) {
 		QFont f(p->font());
 		f.setBold(true);
 		p->save();
 		p->setFont(f);
 	}
-	if (r->isDiffCache) {
-		if (changedFiles(ZERO_SHA))
-			_cg.setColor(QPalette::Window, ORANGE);
-		else
-			_cg.setColor(QPalette::Window, DARK_ORANGE);
-	}
-
-	// diff target colouring
 	if (isDiffTarget)
-		_cg.setColor(QPalette::Window, LIGHT_BLUE);
+		p->fillRect(opt.rect, LIGHT_BLUE);
+*/
+	QPixmap* pm = getTagMarks(r->sha());
+	if (pm) {
+		p->drawPixmap(opt.rect.x(), opt.rect.y(), *pm);
+		QStyleOptionViewItem o(opt);
+		o.rect.adjust(pm->width(), 0, 0, 0);
+		delete pm;
+		QItemDelegate::paint(p, o, i);
+	} else
+		QItemDelegate::paint(p, opt, i);
 
-	Q3ListViewItem::paintCell(p, _cg, column, width, alignment);
+// 	if (isHighlighted)
+// 		p->restore();
+}
 
-	if (false) // isHighlighted
-		p->restore();	*/
+void MVCDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
+
+	if (i.column() == GRAPH_COL)
+		return paintGraph(p, opt, i);
+
+	if (i.column() == LOG_COL)
+		return paintLog(p, opt, i);
+
+	return QItemDelegate::paint(p, opt, i);
 }
 
 bool MVCDelegate::changedFiles(SCRef c) const {
@@ -413,28 +424,24 @@ bool MVCDelegate::changedFiles(SCRef c) const {
 	return false;
 }
 
-void MVCDelegate::paintTagMarks(int col, SCRef sha) const {
+QPixmap* MVCDelegate::getTagMarks(SCRef sha) const {
 
 	uint rt = git->checkRef(sha);
+	if (rt == 0)
+		return NULL; // common case
 
-// 	if (!pixmap(col) && rt == 0)
-// 		return; // common case
-//
-// 	QPixmap* newPm = new QPixmap();
-//
-// 	if (rt & Git::BRANCH)
-// 		addBranchPixmap(&newPm);
-//
-// 	if (rt & Git::TAG)
-// 		addRefPixmap(&newPm, git->getRefName(_sha, Git::TAG), Qt::yellow);
-//
-// 	if (rt & Git::REF)
-// 		addRefPixmap(&newPm, git->getRefName(_sha, Git::REF), PURPLE);
-//
-// 	if (!pixmap(col) || (newPm->rect() != pixmap(col)->rect()))
-// 		setPixmap(col, *newPm);
-//
-// 	delete newPm;
+	QPixmap* pm = new QPixmap(); // must be deleted by caller
+
+	if (rt & Git::BRANCH)
+		addBranchPixmap(&pm, sha);
+
+	if (rt & Git::TAG)
+		addRefPixmap(&pm, git->getRefName(sha, Git::TAG), Qt::yellow);
+
+	if (rt & Git::REF)
+		addRefPixmap(&pm, git->getRefName(sha, Git::REF), PURPLE);
+
+	return pm;
 }
 
 void MVCDelegate::addBranchPixmap(QPixmap** pp, SCRef sha) const {
@@ -465,20 +472,20 @@ void MVCDelegate::addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, b
 	int ofs = pm->isNull() ? 0 : pm->width() + 2;
 	int spacing = 2;
 	int pw = fm.boundingRect(text).width() + 2 * (spacing + int(bold));
-	int ph = fm.height() + 1;
+	int ph = fm.height() - 1; // leave vertical space between two consecutive tags
 
 	QPixmap* newPm = new QPixmap(ofs + pw, ph);
 
 	QPainter p;
 	p.begin(newPm);
 	if (!pm->isNull()) {
-// 		newPm->fill(isEvenLine ? EVEN_LINE_COL : ODD_LINE_COL); FIXME
+		newPm->fill(QApplication::palette().base());
 		p.drawPixmap(0, 0, *pm);
 	}
 	p.setPen(Qt::black);
 	p.setBrush(color);
 	p.setFont(fnt);
-	p.drawRect(ofs, 0, pw, ph);
+	p.drawRect(ofs, 0, pw - 1, ph - 1);
 	p.drawText(ofs + spacing, fm.ascent(), text);
 	p.end();
 

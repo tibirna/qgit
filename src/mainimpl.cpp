@@ -96,6 +96,10 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	connect(lineEditSHA, SIGNAL(returnPressed()), this, SLOT(lineEditSHA_returnPressed()));
 	connect(lineEditFilter, SIGNAL(returnPressed()), this, SLOT(lineEditFilter_returnPressed()));
 
+	// create light and dark colors for alternate background
+	ODD_LINE_COL = palette().color(QPalette::Base);
+	EVEN_LINE_COL = ODD_LINE_COL.dark(103);
+
 	git = new Git(this);
 	Q3Accel* accel = new Q3Accel(this);
 	setupAccelerator(accel);
@@ -151,10 +155,6 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	// set-up menu for custom actions
 	connect(Actions, SIGNAL(activated(int)), this, SLOT(customAction_activated(int)));
 	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
-
-	// create light and dark colors for alternate background
-	QGit::ODD_LINE_COL = palette().color(QPalette::Base);
-	QGit::EVEN_LINE_COL = QGit::ODD_LINE_COL.dark(103);
 
 	// manual adjust lineEditSHA width
 	QString tmp;

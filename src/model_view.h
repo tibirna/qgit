@@ -71,11 +71,12 @@ public:
 	void setCellHeight(int h);
 
 private:
+	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraphLane(QPainter* p, int type, int x1, int x2,
                             const QColor& col, const QBrush& back) const;
 
-        void paintTagMarks(int col, SCRef sha) const;
+	QPixmap* getTagMarks(SCRef sha) const;
 	void addBranchPixmap(QPixmap** pp, SCRef sha) const;
 	void addRefPixmap(QPixmap** pp, SCList refs, const QColor& color) const;
 	void addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, bool bold) const;
