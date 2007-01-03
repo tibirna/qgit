@@ -154,7 +154,7 @@ void RevsView::on_updateRevDesc() {
 
 	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
 	tab()->textBrowserDesc->setText(d);
-	tab()->textBrowserDesc->setCursorPosition(0, 0);
+// 	tab()->textBrowserDesc->setCursorPosition(0, 0); FIXME
 }
 
 bool RevsView::doUpdate(bool force) {

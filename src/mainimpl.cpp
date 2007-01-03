@@ -934,19 +934,19 @@ void MainImpl::goMatch(int delta) {
 	}
 }
 
-Q3TextEdit* MainImpl::getCurrentTextEdit() {
+QTextEdit* MainImpl::getCurrentTextEdit() {
 
-	Q3TextEdit* te = NULL;
+	QTextEdit* te = NULL;
 	Domain* t;
 	switch (currentTabType(&t)) {
 	case TAB_REV:
 		te = static_cast<RevsView*>(t)->tab()->textBrowserDesc;
 		break;
 	case TAB_PATCH:
-		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
+// 		te = static_cast<PatchView*>(t)->tab()->textEditDiff; FIXME
 		break;
 	case TAB_FILE:
-		te = static_cast<FileView*>(t)->tab()->textEditFile;
+// 		te = static_cast<FileView*>(t)->tab()->textEditFile; FIXME
 		break;
 	default:
 		break;
@@ -956,17 +956,17 @@ Q3TextEdit* MainImpl::getCurrentTextEdit() {
 
 void MainImpl::scrollTextEdit(int delta) {
 
-	Q3TextEdit* te = getCurrentTextEdit();
+	QTextEdit* te = getCurrentTextEdit();
 	if (!te)
 		return;
 
-	int h = te->visibleHeight();
-	int ls = te->fontMetrics().lineSpacing();
-	if (delta == 1 || delta == -1) {
-		te->scrollBy(0, delta * (h - ls));
-		return;
-	}
-	te->scrollBy(0, delta * ls);
+// 	int h = te->visibleHeight(); FIXME
+// 	int ls = te->fontMetrics().lineSpacing();
+// 	if (delta == 1 || delta == -1) {
+// 		te->scrollBy(0, delta * (h - ls));
+// 		return;
+// 	}
+// 	te->scrollBy(0, delta * ls);
 }
 
 void MainImpl::scrollListView(int delta) {
@@ -1607,7 +1607,7 @@ void MainImpl::ActFilterTree_toggled(bool b) {
 
 void MainImpl::ActFindNext_activated() {
 
-	Q3TextEdit* te = getCurrentTextEdit();
+	QTextEdit* te = getCurrentTextEdit();
 	if (!te || textToFind.isEmpty())
 		return;
 
@@ -1627,13 +1627,13 @@ void MainImpl::ActFindNext_activated() {
 			return;
 
 		endOfDocument = true;
-		te->setCursorPosition(0, 0);
+// 		te->setCursorPosition(0, 0); FIXME
 	}
 }
 
 void MainImpl::ActFind_activated() {
 
-	Q3TextEdit* te = getCurrentTextEdit();
+	QTextEdit* te = getCurrentTextEdit();
 	if (!te)
 		return;
 

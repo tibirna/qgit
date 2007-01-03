@@ -328,7 +328,7 @@ void PatchView::on_updateRevDesc() {
 
 	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
 	patchTab->textBrowserDesc->setText(d);
-	patchTab->textBrowserDesc->setCursorPosition(0, 0);
+// 	patchTab->textBrowserDesc->setCursorPosition(0, 0); FIXME
 }
 
 void PatchView::updatePatch() {

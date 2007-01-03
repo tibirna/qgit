@@ -22,7 +22,7 @@ class Q3ListViewItem;
 class Q3ListBoxItem;
 class Q3PopupMenu;
 class Q3Accel;
-class Q3TextEdit;
+class QTextEdit;
 class Git;
 class Domain;
 class ListViewItem;
@@ -135,7 +135,7 @@ private:
 	void scrollListView(int delta);
 	void goMatch(int delta);
 	bool askApplyPatchParameters(bool* commit, bool* fold);
-	Q3TextEdit* getCurrentTextEdit();
+	QTextEdit* getCurrentTextEdit();
 	template<class X> QList<X*>* getTabs(int tabPos = -1);
 	template<class X> X* firstTab(int startPos = -1);
 	void openFileTab(FileView* fv = NULL);

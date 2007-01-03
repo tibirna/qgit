@@ -3,58 +3,52 @@
 
 	Copyright: See COPYING file that comes with this distribution
 */
-#include <qapplication.h>
-#include <qregexp.h>
-#include <q3popupmenu.h>
-#include <q3action.h>
-#include <qclipboard.h>
-#include <qaction.h>
-#include "common.h"
+#include <QApplication>
+#include <QMenu>
+#include <QRegExp>
+#include <QAction>
+#include <QClipboard>
 #include "domain.h"
 #include "revdesc.h"
 
-RevDesc::RevDesc(QWidget* p) : Q3TextBrowser(p), d(NULL) {
+RevDesc::RevDesc(QWidget* p) : QTextBrowser(p), d(NULL) {
 
-	setTextFormat(Qt::RichText);
+	connect(this, SIGNAL(anchorClicked(const QUrl&)),
+	        this, SLOT(on_anchorClicked(const QUrl&)));
 
-	connect(this, SIGNAL(linkClicked(const QString&)),
-	        this, SLOT(on_linkClicked(const QString&)));
-
-	connect(this, SIGNAL(highlighted(const QString&)),
-	        this, SLOT(on_highlighted(const QString&)));
+	connect(this, SIGNAL(highlighted(const QUrl&)),
+	        this, SLOT(on_highlighted(const QUrl&)));
 }
 
-void RevDesc::on_linkClicked(const QString& link) {
+void RevDesc::on_anchorClicked(const QUrl& link) {
 
-	QRegExp reSHA("[0-9a-f]{40}", false);
-	if (link.find(reSHA) != -1) {
+	QRegExp re("[0-9a-f]{40}", Qt::CaseInsensitive);
+	if (re.exactMatch(link.toString())) {
 
-		setText(text()); // without this Qt warns on missing MIME source
+		setSource(QUrl()); // override default navigation behavior
 		d->st.setSha(link);
 		UPDATE_DOMAIN(d);
 	}
 }
 
-void RevDesc::on_highlighted(const QString& link) {
+void RevDesc::on_highlighted(const QUrl& link) {
 
-	highlightedLink = link;
-}
-
-Q3PopupMenu* RevDesc::createPopupMenu(const QPoint& pos) {
-
-	Q3PopupMenu* popup = Q3TextBrowser::createPopupMenu(pos);
-
-	if (highlightedLink.isEmpty())
-		return popup;
-
-	Q3Action* act = new Q3Action("Copy link sha1", 0, popup);
-	connect(act, SIGNAL(activated()), this, SLOT(on_linkCopy()));
-	act->addTo(popup);
-	return popup;
+	highlightedLink = link.toString();
 }
 
 void RevDesc::on_linkCopy() {
 
 	QClipboard* cb = QApplication::clipboard();
-	cb->setText(highlightedLink, QClipboard::Clipboard);
+	cb->setText(highlightedLink);
+}
+
+void RevDesc::contextMenuEvent(QContextMenuEvent* e) {
+
+	QMenu* menu = createStandardContextMenu();
+	if (!highlightedLink.isEmpty()) {
+		QAction* act = menu->addAction("Copy link SHA1");
+		connect(act, SIGNAL(triggered()), this, SLOT(on_linkCopy()));
+	}
+	menu->exec(e->globalPos());
+	delete menu;
 }
