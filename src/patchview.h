@@ -7,24 +7,15 @@
 #ifndef PATCHVIEW_H
 #define PATCHVIEW_H
 
-#include <qobject.h>
-#include <qpointer.h>
-#include <qregexp.h>
-#include "ui_patchview.h" // needed by moc_* file to understand tab() function
+#include <QPointer>
+#include <QRegExp>
+#include "ui_patchview.h"
 #include "domain.h"
 
-class Q3TextEdit;
-class QLineEdit;
-class QRadioButton;
-class DiffHighlighter;
-class Git;
-class MyProcess;
-class StateInfo;
-class Domain;
 class DiffHighlighter;
 class ListBoxFiles;
-class TabPatch;
-class RevFile;
+class Git;
+class MyProcess;
 
 class PatchView :public Domain {
 Q_OBJECT
@@ -41,7 +32,7 @@ signals:
 
 public slots:
 	void lineEditDiff_returnPressed();
-	void buttonGroupDiff_clicked(int);
+	void button_clicked(int);
 	void procReadyRead(const QString& data);
 	void procFinished();
 	void on_highlightPatch(const QString&, bool);

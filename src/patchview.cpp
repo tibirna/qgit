@@ -6,32 +6,26 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <q3textedit.h>
-#include <qlineedit.h>
-#include <qapplication.h>
-#include <q3syntaxhighlighter.h>
-#include <qradiobutton.h>
-#include <q3buttongroup.h>
-#include <qtabwidget.h>
+#include <QSyntaxHighlighter>
+#include <QApplication>
 #include "common.h"
 #include "git.h"
-#include "domain.h"
 #include "myprocess.h"
 #include "mainimpl.h"
-#include "revdesc.h"
-#include "filelist.h"
+#include "filelist.h" // TODO remove
 #include "patchview.h"
 
-class DiffHighlighter : public Q3SyntaxHighlighter {
+class DiffHighlighter : public QSyntaxHighlighter {
 public:
-	DiffHighlighter(PatchView* p, Q3TextEdit* te) :
-	                Q3SyntaxHighlighter(te), pv(p), combinedLenght(0) {}
+	DiffHighlighter(PatchView* p, QTextEdit* e) : QSyntaxHighlighter(e), pv(p), cl(0) {}
+	void setCombinedLength(uint c) { cl = c; }
+	virtual void highlightBlock(const QString& text) {
 
-	void setCombinedLength(uint cl) { combinedLenght = cl; }
-	virtual int highlightParagraph (const QString& text, int) {
+		if (text.isEmpty())
+			return;
 
 		QColor myColor;
-		const char firstChar = text[0].latin1();
+		const char firstChar = text.at(0).toLatin1();
 		switch (firstChar) {
 		case '@':
 			myColor = Qt::darkMagenta;
@@ -57,14 +51,14 @@ public:
 			    || text.startsWith("rename ")
 			    || text.startsWith("similarity "))
 				myColor = Qt::darkBlue;
-			else if (combinedLenght > 0 && text.startsWith("diff --combined"))
+			else if (cl > 0 && text.startsWith("diff --combined"))
 				myColor = Qt::darkBlue;
 			break;
 		case ' ':
-			if (combinedLenght > 0) {
-				if (text.left(combinedLenght).contains('+'))
+			if (cl > 0) {
+				if (text.left(cl).contains('+'))
 					myColor = Qt::darkGreen;
-				else if (text.left(combinedLenght).contains('-'))
+				else if (text.left(cl).contains('-'))
 					myColor = Qt::red;
 			}
 			break;
@@ -72,24 +66,24 @@ public:
 		if (myColor.isValid())
 			setFormat(0, text.length(), myColor);
 
-		if (pv->matches.count() > 0) {
+/*		if (pv->matches.count() > 0) { FIXME
 			int indexFrom, indexTo;
 			if (pv->getMatch(currentParagraph(), &indexFrom, &indexTo)) {
 
-				QFont f = textEdit()->currentFont();
-				f.setUnderline(true);
-				f.setBold(true);
+				QTextCharFormat fmt;
+				fmt.setFont(document()->defaultFont()); // FIXME use currentFont()
+				fmt.setFontWeight(QFont::Bold);
+				fmt.setForeground(Qt::blue);
 				if (indexTo == 0)
 					indexTo = text.length();
 
-				setFormat(indexFrom, indexTo - indexFrom, f, Qt::blue);
+				setFormat(indexFrom, indexTo - indexFrom, fmt);
 			}
-		}
-		return 0;
+		}*/
 	}
 private:
 	PatchView* pv;
-	uint combinedLenght;
+	uint cl;
 };
 
 PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g) {
@@ -102,6 +96,12 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	patchTab = new Ui_TabPatch();
 	patchTab->setupUi(container);
 
+	QButtonGroup* bg = new QButtonGroup(this);
+	bg->addButton(patchTab->radioButtonParent, DIFF_TO_PARENT);
+	bg->addButton(patchTab->radioButtonHead, DIFF_TO_HEAD);
+	bg->addButton(patchTab->radioButtonSha, DIFF_TO_SHA);
+	connect(bg, SIGNAL(buttonClicked(int)), this, SLOT(button_clicked(int)));
+
 	m()->tabWdg->addTab(container, "&Patch");
 	tabPosition = m()->tabWdg->count() - 1;
 
@@ -113,9 +113,6 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g) {
 
 	connect(patchTab->lineEditDiff, SIGNAL(returnPressed()),
 	        this, SLOT(lineEditDiff_returnPressed()));
-
-	connect(patchTab->buttonGroupDiff, SIGNAL(clicked(int)),
-	        this, SLOT(buttonGroupDiff_clicked(int)));
 
 	connect(listBoxFiles, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
@@ -171,55 +168,40 @@ void PatchView::on_contextMenu(const QString& data, int type) {
 
 void PatchView::centerTarget() {
 
-	patchTab->textEditDiff->setCursorPosition(0, 0);
-	if (!patchTab->textEditDiff->find(target, true, true)) // updates cursor position
+	QTextEdit* te = patchTab->textEditDiff;
+	te->moveCursor(QTextCursor::Start);
+
+	// find() updates cursor position
+	if (!te->find(target, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords))
 		return;
 
-	// target found
+	// target found, remove selection
 	seekTarget = false;
-	int para, index;
-	patchTab->textEditDiff->getCursorPosition(&para, &index);
-	QPoint p = patchTab->textEditDiff->paragraphRect(para).topLeft();
-	patchTab->textEditDiff->setContentsPos(p.x(), p.y());
-	patchTab->textEditDiff->removeSelection();
+	QTextCursor tc = te->textCursor();
+ 	tc.clearSelection();
+	te->setTextCursor(tc);
+
+	// and scroll to top of the page TODO make it simpler!!!!
+	QFontMetrics fm(te->currentFont());
+	int delta = te->verticalScrollBar()->pageStep() - fm.height();
+	int value = te->verticalScrollBar()->value();
+	te->verticalScrollBar()->setValue(value + delta);
 }
 
 void PatchView::centerMatch(int id) {
 
 	if (matches.count() <= id)
 		return;
-
-	patchTab->textEditDiff->setSelection(matches[id].paraFrom, matches[id].indexFrom,
-	                                     matches[id].paraTo, matches[id].indexTo);
+//FIXME
+// 	patchTab->textEditDiff->setSelection(matches[id].paraFrom, matches[id].indexFrom,
+// 	                                     matches[id].paraTo, matches[id].indexTo);
 }
 
 void PatchView::procReadyRead(const QString& data) {
 
-	int X = patchTab->textEditDiff->contentsX();
-	int Y = patchTab->textEditDiff->contentsY();
-
-	bool targetInNewChunk = false;
-	if (seekTarget)
-		targetInNewChunk = (data.find(target) != -1);
-
-	// QTextEdit::append() adds a new paragraph, i.e. inserts a LF
-	// if not already present. For performance reasons we cannot use
-	// QTextEdit::text() + QString::append() + QTextEdit::setText()
-	// so we append only \n terminating text
-	//
-	// NOTE: last char of diff data MUST always be '\n' for this to work
-	QString newPara;
-	if (!QGit::stripPartialParaghraps(data, &newPara, &partialParagraphs))
-		return;
-
-	patchTab->textEditDiff->append(newPara);
-
-	if (targetInNewChunk)
+	patchTab->textEditDiff->insertPlainText(data);
+	if (seekTarget && data.contains(target))
 		centerTarget();
-	else {
-		patchTab->textEditDiff->setContentsPos(X, Y);
-		patchTab->textEditDiff->sync();
-	}
 }
 
 void PatchView::procFinished() {
@@ -296,10 +278,10 @@ void PatchView::lineEditDiff_returnPressed() {
 		return;
 
 	patchTab->radioButtonSha->setChecked(true); // could be called by code
-	buttonGroupDiff_clicked(DIFF_TO_SHA);
+	button_clicked(DIFF_TO_SHA);
 }
 
-void PatchView::buttonGroupDiff_clicked(int diffType) {
+void PatchView::button_clicked(int diffType) {
 
 	QString sha;
 	switch (diffType) {
@@ -327,8 +309,7 @@ void PatchView::buttonGroupDiff_clicked(int diffType) {
 void PatchView::on_updateRevDesc() {
 
 	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
-	patchTab->textBrowserDesc->setText(d);
-// 	patchTab->textBrowserDesc->setCursorPosition(0, 0); FIXME
+	patchTab->textBrowserDesc->setHtml(d);
 }
 
 void PatchView::updatePatch() {
@@ -354,7 +335,7 @@ void PatchView::updatePatch() {
 			normalizedSha = "";
 			// we cannot uncheck radioButtonSha directly
 			// because "Parent" button will stay off
-			patchTab->radioButtonSha->group()->buttons()[0]->toggle();
+			patchTab->radioButtonParent->toggle();
 		}
 	}
 	proc = git->getDiff(st.sha(), this, st.diffToSha(), combined); // non blocking
@@ -372,7 +353,8 @@ bool PatchView::doUpdate(bool force) {
 			if (caption.length() > 30)
 				caption = caption.left(30 - 3).stripWhiteSpace().append("...");
 
-			m()->tabWdg->changeTab(container, caption);
+			int idx = m()->tabWdg->indexOf(container);
+			m()->tabWdg->setTabText(idx, caption);
 		}
 		on_updateRevDesc();
 	}

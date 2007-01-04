@@ -943,7 +943,7 @@ QTextEdit* MainImpl::getCurrentTextEdit() {
 		te = static_cast<RevsView*>(t)->tab()->textBrowserDesc;
 		break;
 	case TAB_PATCH:
-// 		te = static_cast<PatchView*>(t)->tab()->textEditDiff; FIXME
+ 		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
 		break;
 	case TAB_FILE:
 // 		te = static_cast<FileView*>(t)->tab()->textEditFile; FIXME
@@ -1627,7 +1627,7 @@ void MainImpl::ActFindNext_activated() {
 			return;
 
 		endOfDocument = true;
-// 		te->setCursorPosition(0, 0); FIXME
+ 		te->moveCursor(QTextCursor::Start);
 	}
 }
 
@@ -1638,12 +1638,11 @@ void MainImpl::ActFind_activated() {
 		return;
 
 	QString def(textToFind);
-	if (te->hasSelectedText()) {
-		Qt::TextFormat tf = te->textFormat();
-		te->setTextFormat(Qt::PlainText); // we want text without formatting tags
-		def = te->selectedText().section('\n', 0, 0);
-		te->setTextFormat(tf);
-	}
+	if (te->textCursor().hasSelection())
+		def = te->textCursor().selectedText().section('\n', 0, 0);
+	else
+		te->moveCursor(QTextCursor::Start);
+
 	bool ok;
 	QString str(QInputDialog::getText("Find text - QGit", "Text to find:",
 	                                  QLineEdit::Normal, def, &ok, this));

@@ -153,8 +153,7 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 void RevsView::on_updateRevDesc() {
 
 	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
-	tab()->textBrowserDesc->setText(d);
-// 	tab()->textBrowserDesc->setCursorPosition(0, 0); FIXME
+	tab()->textBrowserDesc->setHtml(d);
 }
 
 bool RevsView::doUpdate(bool force) {
