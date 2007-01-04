@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>607</width>
+    <width>704</width>
     <height>449</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
       <number>0</number>
      </property>
      <property name="spacing" >
-      <number>3</number>
+      <number>6</number>
      </property>
      <item>
       <widget class="QFrame" name="frame" >
@@ -177,14 +177,9 @@
          </property>
         </widget>
        </widget>
-       <widget class="Q3ListBox" name="listBoxFiles" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>7</hsizetype>
-          <vsizetype>7</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="FileList" name="fileList" >
+        <property name="contextMenuPolicy" >
+         <enum>Qt::CustomContextMenu</enum>
         </property>
        </widget>
       </widget>
@@ -196,18 +191,13 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>Q3ListBox</class>
-   <extends>Q3Frame</extends>
-   <header>q3listbox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Q3TextBrowser</class>
-   <extends>Q3TextEdit</extends>
-   <header>Qt3Support/Q3TextBrowser</header>
+   <class>FileList</class>
+   <extends>QListWidget</extends>
+   <header>filelist.h</header>
   </customwidget>
   <customwidget>
    <class>RevDesc</class>
-   <extends>Q3TextBrowser</extends>
+   <extends>QTextBrowser</extends>
    <header>revdesc.h</header>
   </customwidget>
  </customwidgets>

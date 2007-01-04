@@ -14,7 +14,7 @@ class RevDesc: public QTextBrowser {
 Q_OBJECT
 public:
 	RevDesc(QWidget* parent);
-	void setDomain(Domain* dm) { d = dm; };
+	void setup(Domain* dm) { d = dm; };
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent* e);

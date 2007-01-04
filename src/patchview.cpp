@@ -106,15 +106,15 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	tabPosition = m()->tabWdg->count() - 1;
 
 	patchTab->textEditDiff->setFont(QGit::TYPE_WRITER_FONT);
-	patchTab->textBrowserDesc->setDomain(this);
+	patchTab->textBrowserDesc->setup(this);
+	patchTab->fileList->setup(this, git);
 
-	listBoxFiles = new ListBoxFiles(this, git, patchTab->listBoxFiles);
 	diffHighlighter = new DiffHighlighter(this, patchTab->textEditDiff);
 
 	connect(patchTab->lineEditDiff, SIGNAL(returnPressed()),
 	        this, SLOT(lineEditDiff_returnPressed()));
 
-	connect(listBoxFiles, SIGNAL(contextMenu(const QString&, int)),
+	connect(patchTab->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 }
 
@@ -125,7 +125,6 @@ PatchView::~PatchView() {
 
 	git->cancelProcess(proc);
 	delete diffHighlighter;
-	delete listBoxFiles;
 
 	// remove before to delete, avoids a Qt warning in QInputContext()
 	m()->tabWdg->removePage(container);
@@ -138,7 +137,7 @@ void PatchView::clear(bool complete) {
 	if (complete) {
 		st.clear();
 		patchTab->textBrowserDesc->clear();
-		listBoxFiles->clear();
+		patchTab->fileList->clear();
 	}
 	patchTab->textEditDiff->clear();
 	matches.clear();
@@ -182,8 +181,7 @@ void PatchView::centerTarget() {
 	te->setTextCursor(tc);
 
 	// and scroll to top of the page TODO make it simpler!!!!
-	QFontMetrics fm(te->currentFont());
-	int delta = te->verticalScrollBar()->pageStep() - fm.height();
+	int delta = te->verticalScrollBar()->pageStep() - te->fontMetrics().height();
 	int value = te->verticalScrollBar()->value();
 	te->verticalScrollBar()->setValue(value + delta);
 }
@@ -366,7 +364,7 @@ bool PatchView::doUpdate(bool force) {
 		newFiles = true;
 	}
 	// call always to allow a simple refresh
-	listBoxFiles->update(files, newFiles);
+	patchTab->fileList->update(files, newFiles);
 
 	if (st.isChanged() || force)
 		centerOnFileHeader(st.fileName());

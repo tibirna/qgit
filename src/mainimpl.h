@@ -18,6 +18,7 @@
 #include "common.h"
 #include "ui_mainview.h"
 
+class QListWidgetItem;
 class Q3ListViewItem;
 class Q3ListBoxItem;
 class Q3PopupMenu;
@@ -58,7 +59,7 @@ protected slots:
 	void initWithEventLoopActive();
 	void refreshRepo(bool setCurRevAfterLoad = true);
 	void listViewLog_doubleClicked(Q3ListViewItem*);
-	void fileList_doubleClicked(Q3ListBoxItem*);
+	void fileList_itemDoubleClicked(QListWidgetItem*);
 	void treeView_doubleClicked(Q3ListViewItem*);
 	void histListView_doubleClicked(Q3ListViewItem* item);
 	void customActionListChanged(const QStringList& list);

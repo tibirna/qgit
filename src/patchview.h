@@ -13,7 +13,6 @@
 #include "domain.h"
 
 class DiffHighlighter;
-class ListBoxFiles;
 class Git;
 class MyProcess;
 
@@ -58,7 +57,6 @@ private:
 
 	Ui_TabPatch* patchTab;
 	DiffHighlighter* diffHighlighter;
-	ListBoxFiles* listBoxFiles;
 	QPointer<MyProcess> proc;
 	QString target;
 	QString partialParagraphs;

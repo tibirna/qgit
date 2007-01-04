@@ -6,7 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <q3textedit.h>
 #include <q3listview.h>
 #include <qspinbox.h>
 #include <qlineedit.h>

@@ -164,8 +164,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(Q3ListViewItem*)),
 	        this, SLOT(listViewLog_doubleClicked(Q3ListViewItem*)));
 
-	connect(rv->tab()->listBoxFiles, SIGNAL(doubleClicked(Q3ListBoxItem*)),
-	        this, SLOT(fileList_doubleClicked(Q3ListBoxItem*)));
+	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 
 	connect(treeView, SIGNAL(doubleClicked(Q3ListViewItem*)),
 	        this, SLOT(treeView_doubleClicked(Q3ListViewItem*)));
@@ -405,15 +405,17 @@ void MainImpl::histListView_doubleClicked(Q3ListViewItem* item) {
 		ActViewRev->activate(QAction::Trigger);
 }
 
-void MainImpl::fileList_doubleClicked(Q3ListBoxItem* item) {
+void MainImpl::fileList_itemDoubleClicked(QListWidgetItem* item) {
 
-	if (item && rv->st.isMerge() && item->prev() == 0)
+	bool isFirst = (item && item->listWidget()->item(0) == item);
+	if (isFirst && rv->st.isMerge())
 		return;
 
-	if (item && item->listBox() == rv->tab()->listBoxFiles && ActViewDiff->isEnabled())
+	bool isMainView = (item && item->listWidget() == rv->tab()->fileList);
+	if (isMainView && ActViewDiff->isEnabled())
 		ActViewDiff->activate(QAction::Trigger);
 
-	if (item && item->listBox() != rv->tab()->listBoxFiles && ActViewFile->isEnabled())
+	if (item && !isMainView && ActViewFile->isEnabled())
 		ActViewFile->activate(QAction::Trigger);
 }
 
@@ -1200,7 +1202,7 @@ void MainImpl::ActSplitView_activated() {
 		RevsView* rv = static_cast<RevsView*>(t);
 		hide = rv->tab()->textBrowserDesc->isVisible();
 		rv->tab()->textBrowserDesc->setHidden(hide);
-		rv->tab()->listBoxFiles->setHidden(hide); }
+		rv->tab()->fileList->setHidden(hide); }
 		break;
 	case TAB_PATCH: {
 		PatchView* pv = static_cast<PatchView*>(t);
