@@ -7,7 +7,7 @@
 #ifndef GIT_H
 #define GIT_H
 
-#include <QObject>
+#include <QAbstractItemModel>
 #include <QPair>
 #include "exceptionmanager.h"
 #include "common.h"
@@ -18,23 +18,45 @@ class Annotate;
 class Cache;
 class DataLoader;
 class Domain;
+class Git;
 class Lanes;
 class MyProcess;
 
-class FileHistory : public QObject {
+class FileHistory : public QAbstractItemModel {
 Q_OBJECT
 public:
-	FileHistory();
+	explicit FileHistory(Git* git);
 	~FileHistory();
 	void clear(SCRef name);
+	QVariant data(const QModelIndex &index, int role) const;
+	Qt::ItemFlags flags(const QModelIndex &index) const;
+	QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
+	QModelIndex index(int r, int c, const QModelIndex& p = QModelIndex()) const;
+	QModelIndex parent(const QModelIndex& index) const;
+	int rowCount(const QModelIndex&) const { return _rowCnt; }
+	int columnCount(const QModelIndex&) const { return 5; }
+
 	QString fileName;
+	StrVect revOrder;
+
+private slots:
+	void on_newRevsAdded(const FileHistory*, const QVector<QString>&);
+
+private:
+	friend class DataLoader;
+	friend class Git;
+
+	const QString timeDiff(unsigned long secs) const;
+
+	Git* git;
+
 	RevMap revs;
 	Lanes* lns;
-	StrVect revOrder;
 	uint firstFreeLane;
 	QList<QByteArray*> rowData;
-signals:
-	void cleared();
+	QList<QVariant> _headerInfo;
+	int _rowCnt;
+	unsigned long _secs;
 };
 
 class Git : public QObject {
@@ -82,7 +104,7 @@ public:
 	bool isNothingToCommit();
 	bool isUnknownFiles() const { return (_wd.otherFiles.count() > 0); }
 	bool isTextHighlighter() const { return isTextHighlighterFound; }
-	bool isMainHistory(const FileHistory* fh) { return (fh == &revData); }
+	bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
 	MyProcess* getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool combined);
 	MyProcess* getFile(SCRef file, SCRef revSha, QObject* receiver, QString* runOutput);
 	MyProcess* getHighlightedFile(SCRef file, SCRef revSha, QObject* rcv, QString* ro);
@@ -250,7 +272,7 @@ private:
 	StrVect dirNamesVec;
 	QMap<QString, int> fileNamesMap; // quick lookup file name
 	QMap<QString, int> dirNamesMap;  // quick lookup directory name
-	FileHistory revData;
+	FileHistory* revData;
 };
 
 #endif

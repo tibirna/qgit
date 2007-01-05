@@ -9,11 +9,12 @@
 #include <QPainter>
 #include <QHeaderView>
 #include "common.h"
+#include "git.h"
 #include "model_view.h"
 
 using namespace QGit;
 
-MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), d(0), git(g), m(0), fh(f) {
+MVC::MVC(Git* git, FileHistory* fh, QWidget* par) : QMainWindow(par) {
 
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
@@ -23,8 +24,7 @@ MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), d(0), git(g), m(0
 	pl.setColor(QPalette::AlternateBase, EVEN_LINE_COL);
 	treeViewRevs->setPalette(pl); // does not seem to inherit application palette
 
-	m = new MVCModel(git, fh, this);
-	treeViewRevs->setModel(m);
+	treeViewRevs->setModel(fh);
 
 	d = new MVCDelegate(git, fh, this);
 	d->setCellHeight(treeViewRevs->fontMetrics().height());
@@ -40,137 +40,7 @@ MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), d(0), git(g), m(0
 	treeViewRevs->setColumnWidth(AUTH_COL, w * 2);
 }
 
-// ***********************************************************************
-
-MVCModel::MVCModel(Git* g, FileHistory* f, QObject* p) : QAbstractItemModel(p), git(g), fh(f) {
-
-	_headerInfo << "Graph" << "Ann id" << "Short Log"
-	            << "Author" << "Author Date";
-
-	dataCleared(); // after _headerInfo is set
-
-	connect(fh, SIGNAL(cleared()), this, SLOT(dataCleared()));
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
-}
-
-MVCModel::~MVCModel() {}
-
-void MVCModel::dataCleared() {
-
-	if (testFlag(REL_DATE_F)) {
-		_secs = QDateTime::currentDateTime().toTime_t();
-		_headerInfo[3] = "Last Change";
-	} else {
-		_secs = 0;
-		_headerInfo[3] = "Author Date";
-	}
-	_rowCnt = fh->revOrder.count();
-	reset();
-}
-
-void MVCModel::on_newRevsAdded(const FileHistory* f, const QVector<QString>& shaVec) {
-
-	if (f != fh) // signal newRevsAdded() is broadcast
-		return;
-
-	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count());
-	_rowCnt = shaVec.count();
-	endInsertRows();
-}
-
-Qt::ItemFlags MVCModel::flags(const QModelIndex& index) const {
-
-	if (!index.isValid())
-		return Qt::ItemIsEnabled;
-
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable; // read only
-}
-
-QVariant MVCModel::headerData(int section, Qt::Orientation orientation, int role) const {
-
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-		return _headerInfo.at(section);
-
-	return QVariant();
-}
-
-QModelIndex MVCModel::index(int row, int column, const QModelIndex&) const {
-/*
-	index() is called much more then data(), also by a 100X factor on
-	big archives, so we use just the row number as QModelIndex payload
-	and defer the revision lookup later, inside data().
-	Because row and column info are	stored anyway in QModelIndex we
-	don't need to add any additional data.
-*/
-	if (!git || !fh)
-		return QModelIndex();
-
-	if (row < 0 || row >= _rowCnt)
-		return QModelIndex();
-
-	return createIndex(row, column, 0);
-}
-
-QModelIndex MVCModel::parent(const QModelIndex&) const {
-
-	return QModelIndex();
-}
-
-const QString MVCModel::timeDiff(unsigned long secs) const {
-
-	uint days  =  secs / (3600 * 24);
-	uint hours = (secs - days * 3600 * 24) / 3600;
-	uint min   = (secs - days * 3600 * 24 - hours * 3600) / 60;
-	uint sec   =  secs - days * 3600 * 24 - hours * 3600 - min * 60;
-	QString tmp;
-	if (days > 0)
-		tmp.append(QString::number(days) + "d ");
-
-	if (hours > 0 || !tmp.isEmpty())
-		tmp.append(QString::number(hours) + "h ");
-
-	if (min > 0 || !tmp.isEmpty())
-		tmp.append(QString::number(min) + "m ");
-
-	tmp.append(QString::number(sec) + "s");
-	return tmp;
-}
-
-QVariant MVCModel::data(const QModelIndex& index, int role) const {
-
-	if (!index.isValid() || role != Qt::DisplayRole)
-		return QVariant();
-
-	const Rev* r = git->revLookup(fh->revOrder.at(index.row()));
-	if (!r)
-		return QVariant();
-
-	int col = index.column();
-
-	// calculate lanes
-	if (r->lanes.count() == 0)
-		git->setLane(r->sha(), fh);
-
-	if (col == QGit::LOG_COL)
-		return r->shortLog();
-
-	if (col == QGit::AUTH_COL)
-		return r->author();
-
-	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA) {
-
-		if (_secs != 0) // secs is 0 for absolute date
-			return timeDiff(_secs - r->authorDate().toULong());
-		else
-			return git->getLocalDate(r->authorDate());
-	}
-	return QVariant();
-}
-
-
 // ******************************************************************************
-
 
 MVCDelegate::MVCDelegate(Git* g, FileHistory* f, QObject* p) : QItemDelegate(p) {
 

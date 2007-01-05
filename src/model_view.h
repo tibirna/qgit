@@ -8,56 +8,21 @@
 #ifndef MODEL_VIEW_H
 #define MODEL_VIEW_H
 
-#include <QAbstractItemModel>
 #include <QItemDelegate>
 #include <QSet>
 #include "ui_model_view.h"
-#include "git.h"
+#include "common.h"
 
-class MVCModel;
 class MVCDelegate;
-class Rev;
+class FileHistory;
+class Git;
 
 class MVC : public QMainWindow, public Ui_MainWindowsModelView {
-Q_OBJECT
 public:
 	MVC(Git* git, FileHistory* fh, QWidget* parent);
 
 //private:
 	MVCDelegate* d;
-private:
-	Git* git;
-	MVCModel* m;
-	FileHistory* fh;
-};
-
-class MVCModel : public QAbstractItemModel {
-Q_OBJECT
-public:
-	MVCModel(Git* git, FileHistory* fh, QObject *parent);
-	~MVCModel();
-
-	QVariant data(const QModelIndex &index, int role) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
-	QModelIndex index(int r, int c, const QModelIndex& p = QModelIndex()) const;
-	QModelIndex parent(const QModelIndex& index) const;
-	int rowCount(const QModelIndex&) const { return _rowCnt; }
-	int columnCount(const QModelIndex&) const { return 5; }
-
-private slots:
-	void dataCleared();
-	void on_newRevsAdded(const FileHistory*, const QVector<QString>&);
-
-private:
-	const QString timeDiff(unsigned long secs) const;
-
-	Git* git;
-	FileHistory* fh;
-
-	QList<QVariant> _headerInfo;
-	int _rowCnt;
-	unsigned long _secs;
 };
 
 class MVCDelegate : public QItemDelegate {

@@ -362,12 +362,12 @@ void Git::getDiffIndex() {
 
 	parent = parent.section('\n', 0, 0);
 	SCRef log = (isNothingToCommit() ? "Nothing to commit" : "Working dir changes");
-	const Rev* r = fakeWorkDirRev(parent, log, status, revData.revOrder.count(), &revData);
-	revData.revs.insert(ZERO_SHA, r);
-	revData.revOrder.append(ZERO_SHA);
+	const Rev* r = fakeWorkDirRev(parent, log, status, revData->revOrder.count(), revData);
+	revData->revs.insert(ZERO_SHA, r);
+	revData->revOrder.append(ZERO_SHA);
 
 	// finally send it to GUI
-	emit newRevsAdded(&revData, revData.revOrder);
+	emit newRevsAdded(revData, revData->revOrder);
 }
 
 void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
@@ -475,7 +475,7 @@ bool Git::startUnappliedList() {
 	initCmd.append(getAllRefSha(UN_APPLIED).join(" "));
 	initCmd.append(QString::fromLatin1(" ^HEAD"));
 	loadingUnAppliedPatches = true;
-	bool started = startParseProc(initCmd, &revData);
+	bool started = startParseProc(initCmd, revData);
 	if (!started)
 		loadingUnAppliedPatches = false;
 
@@ -510,7 +510,7 @@ bool Git::stop(bool saveCache) {
 
 void Git::clearRevs() {
 
-	revData.clear("");
+	revData->clear("");
 	patchesStillToFind = 0; // TODO TEST WITH FILTERING
 	firstNonStGitPatch = "";
 }
@@ -579,7 +579,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 						compat_usleep(20000);
 						EM_PROCESS_EVENTS;
 					}
-					revData.lns->clear(); // again to reset lanes
+					revData->lns->clear(); // again to reset lanes
 				}
 			}
 
@@ -595,7 +595,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			args.append(filterList->join(" "));
 		}
 		POST_MSG(msg1 + "revisions...");
-		if (!startRevList(args, &revData))
+		if (!startRevList(args, revData))
 			dbs("ERROR: unable to start git-rev-list loading");
 
 		setThrowOnStop(false);
@@ -681,7 +681,7 @@ void Git::loadFileNames() {
 	}
 
 	QString diffTreeBuf;
-	FOREACH (StrVect, it, revData.revOrder) {
+	FOREACH (StrVect, it, revData->revOrder) {
 		if (!revsFiles.contains(*it)) {
 			const Rev* c = revLookup(*it);
 			if (c->parentsCount() == 1) // skip initials and merges
@@ -930,7 +930,7 @@ void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm
 
 	if (r->descRefsMaster != -1) {
 
-		const Rev* tmp = revLookup(revData.revOrder[r->descRefsMaster]);
+		const Rev* tmp = revLookup(revData->revOrder[r->descRefsMaster]);
 		const QVector<int>& nr = tmp->descRefs;
 
 		for (int i = 0; i < nr.count(); i++) {
@@ -961,8 +961,8 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
 		return;
 
 	// we want all the descendant branches, so just avoid duplicates
-	const QVector<int>& src1 = revLookup(revData.revOrder[p->descBrnMaster])->descBranches;
-	const QVector<int>& src2 = revLookup(revData.revOrder[r_descBrnMaster])->descBranches;
+	const QVector<int>& src1 = revLookup(revData->revOrder[p->descBrnMaster])->descBranches;
+	const QVector<int>& src2 = revLookup(revData->revOrder[r_descBrnMaster])->descBranches;
 	QVector<int> dst(src1);
 	for (int i = 0; i < src2.count(); i++)
 		if (qFind(src1.constBegin(), src1.constEnd(), src2[i]) == src1.constEnd())
@@ -986,7 +986,7 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, 
 
 	// we want the nearest tag only, so remove any tag
 	// that is ancestor of any other tag in p U r
-	const StrVect& ro = revData.revOrder;
+	const StrVect& ro = revData->revOrder;
 	SCRef sha1 = down ? ro[p->descRefsMaster] : ro[p->ancRefsMaster];
 	SCRef sha2 = down ? ro[r_descRefsMaster] : ro[r_ancRefsMaster];
 	const QVector<int>& src1 = down ? revLookup(sha1)->descRefs : revLookup(sha1)->ancRefs;
@@ -1030,7 +1030,7 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, 
 
 void Git::indexTree() {
 
-	const StrVect& ro = revData.revOrder;
+	const StrVect& ro = revData->revOrder;
 	if (ro.count() == 0)
 		return;
 

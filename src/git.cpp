@@ -27,11 +27,15 @@
 
 using namespace QGit;
 
-FileHistory::FileHistory() {
+FileHistory::FileHistory(Git* g) : QAbstractItemModel(g), git(g) {
 
+	_headerInfo << "Graph" << "Ann id" << "Short Log" << "Author" << "Author Date";
 	lns = new Lanes();
-	clear("");
 	revs.reserve(QGit::MAX_DICT_SIZE);
+	clear(""); // after _headerInfo is set
+
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 }
 
 FileHistory::~FileHistory() {
@@ -50,8 +54,115 @@ void FileHistory::clear(SCRef name) {
 	fileName = name;
 	qDeleteAll(rowData);
 	rowData.clear();
-	emit cleared();
+
+	if (testFlag(REL_DATE_F)) {
+		_secs = QDateTime::currentDateTime().toTime_t();
+		_headerInfo[3] = "Last Change";
+	} else {
+		_secs = 0;
+		_headerInfo[3] = "Author Date";
+	}
+	_rowCnt = revOrder.count();
+	reset();
 }
+
+void FileHistory::on_newRevsAdded(const FileHistory* f, const QVector<QString>& shaVec) {
+
+	if (f != this) // signal newRevsAdded() is broadcast
+		return;
+
+	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count());
+	_rowCnt = shaVec.count();
+	endInsertRows();
+}
+
+Qt::ItemFlags FileHistory::flags(const QModelIndex& index) const {
+
+	if (!index.isValid())
+		return Qt::ItemIsEnabled;
+
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable; // read only
+}
+
+QVariant FileHistory::headerData(int section, Qt::Orientation orientation, int role) const {
+
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+		return _headerInfo.at(section);
+
+	return QVariant();
+}
+
+QModelIndex FileHistory::index(int row, int column, const QModelIndex&) const {
+/*
+	index() is called much more then data(), also by a 100X factor on
+	big archives, so we use just the row number as QModelIndex payload
+	and defer the revision lookup later, inside data().
+	Because row and column info are	stored anyway in QModelIndex we
+	don't need to add any additional data.
+*/
+	if (row < 0 || row >= _rowCnt)
+		return QModelIndex();
+
+	return createIndex(row, column, 0);
+}
+
+QModelIndex FileHistory::parent(const QModelIndex&) const {
+
+	return QModelIndex();
+}
+
+const QString FileHistory::timeDiff(unsigned long secs) const {
+
+	uint days  =  secs / (3600 * 24);
+	uint hours = (secs - days * 3600 * 24) / 3600;
+	uint min   = (secs - days * 3600 * 24 - hours * 3600) / 60;
+	uint sec   =  secs - days * 3600 * 24 - hours * 3600 - min * 60;
+	QString tmp;
+	if (days > 0)
+		tmp.append(QString::number(days) + "d ");
+
+	if (hours > 0 || !tmp.isEmpty())
+		tmp.append(QString::number(hours) + "h ");
+
+	if (min > 0 || !tmp.isEmpty())
+		tmp.append(QString::number(min) + "m ");
+
+	tmp.append(QString::number(sec) + "s");
+	return tmp;
+}
+
+QVariant FileHistory::data(const QModelIndex& index, int role) const {
+
+	if (!index.isValid() || role != Qt::DisplayRole)
+		return QVariant();
+
+	const Rev* r = git->revLookup(revOrder.at(index.row()));
+	if (!r)
+		return QVariant();
+
+	int col = index.column();
+
+	// calculate lanes
+	if (r->lanes.count() == 0)
+		git->setLane(r->sha(), const_cast<FileHistory*>(this));
+
+	if (col == QGit::LOG_COL)
+		return r->shortLog();
+
+	if (col == QGit::AUTH_COL)
+		return r->author();
+
+	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA) {
+
+		if (_secs != 0) // secs is 0 for absolute date
+			return timeDiff(_secs - r->authorDate().toULong());
+		else
+			return git->getLocalDate(r->authorDate());
+	}
+	return QVariant();
+}
+
+// ****************************************************************************
 
 Git::Git(QWidget* p) : QObject(p) {
 
@@ -63,6 +174,7 @@ Git::Git(QWidget* p) : QObject(p) {
 	curDomain = NULL;
 
 	revsFiles.reserve(MAX_DICT_SIZE);
+	revData = new FileHistory(this);
 	cache = new Cache(this);
 }
 
@@ -408,7 +520,7 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 
 const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
 
-	const RevMap& r = (fh ? fh->revs : revData.revs);
+	const RevMap& r = (fh ? fh->revs : revData->revs);
 	return (r.contains(sha) ? r[sha] : NULL);
 }
 
@@ -476,7 +588,7 @@ const QString Git::getLaneParent(SCRef fromSHA, int laneNum) {
 
 	for (int idx = rs->orderIdx - 1; idx >= 0; idx--) {
 
-		const Rev* r = revLookup(revData.revOrder[idx]);
+		const Rev* r = revLookup(revData->revOrder[idx]);
 		if (laneNum >= r->lanes.count())
 			return "";
 
@@ -504,7 +616,7 @@ const QStringList Git::getChilds(SCRef parent) {
 		return childs;
 
 	for (int i = 0; i < r->childs.count(); i++)
-		childs.append(revData.revOrder[r->childs[i]]);
+		childs.append(revData->revOrder[r->childs[i]]);
 
 	// reorder childs by loading order
 	QStringList::iterator itC(childs.begin());
@@ -737,11 +849,11 @@ const QStringList Git::getDescendantBranches(SCRef sha) {
 	if (!r || (r->descBrnMaster == -1))
 		return tl;
 
-	const QVector<int>& nr = revLookup(revData.revOrder[r->descBrnMaster])->descBranches;
+	const QVector<int>& nr = revLookup(revData->revOrder[r->descBrnMaster])->descBranches;
 
 	for (int i = 0; i < nr.count(); i++) {
 
-		SCRef sha = revData.revOrder[nr[i]];
+		SCRef sha = revData->revOrder[nr[i]];
 		SCRef cap = " (" + sha + ") ";
 		RefMap::const_iterator it(refsShaMap.find(sha));
 		if (it != refsShaMap.constEnd())
@@ -761,12 +873,12 @@ const QStringList Git::getNearTags(bool goDown, SCRef sha) {
 	if (nearRefsMaster == -1)
 		return tl;
 
-	const QVector<int>& nr = goDown ? revLookup(revData.revOrder[nearRefsMaster])->descRefs :
-	                                  revLookup(revData.revOrder[nearRefsMaster])->ancRefs;
+	const QVector<int>& nr = goDown ? revLookup(revData->revOrder[nearRefsMaster])->descRefs :
+	                                  revLookup(revData->revOrder[nearRefsMaster])->ancRefs;
 
 	for (int i = 0; i < nr.count(); i++) {
 
-		SCRef sha = revData.revOrder[nr[i]];
+		SCRef sha = revData->revOrder[nr[i]];
 		SCRef cap = " (" + sha + ")";
 		RefMap::const_iterator it(refsShaMap.find(sha));
 		if (it != refsShaMap.constEnd())
@@ -967,7 +1079,7 @@ void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 
 	shaMap.clear();
 	QRegExp rx(path, false, true); // not case sensitive and with wildcard
-	FOREACH (StrVect, it, revData.revOrder) {
+	FOREACH (StrVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it))
 			continue;
@@ -986,7 +1098,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap) 
 
 	shaMap.clear();
 	QString buf;
-	FOREACH (StrVect, it, revData.revOrder)
+	FOREACH (StrVect, it, revData->revOrder)
 		if (*it != ZERO_SHA)
 			buf.append(*it).append('\n');
 

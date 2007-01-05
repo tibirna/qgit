@@ -42,7 +42,7 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	m()->tabWdg->addTab(container, "&Rev list");
 	tabPosition = m()->tabWdg->count() - 1;
 
-	listViewLog = new ListView(this, g, tab()->listViewLog, &(g->revData), m()->listViewFont);
+	listViewLog = new ListView(this, g, tab()->listViewLog, g->revData, m()->listViewFont);
 	tab()->textBrowserDesc->setup(this);
 	tab()->fileList->setup(this, git);
 	treeView = new TreeView(this, git, m()->treeView);

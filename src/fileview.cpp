@@ -38,7 +38,7 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	m()->tabWdg->addTab(container, "File");
 	tabPosition = m()->tabWdg->count() - 1;
 
-	fh = new FileHistory();
+	fh = new FileHistory(git);
 	histListView = new ListView(this, git, fileTab->histListView, fh, m()->listViewFont);
 	textEditFile = new FileContent(this, git, fileTab->textEditFile);
 

@@ -131,7 +131,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	rv = new RevsView(this, git);
 
 	// model view component
-	mvc = new MVC(git, &git->revData, this); // has Qt::WA_DeleteOnClose
+	mvc = new MVC(git, git->revData, this); // has Qt::WA_DeleteOnClose
 	connect(this, SIGNAL(closeAllWindows()), mvc, SLOT(close()));
 	connect(rv->listViewLog, SIGNAL(diffTargetChanged(int)),
 	        mvc->d, SLOT(diffTargetChanged(int)));
