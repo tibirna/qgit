@@ -133,6 +133,10 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	// model view component
 	mvc = new MVC(git, &git->revData, this); // has Qt::WA_DeleteOnClose
 	connect(this, SIGNAL(closeAllWindows()), mvc, SLOT(close()));
+	connect(rv->listViewLog, SIGNAL(diffTargetChanged(int)),
+	        mvc->d, SLOT(diffTargetChanged(int)));
+	connect(this, SIGNAL(highlightedRowsChanged(const QSet<int>&)),
+	        mvc->d, SLOT(highlightedRowsChanged(const QSet<int>&)));
 
 	// set-up tab corner widget ('close tab' button)
 	MyPushButton* pb = new MyPushButton(tabWdg);
@@ -632,13 +636,16 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	Q3ListViewItem* firstItem = NULL;
 	Q3ListView* lv = rv->tab()->listViewLog;
 	Q3ListViewItemIterator it(lv);
+	int row = 0;
+	QSet<int> highlightedRows;
 	while (it.current()) {
 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
 		if (isOn) {
 			if (passFilter(item, filter, colNum, shaMap)) {
-				if (onlyHighlight)
+				if (onlyHighlight) {
 					item->setHighlighted(true);
-				else {
+					highlightedRows.insert(row);
+				} else {
 					item->setEven(evenLine);
 					evenLine = !evenLine;
 				}
@@ -656,7 +663,9 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 				item->setVisible(true);
 		}
 		++it;
+		row++;
 	}
+	emit highlightedRowsChanged(highlightedRows); // new model_view integration
 	lv->triggerUpdate(); // for onlyHighlight case
 
 	// set new selection, could be NULL

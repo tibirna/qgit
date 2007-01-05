@@ -10,6 +10,7 @@
 
 #include <QAbstractItemModel>
 #include <QItemDelegate>
+#include <QSet>
 #include "ui_model_view.h"
 #include "git.h"
 
@@ -22,10 +23,11 @@ Q_OBJECT
 public:
 	MVC(Git* git, FileHistory* fh, QWidget* parent);
 
+//private:
+	MVCDelegate* d;
 private:
 	Git* git;
 	MVCModel* m;
-	MVCDelegate* d;
 	FileHistory* fh;
 };
 
@@ -68,6 +70,13 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &i) const;
 	void setCellHeight(int h);
 
+signals:
+	void updateView();
+
+public slots:
+	void diffTargetChanged(int);
+	void highlightedRowsChanged(const QSet<int>&);
+
 private:
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -84,6 +93,8 @@ private:
 	FileHistory* fh;
 	int _cellWidth;
 	int _cellHeight;
+	int _diffTargetRow;
+	QSet<int> _hlRows;
 };
 
 #endif

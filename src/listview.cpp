@@ -205,9 +205,15 @@ bool ListView::update() {
 			lv->ensureItemVisible(item);
 		}
 	}
-	if (git->isMainHistory(fh))
+	if (git->isMainHistory(fh)) {
 		setHighlight(st->diffToSha());
 
+		// NEW MODEL VIEW INTERFACE HOOK
+		// we use orderIdx to get row number, it will be
+		// got directly in final integration
+		const Rev* r = git->revLookup(st->diffToSha(), fh);
+		emit diffTargetChanged(r ? r->orderIdx : -1);
+	}
 	return (item != NULL);
 }
 

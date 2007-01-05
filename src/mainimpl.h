@@ -7,6 +7,7 @@
 #ifndef MAINIMPL_H
 #define MAINIMPL_H
 
+#include <QSet>
 #include <qpointer.h>
 #include <qregexp.h>
 #include <q3process.h>
@@ -41,6 +42,7 @@ public:
 	QString curWorkDir() const { return curDir; }
 
 signals:
+	void highlightedRowsChanged(const QSet<int>&);
 	void highlightPatch(const QString&, bool);
 	void updateRevDesc();
 	void closeAllWindows();

@@ -13,7 +13,7 @@
 
 using namespace QGit;
 
-MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), git(g), m(0), d(0), fh(f) {
+MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), d(0), git(g), m(0), fh(f) {
 
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
@@ -29,6 +29,7 @@ MVC::MVC(Git* g, FileHistory* f, QWidget* p) : QMainWindow(p), git(g), m(0), d(0
 	d = new MVCDelegate(git, fh, this);
 	d->setCellHeight(treeViewRevs->fontMetrics().height());
 	treeViewRevs->setItemDelegate(d);
+	connect(d, SIGNAL(updateView()), treeViewRevs->viewport(), SLOT(update()));
 
 	if (git->isMainHistory(fh))
 		treeViewRevs->hideColumn(ANN_ID_COL);
@@ -167,11 +168,16 @@ QVariant MVCModel::data(const QModelIndex& index, int role) const {
 	return QVariant();
 }
 
+
+// ******************************************************************************
+
+
 MVCDelegate::MVCDelegate(Git* g, FileHistory* f, QObject* p) : QItemDelegate(p) {
 
 	git = g;
 	fh = f;
 	_cellHeight = _cellWidth = 0;
+	_diffTargetRow = -1;
 }
 
 void MVCDelegate::setCellHeight(int h) {
@@ -183,6 +189,21 @@ void MVCDelegate::setCellHeight(int h) {
 QSize MVCDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const {
 
 	return QSize(_cellWidth, _cellHeight);
+}
+
+void MVCDelegate::diffTargetChanged(int row) {
+
+	if (_diffTargetRow != row) {
+		_diffTargetRow = row;
+		emit updateView();
+	}
+}
+
+void MVCDelegate::highlightedRowsChanged(const QSet<int>& rows) {
+
+	_hlRows.clear();
+	_hlRows.unite(rows);
+	emit updateView();
 }
 
 void MVCDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
@@ -369,34 +390,34 @@ void MVCDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt, const
 
 void MVCDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {
 
-	const Rev* r = git->revLookup(fh->revOrder.at(i.row()));
+	int row = i.row();
+	const Rev* r = git->revLookup(fh->revOrder.at(row));
 	if (!r)
 		return;
 
 	if (r->isDiffCache)
 		p->fillRect(opt.rect, changedFiles(ZERO_SHA) ? ORANGE : DARK_ORANGE);
 
-/*	if (isHighlighted) {
-		QFont f(p->font());
-		f.setBold(true);
-		p->save();
-		p->setFont(f);
-	}
-	if (isDiffTarget)
+	if (_diffTargetRow == row)
 		p->fillRect(opt.rect, LIGHT_BLUE);
-*/
-	QPixmap* pm = getTagMarks(r->sha());
-	if (pm) {
-		p->drawPixmap(opt.rect.x(), opt.rect.y(), *pm);
-		QStyleOptionViewItem o(opt);
-		o.rect.adjust(pm->width(), 0, 0, 0);
-		delete pm;
-		QItemDelegate::paint(p, o, i);
-	} else
-		QItemDelegate::paint(p, opt, i);
 
-// 	if (isHighlighted)
-// 		p->restore();
+	bool isHighlighted = (!_hlRows.isEmpty() && _hlRows.contains(row));
+	QPixmap* pm = getTagMarks(r->sha());
+
+	if (!pm && !isHighlighted) { // fast path in common case
+		QItemDelegate::paint(p, opt, i);
+		return;
+	}
+	QStyleOptionViewItem newOpt(opt); // we need a copy
+	if (pm) {
+		p->drawPixmap(newOpt.rect.x(), newOpt.rect.y(), *pm);
+		newOpt.rect.adjust(pm->width(), 0, 0, 0);
+		delete pm;
+	}
+	if (isHighlighted)
+		newOpt.font.setBold(true);
+
+	QItemDelegate::paint(p, newOpt, i);
 }
 
 void MVCDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt, const QModelIndex& i) const {

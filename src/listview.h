@@ -72,6 +72,7 @@ signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
 	void droppedRevisions(const QStringList&);
 	void contextMenu(const QString&, int);
+	void diffTargetChanged(int); // used by new model_view integration
 
 public slots:
 	void on_newRevsAdded(const FileHistory* fh, const QVector<QString>& shaVec);
