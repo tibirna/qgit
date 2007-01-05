@@ -6,7 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <q3textedit.h>
 #include <q3listview.h>
 #include <qspinbox.h>
 #include <qlineedit.h>
@@ -113,7 +112,8 @@ void FileView::clear(bool complete) {
 
 	if (complete) {
 		st.clear();
-		m()->tabWdg->changeTab(container, "File");
+		int idx = m()->tabWdg->indexOf(container);
+		m()->tabWdg->setTabText(idx, "File");
 		fileTab->toolButtonCopy->setEnabled(false);
 	}
 	histListView->clear();
@@ -154,7 +154,8 @@ bool FileView::doUpdate(bool force) {
 	if (st.isChanged(StateInfo::FILE_NAME) || force) {
 
 		clear(false);
-		m()->tabWdg->changeTab(container, st.fileName());
+		int idx = m()->tabWdg->indexOf(container);
+		m()->tabWdg->setTabText(idx, st.fileName());
 
 		QApplication::restoreOverrideCursor();
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

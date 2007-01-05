@@ -3,107 +3,141 @@
 
 	Copyright: See COPYING file that comes with this distribution
 */
-#include <q3listview.h>
-#include <q3listbox.h>
-#include <qapplication.h>
-#include <qpainter.h>
-#include <q3dragobject.h>
-#include "mainimpl.h"
+#include <QDrag>
+#include <QApplication>
+#include <QMouseEvent>
 #include "git.h"
 #include "domain.h"
 #include "filelist.h"
 
-ListBoxFileItem::ListBoxFileItem(Q3ListBox* lb, SCRef t, const QColor& c) :
-                                 Q3ListBoxText(lb, t), myColor(c) {}
+FileList::FileList(QWidget* p) : QListWidget(p), d(NULL), git(NULL), st(NULL) {}
 
-void ListBoxFileItem::paint(QPainter* p) {
+void FileList::setup(Domain* dm, Git* g) {
 
-	if (myColor != Qt::black) {
-		p->save();
-		p->setPen(myColor);
-		Q3ListBoxText::paint(p);
-		p->restore();
-	} else
-		Q3ListBoxText::paint(p);
-}
-
-ListBoxFiles::ListBoxFiles(Domain* dm, Git* g, Q3ListBox* l) :
-                           QObject(dm), d(dm), git(g), lb(l) {
+	d = dm;
+	git = g;
 	st = &(d->st);
 
-	connect(lb, SIGNAL(currentChanged(Q3ListBoxItem*)),
-	        this, SLOT(on_currentChanged(Q3ListBoxItem*)));
-
-	connect(lb, SIGNAL(contextMenuRequested(Q3ListBoxItem*, const QPoint&)),
-	        this, SLOT(on_contextMenuRequested(Q3ListBoxItem*)));
-
-	connect(lb, SIGNAL(mouseButtonPressed(int, Q3ListBoxItem*, const QPoint&)),
-	        this, SLOT(on_mouseButtonPressed(int, Q3ListBoxItem*, const QPoint&)));
-
-	connect(lb, SIGNAL(onItem(Q3ListBoxItem*)),
-	        this,SLOT(on_onItem(Q3ListBoxItem*)));
-
-	connect(lb, SIGNAL(onViewport()),
-	        this,SLOT(on_onViewport()));
-
-	connect(lb, SIGNAL(clicked(Q3ListBoxItem*)),
-	        this,SLOT(on_clicked(Q3ListBoxItem*)));
+	connect(this, SIGNAL(currentRowChanged(int)), this, SLOT(on_currentRowChanged(int)));
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
 }
 
-void ListBoxFiles::clear() {
+void FileList::addItem(const QString& label, const QColor& clr) {
 
-	lb->clear();
+	QListWidgetItem* item = new QListWidgetItem(label, this);
+	item->setForeground(clr);
 }
 
-void ListBoxFiles::update(const RevFile* files, bool newFiles) {
+QString FileList::currentText() {
 
-	if (st->diffToSha().isEmpty())
-		lb->unsetPalette();
-	else if (lb->paletteBackgroundColor() != QGit::LIGHT_BLUE)
-		lb->setPaletteBackgroundColor(QGit::LIGHT_BLUE);
+	QListWidgetItem* item = currentItem();
+	return (item ? item->data(Qt::DisplayRole).toString() : "");
+}
 
-	if (newFiles)
-		insertFiles(files);
+void FileList::on_currentRowChanged(int currentRow) {
 
-	QString fileName(lb->currentText());
-	git->removeExtraFileInfo(&fileName); // could be a renamed/copied file
-
-	if (!fileName.isEmpty() && (fileName == st->fileName())) {
-		lb->setSelected(lb->currentItem(), st->selectItem()); // just a refresh
-		return;
-	}
-	lb->clearSelection();
-
-	if (st->fileName().isEmpty())
+	if (currentRow == -1)
 		return;
 
-	Q3ListBoxItem* c = lb->findItem(st->fileName(), Q3ListBox::ExactMatch);
-	if (c == NULL) { // could be a renamed/copied file, try harder
+	if (st->isMerge() && currentRow == 0) { // header clicked
 
-		fileName = st->fileName();
-		git->addExtraFileInfo(&fileName, st->sha(), st->diffToSha(), st->allMergeFiles());
-		c = lb->findItem(fileName, Q3ListBox::ExactMatch);
+		// In a listbox without current item, as soon as the box
+		// gains focus the first item becomes the current item
+		// and a spurious currentChanged() signal is sent.
+		// In case of a merge the signal arrives here and fakes
+		// the user clicking on the header.
+		//
+		// The problem arise when user clicks on a merge header,
+		// then list box gains focus and current item becomes null
+		// because the content of the list is cleared and updated.
+		//
+		// If now tab is changed list box loose the focus and,
+		// upon changing back again the tab the signal triggers
+		// because Qt gives back the focus to the listbox.
+		//
+		// The workaround here is to give the focus away as soon
+		// as the user clicks on the merge header. Note that a
+		// lb->clearFocus() is not enough, we really need to
+		// reassign the focus to someone else.
+		d->tabContainer()->setFocus();
+		st->setAllMergeFiles(!st->allMergeFiles());
+
+	} else {
+		QString fileName(currentText());
+		git->removeExtraFileInfo(&fileName);
+		// if we are called by updateFileList() fileName is already updated
+		if (st->fileName() == fileName) // avoid loops
+			return;
+
+		st->setFileName(fileName);
 	}
-	lb->setSelected(c, st->selectItem()); // calls current changed
+	st->setSelectItem(true);
+	UPDATE_DOMAIN(d);
 }
 
-void ListBoxFiles::insertFiles(const RevFile* files) {
+void FileList::on_customContextMenuRequested(const QPoint&) {
 
-	lb->clear();
+	int row = currentRow();
+	if (row == -1 || (row == 0 && st->isMerge())) // header clicked
+		return;
 
+	emit contextMenu(currentText(), QGit::POPUP_FILE_EV);
+}
+
+void FileList::mousePressEvent(QMouseEvent* e) {
+
+	if (currentItem() && e->button() == Qt::LeftButton) {
+		d->setReadyToDrag(true);
+		dragFileName = currentText();
+	}
+	QListWidget::mousePressEvent(e);
+}
+
+void FileList::mouseReleaseEvent(QMouseEvent* e ) {
+
+	d->setReadyToDrag(false); // in case of just click without moving
+	QListWidget::mouseReleaseEvent(e);
+}
+
+void FileList::mouseMoveEvent(QMouseEvent* e) {
+
+	if (d->isReadyToDrag()) {
+
+		if (!d->setDragging(true))
+			return;
+
+		if (dragFileName.isEmpty())
+			dbs("ASSERT in FileList::mouseMoveEvent() empty drag name");
+
+		QDrag* drag = new QDrag(this);
+		QMimeData* mimeData = new QMimeData;
+		mimeData->setText(dragFileName);
+		drag->setMimeData(mimeData);
+		dragFileName = "";
+		drag->start(); // blocking until drop event
+
+		d->setDragging(false);
+	}
+	QListWidget::mouseMoveEvent(e);
+}
+
+void FileList::insertFiles(const RevFile* files) {
+
+	clear();
 	if (!files)
 		return;
 
 	if (st->isMerge()) {
-		QString header((st->allMergeFiles()) ?
-		                "Click to view only interesting files" :
-		                "Click to view all merge files");
-		new ListBoxFileItem(lb, header, Qt::blue);
+		const QString header((st->allMergeFiles()) ?
+		      "Click to view only interesting files" : "Click to view all merge files");
+		addItem(header, Qt::blue);
 	}
 	if (files->names.empty())
 		return;
 
 	int prevPar = files->mergeParent[0];
+	setUpdatesEnabled(false);
 	for (int i = 0; i < files->names.count(); ++i) {
 
 		QChar status(files->getStatus(i));
@@ -113,8 +147,8 @@ void ListBoxFiles::insertFiles(const RevFile* files) {
 		QColor clr = Qt::black;
 		if (files->mergeParent[i] != prevPar) {
 			prevPar = files->mergeParent[i];
-			new ListBoxFileItem(lb, "", clr);
-			new ListBoxFileItem(lb, "", clr);
+			new QListWidgetItem("", this);
+			new QListWidgetItem("", this);
 		}
 		QString extSt(files->getExtendedStatus(i));
 		if (extSt.isEmpty()) {
@@ -132,98 +166,46 @@ void ListBoxFiles::insertFiles(const RevFile* files) {
 
 			// ...new file is shown with extended info
 			if (status == QGit::NEW) {
-				new ListBoxFileItem(lb, extSt, clr);
+				addItem(extSt, clr);
 				continue;
 			}
 		}
-		new ListBoxFileItem(lb, git->filePath(*files, i), clr);
+		addItem(git->filePath(*files, i), clr);
 	}
+	setUpdatesEnabled(true);
 }
 
-void ListBoxFiles::on_currentChanged(Q3ListBoxItem* item) {
+void FileList::update(const RevFile* files, bool newFiles) {
 
-	if (item) {
-		if (st->isMerge() && item == lb->firstItem()) { // header clicked
+	QPalette pl = QApplication::palette();
+	if (!st->diffToSha().isEmpty())
+		pl.setColor(QPalette::Base, QGit::LIGHT_BLUE);
 
-			// In a listbox without current item, as soon as the box
-			// gains focus the first item becomes the current item
-			// and a spurious currentChanged() signal is sent.
-			// In case of a merge the signal arrives here and fakes
-			// the user clicking on the header.
-			//
-			// The problem arise when user clicks on a merge header,
-			// then list box gains focus and current item becomes null
-			// because the content of the list is cleared and updated.
-			//
-			// If now tab is changed list box loose the focus and,
-			// upon changing back again the tab the signal triggers
-			// because Qt gives back the focus to the listbox.
-			//
-			// The workaround here is to give the focus away as soon
-			// as the user clicks on the merge header. Note that a
-			// lb->clearFocus() is not enough, we really need to
-			// reassign the focus to someone else.
-			d->tabContainer()->setFocus();
+	setPalette(pl);
+	if (newFiles)
+		insertFiles(files);
 
-			st->setAllMergeFiles(!st->allMergeFiles());
-			st->setSelectItem(true);
-			UPDATE_DOMAIN(d);
-			return;
-		}
-		QString fileName(item->text());
-		git->removeExtraFileInfo(&fileName);
-		// if we are called by updateFileList() fileName is already updated
-		if (st->fileName() != fileName) { // avoid loops
-			st->setFileName(fileName);
-			st->setSelectItem(true);
-			UPDATE_DOMAIN(d);
-		}
+	QString fileName(currentText());
+	git->removeExtraFileInfo(&fileName); // could be a renamed/copied file
+
+	if (!fileName.isEmpty() && (fileName == st->fileName())) {
+		currentItem()->setSelected(st->selectItem()); // just a refresh
+		return;
 	}
-}
+	clearSelection();
 
-void ListBoxFiles::on_contextMenuRequested(Q3ListBoxItem* item) {
-
-	if (!item)
+	if (st->fileName().isEmpty())
 		return;
 
-	int idx = lb->index(item);
-	if (idx == 0 && st->isMerge()) // header clicked
-		return;
+	QList<QListWidgetItem*> l = findItems(st->fileName(), Qt::MatchExactly);
+	if (l.isEmpty()) { // could be a renamed/copied file, try harder
 
-	emit contextMenu(item->text(), QGit::POPUP_FILE_EV);
-}
-
-void ListBoxFiles::on_mouseButtonPressed(int b, Q3ListBoxItem* item, const QPoint&) {
-
-	if (item && b == Qt::LeftButton) {
-		d->setReadyToDrag(true);
-		dragFileName = item->text();
+		fileName = st->fileName();
+		git->addExtraFileInfo(&fileName, st->sha(), st->diffToSha(), st->allMergeFiles());
+		l = findItems(fileName, Qt::MatchExactly);
 	}
-}
-
-void ListBoxFiles::on_clicked(Q3ListBoxItem*) {
-
-	d->setReadyToDrag(false); // in case of just click without moving
-}
-
-void ListBoxFiles::on_onItem(Q3ListBoxItem*) { mouseMoved(); }
-void ListBoxFiles::on_onViewport() { mouseMoved(); }
-
-void ListBoxFiles::mouseMoved() {
-
-	if (d->isReadyToDrag()) {
-
-		if (!d->setDragging(true))
-			return;
-
-		if (dragFileName.isEmpty())
-			dbs("ASSERT in ListBoxFiles::on_onItem: empty drag name");
-
-		Q3DragObject* drObj = new Q3TextDrag(dragFileName, lb);
-		dragFileName = "";
-
-		drObj->dragCopy(); // do NOT delete drObj. Blocking until drop event
-
-		d->setDragging(false);
+	if (!l.isEmpty()) {
+		setCurrentItem(l.first());
+		l.first()->setSelected(st->selectItem());
 	}
 }

@@ -43,8 +43,8 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	tabPosition = m()->tabWdg->count() - 1;
 
 	listViewLog = new ListView(this, g, tab()->listViewLog, &(g->revData), m()->listViewFont);
-	tab()->textBrowserDesc->setDomain(this);
-	listBoxFiles = new ListBoxFiles(this, git, tab()->listBoxFiles);
+	tab()->textBrowserDesc->setup(this);
+	tab()->fileList->setup(this, git);
 	treeView = new TreeView(this, git, m()->treeView);
 
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
@@ -71,7 +71,7 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	connect(treeView, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(listBoxFiles, SIGNAL(contextMenu(const QString&, int)),
+	connect(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 }
 
@@ -93,7 +93,7 @@ void RevsView::clear(bool keepState) {
 
 	listViewLog->clear();
 	tab()->textBrowserDesc->clear();
-	listBoxFiles->clear();
+	tab()->fileList->clear();
 	treeView->clear();
 	updateLineEditSHA(true);
 	if (linkedPatchView)
@@ -123,8 +123,8 @@ void RevsView::viewPatch(bool newTab) {
 		connect(m(), SIGNAL(highlightPatch(const QString&, bool)),
 			linkedPatchView, SLOT(on_highlightPatch(const QString&, bool)));
 
-		connect(linkedPatchView->tab()->listBoxFiles, SIGNAL(doubleClicked(Q3ListBoxItem*)),
-			m(), SLOT(fileList_doubleClicked(Q3ListBoxItem*)));
+		connect(linkedPatchView->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+			m(), SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 
 		connect(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
 	}
@@ -153,8 +153,7 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 void RevsView::on_updateRevDesc() {
 
 	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
-	tab()->textBrowserDesc->setText(d);
-	tab()->textBrowserDesc->setCursorPosition(0, 0);
+	tab()->textBrowserDesc->setHtml(d);
 }
 
 bool RevsView::doUpdate(bool force) {
@@ -186,7 +185,7 @@ bool RevsView::doUpdate(bool force) {
 			newFiles = true;
 		}
 		// call always to allow a simple refresh
-		listBoxFiles->update(files, newFiles);
+		tab()->fileList->update(files, newFiles);
 
 		// update the tree at startup or when releasing a no-match toolbar search
 		if (m()->treeView->isVisible() || st.sha(false).isEmpty())

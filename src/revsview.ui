@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>693</width>
     <height>480</height>
    </rect>
   </property>
@@ -57,7 +57,11 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="RevDesc" name="textBrowserDesc" />
-      <widget class="Q3ListBox" name="listBoxFiles" />
+      <widget class="FileList" name="fileList" >
+       <property name="contextMenuPolicy" >
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>
@@ -66,19 +70,14 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>FileList</class>
+   <extends>QListWidget</extends>
+   <header>filelist.h</header>
+  </customwidget>
+  <customwidget>
    <class>RevDesc</class>
-   <extends>Q3TextBrowser</extends>
+   <extends>QTextBrowser</extends>
    <header>revdesc.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Q3TextBrowser</class>
-   <extends>Q3TextEdit</extends>
-   <header>Qt3Support/Q3TextBrowser</header>
-  </customwidget>
-  <customwidget>
-   <class>Q3ListBox</class>
-   <extends>Q3Frame</extends>
-   <header>q3listbox.h</header>
   </customwidget>
   <customwidget>
    <class>Q3ListView</class>

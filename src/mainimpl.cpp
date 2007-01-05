@@ -169,8 +169,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(Q3ListViewItem*)),
 	        this, SLOT(listViewLog_doubleClicked(Q3ListViewItem*)));
 
-	connect(rv->tab()->listBoxFiles, SIGNAL(doubleClicked(Q3ListBoxItem*)),
-	        this, SLOT(fileList_doubleClicked(Q3ListBoxItem*)));
+	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 
 	connect(treeView, SIGNAL(doubleClicked(Q3ListViewItem*)),
 	        this, SLOT(treeView_doubleClicked(Q3ListViewItem*)));
@@ -413,15 +413,17 @@ void MainImpl::histListView_doubleClicked(Q3ListViewItem* item) {
 		ActViewRev->activate(QAction::Trigger);
 }
 
-void MainImpl::fileList_doubleClicked(Q3ListBoxItem* item) {
+void MainImpl::fileList_itemDoubleClicked(QListWidgetItem* item) {
 
-	if (item && rv->st.isMerge() && item->prev() == 0)
+	bool isFirst = (item && item->listWidget()->item(0) == item);
+	if (isFirst && rv->st.isMerge())
 		return;
 
-	if (item && item->listBox() == rv->tab()->listBoxFiles && ActViewDiff->isEnabled())
+	bool isMainView = (item && item->listWidget() == rv->tab()->fileList);
+	if (isMainView && ActViewDiff->isEnabled())
 		ActViewDiff->activate(QAction::Trigger);
 
-	if (item && item->listBox() != rv->tab()->listBoxFiles && ActViewFile->isEnabled())
+	if (item && !isMainView && ActViewFile->isEnabled())
 		ActViewFile->activate(QAction::Trigger);
 }
 
@@ -942,19 +944,19 @@ void MainImpl::goMatch(int delta) {
 	}
 }
 
-Q3TextEdit* MainImpl::getCurrentTextEdit() {
+QTextEdit* MainImpl::getCurrentTextEdit() {
 
-	Q3TextEdit* te = NULL;
+	QTextEdit* te = NULL;
 	Domain* t;
 	switch (currentTabType(&t)) {
 	case TAB_REV:
 		te = static_cast<RevsView*>(t)->tab()->textBrowserDesc;
 		break;
 	case TAB_PATCH:
-		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
+ 		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
 		break;
 	case TAB_FILE:
-		te = static_cast<FileView*>(t)->tab()->textEditFile;
+// 		te = static_cast<FileView*>(t)->tab()->textEditFile; FIXME
 		break;
 	default:
 		break;
@@ -964,17 +966,17 @@ Q3TextEdit* MainImpl::getCurrentTextEdit() {
 
 void MainImpl::scrollTextEdit(int delta) {
 
-	Q3TextEdit* te = getCurrentTextEdit();
+	QTextEdit* te = getCurrentTextEdit();
 	if (!te)
 		return;
 
-	int h = te->visibleHeight();
-	int ls = te->fontMetrics().lineSpacing();
-	if (delta == 1 || delta == -1) {
-		te->scrollBy(0, delta * (h - ls));
-		return;
-	}
-	te->scrollBy(0, delta * ls);
+// 	int h = te->visibleHeight(); FIXME
+// 	int ls = te->fontMetrics().lineSpacing();
+// 	if (delta == 1 || delta == -1) {
+// 		te->scrollBy(0, delta * (h - ls));
+// 		return;
+// 	}
+// 	te->scrollBy(0, delta * ls);
 }
 
 void MainImpl::scrollListView(int delta) {
@@ -1208,7 +1210,7 @@ void MainImpl::ActSplitView_activated() {
 		RevsView* rv = static_cast<RevsView*>(t);
 		hide = rv->tab()->textBrowserDesc->isVisible();
 		rv->tab()->textBrowserDesc->setHidden(hide);
-		rv->tab()->listBoxFiles->setHidden(hide); }
+		rv->tab()->fileList->setHidden(hide); }
 		break;
 	case TAB_PATCH: {
 		PatchView* pv = static_cast<PatchView*>(t);
@@ -1615,7 +1617,7 @@ void MainImpl::ActFilterTree_toggled(bool b) {
 
 void MainImpl::ActFindNext_activated() {
 
-	Q3TextEdit* te = getCurrentTextEdit();
+	QTextEdit* te = getCurrentTextEdit();
 	if (!te || textToFind.isEmpty())
 		return;
 
@@ -1635,23 +1637,22 @@ void MainImpl::ActFindNext_activated() {
 			return;
 
 		endOfDocument = true;
-		te->setCursorPosition(0, 0);
+ 		te->moveCursor(QTextCursor::Start);
 	}
 }
 
 void MainImpl::ActFind_activated() {
 
-	Q3TextEdit* te = getCurrentTextEdit();
+	QTextEdit* te = getCurrentTextEdit();
 	if (!te)
 		return;
 
 	QString def(textToFind);
-	if (te->hasSelectedText()) {
-		Qt::TextFormat tf = te->textFormat();
-		te->setTextFormat(Qt::PlainText); // we want text without formatting tags
-		def = te->selectedText().section('\n', 0, 0);
-		te->setTextFormat(tf);
-	}
+	if (te->textCursor().hasSelection())
+		def = te->textCursor().selectedText().section('\n', 0, 0);
+	else
+		te->moveCursor(QTextCursor::Start);
+
 	bool ok;
 	QString str(QInputDialog::getText("Find text - QGit", "Text to find:",
 	                                  QLineEdit::Normal, def, &ok, this));

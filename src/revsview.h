@@ -16,7 +16,6 @@ class MainImpl;
 class Git;
 class FileHistory;
 class ListView;
-class ListBoxFiles;
 class PatchView;
 class TreeView;
 
@@ -42,15 +41,12 @@ protected:
 private:
 	friend class MainImpl;
 
-	bool listBoxFiles_mouseMoveEvent();
-	bool listBoxFiles_mouseReleaseEvent();
 	void updateLineEditSHA(bool clear = false);
 
 	Ui_TabRev* revTab;
 	QPointer<PatchView> linkedPatchView;
 	TreeView* treeView;
 	ListView* listViewLog;
-	ListBoxFiles* listBoxFiles;
 };
 
 #endif
