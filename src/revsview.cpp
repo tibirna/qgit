@@ -47,8 +47,8 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	tab()->fileList->setup(this, git);
 	treeView = new TreeView(this, git, m()->treeView);
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	        listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+// 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+// 	        listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -140,9 +140,8 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
 	if (st.sha().isEmpty()) { // point to first one in list
 
-		Q3ListViewItem* item = tab()->listViewLog->firstChild();
-		if (item) {
-			st.setSha(((ListViewItem*)item)->sha());
+		if (fh->rowCount() > 0) {
+			st.setSha(fh->revOrder.first());
 			st.setSelectItem(true);
 		}
 	}
@@ -202,19 +201,18 @@ bool RevsView::doUpdate(bool force) {
 			UPDATE_DM_MASTER(linkedPatchView, force); // async call
 		}
 	}
-	Q3ListViewItem* item = tab()->listViewLog->currentItem();
-
-	if (item && item->isVisible() && !found && force) {
-		// we are in an inconsistent state: list view current item is
-		// not selected and secondary panes are empty.
-		// This could happen as example after removing a tree filter.
-		// At least populate secondary panes
-		st.setSha(((ListViewItem*)item)->sha());
-		st.setSelectItem(false);
-		UpdateDomainEvent* e = new UpdateDomainEvent(false);
-		this->event(e); // will be queued immediately
-		delete e;
-	}
+// 	Q3ListViewItem* item = tab()->listViewLog->currentItem(); FIXME
+// 	if (item && item->isVisible() && !found && force) {
+// 		// we are in an inconsistent state: list view current item is
+// 		// not selected and secondary panes are empty.
+// 		// This could happen as example after removing a tree filter.
+// 		// At least populate secondary panes
+// 		st.setSha(((ListViewItem*)item)->sha());
+// 		st.setSelectItem(false);
+// 		UpdateDomainEvent* e = new UpdateDomainEvent(false);
+// 		this->event(e); // will be queued immediately
+// 		delete e;
+// 	}
 	return (found || st.sha().isEmpty());
 }
 

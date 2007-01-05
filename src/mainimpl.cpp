@@ -125,10 +125,6 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	}
 	QGit::TYPE_WRITER_FONT.fromString(font);
 
-	// model view component
-	mvc = new MVC(this); // has Qt::WA_DeleteOnClose
-	connect(this, SIGNAL(closeAllWindows()), mvc, SLOT(close()));
-
 	// set-up tab view
 	delete tabWdg->currentPage(); // cannot be done in Qt Designer
 	rv = new RevsView(this, git);
@@ -165,8 +161,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	// connect cross-domain update signals
-	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(Q3ListViewItem*)),
-	        this, SLOT(listViewLog_doubleClicked(Q3ListViewItem*)));
+	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
+	        this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
 
 	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
@@ -181,9 +177,6 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 }
 
 void MainImpl::initWithEventLoopActive() {
-
-	mvc->show();
-	mvc->raise();
 
 	git->checkEnvironment();
 	setRepository(startUpDir, false, false);
@@ -400,15 +393,15 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 
 // ************************* cross-domain update Actions ***************************
 
-void MainImpl::listViewLog_doubleClicked(Q3ListViewItem* item) {
+void MainImpl::listViewLog_doubleClicked(const QModelIndex& index) {
 
-	if (item && ActViewDiff->isEnabled())
+	if (index.isValid() && ActViewDiff->isEnabled())
 		ActViewDiff->activate(QAction::Trigger);
 }
 
-void MainImpl::histListView_doubleClicked(Q3ListViewItem* item) {
+void MainImpl::histListView_doubleClicked(const QModelIndex& index) {
 
-	if (item && ActViewRev->isEnabled())
+	if (index.isValid() && ActViewRev->isEnabled())
 		ActViewRev->activate(QAction::Trigger);
 }
 
@@ -480,8 +473,8 @@ void MainImpl::openFileTab(FileView* fv) {
 	if (!fv) {
 		fv = new FileView(this, git);
 
-		connect(fv->tab()->histListView, SIGNAL(doubleClicked(Q3ListViewItem*)),
-		        this, SLOT(histListView_doubleClicked(Q3ListViewItem*)));
+		connect(fv->tab()->histListView, SIGNAL(doubleClicked(const QModelIndex&)),
+		        this, SLOT(histListView_doubleClicked(const QModelIndex&)));
 
 		connect(this, SIGNAL(closeAllTabs()), fv, SLOT(on_closeAllTabs()));
 
@@ -628,89 +621,92 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	}
 	bool evenLine = false;
 	int visibleCnt = 0;
-	Q3ListViewItem* firstItem = NULL;
-	Q3ListView* lv = rv->tab()->listViewLog;
-	Q3ListViewItemIterator it(lv);
-	int row = 0;
-	QSet<int> highlightedRows;
-	while (it.current()) {
-		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-		if (isOn) {
-			if (passFilter(item, filter, colNum, shaMap)) {
-				if (onlyHighlight) {
-					item->setHighlighted(true);
-					highlightedRows.insert(row);
-				} else {
-					item->setEven(evenLine);
-					evenLine = !evenLine;
-				}
-				visibleCnt++;
-				if (visibleCnt == 1) // only once
-					firstItem = item;
 
-			} else if (!onlyHighlight)
-				item->setVisible(false); // does not change listView current item
-		} else {
-			item->setHighlighted(false);
-			item->setEven(evenLine);
-			evenLine = !evenLine;
-			if (!item->isVisible())
-				item->setVisible(true);
-		}
-		++it;
-		row++;
-	}
-	emit highlightedRowsChanged(highlightedRows); // new model_view integration
-	lv->triggerUpdate(); // for onlyHighlight case
+	return;
 
-	// set new selection, could be NULL
-	Q3ListViewItem* curItem = lv->currentItem();
-	Q3ListViewItem* newItem = (curItem && curItem->isVisible()) ? curItem : firstItem;
-	rv->st.setSha(newItem ? ((ListViewItem*)newItem)->sha() : "");
-	UPDATE_DOMAIN(rv);
-
-	// if current item does not change we need to force an update
-	if (descNeedsUpdate && (newItem == curItem))
-		emit updateRevDesc();
-
-	if (patchNeedsUpdate)
-		emit highlightPatch(isOn ? filter : "", isRegExp);
-
-	QString msg;
-	if (isOn)
-		msg = QString("Found %1 matches. Toggle filter/highlight "
-		      "button to remove the filter").arg(visibleCnt);
-
-	// deferred message, let update first
-	QApplication::postEvent(rv, new MessageEvent(msg));
+// 	Q3ListViewItem* firstItem = NULL; FIXME
+// 	Q3ListView* lv = rv->tab()->listViewLog;
+// 	Q3ListViewItemIterator it(lv);
+// 	int row = 0;
+// 	QSet<int> highlightedRows;
+// 	while (it.current()) {
+// 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
+// 		if (isOn) {
+// 			if (passFilter(item, filter, colNum, shaMap)) {
+// 				if (onlyHighlight) {
+// 					item->setHighlighted(true);
+// 					highlightedRows.insert(row);
+// 				} else {
+// 					item->setEven(evenLine);
+// 					evenLine = !evenLine;
+// 				}
+// 				visibleCnt++;
+// 				if (visibleCnt == 1) // only once
+// 					firstItem = item;
+//
+// 			} else if (!onlyHighlight)
+// 				item->setVisible(false); // does not change listView current item
+// 		} else {
+// 			item->setHighlighted(false);
+// 			item->setEven(evenLine);
+// 			evenLine = !evenLine;
+// 			if (!item->isVisible())
+// 				item->setVisible(true);
+// 		}
+// 		++it;
+// 		row++;
+// 	}
+// 	emit highlightedRowsChanged(highlightedRows); // new model_view integration
+// 	lv->triggerUpdate(); // for onlyHighlight case
+//
+// 	// set new selection, could be NULL
+// 	Q3ListViewItem* curItem = lv->currentItem();
+// 	Q3ListViewItem* newItem = (curItem && curItem->isVisible()) ? curItem : firstItem;
+// 	rv->st.setSha(newItem ? ((ListViewItem*)newItem)->sha() : "");
+// 	UPDATE_DOMAIN(rv);
+//
+// 	// if current item does not change we need to force an update
+// 	if (descNeedsUpdate && (newItem == curItem))
+// 		emit updateRevDesc();
+//
+// 	if (patchNeedsUpdate)
+// 		emit highlightPatch(isOn ? filter : "", isRegExp);
+//
+// 	QString msg;
+// 	if (isOn)
+// 		msg = QString("Found %1 matches. Toggle filter/highlight "
+// 		      "button to remove the filter").arg(visibleCnt);
+//
+// 	// deferred message, let update first
+// 	QApplication::postEvent(rv, new MessageEvent(msg));
 }
 
 bool MainImpl::passFilter(ListViewItem* item, SCRef filter, int colNum,
                           const QMap<QString, bool>& shaMap) {
 
-	if (colNum == SHA_MAP_COL)
-		// in this case shaMap contains all good sha to search for
-		return shaMap.contains(item->sha());
-
-	QString field;
-	if (colNum != LOG_MSG_COL && colNum != COMMIT_COL) {
-		int adj = -1;
-		field = item->text(colNum + adj);
-	}
-	if (field.isEmpty()) { // still not setup or colNum is a dummy one
-
-		const Rev* c = git->revLookup(item->sha());
-		if (colNum == LOG_COL)
-			field = c->shortLog();
-		else if (colNum == AUTH_COL)
-			field = c->author();
-		else if (colNum == LOG_MSG_COL)
-			field = c->longLog();
-		else if (colNum == COMMIT_COL)
-			field = item->sha();
-	}
-	// wildcard search, case insensitive
-	return (field.find(QRegExp(filter, false, true)) != -1);
+// 	if (colNum == SHA_MAP_COL)
+// 		// in this case shaMap contains all good sha to search for
+// 		return shaMap.contains(item->sha());
+//
+// 	QString field;
+// 	if (colNum != LOG_MSG_COL && colNum != COMMIT_COL) {
+// 		int adj = -1;
+// 		field = item->text(colNum + adj);
+// 	}
+// 	if (field.isEmpty()) { // still not setup or colNum is a dummy one
+//
+// 		const Rev* c = git->revLookup(item->sha());
+// 		if (colNum == LOG_COL)
+// 			field = c->shortLog();
+// 		else if (colNum == AUTH_COL)
+// 			field = c->author();
+// 		else if (colNum == LOG_MSG_COL)
+// 			field = c->longLog();
+// 		else if (colNum == COMMIT_COL)
+// 			field = item->sha();
+// 	}
+// 	// wildcard search, case insensitive
+// 	return (field.find(QRegExp(filter, false, true)) != -1);
 }
 
 bool MainImpl::event(QEvent* e) {
@@ -923,29 +919,29 @@ void MainImpl::setupAccelerator(Q3Accel* accel) {
 
 void MainImpl::goMatch(int delta) {
 
-	if (!ActSearchAndHighlight->isChecked())
-		return;
-
-	Q3ListViewItemIterator it(rv->tab()->listViewLog->currentItem());
-	if (delta > 0)
-		++it;
-	else
-		--it;
-
-	while (it.current()) {
-		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-		if (item->highlighted()) {
-			Q3ListView* lv = rv->tab()->listViewLog;
-			lv->clearSelection();
-			lv->setCurrentItem(item);
-			lv->ensureItemVisible(lv->currentItem());
-			return;
-		}
-		if (delta > 0)
-			++it;
-		else
-			--it;
-	}
+// 	if (!ActSearchAndHighlight->isChecked()) FIXME
+// 		return;
+//
+// 	Q3ListViewItemIterator it(rv->tab()->listViewLog->currentItem());
+// 	if (delta > 0)
+// 		++it;
+// 	else
+// 		--it;
+//
+// 	while (it.current()) {
+// 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
+// 		if (item->highlighted()) {
+// 			Q3ListView* lv = rv->tab()->listViewLog;
+// 			lv->clearSelection();
+// 			lv->setCurrentItem(item);
+// 			lv->ensureItemVisible(lv->currentItem());
+// 			return;
+// 		}
+// 		if (delta > 0)
+// 			++it;
+// 		else
+// 			--it;
+// 	}
 }
 
 QTextEdit* MainImpl::getCurrentTextEdit() {
@@ -1306,13 +1302,13 @@ void MainImpl::ActRefresh_activated() {
 
 void MainImpl::ActMailFormatPatch_activated() {
 
-	if (rv->tab()->listViewLog->childCount() == 0)
-		return;
-
-	if (rv->tab()->listViewLog->currentItem() == NULL) {
-		statusBar()->message("At least one selected revision needed");
-		return;
-	}
+// 	if (rv->tab()->listViewLog->childCount() == 0) FIXME
+// 		return;
+//
+// 	if (rv->tab()->listViewLog->currentItem() == NULL) {
+// 		statusBar()->message("At least one selected revision needed");
+// 		return;
+// 	}
 	QStringList selectedItems;
 	rv->listViewLog->getSelectedItems(selectedItems);
 	if (selectedItems.contains(ZERO_SHA)) {
@@ -1505,7 +1501,7 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 void MainImpl::ActTag_activated() {
 
 	int adj = -1; // hack to correctly map col numbers in main view
-	QString tag(rv->tab()->listViewLog->currentItem()->text(LOG_COL + adj));
+	QString tag(rv->listViewLog->currentText(LOG_COL));
 	bool ok;
 	tag = QInputDialog::getText("Make tag - QGit", "Enter tag name:",
 	                            QLineEdit::Normal, tag, &ok, this);

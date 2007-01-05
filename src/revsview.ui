@@ -24,33 +24,25 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="Q3ListView" name="listViewLog" >
+     <widget class="QTreeView" name="listViewLog" >
+      <property name="alternatingRowColors" >
+       <bool>true</bool>
+      </property>
       <property name="selectionMode" >
-       <enum>Q3ListView::Extended</enum>
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="rootIsDecorated" >
+       <bool>false</bool>
+      </property>
+      <property name="uniformRowHeights" >
+       <bool>true</bool>
+      </property>
+      <property name="itemsExpandable" >
+       <bool>false</bool>
       </property>
       <property name="allColumnsShowFocus" >
        <bool>true</bool>
       </property>
-      <column>
-       <property name="text" >
-        <string>Graph</string>
-       </property>
-      </column>
-      <column>
-       <property name="text" >
-        <string>Short Log</string>
-       </property>
-      </column>
-      <column>
-       <property name="text" >
-        <string>Author</string>
-       </property>
-      </column>
-      <column>
-       <property name="text" >
-        <string>Last Change</string>
-       </property>
-      </column>
      </widget>
      <widget class="QSplitter" name="splitter" >
       <property name="orientation" >
@@ -78,11 +70,6 @@
    <class>RevDesc</class>
    <extends>QTextBrowser</extends>
    <header>revdesc.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Q3ListView</class>
-   <extends>Q3Frame</extends>
-   <header>q3listview.h</header>
   </customwidget>
  </customwidgets>
  <includes>

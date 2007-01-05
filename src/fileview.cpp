@@ -50,8 +50,8 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	histListView, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+// 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+// 	histListView, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(m(), SIGNAL(repaintListViews(const QFont&)),
 	        histListView, SLOT(on_repaintListViews(const QFont&)));
@@ -130,20 +130,19 @@ void FileView::clear(bool complete) {
 
 bool FileView::goToCurrentAnnotation() {
 
-	Q3ListViewItem* item = fileTab->histListView->currentItem();
-	int id = (item) ? item->text(QGit::ANN_ID_COL).toInt() : 0;
+	SCRef ids = histListView->currentText(QGit::ANN_ID_COL);
+	int id = (!ids.isEmpty() ? ids.toInt() : 0);
 	textEditFile->goToAnnotation(id);
 	return (id != 0);
 }
 
 void FileView::updateSpinBoxValue() {
 
-	Q3ListViewItem* item = fileTab->histListView->currentItem();
-	if (!item || !fileTab->spinBoxRevision->isEnabled())
+	SCRef ids = histListView->currentText(QGit::ANN_ID_COL);
+	if (ids.isEmpty() || !fileTab->spinBoxRevision->isEnabled())
 		return;
 
-	int id = item->text(QGit::ANN_ID_COL).toInt();
-	fileTab->spinBoxRevision->setValue(id); // triggers on_spinBoxRevision_valueChanged()
+	fileTab->spinBoxRevision->setValue(ids.toInt()); // triggers on_spinBoxRevision_valueChanged()
 }
 
 bool FileView::doUpdate(bool force) {
@@ -286,7 +285,7 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 		return;
 
 	histListView->updateIdValues();
-	int maxId = fileTab->histListView->childCount();
+	int maxId = fh->rowCount();
 	if (maxId == 0) {
 		m()->statusBar()->clear();
 		return;
@@ -358,7 +357,7 @@ bool FileView::event(QEvent* e) {
 
 void FileView::updateProgressBar(int annotatedNum) {
 
-	uint tot = fileTab->histListView->childCount();
+	uint tot = fh->rowCount();
 	if (tot == 0)
 		return;
 
@@ -375,38 +374,38 @@ void FileView::updateProgressBar(int annotatedNum) {
 void FileView::filterOnRange(bool isOn) {
 // TODO integrate with mainimpl function
 
-	Q3ListView* hv = fileTab->histListView;
-	Q3ListViewItemIterator it(hv);
-	bool evenLine = false;
-	int visibleCnt = 0;
-	RangeInfo r;
-	while (it.current()) {
-		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-
-		if (isOn) {
-			if (!textEditFile->getRange(item->sha(), &r))
-				continue;
-
-			if (r.modified) {
-				item->setEven(evenLine);
-				evenLine = !evenLine;
-				visibleCnt++;
-			} else
-				item->setVisible(false);
-		} else {
-			item->setEven(evenLine);
-			evenLine = !evenLine;
-			if (!item->isVisible())
-				item->setVisible(true);
-		}
-		++it;
-	}
-	QString msg;
-	if (isOn)
-		msg = QString("Found %1 matches. Toggle filter "
-		              "button to remove the filter").arg(visibleCnt);
-	else
-		hv->ensureItemVisible(hv->currentItem());
-
-	m()->statusBar()->message(msg);
+// 	Q3ListView* hv = fileTab->histListView; FIXME
+// 	Q3ListViewItemIterator it(hv);
+// 	bool evenLine = false;
+// 	int visibleCnt = 0;
+// 	RangeInfo r;
+// 	while (it.current()) {
+// 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
+//
+// 		if (isOn) {
+// 			if (!textEditFile->getRange(item->sha(), &r))
+// 				continue;
+//
+// 			if (r.modified) {
+// 				item->setEven(evenLine);
+// 				evenLine = !evenLine;
+// 				visibleCnt++;
+// 			} else
+// 				item->setVisible(false);
+// 		} else {
+// 			item->setEven(evenLine);
+// 			evenLine = !evenLine;
+// 			if (!item->isVisible())
+// 				item->setVisible(true);
+// 		}
+// 		++it;
+// 	}
+// 	QString msg;
+// 	if (isOn)
+// 		msg = QString("Found %1 matches. Toggle filter "
+// 		              "button to remove the filter").arg(visibleCnt);
+// 	else
+// 		hv->ensureItemVisible(hv->currentItem());
+//
+// 	m()->statusBar()->message(msg);
 }

@@ -162,6 +162,12 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 	return QVariant();
 }
 
+int FileHistory::row(SCRef sha) {
+
+	const Rev* r = git->revLookup(sha, this);
+	return (r ? r->orderIdx : -1);
+}
+
 // ****************************************************************************
 
 Git::Git(QWidget* p) : QObject(p) {

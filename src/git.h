@@ -33,6 +33,8 @@ public:
 	QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
 	QModelIndex index(int r, int c, const QModelIndex& p = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex& index) const;
+	int row(SCRef sha);
+	int rowCount() const { return _rowCnt; }
 	int rowCount(const QModelIndex&) const { return _rowCnt; }
 	int columnCount(const QModelIndex&) const { return 5; }
 

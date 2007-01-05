@@ -8,6 +8,7 @@
 #define MAINIMPL_H
 
 #include <QSet>
+#include <QModelIndex>
 #include <qpointer.h>
 #include <qregexp.h>
 #include <q3process.h>
@@ -33,24 +34,11 @@ class RevsView;
 class FileView;
 class FileHistory;
 
-#include "ui_model_view.h"
-
-class MVC : public QMainWindow, public Ui_MainWindowsModelView {
-public:
-	MVC(QWidget* parent): QMainWindow(parent) {
-
-		setAttribute(Qt::WA_DeleteOnClose);
-		setupUi(this);
-	}
-};
-
 class MainImpl : public QMainWindow, public Ui_MainBase {
 Q_OBJECT
 public:
 	MainImpl(const QString& curDir = "", QWidget* parent = 0);
 	QString curWorkDir() const { return curDir; }
-
-	MVC* mvc;
 
 signals:
 	void highlightedRowsChanged(const QSet<int>&);
@@ -72,10 +60,10 @@ protected:
 protected slots:
 	void initWithEventLoopActive();
 	void refreshRepo(bool setCurRevAfterLoad = true);
-	void listViewLog_doubleClicked(Q3ListViewItem*);
+	void listViewLog_doubleClicked(const QModelIndex&);
 	void fileList_itemDoubleClicked(QListWidgetItem*);
 	void treeView_doubleClicked(Q3ListViewItem*);
-	void histListView_doubleClicked(Q3ListViewItem* item);
+	void histListView_doubleClicked(const QModelIndex&);
 	void customActionListChanged(const QStringList& list);
 	void openRecent_activated(int id);
 	void customAction_activated(int id);
