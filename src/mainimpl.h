@@ -24,6 +24,7 @@ class Q3ListViewItem;
 class Q3ListBoxItem;
 class Q3PopupMenu;
 class Q3Accel;
+class QComboBox;
 class QTextEdit;
 class Git;
 class Domain;
@@ -31,15 +32,25 @@ class ListViewItem;
 class RevsView;
 class FileView;
 class FileHistory;
-class MVC;
 
-class QComboBox;
+#include "ui_model_view.h"
+
+class MVC : public QMainWindow, public Ui_MainWindowsModelView {
+public:
+	MVC(QWidget* parent): QMainWindow(parent) {
+
+		setAttribute(Qt::WA_DeleteOnClose);
+		setupUi(this);
+	}
+};
 
 class MainImpl : public QMainWindow, public Ui_MainBase {
 Q_OBJECT
 public:
 	MainImpl(const QString& curDir = "", QWidget* parent = 0);
 	QString curWorkDir() const { return curDir; }
+
+	MVC* mvc;
 
 signals:
 	void highlightedRowsChanged(const QSet<int>&);
@@ -148,7 +159,6 @@ private:
 
 	Git* git;
 	RevsView* rv;
-	MVC* mvc;
 
 	// curDir is the repository working dir, could be different from qgit running
 	// directory QDir::current(). Note that qgit could be run from subdirectory

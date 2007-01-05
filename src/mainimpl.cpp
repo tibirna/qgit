@@ -51,7 +51,6 @@
 #include "ui_patchview.h"
 #include "common.h"
 #include "git.h"
-#include "model_view.h"
 #include "listview.h"
 #include "treeview.h"
 #include "patchview.h"
@@ -126,17 +125,13 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	}
 	QGit::TYPE_WRITER_FONT.fromString(font);
 
+	// model view component
+	mvc = new MVC(this); // has Qt::WA_DeleteOnClose
+	connect(this, SIGNAL(closeAllWindows()), mvc, SLOT(close()));
+
 	// set-up tab view
 	delete tabWdg->currentPage(); // cannot be done in Qt Designer
 	rv = new RevsView(this, git);
-
-	// model view component
-	mvc = new MVC(git, git->revData, this); // has Qt::WA_DeleteOnClose
-	connect(this, SIGNAL(closeAllWindows()), mvc, SLOT(close()));
-	connect(rv->listViewLog, SIGNAL(diffTargetChanged(int)),
-	        mvc->d, SLOT(diffTargetChanged(int)));
-	connect(this, SIGNAL(highlightedRowsChanged(const QSet<int>&)),
-	        mvc->d, SLOT(highlightedRowsChanged(const QSet<int>&)));
 
 	// set-up tab corner widget ('close tab' button)
 	MyPushButton* pb = new MyPushButton(tabWdg);

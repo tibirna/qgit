@@ -6,7 +6,9 @@
 #ifndef LISTVIEW_H
 #define LISTVIEW_H
 
-#include <qobject.h>
+#include <QTreeView>
+#include <QItemDelegate>
+#include <QSet>
 #include <q3listview.h>
 //Added by qt3to4:
 #include <QDropEvent>
@@ -105,6 +107,43 @@ private:
 	ListViewItem* lastItem;   // QListView::lastItem() is slow
 	ListViewItem* diffTarget; // cannot use QGuardedPtr, not QObject inherited
 	unsigned long secs;
+};
+
+class ListViewDelegate : public QItemDelegate {
+Q_OBJECT
+
+public:
+	ListViewDelegate(Git* git, FileHistory* fh, QObject *parent);
+
+	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
+	virtual QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &i) const;
+	void setCellHeight(int h);
+
+signals:
+	void updateView();
+
+public slots:
+	void diffTargetChanged(int);
+	void highlightedRowsChanged(const QSet<int>&);
+
+private:
+	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
+	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
+	void paintGraphLane(QPainter* p, int type, int x1, int x2,
+                            const QColor& col, const QBrush& back) const;
+
+	QPixmap* getTagMarks(SCRef sha) const;
+	void addBranchPixmap(QPixmap** pp, SCRef sha) const;
+	void addRefPixmap(QPixmap** pp, SCList refs, const QColor& color) const;
+	void addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, bool bold) const;
+	bool changedFiles(SCRef c) const;
+
+	Git* git;
+	FileHistory* fh;
+	int _cellWidth;
+	int _cellHeight;
+	int _diffTargetRow;
+	QSet<int> _hlRows;
 };
 
 #endif

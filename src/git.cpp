@@ -136,7 +136,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 	if (!index.isValid() || role != Qt::DisplayRole)
 		return QVariant();
 
-	const Rev* r = git->revLookup(revOrder.at(index.row()));
+	const Rev* r = git->revLookup(revOrder.at(index.row()), this);
 	if (!r)
 		return QVariant();
 
