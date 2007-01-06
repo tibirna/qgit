@@ -24,7 +24,7 @@ unix:INSTALLS += target
 
 # project files
 FORMS += commit.ui console.ui customaction.ui fileview.ui help.ui \
-         mainview.ui patchview.ui rangeselect.ui revsview.ui settings.ui model_view.ui
+         mainview.ui patchview.ui rangeselect.ui revsview.ui settings.ui
 
 HEADERS += annotate.h cache.h commitimpl.h common.h consoleimpl.h \
            customactionimpl.h dataloader.h domain.h exceptionmanager.h \
