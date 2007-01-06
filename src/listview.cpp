@@ -126,7 +126,7 @@ bool ListView::update() {
 
 	int stRow = fh->row(st->sha());
 	if (stRow == -1) {
-		dbp("ASSERT in ListView::update() st->sha() is <%1>", st->sha());
+		dbp("ASSERT in ListView::update() st->sha() <%1> not found", st->sha());
 		return false;
 	}
 	QModelIndex index = currentIndex();
@@ -293,7 +293,7 @@ bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
 	p.clear();
 	QString root;
 	if (!isFreeLane(t)) {
-		p = git->revLookup(sha)->parents(); // pointer cannot be NULL
+		p = git->revLookup(sha, fh)->parents(); // pointer cannot be NULL
 		root = sha;
 	} else {
 		SCRef par(git->getLaneParent(sha, lane));
@@ -478,7 +478,7 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 	else
 		p->fillRect(opt.rect, opt.palette.base());
 
-	const Rev* r = git->revLookup(fh->sha(i.row()));
+	const Rev* r = git->revLookup(fh->sha(i.row()), fh);
 	if (!r)
 		return;
 
@@ -527,7 +527,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
                                 const QModelIndex& index) const {
 
 	int row = index.row();
-	const Rev* r = git->revLookup(fh->sha(row));
+	const Rev* r = git->revLookup(fh->sha(row), fh);
 	if (!r)
 		return;
 
