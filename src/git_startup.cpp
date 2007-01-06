@@ -789,7 +789,7 @@ void Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
 		return;
 
 	const RevFile* files = getFiles(ZERO_SHA);
-	if (!files || findFileIndex(*files, fh->fileName) == -1)
+	if (!files || findFileIndex(*files, fh->fileName()) == -1)
 		return;
 
 	// insert a custom ZERO_SHA rev with proper parent

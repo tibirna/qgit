@@ -62,16 +62,16 @@ void FileHistory::clear(SCRef name) {
 	revOrder.clear();
 	firstFreeLane = 0;
 	lns->clear();
-	fileName = name;
+	_fileName = name;
 	qDeleteAll(rowData);
 	rowData.clear();
 
 	if (testFlag(REL_DATE_F)) {
 		_secs = QDateTime::currentDateTime().toTime_t();
-		_headerInfo[3] = "Last Change";
+		_headerInfo[4] = "Last Change";
 	} else {
 		_secs = 0;
-		_headerInfo[3] = "Author Date";
+		_headerInfo[4] = "Author Date";
 	}
 	_rowCnt = revOrder.count();
 	_annIdValid = false;
@@ -1087,7 +1087,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 
 void Git::startFileHistory(FileHistory* fh) {
 
-	startRevList(quote(fh->fileName), fh);
+	startRevList(quote(fh->fileName()), fh);
 }
 
 void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {

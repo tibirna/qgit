@@ -33,6 +33,7 @@ public:
 	QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
 	QModelIndex index(int r, int c, const QModelIndex& p = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex& index) const;
+	const QString fileName() const { return _fileName; }
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
 	int rowCount() const { return _rowCnt; }
@@ -40,13 +41,11 @@ public:
 	int columnCount(const QModelIndex&) const { return 5; }
 	void setAnnIdValid(bool b = true) { _annIdValid = b; }
 
-	QString fileName;
-	StrVect revOrder;
-
 private slots:
 	void on_newRevsAdded(const FileHistory*, const QVector<QString>&);
 
 private:
+	friend class Annotate;
 	friend class DataLoader;
 	friend class Git;
 
@@ -55,6 +54,7 @@ private:
 	Git* git;
 
 	RevMap revs;
+	StrVect revOrder;
 	Lanes* lns;
 	uint firstFreeLane;
 	QList<QByteArray*> rowData;
@@ -62,6 +62,7 @@ private:
 	int _rowCnt;
 	bool _annIdValid;
 	unsigned long _secs;
+	QString _fileName;
 };
 
 class Git : public QObject {

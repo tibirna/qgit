@@ -103,7 +103,7 @@ bool Annotate::start(const FileHistory* _fh) {
 
 	// could change during annotation, so save them
 	fh = _fh;
-	fileName = fh->fileName;
+	fileName = fh->fileName();
 	histRevOrder = fh->revOrder;
 
 	if (histRevOrder.isEmpty()) {

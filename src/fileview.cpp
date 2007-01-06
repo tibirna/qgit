@@ -49,9 +49,6 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-// 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-// 	histListView, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
-
 	connect(m(), SIGNAL(repaintListViews(const QFont&)),
 	        fileTab->histListView, SLOT(on_repaintListViews(const QFont&)));
 

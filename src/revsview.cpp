@@ -141,7 +141,7 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 	if (st.sha().isEmpty()) { // point to first one in list
 
 		if (fh->rowCount() > 0) {
-			st.setSha(fh->revOrder.first());
+			st.setSha(fh->sha(0));
 			st.setSelectItem(true);
 		}
 	}

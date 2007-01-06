@@ -30,8 +30,6 @@ public:
 	void addNewRevs(const QVector<QString>& shaVec);
 	QString currentText(int col);
 
-	bool filterNextContextMenuRequest;
-
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
 	void droppedRevisions(const QStringList&);
@@ -40,9 +38,6 @@ signals:
 
 public slots:
 	void on_repaintListViews(const QFont& f);
-
-protected:
-	virtual bool eventFilter(QObject* obj, QEvent* ev);
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* e);
@@ -60,7 +55,6 @@ private:
 	void setupGeometry();
 	bool filterRightButtonPressed(QMouseEvent* e);
 	bool getLaneParentsChilds(SCRef sha, int x, SList p, SList c);
-	int laneWidth() const { return 3 * fontMetrics().height() / 4; }
 	int getLaneType(SCRef sha, int pos) const;
 
 	Domain* d;
@@ -68,17 +62,18 @@ private:
 	StateInfo* st;
 	FileHistory* fh;
 	unsigned long secs;
+	bool filterNextContextMenuRequest;
 };
 
 class ListViewDelegate : public QItemDelegate {
 Q_OBJECT
-
 public:
 	ListViewDelegate(Git* git, FileHistory* fh, QObject *parent);
 
 	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
-	virtual QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &i) const;
-	void setCellHeight(int h);
+	virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
+	int laneWidth() const { return 3 * _laneHeight / 4; }
+	void setLaneHeight(int h) { _laneHeight = h; }
 
 signals:
 	void updateView();
@@ -90,9 +85,7 @@ public slots:
 private:
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
-	void paintGraphLane(QPainter* p, int type, int x1, int x2,
-                            const QColor& col, const QBrush& back) const;
-
+	void paintGraphLane(QPainter* p, int type, int x1, int x2, const QColor& col, const QBrush& back) const;
 	QPixmap* getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const;
 	void addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const;
 	void addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const;
@@ -100,8 +93,7 @@ private:
 
 	Git* git;
 	FileHistory* fh;
-	int _cellWidth;
-	int _cellHeight;
+	int _laneHeight;
 	int _diffTargetRow;
 	QSet<int> _hlRows;
 };
