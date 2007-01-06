@@ -510,7 +510,7 @@ bool Git::stop(bool saveCache) {
 
 void Git::clearRevs() {
 
-	revData->clear("");
+	revData->clear();
 	patchesStillToFind = 0; // TODO TEST WITH FILTERING
 	firstNonStGitPatch = "";
 }

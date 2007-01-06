@@ -9,12 +9,6 @@
 #include <QTreeView>
 #include <QItemDelegate>
 #include <QSet>
-#include <q3listview.h>
-//Added by qt3to4:
-#include <QDropEvent>
-#include <QPixmap>
-#include <QMouseEvent>
-#include <QEvent>
 #include "common.h"
 
 class Git;
@@ -22,23 +16,21 @@ class StateInfo;
 class Domain;
 class FileHistory;
 
-class ListViewItem;
-
-class ListView: public QObject {
+class ListView: public QTreeView {
 Q_OBJECT
 public:
-	ListView(Domain* d, Git* g, QTreeView* l, FileHistory* f, const QFont& fnt);
+	ListView(QWidget* parent);
 	~ListView();
+	void setup(Domain* d, Git* g, FileHistory* f);
 	void clear();
-	const QString getSha(int id);
-	void updateIdValues();
+	const QString getSha(uint id);
+	void showIdValues();
 	void getSelectedItems(QStringList& selectedItems);
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);
 	QString currentText(int col);
 
 	bool filterNextContextMenuRequest;
-
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
@@ -52,26 +44,27 @@ public slots:
 protected:
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 
+protected:
+	virtual void mousePressEvent(QMouseEvent* e);
+	virtual void mouseMoveEvent(QMouseEvent* e);
+	virtual void mouseReleaseEvent(QMouseEvent* e);
+	virtual void dragEnterEvent(QDragEnterEvent* e);
+	virtual void dragMoveEvent(QDragMoveEvent* e);
+	virtual void dropEvent(QDropEvent* e);
+
 private slots:
 	void on_customContextMenuRequested(const QPoint&);
 	void on_currentChanged(const QModelIndex&, const QModelIndex&);
 
-	void on_mouseButtonPressed(int, Q3ListViewItem*, const QPoint&, int);
-	void on_clicked(Q3ListViewItem*);
-	void on_onItem(Q3ListViewItem*);
-
 private:
-	void setupListView(const QFont& fnt);
+	void setupGeometry();
 	bool filterRightButtonPressed(QMouseEvent* e);
-	bool filterDropEvent(QDropEvent* e);
-	bool getLaneParentsChilds(ListViewItem* item, int x, SList p, SList c);
-	const QString getRefs(Q3ListViewItem* item);
-	int laneWidth() const { return 3 * lv->fontMetrics().height() / 4; }
-	int getLaneType(int pos) const;
+	bool getLaneParentsChilds(SCRef sha, int x, SList p, SList c);
+	int laneWidth() const { return 3 * fontMetrics().height() / 4; }
+	int getLaneType(SCRef sha, int pos) const;
 
 	Domain* d;
 	Git* git;
-	QTreeView* lv;
 	StateInfo* st;
 	FileHistory* fh;
 	unsigned long secs;
@@ -100,11 +93,10 @@ private:
 	void paintGraphLane(QPainter* p, int type, int x1, int x2,
                             const QColor& col, const QBrush& back) const;
 
-	QPixmap* getTagMarks(SCRef sha) const;
-	void addBranchPixmap(QPixmap** pp, SCRef sha) const;
-	void addRefPixmap(QPixmap** pp, SCList refs, const QColor& color) const;
-	void addTextPixmap(QPixmap** pp, SCRef text, const QColor& color, bool bold) const;
-	bool changedFiles(SCRef c) const;
+	QPixmap* getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const;
+	void addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const;
+	void addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const;
+	bool changedFiles(SCRef sha) const;
 
 	Git* git;
 	FileHistory* fh;

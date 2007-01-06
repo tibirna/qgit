@@ -32,7 +32,7 @@ FileHistory::FileHistory(Git* g) : QAbstractItemModel(g), git(g) {
 	_headerInfo << "Graph" << "Ann id" << "Short Log" << "Author" << "Author Date";
 	lns = new Lanes();
 	revs.reserve(QGit::MAX_DICT_SIZE);
-	clear(""); // after _headerInfo is set
+	clear(); // after _headerInfo is set
 
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
 	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
@@ -40,8 +40,19 @@ FileHistory::FileHistory(Git* g) : QAbstractItemModel(g), git(g) {
 
 FileHistory::~FileHistory() {
 
-	clear("");
+	clear();
 	delete lns;
+}
+
+int FileHistory::row(SCRef sha) const {
+
+	const Rev* r = git->revLookup(sha, this);
+	return (r ? r->orderIdx : -1);
+}
+
+const QString FileHistory::sha(int row) const {
+
+	return (row < 0 || row >= _rowCnt ? "" : revOrder.at(row));
 }
 
 void FileHistory::clear(SCRef name) {
@@ -63,6 +74,7 @@ void FileHistory::clear(SCRef name) {
 		_headerInfo[3] = "Author Date";
 	}
 	_rowCnt = revOrder.count();
+	_annIdValid = false;
 	reset();
 }
 
@@ -146,6 +158,9 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 	if (r->lanes.count() == 0)
 		git->setLane(r->sha(), const_cast<FileHistory*>(this));
 
+	if (col == QGit::ANN_ID_COL)
+		return (_annIdValid ? _rowCnt - index.row() : QVariant());
+
 	if (col == QGit::LOG_COL)
 		return r->shortLog();
 
@@ -160,12 +175,6 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 			return git->getLocalDate(r->authorDate());
 	}
 	return QVariant();
-}
-
-int FileHistory::row(SCRef sha) {
-
-	const Rev* r = git->revLookup(sha, this);
-	return (r ? r->orderIdx : -1);
 }
 
 // ****************************************************************************

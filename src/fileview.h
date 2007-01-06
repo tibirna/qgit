@@ -62,7 +62,6 @@ private:
 	void updateEnabledButtons();
 
 	Ui_TabFile* fileTab;
-	ListView* histListView;
 	FileContent* textEditFile;
 	FileHistory* fh;
 	bool annotateAvailable;

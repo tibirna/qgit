@@ -1310,7 +1310,7 @@ void MainImpl::ActMailFormatPatch_activated() {
 // 		return;
 // 	}
 	QStringList selectedItems;
-	rv->listViewLog->getSelectedItems(selectedItems);
+	rv->tab()->listViewLog->getSelectedItems(selectedItems);
 	if (selectedItems.contains(ZERO_SHA)) {
 		statusBar()->message("Unable to format patch for not committed content");
 		return;
@@ -1501,7 +1501,7 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 void MainImpl::ActTag_activated() {
 
 	int adj = -1; // hack to correctly map col numbers in main view
-	QString tag(rv->listViewLog->currentText(LOG_COL));
+	QString tag(rv->tab()->listViewLog->currentText(LOG_COL));
 	bool ok;
 	tag = QInputDialog::getText("Make tag - QGit", "Enter tag name:",
 	                            QLineEdit::Normal, tag, &ok, this);
@@ -1552,7 +1552,7 @@ void MainImpl::ActTagDelete_activated() {
 void MainImpl::ActPush_activated() {
 
 	QStringList selectedItems;
-	rv->listViewLog->getSelectedItems(selectedItems);
+	rv->tab()->listViewLog->getSelectedItems(selectedItems);
 	for (int i = 0; i < selectedItems.count(); i++) {
 		if (!git->checkRef(selectedItems[i], Git::UN_APPLIED)) {
 			statusBar()->message("Please, select only unapplied patches");
@@ -1582,7 +1582,7 @@ void MainImpl::ActPush_activated() {
 void MainImpl::ActPop_activated() {
 
 	QStringList selectedItems;
-	rv->listViewLog->getSelectedItems(selectedItems);
+	rv->tab()->listViewLog->getSelectedItems(selectedItems);
 	if (selectedItems.count() > 1) {
 		statusBar()->message("Please, select one revision only");
 		return;

@@ -6,80 +6,54 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QPainter>
 #include <QHeaderView>
-#include <qpainter.h>
-#include <qapplication.h>
-#include <q3header.h>
-#include <q3dragobject.h>
-#include <qdatetime.h>
-//Added by qt3to4:
-#include <QPixmap>
+#include <QApplication>
 #include <QDropEvent>
 #include <QMouseEvent>
-#include <QEvent>
+#include <QPixmap>
 #include "common.h"
 #include "domain.h"
 #include "git.h"
 #include "listview.h"
 
-#include "mainimpl.h" // TODO remove
+#include "mainimpl.h" // TODO remove, connect(d->m(), SIGNAL(highlightedRowsChanged
 
 using namespace QGit;
 
-ListView::ListView(Domain* dm, Git* g, QTreeView* l, FileHistory* f, const QFont& fnt) :
-                   QObject(dm), d(dm), git(g), lv(l), fh(f) {
+ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL) {}
 
+void ListView::setup(Domain* dm, Git* g, FileHistory* f) {
+
+	d = dm;
+	git = g;
+	fh = f;
 	st = &(d->st);
 	filterNextContextMenuRequest = false;
-	setupListView(fnt);
-	clear(); // to init some stuff
 
-	lv->setAcceptDrops(git->isMainHistory(fh));
-	lv->viewport()->setAcceptDrops(git->isMainHistory(fh));
-	lv->viewport()->installEventFilter(this); // filter out some right clicks
+	setAcceptDrops(git->isMainHistory(fh));
+	viewport()->setAcceptDrops(git->isMainHistory(fh));
+	viewport()->installEventFilter(this); // filter out some right clicks
 
-// FIXME
-// 	connect(lv, SIGNAL(mouseButtonPressed(int,Q3ListViewItem*,const QPoint&,int)),
-// 	        this, SLOT(on_mouseButtonPressed(int,Q3ListViewItem*,const QPoint&,int)));
-//
-// 	connect(lv, SIGNAL(clicked(Q3ListViewItem*)),
-// 	        this, SLOT(on_clicked(Q3ListViewItem*)));
-//
-// 	connect(lv, SIGNAL(onItem(Q3ListViewItem*)),
-// 	        this, SLOT(on_onItem(Q3ListViewItem*)));
-
-	QTreeView* tv = lv;
-
-	QPalette pl = tv->palette();
-	pl.setColor(QPalette::Base, ODD_LINE_COL);
-	pl.setColor(QPalette::AlternateBase, EVEN_LINE_COL);
-	tv->setPalette(pl); // does not seem to inherit application palette
-
-	tv->setModel(fh);
+	setModel(fh);
 
 	ListViewDelegate* lvd = new ListViewDelegate(git, fh, this);
-	lvd->setCellHeight(tv->fontMetrics().height());
-	tv->setItemDelegate(lvd);
+	lvd->setCellHeight(fontMetrics().height());
+	setItemDelegate(lvd);
 
-	if (git->isMainHistory(fh))
-		tv->hideColumn(ANN_ID_COL);
+	setupGeometry(); // after setting delegate
 
-	tv->header()->setStretchLastSection(true);
-	int w = tv->columnWidth(LOG_COL);
-	tv->setColumnWidth(LOG_COL, w * 4);
-	tv->setColumnWidth(AUTH_COL, w * 2);
-
-	connect(lvd, SIGNAL(updateView()), tv->viewport(), SLOT(update()));
+	connect(lvd, SIGNAL(updateView()), viewport(), SLOT(update()));
 
 	connect(this, SIGNAL(diffTargetChanged(int)), lvd, SLOT(diffTargetChanged(int)));
 
 	connect(d->m(), SIGNAL(highlightedRowsChanged(const QSet<int>&)),
 	        lvd, SLOT(highlightedRowsChanged(const QSet<int>&)));
 
-	connect(lv->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+	connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 	        this, SLOT(on_currentChanged(const QModelIndex&, const QModelIndex&)));
 
-	connect(lv, SIGNAL(customContextMenuRequested(const QPoint&)),
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
 }
 
@@ -88,163 +62,114 @@ ListView::~ListView() {
 	git->cancelDataLoading(fh); // non blocking
 }
 
-void ListView::setupListView(const QFont& fnt) {
+void ListView::setupGeometry() {
 
-// 	lv->setItemMargin(0);
-// 	lv->setSorting(-1);
-// 	lv->setFont(fnt);
-//
-// 	int adj = !git->isMainHistory(fh) ? 0 : -1;
-//
-// 	lv->setColumnWidthMode(GRAPH_COL, Q3ListView::Manual);
-// 	lv->setColumnWidthMode(LOG_COL + adj, Q3ListView::Manual);
-// 	lv->setColumnWidthMode(AUTH_COL + adj, Q3ListView::Manual);
-// 	lv->setColumnWidthMode(TIME_COL + adj, Q3ListView::Maximum); // width is almost constant
-//
-// 	lv->setColumnWidth(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
-// 	lv->setColumnWidth(LOG_COL + adj, DEF_LOG_COL_WIDTH);
-// 	lv->setColumnWidth(AUTH_COL + adj, DEF_AUTH_COL_WIDTH);
-// 	lv->setColumnWidth(TIME_COL + adj, DEF_TIME_COL_WIDTH);
-//
-// 	lv->header()->setStretchEnabled(false);
-// 	lv->header()->setStretchEnabled(true, LOG_COL + adj);
+	QPalette pl = palette();
+	pl.setColor(QPalette::Base, ODD_LINE_COL);
+	pl.setColor(QPalette::AlternateBase, EVEN_LINE_COL);
+	setPalette(pl); // does not seem to inherit application paletteAnnotate
+
+	if (git->isMainHistory(fh))
+		hideColumn(ANN_ID_COL);
+
+	QHeaderView* hv = header();
+	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
+	hv->resizeSection(LOG_COL, DEF_LOG_COL_WIDTH);
+	hv->resizeSection(AUTH_COL, DEF_AUTH_COL_WIDTH);
+	hv->resizeSection(TIME_COL, DEF_TIME_COL_WIDTH);
 }
 
 void ListView::on_repaintListViews(const QFont& f) {
 
-	lv->setFont(f);
-// 	lv->ensureItemVisible(lv->currentItem()); FIXME
+	setFont(f);
+	scrollTo(currentIndex());
 }
 
 void ListView::clear() {
 
 	git->cancelDataLoading(fh);
-// 	lv->clear(); // FIXME SHOULD NOT BE USED, start from model instead
-// 	diffTarget = NULL; // avoid a dangling pointer FIXME
-
-// 	int adj = !git->isMainHistory(fh) ? 0 : -1;
-//
-// 	if (testFlag(REL_DATE_F)) {
-// 		secs = QDateTime::currentDateTime().toTime_t();
-// 		lv->setColumnText(TIME_COL + adj, "Last Change");
-// 	} else {
-// 		secs = 0;
-// 		lv->setColumnText(TIME_COL + adj, "Author Date");
-// 	}
+	fh->clear(); // reset the model
 }
 
-QString ListView::currentText(int column) {
+QString ListView::currentText(int column) { // TODO try to remove
 
-	QModelIndex idx = lv->currentIndex().sibling (0, column);
+	QModelIndex idx = currentIndex().sibling (0, column);
 	return (idx.isValid() ? idx.data().toString() : "");
 }
 
-int ListView::getLaneType(int pos) const {
+int ListView::getLaneType(SCRef sha, int pos) const {
 
-	QModelIndex idx = lv->currentIndex();
-	if (!idx.isValid())
-		return -1;
-
-	SCRef sha = fh->revOrder.at(idx.row());
-	const Rev* r = git->revLookup(sha, fh); // 'r' cannot be NULL
-	return (pos < r->lanes.count() ? r->lanes[pos] : -1);
+	const Rev* r = git->revLookup(sha, fh);
+	return (r && pos < r->lanes.count() && pos >= 0 ? r->lanes.at(pos) : -1);
 }
 
-void ListView::updateIdValues() {
+void ListView::showIdValues() {
 
 	if (git->isMainHistory(fh))
 		return;
 
-	uint id = fh->rowCount();
-// 	Q3ListViewItem* item = lv->firstChild(); FIXME
-// 	while (item) {
-// 		item->setText(ANN_ID_COL, QString::number(id--) + "  ");
-// 		item = item->itemBelow();
-// 	}
+	fh->setAnnIdValid();
+	viewport()->update();
 }
 
 void ListView::getSelectedItems(QStringList& selectedItems) {
 
-// 	selectedItems.clear(); FIXME
-// 	Q3ListViewItem* item = lv->firstChild();
-// 	while (item) {
-// 		if (item->isSelected())
-// 			selectedItems.append(((ListViewItem*)item)->sha());
-//
-// 		item = item->itemBelow();
-// 	}
+	selectedItems.clear();
+	QModelIndexList ml = selectionModel()->selectedRows();
+	FOREACH (QModelIndexList, it, ml)
+		selectedItems.append(fh->sha((*it).row()));
 }
 
-const QString ListView::getSha(int id) {
+const QString ListView::getSha(uint id) {
 
-	if (git->isMainHistory(fh) || !fh)
+	if (git->isMainHistory(fh))
 		return "";
 
-	// id == rowCnt - row
-	int row = fh->rowCount() - id;
-	if (row < 0 || row >= fh->rowCount())
-		return "";
-
-	return fh->revOrder.at(row);
-
-// 	// check to early skip common case of list mouse browsing
-// 	Q3ListViewItem* item = lv->currentItem();
-// 	if (item && item->text(ANN_ID_COL).toInt() == id)
-// 		return ((ListViewItem*)item)->sha();
-//
-// 	item = lv->firstChild();
-// 	while (item) {
-// 		if (item->text(ANN_ID_COL).toInt() == id)
-// 			return ((ListViewItem*)item)->sha();
-//
-// 		item = item->itemBelow();
-// 	}
+	return fh->sha(fh->rowCount() - id);
 }
 
 bool ListView::update() {
 
-	QModelIndex index = lv->currentIndex();
-	int newRow = fh->row(st->sha());
-	QItemSelectionModel* sel = lv->selectionModel();
+	int stRow = fh->row(st->sha());
+	if (stRow == -1) {
+		dbp("ASSERT in ListView::update() st->sha() is <%1>", st->sha());
+		return false;
+	}
+	QModelIndex index = currentIndex();
+	QItemSelectionModel* sel = selectionModel();
 
-	if (index.isValid() && (index.row() == newRow)) {
+	if (index.isValid() && (index.row() == stRow)) {
 
 		if (sel->isSelected(index) != st->selectItem())
-			sel->setCurrentIndex(index, QItemSelectionModel::Toggle);
+			sel->select(index, QItemSelectionModel::Toggle);
 
-// 		lv->ensureItemVisible(item);
+		scrollTo(index);
 	} else {
-		// setCurrentItem() does not clear previous
+		// setCurrentIndex() does not clear previous
 		// selections in a multi selection QListView
-		lv->clearSelection();
+		clearSelection();
 
-		QModelIndex newIndex = lv->model()->index(newRow, 0);
-		lv->setCurrentIndex(newIndex); // calls on_currentChanged()
-		if (!st->selectItem())
-			sel->setCurrentIndex(index, QItemSelectionModel::Toggle);
+		QModelIndex newIndex = model()->index(stRow, 0);
+		if (newIndex.isValid()) {
 
-// 		lv->ensureItemVisible(item);
+			// emits QItemSelectionModel::currentChanged()
+			setCurrentIndex(newIndex);
+			scrollTo(newIndex);
+			if (!st->selectItem())
+				sel->select(newIndex, QItemSelectionModel::Deselect);
+		}
 	}
-	if (git->isMainHistory(fh)) {
-// 		setHighlight(st->diffToSha());
+	if (git->isMainHistory(fh))
+		emit diffTargetChanged(fh->row(st->diffToSha()));
 
-		// NEW MODEL VIEW INTERFACE HOOK
-		// we use orderIdx to get row number, it will be
-		// got directly in final integration
-		const Rev* r = git->revLookup(st->diffToSha(), fh);
-		emit diffTargetChanged(r ? r->orderIdx : -1);
-	}
-	return lv->currentIndex().isValid();
+	return currentIndex().isValid();
 }
 
 // ************************************ SLOTS ********************************
 
 void ListView::on_currentChanged(const QModelIndex& index, const QModelIndex&) {
 
-	if (!index.isValid())
-		return;
-
-	SCRef selRev = fh->revOrder.at(index.row());
+	SCRef selRev = fh->sha(index.row());
 	if (st->sha() != selRev) { // to avoid looping
 		st->setSha(selRev);
 		st->setSelectItem(true);
@@ -252,38 +177,72 @@ void ListView::on_currentChanged(const QModelIndex& index, const QModelIndex&) {
 	}
 }
 
-void ListView::on_mouseButtonPressed(int b, Q3ListViewItem* item, const QPoint&, int) {
+void ListView::mousePressEvent(QMouseEvent* e) {
 
-	if (item && b == Qt::LeftButton)
+	if (currentIndex().isValid() && e->button() == Qt::LeftButton)
 		d->setReadyToDrag(true);
+
+	QTreeView::mousePressEvent(e);
 }
 
-void ListView::on_clicked(Q3ListViewItem*) {
+void ListView::mouseReleaseEvent(QMouseEvent* e) {
 
 	d->setReadyToDrag(false); // in case of just click without moving
+	QTreeView::mouseReleaseEvent(e);
 }
 
-void ListView::on_onItem(Q3ListViewItem*) {
+void ListView::mouseMoveEvent(QMouseEvent* e) {
 
-	if (!d->isReadyToDrag() || !d->setDragging(true))
-		return;
+	if (d->isReadyToDrag()) {
 
-	QStringList selRevs;
-	getSelectedItems(selRevs);
-	selRevs.remove(ZERO_SHA);
+		if (!d->setDragging(true))
+			return;
 
-	if (!selRevs.empty()) {
-		const QString h(d->dragHostName() + '\n');
-		QString dragRevs = selRevs.join(h).append(h).stripWhiteSpace();
-		Q3DragObject* drObj = new Q3TextDrag(dragRevs, lv);
-		drObj->dragCopy(); // do not delete drObj. Blocking until drop event
+		QStringList selRevs;
+		getSelectedItems(selRevs);
+		selRevs.remove(ZERO_SHA);
+		if (!selRevs.empty()) {
+
+			const QString h(d->dragHostName() + '\n');
+			QString dragRevs = selRevs.join(h).append(h).stripWhiteSpace();
+			QDrag* drag = new QDrag(this);
+			QMimeData* mimeData = new QMimeData;
+			mimeData->setText(dragRevs);
+			drag->setMimeData(mimeData);
+			drag->start(); // blocking until drop event
+		}
+		d->setDragging(false);
 	}
-	d->setDragging(false);
+	QTreeView::mouseMoveEvent(e);
+}
+
+void ListView::dragEnterEvent(QDragEnterEvent* e) {
+
+	if (e->mimeData()->hasFormat("text/plain"))
+		e->accept();
+}
+
+void ListView::dragMoveEvent(QDragMoveEvent* e) {
+
+	if (e->mimeData()->hasFormat("text/plain"))
+		e->accept();
+}
+
+void ListView::dropEvent(QDropEvent *e) {
+
+	SCList remoteRevs(e->mimeData()->text().split('\n'));
+	if (!remoteRevs.isEmpty()) {
+		// some sanity check on dropped data
+		SCRef sha(remoteRevs.first().section('@', 0, 0));
+		SCRef remoteRepo(remoteRevs.first().section('@', 1));
+		if (sha.length() == 40 && !remoteRepo.isEmpty())
+			emit droppedRevisions(remoteRevs);
+	}
 }
 
 void ListView::on_customContextMenuRequested(const QPoint& pos) {
 
-	QModelIndex index = lv->indexAt(pos);
+	QModelIndex index = indexAt(pos);
 	if (!index.isValid())
 		return;
 
@@ -292,42 +251,33 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 		filterNextContextMenuRequest = false;
 		return;
 	}
-	emit contextMenu(fh->revOrder.at(index.row()), POPUP_LIST_EV);
+	emit contextMenu(fh->sha(index.row()), POPUP_LIST_EV);
 }
 
-
 bool ListView::eventFilter(QObject* obj, QEvent* ev) {
-// we need an event filter for:
-//  - filter out some right click mouse events
-//  - intercept drop events sent to listview
+// we need this to filter out some right click mouse events
 
-	if (obj == lv->viewport() && ev->type() == QEvent::MouseButtonPress) {
+	if (obj == viewport() && ev->type() == QEvent::MouseButtonPress) {
 		QMouseEvent* e = static_cast<QMouseEvent*>(ev);
 		if (e->button() == Qt::RightButton)
 			return filterRightButtonPressed(e);
-	}
-	if (obj == lv->viewport() && ev->type() == QEvent::Drop) {
-		QDropEvent* e = static_cast<QDropEvent*>(ev);
-		return filterDropEvent(e);
 	}
 	return QObject::eventFilter(obj, ev);
 }
 
 bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
-	QModelIndex index = lv->indexAt(e->pos());
-// 	ListViewItem* item = static_cast<ListViewItem*>(lv->itemAt(e->pos()));
-	if (!index.isValid())
+	QModelIndex index = indexAt(e->pos());
+	SCRef sha = fh->sha(index.row());
+	if (sha.isEmpty())
 		return false;
 
 	if (e->state() == Qt::ControlButton) { // check for 'diff to' function
 
-		SCRef diffToSha(fh->revOrder.at(index.row()));
+		if (sha != ZERO_SHA && st->sha() != ZERO_SHA) {
 
-		if (diffToSha != ZERO_SHA && st->sha() != ZERO_SHA) {
-
-			if (diffToSha != st->diffToSha())
-				st->setDiffToSha(diffToSha);
+			if (sha != st->diffToSha())
+				st->setDiffToSha(sha);
 			else
 				st->setDiffToSha(""); // restore std view
 
@@ -339,59 +289,40 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 	// check for 'children & parents' function, i.e. if mouse is on the graph
 	if (index.column() == GRAPH_COL) {
 		QStringList parents, children;
-// 		if (getLaneParentsChilds(item, e->pos().x(), parents, children)) FIXME
-// 			emit lanesContextMenuRequested(parents, children);
+		if (getLaneParentsChilds(sha, e->pos().x(), parents, children))
+			emit lanesContextMenuRequested(parents, children);
 
 		return true; // filter event out
 	}
 	return false;
 }
 
-bool ListView::getLaneParentsChilds(ListViewItem* item, int x, SList p, SList c) {
+bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
 
-// 	uint lane = x / item->laneWidth(); FIXME
-// 	int t = item->getLaneType(lane);
-// 	if (t == EMPTY || t == -1)
-// 		return false;
-//
-// 	// first find the parents
-// 	p.clear();
-// 	QString root;
-// 	SCRef sha(item->sha());
-// 	if (!isFreeLane(t)) {
-// 		p = git->revLookup(sha)->parents(); // pointer cannot be NULL
-// 		root = sha;
-// 	} else {
-// 		SCRef par(git->getLaneParent(sha, lane));
-// 		if (par.isEmpty()) {
-// 			dbs("ASSERT getLaneParentsChilds: parent not found");
-// 			return false;
-// 		}
-// 		p.append(par);
-// 		root = p.first();
-// 	}
-// 	// then find children
-// 	c = git->getChilds(root);
+	uint lane = x / laneWidth();
+	int t = getLaneType(sha, lane);
+	if (t == EMPTY || t == -1)
+		return false;
+
+	// first find the parents
+	p.clear();
+	QString root;
+	if (!isFreeLane(t)) {
+		p = git->revLookup(sha)->parents(); // pointer cannot be NULL
+		root = sha;
+	} else {
+		SCRef par(git->getLaneParent(sha, lane));
+		if (par.isEmpty()) {
+			dbs("ASSERT getLaneParentsChilds: parent not found");
+			return false;
+		}
+		p.append(par);
+		root = p.first();
+	}
+	// then find children
+	c = git->getChilds(root);
 	return true;
 }
-
-bool ListView::filterDropEvent(QDropEvent* e) {
-
-	QString text;
-	if (Q3TextDrag::decode(e, text) && !text.isEmpty()) {
-
-		SCList remoteRevs(QStringList::split('\n', text));
-
-		// some sanity check on dropped data
-		SCRef sha(remoteRevs[0].section('@', 0, 0));
-		SCRef remoteRepo(remoteRevs[0].section('@', 1));
-
-		if (sha.length() == 40 && !remoteRepo.isEmpty())
-			emit droppedRevisions(remoteRevs);
-	}
-	return true; // filter out
-}
-
 
 // *****************************************************************************
 
@@ -627,7 +558,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 		p->fillRect(opt.rect, LIGHT_BLUE);
 
 	bool isHighlighted = (!_hlRows.isEmpty() && _hlRows.contains(row));
-	QPixmap* pm = getTagMarks(r->sha());
+	QPixmap* pm = getTagMarks(r->sha(), opt);
 
 	if (!pm && !isHighlighted) { // fast path in common case
 		QItemDelegate::paint(p, opt, index);
@@ -667,67 +598,70 @@ bool ListViewDelegate::changedFiles(SCRef sha) const {
 	return false;
 }
 
-QPixmap* ListViewDelegate::getTagMarks(SCRef sha) const {
+QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& o) const {
 
 	uint rt = git->checkRef(sha);
 	if (rt == 0)
 		return NULL; // common case
 
 	QPixmap* pm = new QPixmap(); // must be deleted by caller
+	QStyleOptionViewItem opt(o);
 
 	if (rt & Git::BRANCH)
-		addBranchPixmap(&pm, sha);
+		addRefPixmap(&pm, sha, Git::BRANCH, opt);
 
 	if (rt & Git::TAG)
-		addRefPixmap(&pm, git->getRefName(sha, Git::TAG), Qt::yellow);
+		addRefPixmap(&pm, sha, Git::TAG, opt);
 
 	if (rt & Git::REF)
-		addRefPixmap(&pm, git->getRefName(sha, Git::REF), PURPLE);
+		addRefPixmap(&pm, sha, Git::REF, opt);
 
 	return pm;
 }
 
-void ListViewDelegate::addBranchPixmap(QPixmap** pp, SCRef sha) const {
+void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const {
 
 	QString curBranch;
-	SCList refs = git->getRefName(sha, Git::BRANCH, &curBranch);
+	SCList refs = git->getRefName(sha, (Git::RefType)type, &curBranch);
 	FOREACH_SL (it, refs) {
+
 		bool isCur = (curBranch == *it);
-		QColor color(isCur ? Qt::green : DARK_GREEN);
-		addTextPixmap(pp, *it, color, isCur);
+		opt.font.setBold(isCur);
+
+		QColor clr;
+		if (type == Git::BRANCH)
+			clr = (isCur ? Qt::green : DARK_GREEN);
+
+		else if (type == Git::TAG)
+			clr = Qt::yellow;
+
+		else if (type == Git::REF)
+			clr = PURPLE;
+
+		opt.palette.setColor(QPalette::Window, clr);
+		addTextPixmap(pp, *it, opt);
 	}
 }
 
-void ListViewDelegate::addRefPixmap(QPixmap** pp, SCList refs, const QColor& clr) const {
+void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const {
 
-	FOREACH_SL (it, refs)
-		addTextPixmap(pp, *it, clr, false);
-}
-
-void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QColor& clr, bool bld) const {
-
-	QFont fnt; //QFont fnt(myListView()->font()); FIXME
-	if (bld)
-		fnt.setBold(true);
-
-	QFontMetrics fm(fnt);
 	QPixmap* pm = *pp;
 	int ofs = pm->isNull() ? 0 : pm->width() + 2;
 	int spacing = 2;
-	int pw = fm.boundingRect(txt).width() + 2 * (spacing + int(bld));
+	QFontMetrics fm(opt.font);
+	int pw = fm.boundingRect(txt).width() + 2 * (spacing + int(opt.font.bold()));
 	int ph = fm.height() - 1; // leave vertical space between two consecutive tags
 
 	QPixmap* newPm = new QPixmap(ofs + pw, ph);
-
 	QPainter p;
 	p.begin(newPm);
 	if (!pm->isNull()) {
-		newPm->fill(QApplication::palette().base());
+		newPm->fill(opt.palette.base());
 		p.drawPixmap(0, 0, *pm);
 	}
 	p.setPen(Qt::black);
-	p.setBrush(clr);
-	p.setFont(fnt);
+	p.setBrush(opt.palette.color(QPalette::Window));
+	p.setFont(opt.font);
 	p.drawRect(ofs, 0, pw - 1, ph - 1);
 	p.drawText(ofs + spacing, fm.ascent(), txt);
 	p.end();

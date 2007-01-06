@@ -42,7 +42,7 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	m()->tabWdg->addTab(container, "&Rev list");
 	tabPosition = m()->tabWdg->count() - 1;
 
-	listViewLog = new ListView(this, g, tab()->listViewLog, g->revData, m()->listViewFont);
+	tab()->listViewLog->setup(this, g, g->revData);
 	tab()->textBrowserDesc->setup(this);
 	tab()->fileList->setup(this, git);
 	treeView = new TreeView(this, git, m()->treeView);
@@ -54,18 +54,18 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
 	connect(m(), SIGNAL(repaintListViews(const QFont&)),
-	        listViewLog, SLOT(on_repaintListViews(const QFont&)));
+	        tab()->listViewLog, SLOT(on_repaintListViews(const QFont&)));
 
 	connect(m(), SIGNAL(updateRevDesc()), this, SLOT(on_updateRevDesc()));
 
-	connect(listViewLog, SIGNAL(lanesContextMenuRequested(const QStringList&,
+	connect(tab()->listViewLog, SIGNAL(lanesContextMenuRequested(const QStringList&,
 	        const QStringList&)), this, SLOT(on_lanesContextMenuRequested
 	       (const QStringList&, const QStringList&)));
 
-	connect(listViewLog, SIGNAL(droppedRevisions(const QStringList&)),
+	connect(tab()->listViewLog, SIGNAL(droppedRevisions(const QStringList&)),
 	        this, SLOT(on_droppedRevisions(const QStringList&)));
 
-	connect(listViewLog, SIGNAL(contextMenu(const QString&, int)),
+	connect(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
 	connect(treeView, SIGNAL(contextMenu(const QString&, int)),
@@ -91,7 +91,7 @@ void RevsView::clear(bool keepState) {
 	if (!keepState)
 		st.clear();
 
-	listViewLog->clear();
+	tab()->listViewLog->clear();
 	tab()->textBrowserDesc->clear();
 	tab()->fileList->clear();
 	treeView->clear();
@@ -159,7 +159,7 @@ bool RevsView::doUpdate(bool force) {
 
 	force = force || m()->lineEditSHA->text().isEmpty();
 
-	bool found = listViewLog->update();
+	bool found = tab()->listViewLog->update();
 
 	if (!found && !st.sha().isEmpty()) {
 

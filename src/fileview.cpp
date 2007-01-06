@@ -6,7 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <q3listview.h>
 #include <qspinbox.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
@@ -39,7 +38,7 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	tabPosition = m()->tabWdg->count() - 1;
 
 	fh = new FileHistory(git);
-	histListView = new ListView(this, git, fileTab->histListView, fh, m()->listViewFont);
+	fileTab->histListView->setup(this, git, fh);
 	textEditFile = new FileContent(this, git, fileTab->textEditFile);
 
 	// cannot be set directly in the .ui file
@@ -54,9 +53,9 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 // 	histListView, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(m(), SIGNAL(repaintListViews(const QFont&)),
-	        histListView, SLOT(on_repaintListViews(const QFont&)));
+	        fileTab->histListView, SLOT(on_repaintListViews(const QFont&)));
 
-	connect(histListView, SIGNAL(contextMenu(const QString&, int)),
+	connect(fileTab->histListView, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
 	connect(textEditFile, SIGNAL(annotationAvailable(bool)),
@@ -95,14 +94,14 @@ FileView::~FileView() {
 	if (!parent())
 		return;
 
-	delete textEditFile; // delete now, without waiting base QObject d'tor
-	delete histListView; // to do the job for us, we need them out before
-	delete fh;           // Domain d'tor is called.
-
 	// remove before to delete, avoids a Qt warning in QInputContext()
 	m()->tabWdg->removePage(container);
 	delete fileTab;
 	delete container;
+
+	delete textEditFile; // delete now, without waiting base QObject d'tor
+	delete fh;           // to do the job for us, we need them out before
+	                     // Domain d'tor is called.
 
 	m()->statusBar()->clear(); // cleanup any pending progress info
 	QApplication::restoreOverrideCursor();
@@ -116,7 +115,7 @@ void FileView::clear(bool complete) {
 		m()->tabWdg->setTabText(idx, "File");
 		fileTab->toolButtonCopy->setEnabled(false);
 	}
-	histListView->clear();
+	fileTab->histListView->clear();
 	textEditFile->clear();
 
 	annotateAvailable = fileAvailable = false;
@@ -130,7 +129,7 @@ void FileView::clear(bool complete) {
 
 bool FileView::goToCurrentAnnotation() {
 
-	SCRef ids = histListView->currentText(QGit::ANN_ID_COL);
+	SCRef ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
 	int id = (!ids.isEmpty() ? ids.toInt() : 0);
 	textEditFile->goToAnnotation(id);
 	return (id != 0);
@@ -138,7 +137,7 @@ bool FileView::goToCurrentAnnotation() {
 
 void FileView::updateSpinBoxValue() {
 
-	SCRef ids = histListView->currentText(QGit::ANN_ID_COL);
+	SCRef ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
 	if (ids.isEmpty() || !fileTab->spinBoxRevision->isEnabled())
 		return;
 
@@ -164,7 +163,7 @@ bool FileView::doUpdate(bool force) {
 		fh->clear(st.fileName());
 		git->startFileHistory(fh);
 
-	} else if (histListView->update() || st.sha().isEmpty()) {
+	} else if (fileTab->histListView->update() || st.sha().isEmpty()) {
 
 		updateSpinBoxValue();
 		m()->statusBar()->message(git->getRevInfo(st.sha()));
@@ -267,7 +266,7 @@ void FileView::on_spinBoxRevision_valueChanged(int id) {
 
 	if (id != fileTab->spinBoxRevision->minValue()) {
 
-		SCRef selRev(histListView->getSha(id));
+		SCRef selRev(fileTab->histListView->getSha(id));
 
 		if (st.sha() != selRev) { // to avoid looping
 			st.setSha(selRev);
@@ -284,7 +283,7 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 	if (f != fh)
 		return;
 
-	histListView->updateIdValues();
+	fileTab->histListView->showIdValues();
 	int maxId = fh->rowCount();
 	if (maxId == 0) {
 		m()->statusBar()->clear();

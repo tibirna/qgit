@@ -24,7 +24,13 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QTreeView" name="listViewLog" >
+     <widget class="ListView" name="listViewLog" >
+      <property name="contextMenuPolicy" >
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="acceptDrops" >
+       <bool>true</bool>
+      </property>
       <property name="alternatingRowColors" >
        <bool>true</bool>
       </property>
@@ -61,6 +67,11 @@
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
+  <customwidget>
+   <class>ListView</class>
+   <extends>QTreeView</extends>
+   <header>listview.h</header>
+  </customwidget>
   <customwidget>
    <class>FileList</class>
    <extends>QListWidget</extends>

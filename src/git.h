@@ -27,16 +27,18 @@ Q_OBJECT
 public:
 	explicit FileHistory(Git* git);
 	~FileHistory();
-	void clear(SCRef name);
+	void clear(SCRef name = "");
 	QVariant data(const QModelIndex &index, int role) const;
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
 	QModelIndex index(int r, int c, const QModelIndex& p = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex& index) const;
-	int row(SCRef sha);
+	const QString sha(int row) const;
+	int row(SCRef sha) const;
 	int rowCount() const { return _rowCnt; }
 	int rowCount(const QModelIndex&) const { return _rowCnt; }
 	int columnCount(const QModelIndex&) const { return 5; }
+	void setAnnIdValid(bool b = true) { _annIdValid = b; }
 
 	QString fileName;
 	StrVect revOrder;
@@ -58,6 +60,7 @@ private:
 	QList<QByteArray*> rowData;
 	QList<QVariant> _headerInfo;
 	int _rowCnt;
+	bool _annIdValid;
 	unsigned long _secs;
 };
 

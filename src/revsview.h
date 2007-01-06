@@ -46,7 +46,6 @@ private:
 	Ui_TabRev* revTab;
 	QPointer<PatchView> linkedPatchView;
 	TreeView* treeView;
-	ListView* listViewLog;
 };
 
 #endif
