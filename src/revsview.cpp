@@ -7,20 +7,13 @@
 
 */
 #include <qlineedit.h>
-#include <q3textbrowser.h>
-#include <q3listview.h>
 #include <qpainter.h>
 #include <qstringlist.h>
-#include <q3listbox.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qstatusbar.h>
-#include <q3header.h>
-#include <q3popupmenu.h>
 #include <qcursor.h>
 #include <qaction.h>
-#include <q3dragobject.h>
-#include <qtoolbutton.h>
 #include <qtabwidget.h>
 #include "common.h"
 #include "git.h"

@@ -956,13 +956,11 @@ void MainImpl::scrollTextEdit(int delta) {
 	if (!te)
 		return;
 
-// 	int h = te->visibleHeight(); FIXME
-// 	int ls = te->fontMetrics().lineSpacing();
-// 	if (delta == 1 || delta == -1) {
-// 		te->scrollBy(0, delta * (h - ls));
-// 		return;
-// 	}
-// 	te->scrollBy(0, delta * ls);
+	QScrollBar* vs = te->verticalScrollBar();
+	if (delta == 1 || delta == -1)
+		vs->setValue(vs->value() + delta * (vs->pageStep() - vs->singleStep()));
+	else
+		vs->setValue(vs->value() + delta * vs->singleStep());
 }
 
 void MainImpl::scrollListView(int delta) {
@@ -1288,15 +1286,12 @@ void MainImpl::ActRefresh_activated() {
 
 void MainImpl::ActMailFormatPatch_activated() {
 
-// 	if (rv->tab()->listViewLog->childCount() == 0) FIXME
-// 		return;
-//
-// 	if (rv->tab()->listViewLog->currentItem() == NULL) {
-// 		statusBar()->message("At least one selected revision needed");
-// 		return;
-// 	}
 	QStringList selectedItems;
 	rv->tab()->listViewLog->getSelectedItems(selectedItems);
+	if (selectedItems.isEmpty()) {
+		statusBar()->message("At least one selected revision needed");
+		return;
+	}
 	if (selectedItems.contains(ZERO_SHA)) {
 		statusBar()->message("Unable to format patch for not committed content");
 		return;
