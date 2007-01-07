@@ -27,9 +27,9 @@
 
 using namespace QGit;
 
-FileHistory::FileHistory(Git* g) : QAbstractItemModel(g), git(g) {
+FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
 
-	_headerInfo << "Graph" << "Ann id" << "Short Log" << "Author" << "Author Date";
+	_headerInfo << "Graph" << "Id" << "Short Log" << "Author" << "Author Date";
 	lns = new Lanes();
 	revs.reserve(QGit::MAX_DICT_SIZE);
 	clear(); // after _headerInfo is set
@@ -189,7 +189,7 @@ Git::Git(QWidget* p) : QObject(p) {
 	curDomain = NULL;
 
 	revsFiles.reserve(MAX_DICT_SIZE);
-	revData = new FileHistory(this);
+	revData = new FileHistory(this, this);
 	cache = new Cache(this);
 }
 

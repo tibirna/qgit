@@ -28,129 +28,103 @@
       <number>6</number>
      </property>
      <item>
-      <widget class="QFrame" name="frame" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>5</hsizetype>
-         <vsizetype>0</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>2</number>
        </property>
-       <property name="frameShape" >
-        <enum>QFrame::StyledPanel</enum>
+       <property name="spacing" >
+        <number>6</number>
        </property>
-       <property name="frameShadow" >
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>3</number>
-        </property>
-        <property name="spacing" >
-         <number>0</number>
-        </property>
-        <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="textLabel" >
-            <property name="text" >
-             <string>Diff to:</string>
-            </property>
-            <property name="wordWrap" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonParent" >
-            <property name="focusPolicy" >
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="toolTip" >
-             <string>Check to diff against parent</string>
-            </property>
-            <property name="text" >
-             <string>P&amp;arent</string>
-            </property>
-            <property name="shortcut" >
-             <string>Alt+A</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonHead" >
-            <property name="focusPolicy" >
-             <enum>Qt::ClickFocus</enum>
-            </property>
-            <property name="toolTip" >
-             <string>Check to diff against HEAD</string>
-            </property>
-            <property name="text" >
-             <string>H&amp;EAD</string>
-            </property>
-            <property name="shortcut" >
-             <string>Alt+E</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonSha" >
-            <property name="focusPolicy" >
-             <enum>Qt::ClickFocus</enum>
-            </property>
-            <property name="toolTip" >
-             <string>Use CTRL + right click to select a revision to diff against</string>
-            </property>
-            <property name="text" >
-             <string>&amp;SHA</string>
-            </property>
-            <property name="shortcut" >
-             <string>Alt+S</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEditDiff" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>0</vsizetype>
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip" >
-             <string>SHA value of selected revision. Use CTRL + right click to select.</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
+       <item>
+        <widget class="QLabel" name="textLabel" >
+         <property name="text" >
+          <string>Diff to:</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonParent" >
+         <property name="focusPolicy" >
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip" >
+          <string>Check to diff against parent</string>
+         </property>
+         <property name="text" >
+          <string>P&amp;arent</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+A</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonHead" >
+         <property name="focusPolicy" >
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="toolTip" >
+          <string>Check to diff against HEAD</string>
+         </property>
+         <property name="text" >
+          <string>H&amp;EAD</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+E</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSha" >
+         <property name="focusPolicy" >
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="toolTip" >
+          <string>Use CTRL + right click to select a revision to diff against</string>
+         </property>
+         <property name="text" >
+          <string>&amp;SHA</string>
+         </property>
+         <property name="shortcut" >
+          <string>Alt+S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditDiff" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>7</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>SHA value of selected revision. Use CTRL + right click to select.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QSplitter" name="splitter_2" >

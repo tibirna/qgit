@@ -5,7 +5,10 @@
         <file>resources/bookmark.png</file>
         <file>resources/bookmark_add.png</file>
         <file>resources/cancel.png</file>
+        <file>resources/colorize.png</file>
         <file>resources/configure.png</file>
+        <file>resources/editcopy.png</file>
+        <file>resources/encrypted.png</file>
         <file>resources/filter.png</file>
         <file>resources/find.png</file>
         <file>resources/folder.png</file>
@@ -15,6 +18,7 @@
         <file>resources/mail_send.png</file>
         <file>resources/misc.png</file>
         <file>resources/next.png</file>
+        <file>resources/ok.png</file>
         <file>resources/openterm.png</file>
         <file>resources/pencil.png</file>
         <file>resources/previous.png</file>
@@ -30,6 +34,7 @@
         <file>resources/tab_remove.png</file>
         <file>resources/tar.png</file>
         <file>resources/txt.png</file>
+        <file>resources/view_choose.png</file>
         <file>resources/view_top_bottom.png</file>
         <file>resources/view_tree.png</file>
         <file>resources/wizard.png</file>

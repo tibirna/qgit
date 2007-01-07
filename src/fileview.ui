@@ -25,174 +25,164 @@
       <number>0</number>
      </property>
      <property name="spacing" >
-      <number>6</number>
+      <number>0</number>
      </property>
      <item>
       <layout class="QHBoxLayout" >
        <property name="margin" >
-        <number>0</number>
+        <number>3</number>
        </property>
        <property name="spacing" >
-        <number>6</number>
+        <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
+        <widget class="QToolButton" name="toolButtonCopy" >
+         <property name="minimumSize" >
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
          </property>
-         <property name="spacing" >
-          <number>6</number>
+         <property name="toolTip" >
+          <string>Copy selection to the clipboard stripping line headers (CTRL+C)</string>
          </property>
-         <item>
-          <widget class="QToolButton" name="toolButtonCopy" >
-           <property name="minimumSize" >
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="toolTip" >
-            <string>Copy selection to the clipboard stripping line headers (CTRL+C)</string>
-           </property>
-           <property name="text" >
-            <string/>
-           </property>
-           <property name="icon" >
-            <iconset>image0</iconset>
-           </property>
-           <property name="shortcut" >
-            <string>Ctrl+C</string>
-           </property>
-           <property name="autoRaise" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButtonShowAnnotate" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize" >
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="toolTip" >
-            <string>Hide/show file annotation</string>
-           </property>
-           <property name="text" >
-            <string/>
-           </property>
-           <property name="icon" >
-            <iconset>image1</iconset>
-           </property>
-           <property name="shortcut" >
-            <string/>
-           </property>
-           <property name="checkable" >
-            <bool>true</bool>
-           </property>
-           <property name="autoRaise" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButtonFindAnnotate" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize" >
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="toolTip" >
-            <string>Lock selection to first tagged line of current revision (CTRL + L)</string>
-           </property>
-           <property name="text" >
-            <string/>
-           </property>
-           <property name="icon" >
-            <iconset>image2</iconset>
-           </property>
-           <property name="shortcut" >
-            <string>Ctrl+L</string>
-           </property>
-           <property name="checkable" >
-            <bool>true</bool>
-           </property>
-           <property name="autoRaise" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButtonRangeFilter" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize" >
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="toolTip" >
-            <string>Filter revisions on selected line range</string>
-           </property>
-           <property name="text" >
-            <string/>
-           </property>
-           <property name="icon" >
-            <iconset>image3</iconset>
-           </property>
-           <property name="shortcut" >
-            <string/>
-           </property>
-           <property name="checkable" >
-            <bool>true</bool>
-           </property>
-           <property name="autoRaise" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButtonHighlightText" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize" >
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="toolTip" >
-            <string>Source highlight</string>
-           </property>
-           <property name="text" >
-            <string/>
-           </property>
-           <property name="icon" >
-            <iconset>image4</iconset>
-           </property>
-           <property name="shortcut" >
-            <string/>
-           </property>
-           <property name="checkable" >
-            <bool>true</bool>
-           </property>
-           <property name="autoRaise" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/editcopy.png</iconset>
+         </property>
+         <property name="shortcut" >
+          <string>Ctrl+C</string>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonShowAnnotate" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip" >
+          <string>Hide/show file annotation</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/view_choose.png</iconset>
+         </property>
+         <property name="shortcut" >
+          <string/>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonFindAnnotate" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip" >
+          <string>Lock selection to first tagged line of current revision (CTRL + L)</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/encrypted.png</iconset>
+         </property>
+         <property name="shortcut" >
+          <string>Ctrl+L</string>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonRangeFilter" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip" >
+          <string>Filter revisions on selected line range</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
+         </property>
+         <property name="shortcut" >
+          <string/>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonHighlightText" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="toolTip" >
+          <string>Source highlight</string>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/colorize.png</iconset>
+         </property>
+         <property name="shortcut" >
+          <string/>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer>
@@ -211,21 +201,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="Q3Frame" name="frame8" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>1</hsizetype>
-           <vsizetype>1</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>32767</width>
-           <height>30</height>
-          </size>
-         </property>
+        <widget class="QFrame" name="frame" >
          <property name="frameShape" >
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -234,18 +210,18 @@
          </property>
          <layout class="QHBoxLayout" >
           <property name="margin" >
-           <number>0</number>
+           <number>2</number>
           </property>
           <property name="spacing" >
-           <number>6</number>
+           <number>0</number>
           </property>
           <item>
            <layout class="QHBoxLayout" >
             <property name="margin" >
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="spacing" >
-             <number>6</number>
+             <number>0</number>
             </property>
             <item>
              <widget class="QToolButton" name="toolButtonPin" >
@@ -256,7 +232,7 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset>image5</iconset>
+               <iconset resource="icons.qrc" >:/icons/resources/ok.png</iconset>
               </property>
               <property name="shortcut" >
                <string/>
@@ -271,14 +247,6 @@
             </item>
             <item>
              <widget class="QSpinBox" name="spinBoxRevision" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>1</hsizetype>
-                <vsizetype>5</vsizetype>
-                <horstretch>2</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="maximum" >
                <number>65535</number>
               </property>
@@ -353,22 +321,18 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>ListView</class>
-   <extends>QTreeView</extends>
-   <header>listview.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Q3Frame</class>
-   <extends>QFrame</extends>
-   <header>Qt3Support/Q3Frame</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>Q3TextEdit</class>
    <extends>Q3Frame</extends>
    <header>q3textedit.h</header>
   </customwidget>
+  <customwidget>
+   <class>ListView</class>
+   <extends>QTreeView</extends>
+   <header>listview.h</header>
+  </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
  <connections/>
 </ui>

@@ -125,10 +125,9 @@ const QString ListView::getSha(uint id) {
 bool ListView::update() {
 
 	int stRow = fh->row(st->sha());
-	if (stRow == -1) {
-		dbp("ASSERT in ListView::update() st->sha() <%1> not found", st->sha());
-		return false;
-	}
+	if (stRow == -1)
+		return false; // main/tree view asked us a sha not in history
+
 	QModelIndex index = currentIndex();
 	QItemSelectionModel* sel = selectionModel();
 
@@ -638,7 +637,7 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 		newPm->fill(opt.palette.base());
 		p.drawPixmap(0, 0, *pm);
 	}
-	p.setPen(Qt::black);
+	p.setPen(opt.palette.color(QPalette::WindowText));
 	p.setBrush(opt.palette.color(QPalette::Window));
 	p.setFont(opt.font);
 	p.drawRect(ofs, 0, pw - 1, ph - 1);

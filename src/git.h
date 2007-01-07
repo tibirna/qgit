@@ -25,7 +25,7 @@ class MyProcess;
 class FileHistory : public QAbstractItemModel {
 Q_OBJECT
 public:
-	explicit FileHistory(Git* git);
+	FileHistory(QObject* parent, Git* git);
 	~FileHistory();
 	void clear(SCRef name = "");
 	QVariant data(const QModelIndex &index, int role) const;

@@ -30,15 +30,16 @@
 
 FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
 
+	fh = new FileHistory(this, git);
+
 	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	fileTab = new Ui_TabFile();
 	fileTab->setupUi(container);
+	fileTab->histListView->setup(this, git, fh);
 
 	m()->tabWdg->addTab(container, "File");
 	tabPosition = m()->tabWdg->count() - 1;
 
-	fh = new FileHistory(git);
-	fileTab->histListView->setup(this, git, fh);
 	textEditFile = new FileContent(this, git, fileTab->textEditFile);
 
 	// cannot be set directly in the .ui file
@@ -93,12 +94,10 @@ FileView::~FileView() {
 
 	// remove before to delete, avoids a Qt warning in QInputContext()
 	m()->tabWdg->removePage(container);
+
+	delete textEditFile; // delete this before fileTab->textEditFile
 	delete fileTab;
 	delete container;
-
-	delete textEditFile; // delete now, without waiting base QObject d'tor
-	delete fh;           // to do the job for us, we need them out before
-	                     // Domain d'tor is called.
 
 	m()->statusBar()->clear(); // cleanup any pending progress info
 	QApplication::restoreOverrideCursor();

@@ -62,22 +62,6 @@
 
 using namespace QGit;
 
-class MyPushButton : public QPushButton {
-public:
-	MyPushButton(QWidget* p) : QPushButton(p) {}
-
-	// we need this kludge to workaround 'close tab' button wrong width
-	// under some themes as Bluecurve or Platinum. What happens is that
-	// widget sizeHint() returns a wrong value that is used by Qt to paint
-	// the button.
-	// Because it is not possible to set sizeHint property directly,
-	// we need to sub class QPushButton and override this puppy
-	virtual QSize sizeHint() const {
-
-		return iconSize();
-	}
-};
-
 MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveClose) {
 
 	EM_INIT(exExiting, "Exiting");
@@ -130,12 +114,13 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	rv = new RevsView(this, git);
 
 	// set-up tab corner widget ('close tab' button)
-	MyPushButton* pb = new MyPushButton(tabWdg);
-	pb->setIcon(QIcon(QString::fromUtf8(":/icons/resources/tab_remove.png")));
-	QToolTip::add(pb, "Close tab");
-	tabWdg->setCornerWidget(pb);
-	connect(pb, SIGNAL(clicked()), this, SLOT(pushButtonCloseTab_clicked()));
-	connect(this, SIGNAL(closeTabButtonEnabled(bool)), pb, SLOT(setEnabled(bool)));
+	QToolButton* ct = new QToolButton(tabWdg);
+	ct->setIcon(QIcon(QString::fromUtf8(":/icons/resources/tab_remove.png")));
+	ct->setToolTip("Close tab");
+	ct->setEnabled(false);
+	tabWdg->setCornerWidget(ct);
+	connect(ct, SIGNAL(clicked()), this, SLOT(pushButtonCloseTab_clicked()));
+	connect(this, SIGNAL(closeTabButtonEnabled(bool)), ct, SLOT(setEnabled(bool)));
 
 	// set-up tree view
 	treeView->hide();
