@@ -558,20 +558,18 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 		return;
 
 	QMap<QString, bool> shaMap;
-	bool descNeedsUpdate, patchNeedsUpdate, isRegExp;
-	descNeedsUpdate = patchNeedsUpdate = isRegExp = false;
+	bool patchNeedsUpdate, isRegExp;
+	patchNeedsUpdate = isRegExp = false;
 	int idx = cmbSearch->currentItem(), colNum = 0;
 	if (isOn) {
 		switch (idx) {
 		case 0:
 			colNum = LOG_COL;
 			shortLogRE.setPattern(filter);
-			descNeedsUpdate = true;
 			break;
 		case 1:
 			colNum = LOG_MSG_COL;
 			longLogRE.setPattern(filter);
-			descNeedsUpdate = true;
 			break;
 		case 2:
 			colNum = AUTH_COL;
@@ -600,99 +598,75 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 			break;
 		}
 	} else {
-		patchNeedsUpdate = ((idx == 5) || (idx == 6));
-		descNeedsUpdate = !(shortLogRE.isEmpty() && longLogRE.isEmpty());
+		patchNeedsUpdate = (idx == 5 || idx == 6);
 		shortLogRE.setPattern("");
 		longLogRE.setPattern("");
 	}
-	bool evenLine = false;
-	int visibleCnt = 0;
+	// TODO move in list view or in revsview below this point
+	QTreeView* lv = rv->tab()->listViewLog;
+	int visibleRows = 0, row = 0, rowCnt = rv->model()->rowCount();
+	QSet<int> highlightedRows;
+	QModelIndex parent;
+	for ( ; row < rowCnt; row++) {
+		if (isOn) {
+			if (passFilter(rv->model()->sha(row), filter, colNum, shaMap)) {
+				visibleRows++;
+				if (onlyHighlight)
+					highlightedRows.insert(row);
 
-	return;
+			} else if (!onlyHighlight)
+				lv->setRowHidden(row, parent, true);
 
-// 	Q3ListViewItem* firstItem = NULL; FIXME
-// 	Q3ListView* lv = rv->tab()->listViewLog;
-// 	Q3ListViewItemIterator it(lv);
-// 	int row = 0;
-// 	QSet<int> highlightedRows;
-// 	while (it.current()) {
-// 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-// 		if (isOn) {
-// 			if (passFilter(item, filter, colNum, shaMap)) {
-// 				if (onlyHighlight) {
-// 					item->setHighlighted(true);
-// 					highlightedRows.insert(row);
-// 				} else {
-// 					item->setEven(evenLine);
-// 					evenLine = !evenLine;
-// 				}
-// 				visibleCnt++;
-// 				if (visibleCnt == 1) // only once
-// 					firstItem = item;
-//
-// 			} else if (!onlyHighlight)
-// 				item->setVisible(false); // does not change listView current item
-// 		} else {
-// 			item->setHighlighted(false);
-// 			item->setEven(evenLine);
-// 			evenLine = !evenLine;
-// 			if (!item->isVisible())
-// 				item->setVisible(true);
-// 		}
-// 		++it;
-// 		row++;
-// 	}
-// 	emit highlightedRowsChanged(highlightedRows); // new model_view integration
-// 	lv->triggerUpdate(); // for onlyHighlight case
-//
-// 	// set new selection, could be NULL
-// 	Q3ListViewItem* curItem = lv->currentItem();
-// 	Q3ListViewItem* newItem = (curItem && curItem->isVisible()) ? curItem : firstItem;
-// 	rv->st.setSha(newItem ? ((ListViewItem*)newItem)->sha() : "");
-// 	UPDATE_DOMAIN(rv);
-//
-// 	// if current item does not change we need to force an update
-// 	if (descNeedsUpdate && (newItem == curItem))
-// 		emit updateRevDesc();
-//
-// 	if (patchNeedsUpdate)
-// 		emit highlightPatch(isOn ? filter : "", isRegExp);
-//
-// 	QString msg;
-// 	if (isOn)
-// 		msg = QString("Found %1 matches. Toggle filter/highlight "
-// 		      "button to remove the filter").arg(visibleCnt);
-//
-// 	// deferred message, let update first
-// 	QApplication::postEvent(rv, new MessageEvent(msg));
+		} else if (lv->isRowHidden(row, parent))
+			lv->setRowHidden(row, parent, false);
+	}
+	emit highlightedRowsChanged(highlightedRows);
+	emit updateRevDesc(); // could be highlighted
+	if (patchNeedsUpdate)
+		emit highlightPatch(isOn ? filter : "", isRegExp);
+
+	QModelIndex cur = lv->currentIndex();
+	if (cur.isValid() && lv->isRowHidden(cur.row(), parent) && visibleRows > 0) {
+		// we have an hidden current item so main list is
+		// out of sync with description and file list
+		// a workaround could be to select the first item in list
+		QModelIndex first = lv->indexAt(QPoint(0, 0));
+		if (first.isValid()) {
+			rv->st.setSha(rv->model()->sha(first.row()));
+			UPDATE_DOMAIN(rv);
+		}
+	}
+	QString msg;
+	if (isOn)
+		msg = QString("Found %1 matches. Toggle filter/highlight "
+		              "button to remove the filter").arg(visibleRows);
+	QApplication::postEvent(rv, new MessageEvent(msg)); // deferred message, after update
 }
 
-bool MainImpl::passFilter(ListViewItem* item, SCRef filter, int colNum,
-                          const QMap<QString, bool>& shaMap) {
+bool MainImpl::passFilter(SCRef sha, SCRef filter, int colNum, const QMap<QString, bool>& shaMap) {
+// TODO move in git
 
-// 	if (colNum == SHA_MAP_COL)
-// 		// in this case shaMap contains all good sha to search for
-// 		return shaMap.contains(item->sha());
-//
-// 	QString field;
-// 	if (colNum != LOG_MSG_COL && colNum != COMMIT_COL) {
-// 		int adj = -1;
-// 		field = item->text(colNum + adj);
-// 	}
-// 	if (field.isEmpty()) { // still not setup or colNum is a dummy one
-//
-// 		const Rev* c = git->revLookup(item->sha());
-// 		if (colNum == LOG_COL)
-// 			field = c->shortLog();
-// 		else if (colNum == AUTH_COL)
-// 			field = c->author();
-// 		else if (colNum == LOG_MSG_COL)
-// 			field = c->longLog();
-// 		else if (colNum == COMMIT_COL)
-// 			field = item->sha();
-// 	}
-// 	// wildcard search, case insensitive
-// 	return (field.find(QRegExp(filter, false, true)) != -1);
+	if (colNum == SHA_MAP_COL)
+		// in this case shaMap contains all good sha to search for
+		return shaMap.contains(sha);
+
+	const Rev* r = git->revLookup(sha);
+	if (!r) {
+		dbs("ASSERT in MainImpl::passFilter, sha <%1> not found");
+		return false;
+	}
+	QString target;
+	if (colNum == LOG_COL)
+		target = r->shortLog();
+	else if (colNum == AUTH_COL)
+		target = r->author();
+	else if (colNum == LOG_MSG_COL)
+		target = r->longLog();
+	else if (colNum == COMMIT_COL)
+		target = sha;
+
+	// wildcard search, case insensitive
+	return target.contains(QRegExp(filter, false, true));
 }
 
 bool MainImpl::event(QEvent* e) {
@@ -1481,7 +1455,6 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 
 void MainImpl::ActTag_activated() {
 
-	int adj = -1; // hack to correctly map col numbers in main view
 	QString tag(rv->tab()->listViewLog->currentText(LOG_COL));
 	bool ok;
 	tag = QInputDialog::getText("Make tag - QGit", "Enter tag name:",

@@ -29,7 +29,6 @@ class QComboBox;
 class QTextEdit;
 class Git;
 class Domain;
-class ListViewItem;
 class RevsView;
 class FileView;
 class FileHistory;
@@ -121,9 +120,8 @@ private:
 	void setupAccelerator(Q3Accel* accel);
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
-	bool passFilter(ListViewItem* i, SCRef f, int cn, const QMap<QString,bool>& sm);
+	bool passFilter(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
 	void setRepository(SCRef wd, bool r, bool ks, QStringList* fl = NULL);
-	void diffViewerUpdate(Q3ListViewItem* item, bool newDiff);
 	void getExternalDiffArgs(QStringList* args);
 	void lineEditSHASetText(SCRef text);
 	void updateCommitMenu(bool isStGITStack);
