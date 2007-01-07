@@ -22,9 +22,9 @@ class TreeView;
 class RevsView : public Domain {
 Q_OBJECT
 public:
-	RevsView(MainImpl* parent, Git* git);
+	RevsView(MainImpl* parent, Git* git, bool isMain = false);
 	~RevsView();
-	void clear(bool keepState);
+	void clear(bool complete);
 	void viewPatch(bool newTab);
 	void setEnabled(bool b);
 	Ui_TabRev* tab() { return revTab; }

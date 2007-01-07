@@ -111,7 +111,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 
 	// set-up tab view
 	delete tabWdg->currentPage(); // cannot be done in Qt Designer
-	rv = new RevsView(this, git);
+	rv = new RevsView(this, git, true); // set has main domain
 
 	// set-up tab corner widget ('close tab' button)
 	QToolButton* ct = new QToolButton(tabWdg);
@@ -282,7 +282,8 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 
 		// now we can clear all our data
 		setCaption(curDir + " - QGit");
-		rv->clear(refresh && keepSelection);
+		bool complete = !refresh || !keepSelection;
+		rv->clear(complete);
 		if (archiveChanged)
 			emit closeAllTabs();
 

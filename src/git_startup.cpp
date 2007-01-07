@@ -744,8 +744,8 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		}
 	}
 	if (r.isEmpty() && !isMainHistory(fh)) {
-		copyDiffIndex(fh, sha);
-		rev->orderIdx = 1; // 0 is used by ZERO_SHA
+		bool added = copyDiffIndex(fh, sha);
+		rev->orderIdx = added ? 1 : 0;
 	}
 	r.insert(sha, rev);
 	fh->revOrder.append(sha);
@@ -777,25 +777,26 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 	return nextStart;
 }
 
-void Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
+bool Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
 // must be called with empty revs and empty revOrder
 
 	if (!fh->revOrder.isEmpty() || !fh->revs.isEmpty()) {
 		dbs("ASSERT in copyDiffIndex: called with wrong context");
-		return;
+		return false;
 	}
 	const Rev* r = revLookup(ZERO_SHA);
 	if (!r)
-		return;
+		return false;
 
 	const RevFile* files = getFiles(ZERO_SHA);
 	if (!files || findFileIndex(*files, fh->fileName()) == -1)
-		return;
+		return false;
 
 	// insert a custom ZERO_SHA rev with proper parent
 	const Rev* rf = fakeWorkDirRev(parent, "Working dir changes", "dummy", 0, fh);
 	fh->revs.insert(ZERO_SHA, rf);
 	fh->revOrder.append(ZERO_SHA);
+	return true;
 }
 
 void Git::setLane(SCRef sha, FileHistory* fh) {

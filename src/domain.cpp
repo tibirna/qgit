@@ -90,9 +90,13 @@ bool StateInfo::isChanged(uint what) const {
 
 // ************************* Domain ****************************
 
-Domain::Domain(MainImpl* m, Git* g) : QObject(m), git(g) {
+Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 
 	EM_INIT(exDeleteRequest, "Deleting domain");
+
+	_model = new FileHistory(this, git);
+	if (isMain)
+		git->setDefaultModel(_model);
 
 	container = NULL;
 	st.clear();
@@ -101,6 +105,14 @@ Domain::Domain(MainImpl* m, Git* g) : QObject(m), git(g) {
 	tabPosition = -1;
 
 	connect(m, SIGNAL(tabClosed(int)), this, SLOT(on_tabClosed(int)));
+}
+
+void Domain::clear(bool complete) {
+
+	if (complete)
+		st.clear();
+
+	_model->clear();
 }
 
 void Domain::on_closeAllTabs() {

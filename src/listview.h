@@ -21,8 +21,7 @@ Q_OBJECT
 public:
 	ListView(QWidget* parent);
 	~ListView();
-	void setup(Domain* d, Git* g, FileHistory* f);
-	void clear();
+	void setup(Domain* d, Git* g);
 	const QString getSha(uint id);
 	void showIdValues();
 	void getSelectedItems(QStringList& selectedItems);

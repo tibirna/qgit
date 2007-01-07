@@ -33,7 +33,7 @@
 #include "mainimpl.h"
 #include "revsview.h"
 
-RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
+RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
 	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	revTab = new Ui_TabRev();
@@ -42,13 +42,10 @@ RevsView::RevsView(MainImpl* mi, Git* g) : Domain(mi, g) {
 	m()->tabWdg->addTab(container, "&Rev list");
 	tabPosition = m()->tabWdg->count() - 1;
 
-	tab()->listViewLog->setup(this, g, g->revData);
+	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
 	tab()->fileList->setup(this, git);
 	treeView = new TreeView(this, git, m()->treeView);
-
-// 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-// 	        listViewLog, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -86,12 +83,10 @@ RevsView::~RevsView() {
 	delete container;
 }
 
-void RevsView::clear(bool keepState) {
+void RevsView::clear(bool complete) {
 
-	if (!keepState)
-		st.clear();
+	Domain::clear(complete);
 
-	tab()->listViewLog->clear();
 	tab()->textBrowserDesc->clear();
 	tab()->fileList->clear();
 	treeView->clear();

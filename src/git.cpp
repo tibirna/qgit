@@ -44,6 +44,16 @@ FileHistory::~FileHistory() {
 	delete lns;
 }
 
+int FileHistory::rowCount(const QModelIndex& parent) const {
+
+	return (!parent.isValid() ? _rowCnt : 0);
+}
+
+bool FileHistory::hasChildren(const QModelIndex & parent) const {
+
+	return !parent.isValid();
+}
+
 int FileHistory::row(SCRef sha) const {
 
 	const Rev* r = git->revLookup(sha, this);
@@ -55,14 +65,15 @@ const QString FileHistory::sha(int row) const {
 	return (row < 0 || row >= _rowCnt ? "" : revOrder.at(row));
 }
 
-void FileHistory::clear(SCRef name) {
+void FileHistory::clear() {
 
+	git->cancelDataLoading(this);
 	qDeleteAll(revs);
 	revs.clear();
 	revOrder.clear();
 	firstFreeLane = 0;
 	lns->clear();
-	_fileName = name;
+	_fileName = "";
 	qDeleteAll(rowData);
 	rowData.clear();
 
@@ -187,9 +198,9 @@ Git::Git(QWidget* p) : QObject(p) {
 	isStGIT = isGIT = loadingUnAppliedPatches = false;
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
+	revData = NULL;
 
 	revsFiles.reserve(MAX_DICT_SIZE);
-	revData = new FileHistory(this, this);
 	cache = new Cache(this);
 }
 

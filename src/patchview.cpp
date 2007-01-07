@@ -86,7 +86,7 @@ private:
 	uint cl;
 };
 
-PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g) {
+PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	seekTarget = diffLoaded = false;
 	pickAxeRE.setMinimal(true);

@@ -17,8 +17,9 @@
 #define UPDATE_DM_MASTER(x, f) QApplication::postEvent(x, new UpdateDomainEvent(true, f))
 
 class Domain;
-class MainImpl;
+class FileHistory;
 class Git;
+class MainImpl;
 
 class UpdateDomainEvent : public QEvent {
 public:
@@ -102,11 +103,12 @@ class Domain: public QObject {
 Q_OBJECT
 public:
 	Domain() {}
-	Domain(MainImpl* m, Git* git);
+	Domain(MainImpl* m, Git* git, bool isMain);
 	void deleteWhenDone(); // will delete when no more run() are pending
 	void setThrowOnDelete(bool b);
 	bool isThrowOnDeleteRaised(int excpId, SCRef curContext);
 	MainImpl* m() const;
+	FileHistory* model() const { return _model; }
 	const QString dragHostName() const;
 	bool isReadyToDrag() const { return readyToDrag; }
 	bool setReadyToDrag(bool b);
@@ -134,6 +136,7 @@ protected slots:
 	void on_deleteWhenDone();
 
 protected:
+	virtual void clear(bool complete = true);
 	virtual bool event(QEvent* e);
 	virtual bool doUpdate(bool force) = 0;
 	void linkDomain(Domain* d);
@@ -152,6 +155,7 @@ private:
 
 	EM_DECLARE(exDeleteRequest);
 
+	FileHistory* _model;
 	bool readyToDrag;
 	bool dragging;
 	bool dropping;

@@ -26,8 +26,8 @@ public:
 	FileView() {}
 	FileView(MainImpl* m, Git* git);
 	~FileView();
+	virtual void clear(bool complete = true);
 	void append(SCRef data);
-	void clear(bool complete = true);
 	void historyReady();
 	void updateHistViewer(SCRef revSha, SCRef fileName, bool fromUpstream = true);
 	void eof();
@@ -63,7 +63,6 @@ private:
 
 	Ui_TabFile* fileTab;
 	FileContent* textEditFile;
-	FileHistory* fh;
 	bool annotateAvailable;
 	bool fileAvailable;
 };

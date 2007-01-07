@@ -27,19 +27,21 @@ Q_OBJECT
 public:
 	FileHistory(QObject* parent, Git* git);
 	~FileHistory();
-	void clear(SCRef name = "");
-	QVariant data(const QModelIndex &index, int role) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
-	QModelIndex index(int r, int c, const QModelIndex& p = QModelIndex()) const;
-	QModelIndex parent(const QModelIndex& index) const;
-	const QString fileName() const { return _fileName; }
+	void clear();
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
-	int rowCount() const { return _rowCnt; }
-	int rowCount(const QModelIndex&) const { return _rowCnt; }
-	int columnCount(const QModelIndex&) const { return 5; }
+	const QString fileName() const { return _fileName; }
+	void setFileName(SCRef fn) { _fileName = fn; }
 	void setAnnIdValid(bool b = true) { _annIdValid = b; }
+
+	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+	virtual QVariant headerData(int s, Qt::Orientation o, int role = Qt::DisplayRole) const;
+	virtual QModelIndex index(int r, int c, const QModelIndex& par = QModelIndex()) const;
+	virtual QModelIndex parent(const QModelIndex& index) const;
+	virtual int rowCount(const QModelIndex& par = QModelIndex()) const;
+	virtual bool hasChildren(const QModelIndex& par = QModelIndex()) const;
+	virtual int columnCount(const QModelIndex&) const { return 5; }
 
 private slots:
 	void on_newRevsAdded(const FileHistory*, const QVector<QString>&);
@@ -52,7 +54,6 @@ private:
 	const QString timeDiff(unsigned long secs) const;
 
 	Git* git;
-
 	RevMap revs;
 	StrVect revOrder;
 	Lanes* lns;
@@ -90,6 +91,7 @@ public:
 		ANY_REF    = 63
 	};
 
+	void setDefaultModel(FileHistory* fh) { revData = fh; }
 	void checkEnvironment();
 	const QString getBaseDir(bool* c, SCRef wd, bool* ok = NULL, QString* gd = NULL);
 	bool init(SCRef workDir, bool askForRange, QStringList* filterList, bool* quit);
@@ -226,7 +228,7 @@ private:
 	const QString getFileSha(SCRef file, SCRef revSha);
 	const Rev* fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh);
 	const RevFile* fakeWorkDirRevFile(const WorkingDirInfo& wd);
-	void copyDiffIndex(FileHistory* fh, SCRef parent);
+	bool copyDiffIndex(FileHistory* fh, SCRef parent);
 	const RevFile* insertNewFiles(SCRef sha, SCRef data);
 	const RevFile* getAllMergeFiles(const Rev* r);
 	bool isParentOf(SCRef par, SCRef child);

@@ -6,19 +6,18 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qspinbox.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-#include <qsettings.h>
-#include <qstatusbar.h>
-#include <qlabel.h>
-#include <qsplitter.h>
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qregexp.h>
-#include <qclipboard.h>
-#include <qtoolbutton.h>
-#include <qtabwidget.h>
+#include <QApplication>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QSettings>
+#include <QStatusBar>
+#include <QSplitter>
+#include <QCursor>
+#include <QRegExp>
+#include <QClipboard>
+#include <QToolButton>
+#include <QTabWidget>
 #include "mainimpl.h"
 #include "git.h"
 #include "annotate.h"
@@ -28,21 +27,19 @@
 
 #define MAX_LINE_NUM 5
 
-FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g) {
-
-	fh = new FileHistory(this, git);
+FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	fileTab = new Ui_TabFile();
 	fileTab->setupUi(container);
-	fileTab->histListView->setup(this, git, fh);
+	fileTab->histListView->setup(this, git);
 
 	m()->tabWdg->addTab(container, "File");
 	tabPosition = m()->tabWdg->count() - 1;
 
 	textEditFile = new FileContent(this, git, fileTab->textEditFile);
 
-	// cannot be set directly in the .ui file
+	// an empty string turn off the special-value text display
 	fileTab->spinBoxRevision->setSpecialValueText(" ");
 
 	clear(true); // init some stuff
@@ -105,13 +102,13 @@ FileView::~FileView() {
 
 void FileView::clear(bool complete) {
 
+	Domain::clear(complete);
+
 	if (complete) {
-		st.clear();
 		int idx = m()->tabWdg->indexOf(container);
 		m()->tabWdg->setTabText(idx, "File");
 		fileTab->toolButtonCopy->setEnabled(false);
 	}
-	fileTab->histListView->clear();
 	textEditFile->clear();
 
 	annotateAvailable = fileAvailable = false;
@@ -134,10 +131,12 @@ bool FileView::goToCurrentAnnotation() {
 void FileView::updateSpinBoxValue() {
 
 	SCRef ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
-	if (ids.isEmpty() || !fileTab->spinBoxRevision->isEnabled())
+	if (    ids.isEmpty()
+	    || !fileTab->spinBoxRevision->isEnabled()
+	    ||  fileTab->spinBoxRevision->value() == ids.toInt())
 		return;
 
-	fileTab->spinBoxRevision->setValue(ids.toInt()); // triggers on_spinBoxRevision_valueChanged()
+	fileTab->spinBoxRevision->setValue(ids.toInt()); // emit QSpinBox::valueChanged()
 }
 
 bool FileView::doUpdate(bool force) {
@@ -148,16 +147,15 @@ bool FileView::doUpdate(bool force) {
 	if (st.isChanged(StateInfo::FILE_NAME) || force) {
 
 		clear(false);
+		model()->setFileName(st.fileName());
+
 		int idx = m()->tabWdg->indexOf(container);
 		m()->tabWdg->setTabText(idx, st.fileName());
 
 		QApplication::restoreOverrideCursor();
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-		m()->statusBar()->message("Retrieving history of '" +
-		                          st.fileName() + "'...");
-		fh->clear(st.fileName());
-		git->startFileHistory(fh);
+		m()->statusBar()->message("Retrieving history of '" + st.fileName() + "'...");
+		git->startFileHistory(model());
 
 	} else if (fileTab->histListView->update() || st.sha().isEmpty()) {
 
@@ -263,7 +261,6 @@ void FileView::on_spinBoxRevision_valueChanged(int id) {
 	if (id != fileTab->spinBoxRevision->minValue()) {
 
 		SCRef selRev(fileTab->histListView->getSha(id));
-
 		if (st.sha() != selRev) { // to avoid looping
 			st.setSha(selRev);
 			st.setSelectItem(true);
@@ -276,11 +273,11 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 
 	QApplication::restoreOverrideCursor();
 
-	if (f != fh)
+	if (f != model())
 		return;
 
 	fileTab->histListView->showIdValues();
-	int maxId = fh->rowCount();
+	int maxId = model()->rowCount();
 	if (maxId == 0) {
 		m()->statusBar()->clear();
 		return;
@@ -292,7 +289,7 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 	UPDATE();
 
 	updateProgressBar(0);
-	textEditFile->startAnnotate(fh);
+	textEditFile->startAnnotate(model());
 }
 
 void FileView::showAnnotation() {
@@ -352,7 +349,7 @@ bool FileView::event(QEvent* e) {
 
 void FileView::updateProgressBar(int annotatedNum) {
 
-	uint tot = fh->rowCount();
+	uint tot = model()->rowCount();
 	if (tot == 0)
 		return;
 

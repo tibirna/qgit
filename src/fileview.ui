@@ -80,9 +80,6 @@
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/view_choose.png</iconset>
          </property>
-         <property name="shortcut" >
-          <string/>
-         </property>
          <property name="checkable" >
           <bool>true</bool>
          </property>
@@ -110,9 +107,6 @@
          </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/encrypted.png</iconset>
-         </property>
-         <property name="shortcut" >
-          <string>Ctrl+L</string>
          </property>
          <property name="checkable" >
           <bool>true</bool>
@@ -142,9 +136,6 @@
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
          </property>
-         <property name="shortcut" >
-          <string/>
-         </property>
          <property name="checkable" >
           <bool>true</bool>
          </property>
@@ -172,9 +163,6 @@
          </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/colorize.png</iconset>
-         </property>
-         <property name="shortcut" >
-          <string/>
          </property>
          <property name="checkable" >
           <bool>true</bool>
@@ -233,9 +221,6 @@
               </property>
               <property name="icon" >
                <iconset resource="icons.qrc" >:/icons/resources/ok.png</iconset>
-              </property>
-              <property name="shortcut" >
-               <string/>
               </property>
               <property name="checkable" >
                <bool>true</bool>
@@ -321,14 +306,14 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>Q3TextEdit</class>
-   <extends>Q3Frame</extends>
-   <header>q3textedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>ListView</class>
    <extends>QTreeView</extends>
    <header>listview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Q3TextEdit</class>
+   <extends>Q3Frame</extends>
+   <header>q3textedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

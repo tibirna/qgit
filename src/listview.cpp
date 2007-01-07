@@ -23,11 +23,11 @@ using namespace QGit;
 
 ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL) {}
 
-void ListView::setup(Domain* dm, Git* g, FileHistory* f) {
+void ListView::setup(Domain* dm, Git* g) {
 
 	d = dm;
 	git = g;
-	fh = f;
+	fh = d->model();
 	st = &(d->st);
 	filterNextContextMenuRequest = false;
 
@@ -82,15 +82,9 @@ void ListView::on_repaintListViews(const QFont& f) {
 	scrollTo(currentIndex());
 }
 
-void ListView::clear() {
+QString ListView::currentText(int column) {
 
-	git->cancelDataLoading(fh);
-	fh->clear(); // reset the model
-}
-
-QString ListView::currentText(int column) { // TODO try to remove
-
-	QModelIndex idx = currentIndex().sibling (0, column);
+	QModelIndex idx = model()->index(currentIndex().row(), column);
 	return (idx.isValid() ? idx.data().toString() : "");
 }
 
