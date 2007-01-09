@@ -23,7 +23,7 @@ class MyProcess;
 #else
 // data exchange facility with git-rev-list could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
-#define USE_QPROCESS
+// #define USE_QPROCESS
 #endif
 
 class DataLoader : public QObject {
@@ -33,15 +33,16 @@ public:
 	~DataLoader();
 	bool start(const QStringList& args, const QString& wd);
 
-public slots:
-	void procReadyRead(const QString&);
-	void on_finished(int, QProcess::ExitStatus);
-
 signals:
 	void newDataReady(const FileHistory*);
 	void loaded(const FileHistory*,ulong,int,bool,const QString&,const QString&);
 
+public slots:
+	void procFinished(); // used by Git::run()
+
 private slots:
+	void procReadyRead(const QString&);
+	void on_finished(int, QProcess::ExitStatus);
 	void on_cancel();
 	void on_cancel(const FileHistory*);
 	void on_timeout();

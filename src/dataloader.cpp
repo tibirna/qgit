@@ -48,6 +48,12 @@ bool DataLoader::start(SCList args, SCRef wd) {
 	return true;
 }
 
+void DataLoader::procFinished() {
+
+	// Git::runAsync() hook
+	on_finished(0, QProcess::NormalExit);
+}
+
 void DataLoader::on_finished(int, QProcess::ExitStatus) {
 
 	isProcExited = true;

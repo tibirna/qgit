@@ -208,7 +208,7 @@ void Git::checkEnvironment() {
 		return;
 	}
 	QGit::GIT_DIR = version.stripWhiteSpace();
-	dbg(QGit::GIT_DIR);
+
 	if (run("git --version", &version)) {
 
 		version = version.section(' ', -1, -1).section('.', 0, 2);
