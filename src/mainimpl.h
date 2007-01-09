@@ -9,11 +9,12 @@
 
 #include <QSet>
 #include <QModelIndex>
-#include <qpointer.h>
-#include <qregexp.h>
-#include <q3process.h>
-#include <qtimer.h>
+#include <QProcess>
+#include <QPointer>
+#include <QRegExp>
+#include <QTimer>
 #include <QCloseEvent>
+#include <QDir>
 #include <Q3PopupMenu>
 #include <QEvent>
 #include "exceptionmanager.h"
@@ -166,28 +167,31 @@ private:
 	QComboBox* cmbSearch;
 };
 
-class ExternalDiffProc : public Q3Process {
+class ExternalDiffProc : public QProcess {
 Q_OBJECT
 public:
-	ExternalDiffProc(const QStringList& args, QObject* p) : Q3Process(args, p) {
+	ExternalDiffProc(const QStringList& a, QObject* p) : QProcess(p), args(a) {
 
-		connect(this, SIGNAL(processExited()), this, SLOT(on_processExited()));
+		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
 	}
 	~ExternalDiffProc() {
 
-		tryTerminate();
+		terminate();
 		removeFiles();
 	}
+	QStringList args;
+
 private slots:
-	void on_processExited() { deleteLater(); }
+	void on_finished(int, QProcess::ExitStatus) { deleteLater(); }
 
 private:
 	void removeFiles() {
 
-		if (!arguments().empty()) {
+		if (!args.empty()) {
 			QDir d; // remove temporary files to diff on
-			d.remove(arguments()[1]);
-			d.remove(arguments()[2]);
+			d.remove(args[1]);
+			d.remove(args[2]);
 		}
 	}
 };

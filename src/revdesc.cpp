@@ -6,7 +6,6 @@
 #include <QApplication>
 #include <QMenu>
 #include <QRegExp>
-#include <QAction>
 #include <QClipboard>
 #include "domain.h"
 #include "revdesc.h"

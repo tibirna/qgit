@@ -6,7 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
+#include <QApplication>
 #include "git.h"
 #include "annotate.h"
 
@@ -54,15 +54,14 @@ bool Annotate::startPatchProc(SCRef buf, SCRef fileName) {
 	QString cmd("git diff-tree -r -m --patch-with-raw --no-commit-id --stdin --");
 	QStringList args(QStringList::split(' ', cmd));
 	args.append(fileName); // handle file name with spaces case
-	patchProc.setArguments(args);
 	patchProc.setWorkingDirectory(git->workDir);
 	patchProcBuf = "";
-	return patchProc.launch(buf);
+	return QGit::startProcess(&patchProc, args, buf);
 }
 
 void Annotate::on_patchProc_readFromStdout() {
 
-	const QString tmp(patchProc.readStdout());
+	const QString tmp(patchProc.readAllStandardOutput());
 	annFilesNum += tmp.count("diff --git ");
 	if (annFilesNum > (int)histRevOrder.count())
 		annFilesNum = histRevOrder.count();
@@ -77,8 +76,8 @@ void Annotate::deleteWhenDone() {
 	if (annotateRunning)
 		cancelingAnnotate = true;
 
-	if (patchProc.isRunning())
-		patchProc.tryTerminate();
+	if (patchProc.state() == QProcess::Running)
+		patchProc.terminate();
 
 	on_deleteWhenDone();
 }

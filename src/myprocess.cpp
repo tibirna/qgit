@@ -6,14 +6,13 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
-#include <qeventloop.h>
+#include <QApplication>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "domain.h"
 #include "myprocess.h"
 
-MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : Q3Process(g) {
+MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : QProcess(g) {
 
 	guiObject = go;
 	git = g;
@@ -59,11 +58,8 @@ bool MyProcess::runSync(SCRef rc, QString* ro, QObject* rcv, SCRef buf) {
 	EM_BEFORE_PROCESS_EVENTS;
 
 	while (busy) {
-		// without this filter on patch does not work
-		// FIXME definitely needs more understanding
 		qApp->processEvents();
-		QGit::compat_usleep(20000); // suspend 20ms to let OS reschedule
-		isRunning();
+		waitForFinished(20); // suspend 20ms to let OS reschedule
 	}
 
 	EM_AFTER_PROCESS_EVENTS;
@@ -79,13 +75,23 @@ bool MyProcess::runSync(SCRef rc, QString* ro, QObject* rcv, SCRef buf) {
 
 void MyProcess::setupSignals() {
 
-	connect(git, SIGNAL(cancelAllProcesses()), this, SLOT(on_cancel()));
-	connect(this, SIGNAL(readyReadStdout()), this, SLOT(on_readyReadStdout()));
-	connect(this, SIGNAL(processExited()), this, SLOT(on_processExited()));
-	if (receiver != NULL) {
-		connect(this, SIGNAL(readyReadStderr()), this, SLOT(on_readyReadStderr()));
+	connect(git, SIGNAL(cancelAllProcesses()),
+	        this, SLOT(on_cancel()));
+
+	connect(this, SIGNAL(readyReadStandardOutput()),
+	        this, SLOT(on_readyReadStandardOutput()));
+
+	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+
+	if (receiver) {
+
+		connect(this, SIGNAL(readyReadStandardError ()),
+		        this, SLOT(on_readyReadStandardError()));
+
 		connect(this, SIGNAL(procDataReady(const QString&)),
 		        receiver, SLOT(procReadyRead(const QString&)));
+
 		connect(this, SIGNAL(eof()), receiver, SLOT(procFinished()));
 	}
 	Domain* d = git->curContext();
@@ -98,33 +104,33 @@ void MyProcess::sendErrorMsg(bool notStarted) {
 	if (!errorReportingEnabled)
 		return;
 
-	QString errorDesc(readStderr());
+	QString errorDesc(readAllStandardError());
 	if (notStarted)
 		errorDesc = QString::fromAscii("Unable to start the process!");
 
-	const QString cmd(arguments().join(" ")); // hide any QUOTE_CHAR or related stuff
+	const QString cmd(arguments.join(" ")); // hide any QUOTE_CHAR or related stuff
 	MainExecErrorEvent* e = new MainExecErrorEvent(cmd, errorDesc);
 	QApplication::postEvent(guiObject, e);
 }
 
 bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
 
-	const QStringList sl(splitArgList(runCmd));
-	setArguments(sl);
-	setWorkingDirectory(workDir);
-	bool ok = launch(buf);
-	if (!ok)
-		sendErrorMsg(true);
+	arguments = splitArgList(runCmd);
+	if (arguments.isEmpty())
+		return false;
 
-	return ok;
+	setWorkingDirectory(workDir);
+
+	if (!QGit::startProcess(this, arguments, buf)) {
+		sendErrorMsg(true);
+		return false;
+	}
+	return true;
 }
 
-void MyProcess::on_readyReadStdout() {
-// workaround pipe buffer size limit. In case of big output, buffer
-// can became full and an hang occurs, so we read all data as soon
-// as possible and store it in runOutput
+void MyProcess::on_readyReadStandardOutput() {
 
-	const QString tmp(readStdout());
+	const QString tmp(readAllStandardOutput());
 	if (canceling)
 		return;
 
@@ -135,9 +141,9 @@ void MyProcess::on_readyReadStdout() {
 		runOutput->append(tmp);
 }
 
-void MyProcess::on_readyReadStderr() {
+void MyProcess::on_readyReadStandardError() {
 
-	const QString tmp(readStderr());
+	const QString tmp(readAllStandardError());
 	if (canceling)
 		return;
 
@@ -149,17 +155,19 @@ void MyProcess::on_readyReadStderr() {
 	}
 }
 
-void MyProcess::on_processExited() {
+void MyProcess::on_finished(int, QProcess::ExitStatus exitStatus) {
 
-	if (canceling || !normalExit() || canReadLineStderr())
-		exitStatus = false;
+	// On Windows, if the process was terminated with TerminateProcess()
+	// from another application exitStatus is still NormalExit unless
+	// the exit code is less than 0. But test the exit code is unreliable,
+	// as example 'git status' returns -1 also without errors
 
 	if (!canceling) { // no more noise after cancel
 
 		if (receiver)
 			emit eof();
 
-		if (!exitStatus)
+		if (exitStatus != QProcess::NormalExit) // TODO check stdErr
 			sendErrorMsg();
 	}
 	busy = false;
@@ -170,7 +178,7 @@ void MyProcess::on_processExited() {
 void MyProcess::on_cancel() {
 
 	canceling = true;
-	Q3Process::tryTerminate();
+	terminate();
 }
 
 void MyProcess::parseArgs(SCRef cmd, SList args) {

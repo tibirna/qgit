@@ -39,7 +39,7 @@ void ConsoleImpl::pushButtonTerminate_clicked() {
 
 void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 
-	if (proc && proc->isRunning())
+	if (proc && proc->state() == QProcess::Running)
 		if (QMessageBox::question(this, "Action output window - QGit",
 		    "Action is still running.\nAre you sure you want to close "
 		    "the window and leave the action running in background?",

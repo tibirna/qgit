@@ -117,7 +117,7 @@ void SettingsImpl::comboBoxCodecs_activated(int idx) {
 	if (idx != 0)
 		codecName = comboBoxCodecs->currentText().section(" --", 0, 0);
 
-	git->setTextCodec(QTextCodec::codecForName(codecName));
+	git->setTextCodec(QTextCodec::codecForName(codecName.toLatin1()));
 }
 
 void SettingsImpl::pushButtonExtDiff_clicked() {

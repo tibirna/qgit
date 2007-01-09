@@ -6,18 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <QApplication>
-#include <QSpinBox>
-#include <QLineEdit>
-#include <QMessageBox>
-#include <QSettings>
 #include <QStatusBar>
-#include <QSplitter>
-#include <QCursor>
-#include <QRegExp>
-#include <QClipboard>
-#include <QToolButton>
-#include <QTabWidget>
 #include "mainimpl.h"
 #include "git.h"
 #include "annotate.h"

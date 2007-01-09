@@ -4,8 +4,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
-#include <q3listview.h>
+#include <QApplication>
 #include "exceptionmanager.h"
 #include "mainimpl.h"
 #include "git.h"

@@ -6,19 +6,15 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
-#include <qdatetime.h>
-#include <qtextcodec.h>
-#include <qregexp.h>
-#include <qsettings.h>
-#include <qfile.h>
-#include <qdir.h>
-#include <qeventloop.h>
-#include <q3process.h>
-#include <qtextcodec.h>
-#include <q3stylesheet.h>
-#include <qobject.h>
+#include <QApplication>
+#include <QDateTime>
+#include <QRegExp>
+#include <QFile>
+#include <QDir>
 #include <QTextStream>
+#include <QSettings>
+#include <QTextCodec>
+#include <q3stylesheet.h>
 #include "lanes.h"
 #include "myprocess.h"
 #include "annotate.h"
@@ -207,6 +203,12 @@ Git::Git(QWidget* p) : QObject(p) {
 void Git::checkEnvironment() {
 
 	QString version;
+	if (!run("git --exec-path", &version)) {
+		dbs("Cannot found git files");
+		return;
+	}
+	QGit::GIT_DIR = version.stripWhiteSpace();
+	dbg(QGit::GIT_DIR);
 	if (run("git --version", &version)) {
 
 		version = version.section(' ', -1, -1).section('.', 0, 2);
@@ -254,14 +256,14 @@ bool Git::allProcessDeleted() {
 void Git::setTextCodec(QTextCodec* tc) {
 
 	QTextCodec::setCodecForCStrings(tc); // works also with tc == 0 (Latin1)
-	QString mimeName(tc ? tc->mimeName() : "Latin1");
+	QString name(tc ? tc->name() : "Latin1");
 
 	// workaround Qt issue of mime name different from
 	// standard http://www.iana.org/assignments/character-sets
-	if (mimeName == "Big5-HKSCS")
-		mimeName = "Big5";
+	if (name == "Big5-HKSCS")
+		name = "Big5";
 
-	run("git repo-config i18n.commitencoding " + mimeName);
+	run("git repo-config i18n.commitencoding " + name);
 }
 
 QTextCodec* Git::getTextCodec(bool* isGitArchive) {
@@ -275,9 +277,9 @@ QTextCodec* Git::getTextCodec(bool* isGitArchive) {
 		return NULL;
 
 	if (runOutput.isEmpty()) // git docs says default is utf-8
-		return QTextCodec::codecForName("utf8");
+		return QTextCodec::codecForName(QByteArray("utf8"));
 
-	return QTextCodec::codecForName(runOutput.stripWhiteSpace());
+	return QTextCodec::codecForName(runOutput.stripWhiteSpace().toLatin1());
 }
 
 const QString Git::quote(SCRef nm) {
@@ -568,7 +570,7 @@ MyProcess* Git::runAsync(SCRef runCmd, QObject* receiver, SCRef buf) {
 
 MyProcess* Git::runAsScript(SCRef runCmd, QObject* receiver, SCRef buf) {
 
-	const QString scriptFile(workDir + "/qgit_script.sh");
+	const QString scriptFile(workDir + "/qgit_script" + QGit::SCRIPT_EXT);
 	if (!writeToFile(scriptFile, runCmd, true))
 		return NULL;
 
@@ -581,7 +583,7 @@ MyProcess* Git::runAsScript(SCRef runCmd, QObject* receiver, SCRef buf) {
 void Git::on_runAsScript_eof() {
 
 	QDir dir(workDir);
-	dir.remove("qgit_script.sh");
+	dir.remove("qgit_script" + QGit::SCRIPT_EXT);
 }
 
 void Git::cancelProcess(MyProcess* p) {

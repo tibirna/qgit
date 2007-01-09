@@ -11,7 +11,7 @@
 #include <QTime>
 #include <QPair>
 #include <QTimer>
-#include <q3process.h>
+#include <QProcess>
 #include "exceptionmanager.h"
 #include "common.h"
 
@@ -96,7 +96,7 @@ private:
 	QString patchScript;
 	QString fileName;
 	StrVect histRevOrder; // TODO use reference
-	Q3Process patchProc;
+	QProcess patchProc;
 	QString patchProcBuf;
 	QString nextFileSha;
 	bool valid;

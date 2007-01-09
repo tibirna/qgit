@@ -11,21 +11,60 @@
  data in each file where QGit namespace is included.
 
 */
-
-#ifdef ON_WINDOWS
-#include <windows.h>
-#else
-#include <unistd.h> // usleep()
-#include <sys/types.h> // used by chmod()
-#include <sys/stat.h>  // used by chmod()
-#endif
-
-#include <qsettings.h>
-#include <qfile.h>
-#include <qtextstream.h>
+#include <QProcess>
+#include <QSettings>
+#include <QFile>
+#include <QTextStream>
 #include <QHash>
 #include <QPixmap>
 #include "common.h"
+
+#ifdef ON_WINDOWS   // *********  platform dependent code ******
+
+#include <windows.h> // used by Sleep(us)
+
+const QString QGit::SCRIPT_EXT = ".bat";
+
+void QGit::compat_usleep(int us) {
+
+	Sleep(us);
+}
+
+static void addShellWrapper(QStringList& args) {
+/*
+   To start a process under Windows you must know the
+   absolute path, otherwise you need to wrap the command
+   line in the shell interpreter. You need this also to
+   start native commands as 'dir'.
+*/
+	if (   (args.first().startsWith("git ") || args.first() == "git")
+	     && !QGit::GIT_DIR.isEmpty())
+
+		// we avoid wrapping in a shell this
+		// common case, just add the path
+		args[0].prepend(QGit::GIT_DIR + '\\');
+
+	else { // prepend "cmd.exe /c"
+		args.prepend("/c");
+		args.prepend("cmd.exe");
+	}
+}
+
+#else
+
+#include <unistd.h>    // used by usleep()
+#include <sys/types.h> // used by chmod()
+#include <sys/stat.h>  // used by chmod()
+
+const QString QGit::SCRIPT_EXT = ".sh";
+
+void QGit::compat_usleep(int us) {
+
+	usleep(us);
+}
+
+#endif // *********  end of platform dependent code ******
+
 
 // minimum git version required
 const QString QGit::GIT_VERSION = "1.4.4";
@@ -41,6 +80,7 @@ const QColor QGit::DARK_GREEN  = QColor(0, 205, 0);
 // initialized at startup according to system wide settings
 QColor QGit::ODD_LINE_COL;
 QColor QGit::EVEN_LINE_COL;
+QString QGit::GIT_DIR;
 
 /*
    Default QFont c'tor calls static method QApplication::font() that could
@@ -103,6 +143,7 @@ const QString QGit::C_DAT_FILE       = "/qgit_cache.dat";
 // misc
 const QString QGit::QUOTE_CHAR = "$";
 
+
 using namespace QGit;
 
 // settings helpers
@@ -151,36 +192,40 @@ void QGit::initMimePix() {
 	mimePixMap.insert("sh", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_pl.png"));
 	mimePixMap.insert("perl", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("pl", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_py.png"));
 	mimePixMap.insert("py", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_java.png"));
 	mimePixMap.insert("java", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("jar", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/tar.png"));
 	mimePixMap.insert("tar", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("gz", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("zip", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("bz", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("bz2", pm);
 }
 
 void QGit::freeMimePix() {
-return;
-	QHash<QString, const QPixmap*>::const_iterator i = mimePixMap.constBegin();
-	while (i != mimePixMap.constEnd()) {
-     		delete i.value();
-		++i;
-	}
+
+	qDeleteAll(mimePixMap);
 }
 
 const QPixmap* QGit::mimePix(SCRef fileName) {
 
 	SCRef ext = fileName.section('.', -1, -1);
-	return (mimePixMap.contains(ext) ? mimePixMap.value(ext) : mimePixMap["#DEFAULT"]);
+	if (mimePixMap.contains(ext))
+		return mimePixMap.value(ext);
+
+	return mimePixMap.value("#DEFAULT");
 }
 
-// misc helpers
 bool QGit::stripPartialParaghraps(SCRef src, QString* dst, QString* prev) {
 
 	int idx = src.findRev('\n');
@@ -192,15 +237,6 @@ bool QGit::stripPartialParaghraps(SCRef src, QString* dst, QString* prev) {
 	*dst = src.left(idx).prepend(*prev); // strip trailing '\n'
 	*prev = src.mid(idx + 1); // src[idx] is '\n', skip it
 	return true;
-}
-
-void QGit::compat_usleep(int us) {
-
-#ifdef ON_WINDOWS
-	Sleep(us);
-#else
-	usleep(us);
-#endif
 }
 
 bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
@@ -233,4 +269,25 @@ bool QGit::readFromFile(SCRef fileName, QString& data) {
 	data = stream.read();
 	file.close();
 	return true;
+}
+
+bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf) {
+
+	if (!proc || args.isEmpty())
+		return false;
+
+	QStringList arguments(args);
+
+#ifdef ON_WINDOWS
+	addShellWrapper(arguments);
+#endif
+
+	QString prog(arguments.first());
+	arguments.removeFirst();
+	proc->start(prog, arguments); // TODO test QIODevice::Unbuffered
+	if (!buf.isEmpty()) {
+		proc->write(buf.toLatin1());
+		proc->closeWriteChannel();
+	}
+	return proc->waitForStarted();
 }

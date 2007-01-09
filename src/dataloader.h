@@ -11,11 +11,11 @@
 #include <QTime>
 #include <QTimer>
 #include <QFile>
+#include <QProcess>
 
 class QString;
 class Git;
 class FileHistory;
-class Q3Process;
 class MyProcess;
 
 #ifdef ON_WINDOWS
@@ -23,7 +23,7 @@ class MyProcess;
 #else
 // data exchange facility with git-rev-list could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
-// #define USE_QPROCESS
+#define USE_QPROCESS
 #endif
 
 class DataLoader : public QObject {
@@ -35,7 +35,7 @@ public:
 
 public slots:
 	void procReadyRead(const QString&);
-	void procFinished();
+	void on_finished(int, QProcess::ExitStatus);
 
 signals:
 	void newDataReady(const FileHistory*);
@@ -64,7 +64,7 @@ private:
 	bool canceling;
 
 #ifdef USE_QPROCESS
-	Q3Process* proc;
+	QProcess* proc;
 #else
 	MyProcess* proc;
 	QString procPID;

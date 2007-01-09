@@ -7,7 +7,6 @@
 
 */
 #include <QSyntaxHighlighter>
-#include <QApplication>
 #include "common.h"
 #include "git.h"
 #include "myprocess.h"

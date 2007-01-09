@@ -6,7 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <q3process.h>
 #include <QDir>
 #include "myprocess.h"
 #include "git.h"
@@ -49,7 +48,7 @@ bool DataLoader::start(SCList args, SCRef wd) {
 	return true;
 }
 
-void DataLoader::procFinished() {
+void DataLoader::on_finished(int, QProcess::ExitStatus) {
 
 	isProcExited = true;
 
@@ -156,18 +155,19 @@ void DataLoader::on_cancel() {
 	if (!canceling) { // just once
 		canceling = true;
 		if (proc)
-			proc->tryTerminate();
+			proc->terminate();
 	}
 }
 
 bool DataLoader::doStart(SCList args, SCRef wd) {
 
-	proc = new Q3Process(args,this);
+	proc = new QProcess(this);
 	proc->setWorkingDirectory(wd);
-	if (!proc->start())
+	if (!QGit::startProcess(proc, args))
 		return false;
 
-	connect(proc, SIGNAL(processExited()), this, SLOT(procFinished()));
+	connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
 	// signal readyReadStdout() is not connected, read is timeout based. Faster.
 	return true;
 }
@@ -195,7 +195,7 @@ ulong DataLoader::readNewData(bool) {
 		....
 		return buf->readAll(); // memcpy() here
 	*/
-	QByteArray* ba = new QByteArray(proc->readStdout());
+	QByteArray* ba = new QByteArray(proc->readAllStandardOutput());
 	if (ba->size() == 0) {
 		delete ba;
 		return 0;
@@ -231,7 +231,7 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 
 	// ensure unique names for our DataLoader instance file
 	dataFileName = "/qgit_" + QString::number((ulong)this) + ".txt";
-	scriptFileName = "/qgit_" + QString::number((ulong)this) + ".sh";
+	scriptFileName = "/qgit_" + QString::number((ulong)this) + QGit::SCRIPT_EXT;
 
 	// create a script to redirect 'git rev-list' stdout to dataFile
 	QDir dir("/tmp"); // use a tmpfs mounted filesystem if available

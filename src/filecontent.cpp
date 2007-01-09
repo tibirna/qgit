@@ -6,7 +6,6 @@
 */
 #include <q3textedit.h>
 #include <q3syntaxhighlighter.h>
-#include <q3listview.h>
 #include <qmessagebox.h>
 #include <qstatusbar.h>
 #include <qapplication.h>

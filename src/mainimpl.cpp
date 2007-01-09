@@ -6,40 +6,16 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qlineedit.h>
-#include <q3textbrowser.h>
-#include <q3listview.h>
-#include <qpushbutton.h>
-#include <qtoolbutton.h>
-#include <qpainter.h>
-#include <qstringlist.h>
-#include <q3listbox.h>
-#include <qfontmetrics.h>
-#include <qcombobox.h>
-#include <qeventloop.h>
-#include <qapplication.h>
-#include <qwidget.h>
-#include <qmessagebox.h>
-#include <qstatusbar.h>
-#include <q3header.h>
-#include <q3popupmenu.h>
-#include <qcursor.h>
-#include <q3filedialog.h>
-#include <qsettings.h>
-#include <qaction.h>
-#include <qinputdialog.h>
-#include <q3accel.h>
-#include <qsplitter.h>
-#include <qtabwidget.h>
-#include <qobject.h>
-#include <qlayout.h>
-#include <qtooltip.h>
-//Added by qt3to4:
 #include <QWheelEvent>
 #include <QCloseEvent>
 #include <QKeyEvent>
 #include <QEvent>
-#include <Q3PtrList>
+#include <QSettings>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QStatusBar>
+#include <QFileDialog>
+#include <q3accel.h>
 #include "config.h" // defines PACKAGE_VERSION
 #include "help.h"
 #include "ui_help.h"
@@ -197,9 +173,10 @@ void MainImpl::ActExternalDiff_activated() {
 	getExternalDiffArgs(&args);
 	ExternalDiffProc* externalDiff = new ExternalDiffProc(args, this);
 	externalDiff->setWorkingDirectory(curDir);
-	if (!externalDiff->start()) {
+
+	if (!QGit::startProcess(externalDiff, args)) {
 		QString text("Cannot start external viewer: ");
-		text.append(externalDiff->arguments()[0]);
+		text.append(externalDiff->args[0]);
 		QMessageBox::warning(this, "Error - QGit", text);
 		delete externalDiff;
 	}
@@ -1199,7 +1176,7 @@ void MainImpl::ActShowTree_toggled(bool b) {
 void MainImpl::ActSaveFile_activated() {
 
 	QFileInfo f(rv->st.fileName());
-	const QString fileName(Q3FileDialog::getSaveFileName(f.fileName(), "",
+	const QString fileName(QFileDialog::getSaveFileName(f.fileName(), "",
 	                       this, "save file dialog", "Save file as"));
 
 	if (fileName.isEmpty())
@@ -1227,7 +1204,7 @@ void MainImpl::openRecent_activated(int id) {
 
 void MainImpl::ActOpenRepo_activated() {
 
-	const QString dirName(Q3FileDialog::getExistingDirectory(curDir,
+	const QString dirName(QFileDialog::getExistingDirectory(curDir,
 	                      this, "", "Choose a directory"));
 
 	if (!dirName.isEmpty()) {
@@ -1238,7 +1215,7 @@ void MainImpl::ActOpenRepo_activated() {
 
 void MainImpl::ActOpenRepoNewWindow_activated() {
 
-	const QString dirName(Q3FileDialog::getExistingDirectory(curDir,
+	const QString dirName(QFileDialog::getExistingDirectory(curDir,
 	                      this, "", "Choose a directory"));
 
 	if (!dirName.isEmpty()) {
@@ -1272,7 +1249,7 @@ void MainImpl::ActMailFormatPatch_activated() {
 	}
 	QSettings settings;
 	QString outDir(settings.value(PATCH_DIR_KEY, curDir).toString());
-	QString dirPath(Q3FileDialog::getExistingDirectory(outDir, this, "",
+	QString dirPath(QFileDialog::getExistingDirectory(outDir, this, "",
 	                "Choose destination directory - Format Patch"));
 	if (dirPath.isEmpty())
 		return;
@@ -1309,7 +1286,7 @@ void MainImpl::ActMailApplyPatch_activated() {
 
 	QSettings settings;
 	QString outDir(settings.value(PATCH_DIR_KEY, curDir).toString());
-	QString patchName(Q3FileDialog::getOpenFileName(outDir, NULL, this,
+	QString patchName(QFileDialog::getOpenFileName(outDir, NULL, this,
 	                  "", "Choose the patch file - Apply Patch"));
 	if (patchName.isEmpty())
 		return;

@@ -6,10 +6,8 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qfile.h>
-#include <qdir.h>
-#include <qapplication.h>
-#include <qdatastream.h>
+#include <QFile>
+#include <QDir>
 #include "cache.h"
 
 using namespace QGit;

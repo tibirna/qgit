@@ -6,11 +6,9 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
-#include <qsettings.h>
-#include <qeventloop.h>
-#include <qregexp.h>
-#include <qtextcodec.h>
+#include <QApplication>
+#include <QSettings>
+#include <QTextCodec>
 #include "exceptionmanager.h"
 #include "rangeselectimpl.h"
 #include "lanes.h"

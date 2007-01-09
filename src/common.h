@@ -52,6 +52,8 @@ typedef QLinkedList<QString>&       SLList;
 typedef const QLinkedList<QString>& SCLList;
 typedef QVector<QString>            StrVect;
 
+class QProcess;
+
 namespace QGit {
 
 	// minimum git version required
@@ -167,9 +169,10 @@ namespace QGit {
 	extern const QColor DARK_GREEN;
 
 	// initialized at startup according to system wide settings
-	extern QColor ODD_LINE_COL;
-	extern QColor EVEN_LINE_COL;
-	extern QFont  TYPE_WRITER_FONT;
+	extern QColor  ODD_LINE_COL;
+	extern QColor  EVEN_LINE_COL;
+	extern QFont   TYPE_WRITER_FONT;
+	extern QString GIT_DIR;
 
 	// patches drag and drop
 	extern const QString PATCHES_DIR;
@@ -251,6 +254,7 @@ namespace QGit {
 	bool stripPartialParaghraps(SCRef src, QString* dst, QString* prev);
 	bool writeToFile(SCRef fileName, SCRef data, bool setExecutable = false);
 	bool readFromFile(SCRef fileName, QString& data);
+	bool startProcess(QProcess* proc, SCList args, SCRef buf = "");
 	void compat_usleep(int us);
 
 	// cache file
@@ -265,6 +269,7 @@ namespace QGit {
 	const int MAX_MENU_ENTRIES = 15;
 	const int MAX_RECENT_REPOS = 7;
 	extern const QString QUOTE_CHAR;
+	extern const QString SCRIPT_EXT;
 }
 
 class Rev {

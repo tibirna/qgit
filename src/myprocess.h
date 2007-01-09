@@ -7,14 +7,14 @@
 #ifndef MYPROCESS_H
 #define MYPROCESS_H
 
-#include <q3process.h>
+#include <QProcess>
 #include "git.h"
 
 class Git;
 
 //custom process used to run shell commands in parallel
 
-class MyProcess : public Q3Process {
+class MyProcess : public QProcess {
 Q_OBJECT
 public:
 	MyProcess(QObject *go, Git* g, const QString& wd, bool reportErrors);
@@ -30,9 +30,9 @@ public slots:
 	void on_cancel();
 
 private slots:
-	void on_readyReadStdout();
-	void on_readyReadStderr();
-	void on_processExited();
+	void on_readyReadStandardOutput();
+	void on_readyReadStandardError();
+	void on_finished(int, QProcess::ExitStatus);
 
 private:
 	void setupSignals();
@@ -47,6 +47,7 @@ private:
 	QString* runOutput;
 	QString workDir;
 	QObject* receiver;
+	QStringList arguments;
 	bool errorReportingEnabled;
 	bool canceling;
 	bool busy;

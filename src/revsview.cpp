@@ -6,15 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qlineedit.h>
-#include <qpainter.h>
-#include <qstringlist.h>
-#include <qapplication.h>
-#include <qmessagebox.h>
-#include <qstatusbar.h>
-#include <qcursor.h>
-#include <qaction.h>
-#include <qtabwidget.h>
+#include <QStatusBar>
 #include "common.h"
 #include "git.h"
 #include "domain.h"

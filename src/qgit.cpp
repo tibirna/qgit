@@ -4,7 +4,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
 #include "common.h"
 #include "mainimpl.h"
 
