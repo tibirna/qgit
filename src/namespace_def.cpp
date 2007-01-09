@@ -38,11 +38,12 @@ static void addShellWrapper(QStringList& args) {
    start native commands as 'dir'.
 */
 	if (   (args.first().startsWith("git ") || args.first() == "git")
-	     && !QGit::GIT_DIR.isEmpty())
+	     /* && !QGit::GIT_DIR.isEmpty() */ )
 
 		// we avoid wrapping in a shell this
 		// common case, just add the path
-		args[0].prepend(QGit::GIT_DIR + '\\');
+// 		args[0].prepend(QGit::GIT_DIR + '\\');
+		;
 
 	else { // prepend "cmd.exe /c"
 		args.prepend("/c");
