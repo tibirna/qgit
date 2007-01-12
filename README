@@ -27,17 +27,31 @@ Main features
 Installation
 ------------
 
-You need Qt developer libraries, version 4.1 or later, already installed.
+You need Qt developer libraries, version 4.2 or later, already installed.
 Be sure qmake (for Qt4) and Qt bin tools are in path.
 
-To compile qgit, unpack the tar file (you probably have done it already),
-run 'qmake qgit.pro', 'make' and 'make install'.
+To compile and start qgit do the following:
+
+ - unpack the tar file (you probably have done it already)
+
+ - (Windows only) open src/src.pro and set the proper GIT_EXEC_DIR value
+
+ - qmake qgit.pro
+
+ - make
+
+ - make install
+
+ - (Windows only) run start_qgit.bat to start the application
+
+
+Installation directory is $HOME/bin under Linux and the directory of git
+exe files under Windows.
 
 You need to run 'qmake qgit.pro' only the first time to generate Makefile
-files, then you simply call 'make' and  'make install'.
-
-You may need to run 'qmake qgit.pro' again only after patches that modify
-'qgit.pro' or 'src/src.pro' files.
+files, then you simply call 'make' and  'make install'. You may need to
+run 'qmake qgit.pro' again only after patches that modify 'qgit.pro' or
+'src/src.pro' files.
 
 
 Performance tweaks

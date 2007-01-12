@@ -1,3 +1,8 @@
+# Only for Windows installation set correct directory
+# of git exe files. Then uncomment following line
+# GIT_EXEC_DIR = C:\path\to\git\installation\directory
+
+
 # General stuff
 TEMPLATE = app
 CONFIG += qt warn_on exceptions debug_and_release
@@ -19,8 +24,9 @@ OBJECTS_DIR = $$BUILD_DIR
 
 # misc
 RESOURCES += icons.qrc
-target.path = ~/bin
-unix:INSTALLS += target
+win32:target.path = $$GIT_EXEC_DIR
+unix:target.path = ~/bin
+INSTALLS += target
 
 # project files
 FORMS += commit.ui console.ui customaction.ui fileview.ui help.ui \
@@ -38,3 +44,28 @@ SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
            lanes.cpp listview.cpp mainimpl.cpp myprocess.cpp namespace_def.cpp \
            patchview.cpp qgit.cpp rangeselectimpl.cpp revdesc.cpp \
            revsview.cpp settingsimpl.cpp treeview.cpp
+
+
+
+# Here we generate a batch called start_qgit.bat used, under Windows only,
+# to start qgit with proper PATH set.
+#
+# NOTE: qgit must be installed in git directory, among git exe files
+# for this to work. If you install with 'make install' this is already
+# done for you.
+#
+# Remember to set proper GIT_EXEC_DIR value at the beginning of this file
+#
+win32 {
+
+START_BAT = ..\start_qgit.bat
+CUR_PATH = $$system(echo %PATH%)
+TEXT = $$quote(set PATH=$$CUR_PATH;$$GIT_EXEC_DIR;)
+
+run_qgit.commands  =    @echo @echo OFF > $$START_BAT
+run_qgit.commands += && @echo $$TEXT   >> $$START_BAT
+run_qgit.commands += && @echo $$TARGET >> $$START_BAT
+
+QMAKE_EXTRA_TARGETS += run_qgit
+PRE_TARGETDEPS += run_qgit
+}
