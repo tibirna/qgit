@@ -7,6 +7,7 @@
 
 */
 #include <QSyntaxHighlighter>
+#include <QScrollBar>
 #include "common.h"
 #include "git.h"
 #include "myprocess.h"

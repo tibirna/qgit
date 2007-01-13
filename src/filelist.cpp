@@ -18,9 +18,11 @@ void FileList::setup(Domain* dm, Git* g) {
 	git = g;
 	st = &(d->st);
 
-	connect(this, SIGNAL(currentRowChanged(int)), this, SLOT(on_currentRowChanged(int)));
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
+
+	connect(this, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+	        this, SLOT(on_currentItemChanged(QListWidgetItem*, QListWidgetItem*)));
 }
 
 void FileList::addItem(const QString& label, const QColor& clr) {
@@ -35,12 +37,18 @@ QString FileList::currentText() {
 	return (item ? item->data(Qt::DisplayRole).toString() : "");
 }
 
-void FileList::on_currentRowChanged(int currentRow) {
+void FileList::on_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous) {
 
-	if (currentRow == -1)
+	if (!current)
 		return;
 
-	if (st->isMerge() && currentRow == 0) { // header clicked
+	if (!previous) {
+		// we could have a double event the first time an item
+		// is selected. So filter the first spurious event
+		// FIXME broken if user selects the first item
+		return;
+	}
+	if (st->isMerge() && row(current) == 0) { // header clicked
 
 		// In a listbox without current item, as soon as the box
 		// gains focus the first item becomes the current item

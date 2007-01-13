@@ -1,28 +1,21 @@
 /*
 	Description: files tree view
 
-	Author: Marco Costalba (C) 2005-2006
+	Author: Marco Costalba (C) 2005-2007
 
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qpainter.h>
-#include <qaction.h>
-#include <qlabel.h>
-//Added by qt3to4:
-#include <QPixmap>
+#include <QApplication>
+#include <QTreeWidgetItemIterator>
 #include "git.h"
 #include "domain.h"
 #include "mainimpl.h"
 #include "treeview.h"
 
-using namespace QGit;
-
 QString FileItem::fullName() const {
 
-	Q3ListViewItem* p = parent();
+	QTreeWidgetItem* p = parent();
 	QString s(p ? text(0) : ""); // root directory has no fullName
 	while (p && p->parent()) {
 		s.prepend(p->text(0) + '/');
@@ -31,101 +24,46 @@ QString FileItem::fullName() const {
 	return s;
 }
 
-void FileItem::paintCell(QPainter* p, const QColorGroup& cg, int col, int wdt, int ali) {
+void FileItem::setBold(bool b) {
 
-	p->save();
-	if (isModified) {
-		QFont f(p->font());
-		f.setBold(true);
-		p->setFont(f);
-	}
-	Q3ListViewItem::paintCell(p, cg, col, wdt, ali);
-	p->restore();
+	if (font(0).bold() == b)
+		return;
+
+	QFont fnt(font(0));
+	fnt.setBold(b);
+	setFont(0, fnt);
 }
 
-DirItem::DirItem(DirItem* p, SCRef ts, SCRef nm, TreeView* t) : FileItem(p, nm), treeSha(ts),
-         tv(t), isWorkingDir(p->isWorkingDir) { setPixmap(0, *tv->folderClosed); }
+DirItem::DirItem(DirItem* p, SCRef ts, SCRef nm) : FileItem(p, nm), treeSha(ts) {}
+DirItem::DirItem(QTreeWidget* p, SCRef ts, SCRef nm) : FileItem(p, nm), treeSha(ts) {}
 
-DirItem::DirItem(Q3ListView* p, SCRef ts, SCRef nm, TreeView* t) : FileItem(p, nm), treeSha(ts),
-         tv(t), isWorkingDir(ts == ZERO_SHA) {}
+void TreeView::setup(Domain* dm, Git* g) {
 
-void DirItem::setup() {
-
-	setExpandable(true);
-	Q3ListViewItem::setup();
-}
-
-bool TreeView::getTree(SCRef treeSha, SList names, SList shas,
-                       SList types, bool wd, SCRef treePath) {
-
-	// calls qApp->processEvents()
-	treeIsValid = git->getTree(treeSha, names, shas, types, wd, treePath);
-	return treeIsValid;
-}
-
-void DirItem::setOpen(bool b) {
-
-	setPixmap(0, b ? *tv->folderOpen : *tv->folderClosed);
-
-	bool alreadyWaiting = false;
-	if (QApplication::overrideCursor())
-		alreadyWaiting = (QApplication::overrideCursor()->shape() == Qt::WaitCursor);
-
-	if (!alreadyWaiting)
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	if (b && !childCount()) {
-
-		QStringList names, types, shas;
-		if (!tv->getTree(treeSha, names, shas, types, isWorkingDir, fullName()))
-			return;
-
-		if (!names.empty()) {
-			QStringList::const_iterator it(names.constBegin());
-			QStringList::const_iterator itSha(shas.constBegin());
-			QStringList::const_iterator itTypes(types.constBegin());
-			while (it != names.constEnd()) {
-
-				if (*itTypes == "tree") {
-					DirItem* item = new DirItem(this, *itSha, *it, tv);
-					item->setModified(tv->isModified(item->fullName(), true));
-				} else {
-					FileItem* item = new FileItem(this, *it);
-					item->setPixmap(0, *mimePix(*it));
-					item->setModified(tv->isModified(item->fullName()));
-				}
-				++it;
-				++itSha;
-				++itTypes;
-			}
-		}
-	}
-	Q3ListViewItem::setOpen(b);
-	if (!alreadyWaiting)
-		QApplication::restoreOverrideCursor();
-}
-
-// ******************************* TreeView ****************************
-
-TreeView::TreeView(Domain* dm, Git* g, Q3ListView* lv) : QObject(dm),
-                   d(dm), git(g), listView(lv) {
-
+	d = dm;
+	git = g;
 	st = &(d->st);
 	ignoreCurrentChanged = false;
+	isWorkingDir = false;
 
 	// set built-in pixmaps
-	folderClosed = mimePix(".#FOLDER_CLOSED");
-	folderOpen   = mimePix(".#FOLDER_OPEN");
-	fileDefault  = mimePix(".#DEFAULT");
+	folderClosed = QGit::mimePix(".#FOLDER_CLOSED");
+	folderOpen   = QGit::mimePix(".#FOLDER_OPEN");
+	fileDefault  = QGit::mimePix(".#DEFAULT");
 
-	connect(listView, SIGNAL(currentChanged(Q3ListViewItem*)),
-	        this, SLOT(on_currentChanged(Q3ListViewItem*)));
+	connect(this, SIGNAL(itemExpanded(QTreeWidgetItem*)),
+	        this, SLOT(on_itemExpanded(QTreeWidgetItem*)));
 
-	connect(listView, SIGNAL(contextMenuRequested(Q3ListViewItem*, const QPoint&, int)),
-	        this, SLOT(on_contextMenuRequested(Q3ListViewItem*, const QPoint&, int)));
+	connect(this, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
+	        this, SLOT(on_itemCollapsed(QTreeWidgetItem*)));
+
+	connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+	        this, SLOT(on_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
 }
 
-void TreeView::on_currentChanged(Q3ListViewItem* item) {
+void TreeView::on_currentItemChanged(QTreeWidgetItem* item, QTreeWidgetItem*) {
 
 	if (item) {
 		SCRef fn = ((FileItem*)item)->fullName();
@@ -137,24 +75,25 @@ void TreeView::on_currentChanged(Q3ListViewItem* item) {
 	}
 }
 
-void TreeView::on_contextMenuRequested(Q3ListViewItem* item, const QPoint&,int) {
+void TreeView::on_customContextMenuRequested(const QPoint& pos) {
 
+	QTreeWidgetItem* item = itemAt(pos);
 	if (item)
-		emit contextMenu(fullName(item), POPUP_TREE_EV);
+		emit contextMenu(fullName(item), QGit::POPUP_TREE_EV);
 }
 
 void TreeView::clear() {
 
 	rootName = "";
-	listView->clear();
+	QTreeWidget::clear();
 }
 
 bool TreeView::isModified(SCRef path, bool isDir) {
 
 	if (isDir)
-		return (modifiedDirs.findIndex(path) != -1);
+		return modifiedDirs.contains(path);
 
-	return (modifiedFiles.findIndex(path) != -1);
+	return modifiedFiles.contains(path);
 }
 
 bool TreeView::isDir(SCRef fileName) {
@@ -162,14 +101,14 @@ bool TreeView::isDir(SCRef fileName) {
 	// if currentItem is NULL or is different from fileName
 	// return false, because treeview is not updated while
 	// not visible, so could be out of sync.
-	FileItem* item = static_cast<FileItem*>(listView->currentItem());
+	FileItem* item = static_cast<FileItem*>(currentItem());
 	if (item == NULL || item->fullName() != fileName)
 		return false;
 
 	return dynamic_cast<DirItem*>(item);
 }
 
-const QString TreeView::fullName(Q3ListViewItem* item) {
+const QString TreeView::fullName(QTreeWidgetItem* item) {
 
 	FileItem* f = static_cast<FileItem*>(item);
 	return (item ? f->fullName() : "");
@@ -178,32 +117,94 @@ const QString TreeView::fullName(Q3ListViewItem* item) {
 void TreeView::getTreeSelectedItems(QStringList& selectedItems) {
 
 	selectedItems.clear();
-	Q3ListViewItemIterator it(listView);
-	while (it.current()) {
-		FileItem* f = static_cast<FileItem*>(it.current());
-		if (f->isSelected())
-			selectedItems.append(f->fullName());
-		++it;
+	QList<QTreeWidgetItem*> ls = QTreeWidget::selectedItems();
+	FOREACH (QList<QTreeWidgetItem*>, it, ls) {
+		FileItem* f = static_cast<FileItem*>(*it);
+		selectedItems.append(f->fullName());
 	}
 }
 
 void TreeView::setTree(SCRef treeSha) {
 
-	if (listView->childCount() == 0)
+	if (topLevelItemCount() == 0)
 		// get working dir info only once after each TreeView::clear()
 		git->getWorkDirFiles(modifiedFiles, modifiedDirs);
 
-	listView->clear();
+	QTreeWidget::clear();
 	treeIsValid = true;
 
 	if (!treeSha.isEmpty()) {
 		// insert a new dir at the beginning of the list
-		DirItem* root = new DirItem(listView, treeSha, rootName, this);
-		root->setOpen(true); // be interesting
+		DirItem* root = new DirItem(this, treeSha, rootName);
+		expandItem(root); // be interesting
 	}
 }
 
-void TreeView::update() {
+bool TreeView::getTree(SCRef treeSha, SList names, SList shas,
+                       SList types, bool wd, SCRef treePath) {
+
+	// calls qApp->processEvents()
+	treeIsValid = git->getTree(treeSha, names, shas, types, wd, treePath);
+	return treeIsValid;
+}
+
+void TreeView::on_itemCollapsed(QTreeWidgetItem* item) {
+
+	item->setData(0, Qt::DecorationRole, *folderClosed);
+}
+
+void TreeView::on_itemExpanded(QTreeWidgetItem* itm) {
+
+	DirItem* item = dynamic_cast<DirItem*>(itm);
+	if (!item)
+		return;
+
+	item->setData(0, Qt::DecorationRole, *folderOpen);
+
+	bool alreadyWaiting = false;
+	if (QApplication::overrideCursor())
+		alreadyWaiting = (QApplication::overrideCursor()->shape() == Qt::WaitCursor);
+
+	if (!alreadyWaiting)
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+	if (item->childCount() < 2) {
+
+		QTreeWidgetItem* dummy = item->child(0);
+		if (dummy && dummy->text(0).isEmpty())
+			delete dummy; // remove dummy child
+
+		QStringList names, types, shas;
+		if (!getTree(item->treeSha, names, shas, types, isWorkingDir, item->fullName()))
+			return;
+
+		if (!names.empty()) {
+			QStringList::const_iterator it(names.constBegin());
+			QStringList::const_iterator itSha(shas.constBegin());
+			QStringList::const_iterator itTypes(types.constBegin());
+			while (it != names.constEnd()) {
+
+				if (*itTypes == "tree") {
+					DirItem* dir = new DirItem(item, *itSha, *it);
+					dir->setData(0, Qt::DecorationRole, *folderClosed);
+					dir->setBold(isModified(dir->fullName(), true));
+					new DirItem(dir, "", ""); // dummy child to show expand sign
+				} else {
+					FileItem* file = new FileItem(item, *it);
+					file->setData(0, Qt::DecorationRole, *QGit::mimePix(*it));
+					file->setBold(isModified(file->fullName()));
+				}
+				++it;
+				++itSha;
+				++itTypes;
+			}
+		}
+	}
+	if (!alreadyWaiting)
+		QApplication::restoreOverrideCursor();
+}
+
+void TreeView::updateTree() {
 
 	if (st->sha().isEmpty())
 		return;
@@ -213,16 +214,17 @@ void TreeView::update() {
 	ignoreCurrentChanged = true;
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
+	isWorkingDir = (st->sha() == QGit::ZERO_SHA);
 	bool newTree = true;
-	DirItem* root = static_cast<DirItem*>(listView->firstChild());
+	DirItem* root = static_cast<DirItem*>(topLevelItem(0));
 	if (root && treeIsValid)
 		newTree = (root->treeSha != st->sha());
 
 	if (   newTree
 	    && treeIsValid
 	    && root
-	    && st->sha() != ZERO_SHA
-	    && root->treeSha != ZERO_SHA)
+	    && st->sha() != QGit::ZERO_SHA
+	    && root->treeSha != QGit::ZERO_SHA)
 		// root->treeSha could reference a different sha from current
 		// one in case the tree is the same, i.e. has the same files.
 		// so we prefer to use the previous state sha to call isSameFiles()
@@ -237,7 +239,7 @@ void TreeView::update() {
 	if (newTree) // ok, we really need to update the tree
 		setTree(st->sha());
 	else {
-		FileItem* f = static_cast<FileItem*>(listView->currentItem());
+		FileItem* f = static_cast<FileItem*>(currentItem());
 		if (f && f->fullName() == st->fileName()) {
 
 			restoreStuff();
@@ -248,34 +250,41 @@ void TreeView::update() {
 		restoreStuff();
 		return;
 	}
-	listView->setUpdatesEnabled(false);
+	setUpdatesEnabled(false);
 	const QStringList lst(QStringList::split("/", st->fileName()));
-	Q3ListViewItem* item = listView->firstChild();
-	item = item->itemBelow(); // first item is repository name
+
+	QTreeWidgetItemIterator item(this);
+	++item; // first item is repository name
 	FOREACH_SL (it, lst) {
-		while (item && treeIsValid) {
-			if (item->text(0) == *it) {
+		while (*item && treeIsValid) {
+
+			if ((*item)->text(0) == *it) {
+
 				// could be a different subdirectory with the
 				// same name that appears before in tree view
 				// to be sure we need to check the names
-				if (st->fileName().startsWith(((FileItem*)item)->fullName())) {
-					item->setOpen(true);
+				SCRef fn = ((FileItem*)*item)->fullName();
+				if (st->fileName().startsWith(fn)) {
+
+					if (dynamic_cast<DirItem*>(*item)) {
+						expandItem(*item);
+						++item;
+					}
 					break; // from while loop only
 				}
 			}
-			item = item->itemBelow();
+			++item;
 		}
 	}
-	if (item && treeIsValid) {
-		listView->clearSelection();
-		listView->setSelected(item, true);
-		listView->setCurrentItem(item); // calls on_currentChanged()
-		listView->ensureItemVisible(item);
+	if (*item && treeIsValid) {
+		clearSelection();
+		setCurrentItem(*item); // calls on_currentChanged()
+		scrollToItem(*item);
 	} else
 		; // st->fileName() has been deleted by a patch older than this tree
 
-	listView->setUpdatesEnabled(true);
-	listView->triggerUpdate();
+	setUpdatesEnabled(true);
+	QTreeWidget::update();
 	restoreStuff();
 }
 

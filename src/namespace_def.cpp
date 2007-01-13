@@ -37,7 +37,7 @@ static void addShellWrapper(QStringList& args) {
    line in the shell interpreter. You need this also to
    start native commands as 'dir'.
 */
-	if (   (args.first().startsWith("git ") || args.first() == "git")
+	if (   (args.first().startsWith("git-") || args.first() == "git")
 	     /* && !QGit::GIT_DIR.isEmpty() */ )
 
 		// we avoid wrapping in a shell this

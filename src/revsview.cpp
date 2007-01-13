@@ -30,7 +30,7 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
 	tab()->fileList->setup(this, git);
-	treeView = new TreeView(this, git, m()->treeView);
+	m()->treeView->setup(this, git);
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -50,7 +50,7 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(treeView, SIGNAL(contextMenu(const QString&, int)),
+	connect(m()->treeView, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
 	connect(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
@@ -74,7 +74,7 @@ void RevsView::clear(bool complete) {
 
 	tab()->textBrowserDesc->clear();
 	tab()->fileList->clear();
-	treeView->clear();
+	m()->treeView->clear();
 	updateLineEditSHA(true);
 	if (linkedPatchView)
 		linkedPatchView->clear();
@@ -168,10 +168,10 @@ bool RevsView::doUpdate(bool force) {
 
 		// update the tree at startup or when releasing a no-match toolbar search
 		if (m()->treeView->isVisible() || st.sha(false).isEmpty())
-			treeView->update(); // blocking call
+			m()->treeView->updateTree(); // blocking call
 
 		if (st.selectItem()) {
-			bool isDir = treeView->isDir(st.fileName());
+			bool isDir = m()->treeView->isDir(st.fileName());
 			m()->updateContextActions(st.sha(), st.fileName(), isDir, found);
 		}
 		// at the end update diffs that is the slowest and must be

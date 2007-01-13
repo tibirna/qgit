@@ -18,26 +18,29 @@
   <widget class="QWidget" name="widget" >
    <layout class="QHBoxLayout" >
     <property name="margin" >
-     <number>0</number>
+     <number>9</number>
     </property>
     <property name="spacing" >
-     <number>0</number>
+     <number>6</number>
     </property>
     <item>
-     <widget class="QSplitter" name="splitter7" >
+     <widget class="QSplitter" name="splitter" >
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="Q3ListView" name="treeView" >
-       <property name="selectionMode" >
-        <enum>Q3ListView::Extended</enum>
+      <widget class="TreeView" name="treeView" >
+       <property name="contextMenuPolicy" >
+        <enum>Qt::CustomContextMenu</enum>
        </property>
-       <property name="resizeMode" >
-        <enum>Q3ListView::LastColumn</enum>
+       <property name="selectionMode" >
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="columnCount" >
+        <number>1</number>
        </property>
        <column>
         <property name="text" >
-         <string>Git Tree</string>
+         <string>Git tree</string>
         </property>
        </column>
       </widget>
@@ -645,9 +648,9 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>Q3ListView</class>
-   <extends>Q3Frame</extends>
-   <header>q3listview.h</header>
+   <class>TreeView</class>
+   <extends>QTreeWidget</extends>
+   <header>treeview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

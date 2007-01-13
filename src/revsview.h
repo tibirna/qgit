@@ -17,7 +17,6 @@ class Git;
 class FileHistory;
 class ListView;
 class PatchView;
-class TreeView;
 
 class RevsView : public Domain {
 Q_OBJECT
@@ -45,7 +44,6 @@ private:
 
 	Ui_TabRev* revTab;
 	QPointer<PatchView> linkedPatchView;
-	TreeView* treeView;
 };
 
 #endif

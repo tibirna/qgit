@@ -9,9 +9,7 @@
 #ifndef TREEVIEW_H
 #define TREEVIEW_H
 
-#include <q3listview.h>
-#include <qpixmap.h>
-#include <q3dict.h>
+#include <QTreeWidget>
 #include "common.h"
 
 class DirItem;
@@ -20,42 +18,34 @@ class Git;
 class StateInfo;
 class Domain;
 
-class FileItem : public Q3ListViewItem {
+class FileItem : public QTreeWidgetItem {
 public:
-	FileItem(FileItem* p, SCRef nm) : Q3ListViewItem(p, nm), isModified(false) {}
-	FileItem(Q3ListView* p, SCRef nm) : Q3ListViewItem(p, nm), isModified(false) {}
+	FileItem(FileItem* p, SCRef nm) : QTreeWidgetItem(p, QStringList(nm)) {}
+	FileItem(QTreeWidget* p, SCRef nm) : QTreeWidgetItem(p, QStringList(nm)) {}
 
-	virtual void setModified(bool b) { isModified = b; }
 	virtual QString fullName() const;
-	virtual void paintCell(QPainter* p, const QColorGroup& cg, int c, int w, int a);
-
-protected:
-	bool isModified;
+	void setBold(bool b);
 };
 
 class DirItem : public FileItem {
 public:
-	DirItem(Q3ListView* parent, SCRef ts, SCRef nm, TreeView* t);
-	DirItem(DirItem* parent, SCRef ts, SCRef nm, TreeView* t);
-
-	virtual void setOpen(bool b);
-	virtual void setup();
+	DirItem(QTreeWidget* parent, SCRef ts, SCRef nm);
+	DirItem(DirItem* parent, SCRef ts, SCRef nm);
 
 protected:
 	friend class TreeView;
 
 	QString treeSha;
-	TreeView* tv;
-	bool isWorkingDir;
 };
 
-class TreeView : public QObject {
+class TreeView : public QTreeWidget {
 Q_OBJECT
 public:
-	TreeView(Domain* d, Git* g, Q3ListView* lv);
+	TreeView(QWidget* par) : QTreeWidget(par), d(NULL), git(NULL) {}
+	void setup(Domain* d, Git* g);
 	void setTreeName(SCRef treeName) { rootName = treeName; }
-	void update();
-	const QString fullName(Q3ListViewItem* item);
+	void updateTree();
+	const QString fullName(QTreeWidgetItem* item);
 	bool isDir(SCRef fileName);
 	bool isModified(SCRef path, bool isDir = false);
 	void clear();
@@ -71,8 +61,10 @@ signals:
 	void contextMenu(const QString&, int type);
 
 protected slots:
-	void on_contextMenuRequested(Q3ListViewItem*,const QPoint&,int);
-	void on_currentChanged(Q3ListViewItem*);
+	void on_customContextMenuRequested(const QPoint&);
+	void on_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*);
+	void on_itemExpanded(QTreeWidgetItem*);
+	void on_itemCollapsed(QTreeWidgetItem*);
 
 private:
 	void setTree(SCRef treeSha);
@@ -81,13 +73,13 @@ private:
 
 	Domain* d;
 	Git* git;
-	Q3ListView* listView;
 	StateInfo* st;
 	QString rootName;
 	QStringList modifiedFiles; // no need a map, should not be a lot
 	QStringList modifiedDirs;
 	bool ignoreCurrentChanged;
 	bool treeIsValid;
+	bool isWorkingDir;
 };
 
 #endif

@@ -7,6 +7,7 @@
 #ifndef MAINIMPL_H
 #define MAINIMPL_H
 
+#include <Q3PopupMenu>
 #include <QSet>
 #include <QModelIndex>
 #include <QProcess>
@@ -15,16 +16,11 @@
 #include <QTimer>
 #include <QCloseEvent>
 #include <QDir>
-#include <Q3PopupMenu>
 #include <QEvent>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "ui_mainview.h"
 
-class QListWidgetItem;
-class Q3ListViewItem;
-class Q3ListBoxItem;
-class Q3PopupMenu;
 class Q3Accel;
 class QComboBox;
 class QTextEdit;
@@ -33,6 +29,7 @@ class Domain;
 class RevsView;
 class FileView;
 class FileHistory;
+class QListWidgetItem;
 
 class MainImpl : public QMainWindow, public Ui_MainBase {
 Q_OBJECT
@@ -62,7 +59,7 @@ protected slots:
 	void refreshRepo(bool setCurRevAfterLoad = true);
 	void listViewLog_doubleClicked(const QModelIndex&);
 	void fileList_itemDoubleClicked(QListWidgetItem*);
-	void treeView_doubleClicked(Q3ListViewItem*);
+	void treeView_doubleClicked(QTreeWidgetItem*, int);
 	void histListView_doubleClicked(const QModelIndex&);
 	void customActionListChanged(const QStringList& list);
 	void openRecent_activated(int id);

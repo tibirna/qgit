@@ -31,7 +31,7 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent* e);
 
 private slots:
-	void on_currentRowChanged(int);
+	void on_currentItemChanged(QListWidgetItem*, QListWidgetItem*);
 	void on_customContextMenuRequested(const QPoint&);
 
 private:
