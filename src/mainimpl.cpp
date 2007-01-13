@@ -498,8 +498,8 @@ void MainImpl::newRevsAdded(const FileHistory* fh, const QVector<QString>&) {
 		ActSearchAndHighlight_toggled(true); // filter again on new arrived data
 
 	// first rev could be a StGIT unapplied patch so check more then once
-	if (   (!git->isNothingToCommit() || git->isUnknownFiles())
-	    && !ActCommit->isEnabled()
+	if (   !ActCommit->isEnabled()
+	    && (!git->isNothingToCommit() || git->isUnknownFiles())
 	    && !git->isCommittingMerge())
 		ActCommit_setEnabled(true);
 }

@@ -83,6 +83,9 @@
          <property name="checkable" >
           <bool>true</bool>
          </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
          <property name="autoRaise" >
           <bool>true</bool>
          </property>

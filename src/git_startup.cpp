@@ -511,6 +511,8 @@ void Git::clearRevs() {
 	revData->clear();
 	patchesStillToFind = 0; // TODO TEST WITH FILTERING
 	firstNonStGitPatch = "";
+	_wd.clear();
+	revsFiles.remove(ZERO_SHA);
 }
 
 void Git::clearFileNames() {
@@ -538,7 +540,6 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 
 		if (repoChanged) {
 			clearFileNames();
-			_wd.clear();
 			fileCacheAccessed = false;
 		}
 		if (!isGIT) {
