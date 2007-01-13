@@ -54,7 +54,11 @@
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="RevDesc" name="textBrowserDesc" />
+      <widget class="RevDesc" name="textBrowserDesc" >
+       <property name="lineWrapMode" >
+        <enum>QTextEdit::NoWrap</enum>
+       </property>
+      </widget>
       <widget class="FileList" name="fileList" >
        <property name="contextMenuPolicy" >
         <enum>Qt::CustomContextMenu</enum>

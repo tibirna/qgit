@@ -7,17 +7,13 @@
 #ifndef FILEVIEW_H
 #define FILEVIEW_H
 
-#include <qpointer.h>
 #include "ui_fileview.h" // needed by moc_* file to understand tab() function
 #include "common.h"
 #include "domain.h"
 
-class Q3ListViewItem;
-class ListView;
 class FileContent;
 class MainImpl;
 class Git;
-class TabFile;
 class FileHistory;
 
 class FileView: public Domain {

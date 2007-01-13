@@ -7,7 +7,7 @@
 #ifndef REVSVIEW_H
 #define REVSVIEW_H
 
-#include <qpointer.h>
+#include <QPointer>
 #include "ui_revsview.h" // needed by moc_* file to understand tab() function
 #include "common.h"
 #include "domain.h"
@@ -15,7 +15,6 @@
 class MainImpl;
 class Git;
 class FileHistory;
-class ListView;
 class PatchView;
 
 class RevsView : public Domain {

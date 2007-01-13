@@ -13,8 +13,7 @@
 #include <QDir>
 #include <QTextStream>
 #include <QSettings>
-#include <QTextCodec>
-#include <q3stylesheet.h>
+#include <QTextDocument>
 #include "lanes.h"
 #include "myprocess.h"
 #include "annotate.h"
@@ -963,10 +962,6 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 	if (!c)            // sha of a not loaded revision, as
 		return ""; // example asked from file history
 
-	// set temporary Latin-1 to avoid using QString::fromLatin1() everywhere
-	QTextCodec* tc = QTextCodec::codecForCStrings();
-	QTextCodec::setCodecForCStrings(0);
-
 	QString text;
 	if (c->isDiffCache)
 		text = c->longLog();
@@ -995,7 +990,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 		text.append("\n\n    " + colorMatch(c->shortLog(), shortLogRE) +
 		            '\n' + colorMatch(c->longLog(), longLogRE));
 	}
-	text = Q3StyleSheet::convertFromPlainText(text); // this puppy needs Latin-1
+	text = Qt::convertFromPlainText(text);
 
 	// highlight SHA's
 	//
@@ -1018,7 +1013,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 			if (slog.length() > 60)
 				slog = slog.left(57).stripWhiteSpace().append("...");
 
-			slog = Q3StyleSheet::escape(slog);
+			slog = Qt::escape(slog);
 			const QString link("<a href=\"" + r->sha() + "\">" + slog + "</a>");
 			text.replace(pos + 2, ref.length(), link);
 			pos += link.length();
@@ -1027,8 +1022,6 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 	}
 	text.replace("$_1", "<"); // see colorMatch()
 	text.replace("$_2", ">");
-
-	QTextCodec::setCodecForCStrings(tc); // restore codec
 	return text;
 }
 

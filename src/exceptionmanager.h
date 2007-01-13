@@ -10,7 +10,7 @@
 #include <QVector>
 #include <QList>
 #include <QString>
-#include <qmap.h>
+#include <QMap>
 
 // exception manager sugar macro
 #define EM_DECLARE(x)    int x
