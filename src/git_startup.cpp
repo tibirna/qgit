@@ -183,28 +183,22 @@ void Git::dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter
 // search through dirPath recursively fetching any possible
 // file whom first 40 chars of content are a possible sha
 
-	QDir d(dirPath, "", QDir::Name, QDir::Dirs);
-	QFileInfoList::const_iterator it(d.entryInfoList().constBegin());
-	++it; ++it; // first two entries are . and ..
-	int cur = 2, cnt = d.entryInfoList().count();
-	while (cur < cnt) {
-		dirWalker((*it).absFilePath(), files, filesSHA, nameFilter);
-		++it;
-	}
+	QDir d(dirPath, "", QDir::Name, QDir::Dirs | QDir::NoDotAndDotDot);
+	for (uint i = 0; i < d.count(); i++)
+		dirWalker(d.absolutePath() + '/' + d[i], files, filesSHA, nameFilter);
+
 	QString sha;
-	QDir f(dirPath, nameFilter, QDir::Name, QDir::Files);
-	it = f.entryInfoList().constBegin();
-	cur = 0;
-	cnt = f.entryInfoList().count();
-	while (cur < cnt) {
-		readFromFile((*it).absFilePath(), sha);
+	QDir f(dirPath, nameFilter, QDir::Name, QDir::Files | QDir::NoDotAndDotDot);
+	f.makeAbsolute();
+	for (uint i = 0; i < f.count(); i++) {
+		SCRef path(f.absolutePath() + '/' + f[i]);
+		readFromFile(path, sha);
 		// we accept also files with a sha + other stuff
 		sha = sha.stripWhiteSpace().append('\n').section('\n', 0, 0);
 		if (sha.length() == 40) {
-			files.append((*it).absFilePath());
+			files.append(path);
 			filesSHA.append(sha);
 		}
-		++it;
 	}
 }
 
