@@ -174,7 +174,7 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 
 	connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
 	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
-	// signal readyReadStdout() is not connected, read is timeout based. Faster.
+	// readyReadStandardOutput() is not connected, read is timeout based. Faster.
 	return true;
 }
 

@@ -35,6 +35,9 @@
        <property name="selectionMode" >
         <enum>QAbstractItemView::ExtendedSelection</enum>
        </property>
+       <property name="rootIsDecorated" >
+        <bool>false</bool>
+       </property>
        <property name="columnCount" >
         <number>1</number>
        </property>

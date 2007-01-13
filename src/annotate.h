@@ -55,8 +55,8 @@ public:
 	const QString computeRanges(SCRef sha, int rStart, int rEnd, SCRef target = "");
 
 private slots:
-	void on_patchProc_readFromStdout();
-	void on_patchProc_processExited();
+	void on_patchProc_readyReadStandardOutput();
+	void on_patchProc_finished(int, QProcess::ExitStatus);
 	void on_progressTimer_timeout();
 	void on_deleteWhenDone();
 	void slotComputeDiffs();

@@ -250,8 +250,10 @@ void Domain::populateState() {
 
 void Domain::update(bool fromMaster, bool force) {
 
-	if (busy)
-		// quick exit current (obsoleted) update
+	if (busy && st.requestPending())
+		// quick exit current (obsoleted) update but only if state
+		// is going to change. Without this check calling update()
+		// many times with the same data nullify the update
 		emit cancelDomainProcesses();
 
 	if (busy || dragging)

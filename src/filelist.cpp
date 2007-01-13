@@ -45,8 +45,7 @@ void FileList::on_currentItemChanged(QListWidgetItem* current, QListWidgetItem* 
 	if (!previous) {
 		// we could have a double event the first time an item
 		// is selected. So filter the first spurious event
-		// FIXME broken if user selects the first item
-		return;
+		; // TODO
 	}
 	if (st->isMerge() && row(current) == 0) { // header clicked
 

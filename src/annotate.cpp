@@ -25,8 +25,11 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 
 	processingTime.start();
 
-	connect(&patchProc, SIGNAL(readyReadStdout()), this, SLOT(on_patchProc_readFromStdout()));
-	connect(&patchProc, SIGNAL(processExited()), this, SLOT(on_patchProc_processExited()));
+	connect(&patchProc, SIGNAL(readyReadStandardOutput()),
+	        this, SLOT(on_patchProc_readyReadStandardOutput()));
+
+	connect(&patchProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+	        this, SLOT(on_patchProc_finished(int, QProcess::ExitStatus)));
 }
 
 const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
@@ -59,7 +62,7 @@ bool Annotate::startPatchProc(SCRef buf, SCRef fileName) {
 	return QGit::startProcess(&patchProc, args, buf);
 }
 
-void Annotate::on_patchProc_readFromStdout() {
+void Annotate::on_patchProc_readyReadStandardOutput() {
 
 	const QString tmp(patchProc.readAllStandardOutput());
 	annFilesNum += tmp.count("diff --git ");
@@ -137,7 +140,7 @@ bool Annotate::start(const FileHistory* _fh) {
 	return startPatchProc(patchScript, fileName);
 }
 
-void Annotate::on_patchProc_processExited() {
+void Annotate::on_patchProc_finished(int, QProcess::ExitStatus) {
 
 	// start computing diffs only on return from event handler
 	QTimer::singleShot(1, this, SLOT(slotComputeDiffs()));
