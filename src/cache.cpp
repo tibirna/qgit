@@ -8,6 +8,7 @@
 */
 #include <QFile>
 #include <QDir>
+#include <QTime>
 #include "cache.h"
 
 using namespace QGit;
@@ -121,7 +122,7 @@ bool Cache::load(const QString& gitDir, RevFileMap& rf, StrVect& dirs, StrVect& 
 
 	if (!f.open(QIODevice::ReadOnly))
 		return false;
-
+dbStart;
 	QDataStream* stream = new QDataStream(qUncompress(f.readAll()));
 	Q_UINT32 magic;
 	Q_INT32 version;
@@ -172,5 +173,6 @@ bool Cache::load(const QString& gitDir, RevFileMap& rf, StrVect& dirs, StrVect& 
 	}
 	f.close();
 	delete stream;
+dbRestart;
 	return true;
 }

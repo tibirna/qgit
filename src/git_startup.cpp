@@ -541,6 +541,7 @@ void Git::clearFileNames() {
 	dirNamesMap.clear();
 	dirNamesVec.clear();
 	fileNamesVec.clear();
+	cacheNeedsUpdate = false;
 }
 
 bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) {
@@ -662,7 +663,9 @@ void Git::on_loaded(const FileHistory* fh, ulong byteSize, int loadTime,
 
 			if (isMainHistory(fh))
 				// check for revisions modified files out of fast path
-				QTimer::singleShot(10, this, SLOT(loadFileNames()));
+				// let the dust to settle down, so that the first
+				// revision is shown to user without any delay
+				QTimer::singleShot(500, this, SLOT(loadFileNames()));
 		}
 	}
 	if (loadingUnAppliedPatches)
