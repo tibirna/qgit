@@ -8,7 +8,6 @@
 */
 #include <QFile>
 #include <QDir>
-#include <QTime>
 #include "cache.h"
 
 using namespace QGit;
@@ -39,7 +38,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 	// Write a header with a "magic number" and a version
 	stream << (Q_UINT32)C_MAGIC;
-	stream << (Q_INT32)(C_VERSION + 1);
+	stream << (Q_INT32)(C_VERSION + 2);
 
 	stream << (Q_INT32)dirs.count();
 	for (int i = 0; i < dirs.count(); ++i)
@@ -77,23 +76,27 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 		    || sha.startsWith("A")) // ALL_MERGE_FILES + rev sha
 			continue;
 
-		stream << it.value()->names;
-		stream << it.value()->dirs;
-		stream << it.value()->status;
+		const RevFile* rf = it.value();
+		stream << rf->names;
+		stream << rf->dirs;
 
-		// avoid to save redundant information
-		// in common case of just one parent
-		bool isEmpty =    it.value()->mergeParent.isEmpty()
-		               || it.value()->mergeParent.last() == 1;
-
+		// skip common case of only modified files
+		bool isEmpty = rf->onlyModified;
 		stream << isEmpty;
 		if (!isEmpty)
-			stream << it.value()->mergeParent;
+			stream << rf->status;
 
-		isEmpty = it.value()->extStatus.isEmpty();
+		// skip common case of just one parent
+		isEmpty = rf->mergeParent.isEmpty() || rf->mergeParent.last() == 1;
 		stream << isEmpty;
 		if (!isEmpty)
-			stream << it.value()->extStatus;
+			stream << rf->mergeParent;
+
+		// skip common case of no rename/copies
+		isEmpty = rf->extStatus.isEmpty();
+		stream << isEmpty;
+		if (!isEmpty)
+			stream << rf->extStatus;
 	}
 	dbs("Compressing data...");
 	f.writeBlock(qCompress(data)); // no need to encode with compressed data
@@ -112,7 +115,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	return true;
 }
 
-bool Cache::load(const QString& gitDir, RevFileMap& rf, StrVect& dirs, StrVect& files) {
+bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect& files) {
 
 	// check for cache file
 	QString path(gitDir + C_DAT_FILE);
@@ -122,14 +125,14 @@ bool Cache::load(const QString& gitDir, RevFileMap& rf, StrVect& dirs, StrVect& 
 
 	if (!f.open(QIODevice::ReadOnly))
 		return false;
-dbStart;
+
 	QDataStream* stream = new QDataStream(qUncompress(f.readAll()));
 	Q_UINT32 magic;
 	Q_INT32 version;
 	Q_INT32 dirsNum, filesNum, bufSize;
 	*stream >> magic;
 	*stream >> version;
-	if (magic != C_MAGIC || version != (C_VERSION + 1)) {
+	if (magic != C_MAGIC || version != (C_VERSION + 2)) {
 		f.close();
 		delete stream;
 		return false;
@@ -154,25 +157,27 @@ dbStart;
 	bool isEmpty;
 	while (!stream->atEnd()) {
 
-		RevFile* p = new RevFile();
-		*stream >> p->names;
-		*stream >> p->dirs;
-		*stream >> p->status;
+		RevFile* rf = new RevFile();
+		*stream >> rf->names;
+		*stream >> rf->dirs;
+
+		*stream >> rf->onlyModified;
+		if (!rf->onlyModified)
+			*stream >> rf->status;
 
 		*stream >> isEmpty;
 		if (!isEmpty)
-			*stream >> p->mergeParent;
+			*stream >> rf->mergeParent;
 
 		*stream >> isEmpty;
 		if (!isEmpty)
-			*stream >> p->extStatus;
+			*stream >> rf->extStatus;
 
 		SCRef sha(buf.mid(bufIdx, 40));
-		rf.insert(sha, p);
+		rfm.insert(sha, rf);
 		bufIdx += 40;
 	}
 	f.close();
 	delete stream;
-dbRestart;
 	return true;
 }

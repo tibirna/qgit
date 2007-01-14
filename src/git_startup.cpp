@@ -309,6 +309,7 @@ const RevFile* Git::fakeWorkDirRevFile(const WorkingDirInfo& wd) {
 
 	RevFile* rf = new RevFile();
 	parseDiffFormat(*rf, wd.diffIndex);
+	rf->onlyModified = false;
 
 	FOREACH_SL (it, wd.otherFiles) {
 
@@ -388,16 +389,20 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 		break;
 	case 'D':
 		rf.status.append(RevFile::DELETED);
+		rf.onlyModified = false;
 		break;
 	case 'A':
 		rf.status.append(RevFile::NEW);
+		rf.onlyModified = false;
 		break;
 	case '?':
 		rf.status.append(RevFile::UNKNOWN);
+		rf.onlyModified = false;
 		break;
 	default:
 		dbp("ASSERT in Git::setStatus, unknown status %1", rowSt);
 		rf.status.append(RevFile::UNKNOWN);
+		rf.onlyModified = false;
 		break;
 	}
 }
@@ -431,6 +436,7 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 		rf.extStatus.resize(rf.status.size());
 		rf.extStatus[rf.status.size() - 1] = extStatusInfo;
 	}
+	rf.onlyModified = false;
 }
 
 void Git::parseDiffFormat(RevFile& rf, SCRef buf) {
@@ -664,7 +670,7 @@ void Git::on_loaded(const FileHistory* fh, ulong byteSize, int loadTime,
 			if (isMainHistory(fh))
 				// check for revisions modified files out of fast path
 				// let the dust to settle down, so that the first
-				// revision is shown to user without any delay
+				// revision is shown to user without noticeable delay
 				QTimer::singleShot(500, this, SLOT(loadFileNames()));
 		}
 	}

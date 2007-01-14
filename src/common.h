@@ -314,21 +314,17 @@ class RevFile {
 	friend class Cache; // to directly load status
 	friend class Git;
 
-	// 'status' is one ore more comma separated fields. First field
-	// is always the status returned by 'git diff-tree' without -C option.
-	// If file is renamed or copied a second field is added with the status
-	// returned by 'git diff-tree -C' plus source and destination files info.
-	// In case of a working dir file a third field is added with info about
-	// git index status of the file (CACHED_FILE or NO_CACHED_FILE)
-
-	// status information is splitted in a flags vector and in a string
-	// vector in 'status' are stored flags according to the info retuned
+	// Status information is splitted in a flags vector and in a string
+	// vector in 'status' are stored flags according to the info returned
 	// by 'git diff-tree' without -C option.
 	// In case of a working dir file an IN_INDEX flag is or-ed togheter in
 	// case file is present in git index.
 	// If file is renamed or copied an entry in 'extStatus' stores the
 	// value returned by 'git diff-tree -C' plus source and destination
 	// files info.
+	// When status of all the files is 'modified' then onlyModified is
+	// set, this let us to do some optimization in this common case
+	bool onlyModified;
 	QVector<int> status;
 	QVector<QString> extStatus;
 
@@ -348,14 +344,17 @@ public:
 		ANY      = 128
 	};
 
-	RevFile() {}
+	RevFile() : onlyModified(true) {}
 	QVector<int> dirs; // index of a string vector
 	QVector<int> names;
 	QVector<int> mergeParent;
 
 	// helper functions
 	int count() const { return dirs.count(); }
-	bool statusCmp(int idx, StatusFlag sf) const { return (status.at(idx) & sf); }
+	bool statusCmp(int idx, StatusFlag sf) const {
+
+		return ((onlyModified ? MODIFIED : status.at(idx)) & sf);
+	}
 	const QString extendedStatus(int idx) const {
 
 		return (!extStatus.isEmpty() ? extStatus.at(idx) : "");
