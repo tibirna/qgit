@@ -482,7 +482,7 @@ void Git::addExtraFileInfo(QString* rowName, SCRef sha, SCRef diffToSha, bool al
 	if (idx == -1)
 		return;
 
-	QString extSt(files->getExtendedStatus(idx));
+	QString extSt(files->extendedStatus(idx));
 	if (extSt.isEmpty())
 		return;
 
@@ -600,7 +600,7 @@ int Git::findFileIndex(const RevFile& rf, SCRef name) {
 	SCRef dr = name.left(idx);
 	SCRef nm = name.mid(idx);
 
-	for (uint i = 0, cnt = rf.names.count(); i < cnt; ++i) {
+	for (uint i = 0, cnt = rf.count(); i < cnt; ++i) {
 		if (fileNamesVec[rf.names[i]] == nm && dirNamesVec[rf.dirs[i]] == dr)
 			return i;
 	}
@@ -754,14 +754,14 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 	QStringList newFiles, unfiles, delFiles, dummy;
 	if (isWorkingDir) { // retrieve unknown and deleted files under treePath
 
-		getWorkDirFiles(unfiles, dummy, UNKNOWN);
+		getWorkDirFiles(unfiles, dummy, RevFile::UNKNOWN);
 		FOREACH_SL (it, unfiles) { // don't add unknown files under other directories
 			QFileInfo f(*it);
 			SCRef d(f.dirPath(false));
 			if (d == treePath || (treePath.isEmpty() && d == "."))
 				newFiles.append(f.fileName());
 		}
-		getWorkDirFiles(delFiles, dummy, DELETED);
+		getWorkDirFiles(delFiles, dummy, RevFile::DELETED);
 	}
 	// if needed fake a working directory tree starting from HEAD tree
 	const QString tree(treeSha == ZERO_SHA ? "HEAD" : treeSha);
@@ -777,7 +777,7 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 		while (!newFiles.empty() && newFiles.first() < fn) {
 			names.append(newFiles.first());
 			shas.append("");
-			types.append(NEW);
+			types.append("?"); // FIXME test
 			newFiles.pop_front();
 		}
 		// append any not deleted file
@@ -791,13 +791,13 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 	while (!newFiles.empty()) { // append any remaining unknown file
 		names.append(newFiles.first());
 		shas.append("");
-		types.append(NEW);
+		types.append("?"); // FIXME test
 		newFiles.pop_front();
 	}
 	return true;
 }
 
-void Git::getWorkDirFiles(SList files, SList dirs, const QChar& status) {
+void Git::getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status) {
 
 	files.clear();
 	dirs.clear();
@@ -805,9 +805,9 @@ void Git::getWorkDirFiles(SList files, SList dirs, const QChar& status) {
 	if (!f)
 		return;
 
-	for (int i = 0; i < f->names.count(); i++) {
+	for (int i = 0; i < f->count(); i++) {
 
-		if (status.isNull() || f->statusCmp(i, status)) {
+		if (f->statusCmp(i, status)) {
 
 			SCRef fp(filePath(*f, i));
 			files.append(fp);
@@ -827,7 +827,7 @@ bool Git::isNothingToCommit() {
 		return true;
 
 	const RevFile* rf = revsFiles[ZERO_SHA];
-	return (rf->names.count() == _wd.otherFiles.count());
+	return (rf->count() == _wd.otherFiles.count());
 }
 
 bool Git::isTreeModified(SCRef sha) {
@@ -836,8 +836,8 @@ bool Git::isTreeModified(SCRef sha) {
 	if (!f)
 		return true; // no files info, stay on the safe side
 
-	for (int i = 0; i < f->names.count(); ++i)
-		if (!f->statusCmp(i, MODIFIED))
+	for (int i = 0; i < f->count(); ++i)
+		if (!f->statusCmp(i, RevFile::MODIFIED))
 			return true;
 
 	return false;
@@ -1107,7 +1107,7 @@ void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 
 		// case insensitive, wildcard search
 		const RevFile* rf = revsFiles[*it];
-		for (int i = 0; i < rf->names.count(); ++i)
+		for (int i = 0; i < rf->count(); ++i)
 			if (filePath(*rf, i).indexOf(rx) != -1) {
 				shaMap.insert(*it, true);
 				break;
@@ -1246,7 +1246,7 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
 	FOREACH_SL (it, selFiles) {
 		int idx = findFileIndex(*files, *it);
-		if (!files->statusCmp(idx, DELETED))
+		if (!files->statusCmp(idx, RevFile::DELETED))
 			selNotDelFiles.append(*it);
 	}
 	// test if we need a git read-tree to temporary
@@ -1293,12 +1293,12 @@ const QStringList Git::getOtherFiles(SCList selFiles, bool onlyInIndex) {
 
 	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
 	QStringList notSelFiles;
-	for (int i = 0; i < files->names.count(); ++i) {
+	for (int i = 0; i < files->count(); ++i) {
 		SCRef fp = filePath(*files, i);
 		if (selFiles.find(fp) == selFiles.constEnd()) { // not selected...
 			if (!onlyInIndex)
 				notSelFiles.append(fp);
-			else if (files->isInIndex(i))
+			else if (files->statusCmp(i, RevFile::IN_INDEX))
 				notSelFiles.append(fp);
 		}
 	}
@@ -1325,7 +1325,7 @@ void Git::removeDeleted(SCList selFiles) {
 	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
 	FOREACH_SL (it, selFiles) {
 		int idx = findFileIndex(*files, *it);
-		if (files->statusCmp(idx, DELETED))
+		if (files->statusCmp(idx, RevFile::DELETED))
 			dir.remove(*it);
 	}
 }

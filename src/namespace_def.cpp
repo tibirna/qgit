@@ -94,13 +94,13 @@ QFont QGit::TYPE_WRITER_FONT("Helvetica");
 const QString QGit::PATCHES_DIR  = "/.qgit_patches_copy";
 const QString QGit::PATCHES_NAME = "qgit_import";
 
-// files status
-const QChar QGit::MODIFIED = 'M';
-const QChar QGit::DELETED  = 'D';
-const QChar QGit::NEW      = 'A';
-const QChar QGit::RENAMED  = 'R';
-const QChar QGit::COPIED   = 'C';
-const QChar QGit::UNKNOWN  = '?';
+// // files status
+// const QChar QGit::MODIFIED = 'M';
+// const QChar QGit::DELETED  = 'D';
+// const QChar QGit::NEW      = 'A';
+// const QChar QGit::RENAMED  = 'R';
+// const QChar QGit::COPIED   = 'C';
+// const QChar QGit::UNKNOWN  = '?';
 
 // git index parameters
 const QString QGit::ZERO_SHA        = "0000000000000000000000000000000000000000";

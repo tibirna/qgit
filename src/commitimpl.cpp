@@ -45,28 +45,24 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 		readFromFile(templ, msg);
 
 	// set-up files list
-	const RevFile* files = git->getFiles(ZERO_SHA);
-	for (int i = 0; i < files->names.count(); ++i) {
+	const RevFile* f = git->getFiles(ZERO_SHA);
+	for (int i = 0; i < f->count(); ++i) {
 
-		SCRef status = files->getStatus(i);
 		QColor myColor = Qt::black;
-		if (status == NEW || status == UNKNOWN)
+		if (f->statusCmp(i, RevFile::NEW) || f->statusCmp(i, RevFile::UNKNOWN))
 			myColor = Qt::darkGreen;
-		else if (status == DELETED)
+		else if (f->statusCmp(i, RevFile::DELETED))
 			myColor = Qt::red;
 
 		QTreeWidgetItem* item = new QTreeWidgetItem(treeWidgetFiles);
-		item->setText(0, git->filePath(*files, i));
-		item->setText(1, status);
-		item->setText(2, files->isInIndex(i) ? "In sync" : "Out of sync");
-		item->setCheckState(0, files->statusCmp(i, UNKNOWN) ? Qt::Unchecked : Qt::Checked);
+		item->setText(0, git->filePath(*f, i));
+		item->setText(1, f->statusCmp(i, RevFile::IN_INDEX) ? "In sync" : "Out of sync");
+		item->setCheckState(0, f->statusCmp(i, RevFile::UNKNOWN) ? Qt::Unchecked : Qt::Checked);
 		item->setForeground(0, myColor);
 		item->setTextAlignment(1, Qt::AlignHCenter);
-		item->setTextAlignment(2, Qt::AlignHCenter);
 	}
 	treeWidgetFiles->resizeColumnToContents(0);
 	treeWidgetFiles->resizeColumnToContents(1);
-	treeWidgetFiles->resizeColumnToContents(2);
 
 	// setup textEditMsg with default value
 	QString status(git->getDefCommitMsg());

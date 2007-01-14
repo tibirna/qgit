@@ -178,14 +178,6 @@ namespace QGit {
 	extern const QString PATCHES_DIR;
 	extern const QString PATCHES_NAME;
 
-	// files status
-	extern const QChar MODIFIED;
-	extern const QChar DELETED;
-	extern const QChar NEW;
-	extern const QChar RENAMED;
-	extern const QChar COPIED;
-	extern const QChar UNKNOWN;
-
 	// git index parameters
 	extern const QString ZERO_SHA;
 	extern const QString CUSTOM_SHA;
@@ -328,29 +320,45 @@ class RevFile {
 	// returned by 'git diff-tree -C' plus source and destination files info.
 	// In case of a working dir file a third field is added with info about
 	// git index status of the file (CACHED_FILE or NO_CACHED_FILE)
-	QVector<QString> status;
+
+	// status information is splitted in a flags vector and in a string
+	// vector in 'status' are stored flags according to the info retuned
+	// by 'git diff-tree' without -C option.
+	// In case of a working dir file an IN_INDEX flag is or-ed togheter in
+	// case file is present in git index.
+	// If file is renamed or copied an entry in 'extStatus' stores the
+	// value returned by 'git diff-tree -C' plus source and destination
+	// files info.
+	QVector<int> status;
+	QVector<QString> extStatus;
 
 	// prevent implicit C++ compiler defaults
 	RevFile(const RevFile&);
 	RevFile& operator=(const RevFile&);
 public:
+
+	enum StatusFlag {
+		MODIFIED = 1,
+		DELETED  = 2,
+		NEW      = 4,
+		RENAMED  = 8,
+		COPIED   = 16,
+		UNKNOWN  = 32,
+		IN_INDEX = 64,
+		ANY      = 128
+	};
+
 	RevFile() {}
 	QVector<int> dirs; // index of a string vector
 	QVector<int> names;
 	QVector<int> mergeParent;
 
-	// status helper functions
-	const QChar getStatus(int idx) const { return status[idx].at(0); }
-	bool statusCmp(int idx, const QChar& st) const { return status[idx].at(0) == st; }
-	bool isExtendedStatus(int idx) const { return status[idx].length() != 1; }
-	bool isInIndex(int idx) const {
+	// helper functions
+	int count() const { return dirs.count(); }
+	bool statusCmp(int idx, StatusFlag sf) const { return (status.at(idx) & sf); }
+	const QString extendedStatus(int idx) const {
 
-		return (   isExtendedStatus(idx)
-		        && status[idx].section(',', 2, 2) == QGit::IN_INDEX);
-	}
-	const QString getExtendedStatus(int idx) const {
-
-		return (isExtendedStatus(idx) ? status[idx].section(',', 1, 1) : "");
+		return (!extStatus.isEmpty() ? extStatus.at(idx) : "");
 	}
 };
 typedef QHash<QString, const RevFile*> RevFileMap;

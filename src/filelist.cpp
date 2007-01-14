@@ -145,34 +145,33 @@ void FileList::insertFiles(const RevFile* files) {
 
 	int prevPar = files->mergeParent[0];
 	setUpdatesEnabled(false);
-	for (int i = 0; i < files->names.count(); ++i) {
+	for (int i = 0; i < files->count(); ++i) {
 
-		QChar status(files->getStatus(i));
-		if (status == QGit::UNKNOWN)
+		if (files->statusCmp(i, RevFile::UNKNOWN))
 			continue;
 
 		QColor clr = Qt::black;
-		if (files->mergeParent[i] != prevPar) {
-			prevPar = files->mergeParent[i];
+		if (files->mergeParent.at(i) != prevPar) {
+			prevPar = files->mergeParent.at(i);
 			new QListWidgetItem("", this);
 			new QListWidgetItem("", this);
 		}
-		QString extSt(files->getExtendedStatus(i));
+		QString extSt(files->extendedStatus(i));
 		if (extSt.isEmpty()) {
-			if (status == QGit::MODIFIED)
+			if (files->statusCmp(i, RevFile::MODIFIED))
 				; // common case
-			else if (status == QGit::NEW)
+			else if (files->statusCmp(i, RevFile::NEW))
 				clr = Qt::darkGreen;
-			else if (status == QGit::DELETED)
+			else if (files->statusCmp(i, RevFile::DELETED))
 				clr = Qt::red;
 		} else {
 			clr = Qt::darkBlue;
 			// in case of rename deleted file is not shown and...
-			if (status == QGit::DELETED)
+			if (files->statusCmp(i, RevFile::DELETED))
 				continue;
 
 			// ...new file is shown with extended info
-			if (status == QGit::NEW) {
+			if (files->statusCmp(i, RevFile::NEW)) {
 				addItem(extSt, clr);
 				continue;
 			}

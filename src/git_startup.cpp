@@ -313,17 +313,14 @@ const RevFile* Git::fakeWorkDirRevFile(const WorkingDirInfo& wd) {
 	FOREACH_SL (it, wd.otherFiles) {
 
 		appendFileName(*rf, *it);
-		rf->status.append(UNKNOWN);
+		rf->status.append(RevFile::UNKNOWN);
 		rf->mergeParent.append(1);
 	}
 	RevFile cachedFiles;
 	parseDiffFormat(cachedFiles, wd.diffIndexCached);
-	for (int i = 0; i < rf->status.count(); i++) {
-
-		int idx = findFileIndex(cachedFiles, filePath(*rf, i));
-		SCRef t = (idx == -1 ? NOT_IN_INDEX : IN_INDEX);
-		rf->status[i].append(",," + t); // third field of status string
-	}
+	for (int i = 0; i < rf->count(); i++)
+		if (findFileIndex(cachedFiles, filePath(*rf, i)) != -1)
+			rf->status[i] |= RevFile::IN_INDEX;
 	return rf;
 }
 
@@ -368,21 +365,43 @@ void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
 
 		// TODO rename/copy is not supported for combined merges
 		appendFileName(rf, line.section('\t', -1));
-		rf.status.append(line.section('\t', -2, -1).right(1));
+		setStatus(rf, line.section('\t', -2, -1).right(1));
 		rf.mergeParent.append(parNum);
 	} else { // faster parsing in normal case
 
 		if (line[98] == '\t') {
 			appendFileName(rf, line.mid(99));
-			rf.status.append(line.at(97));
+			setStatus(rf, line.at(97));
 			rf.mergeParent.append(parNum);
 		} else
 			// it's a rename or a copy, we are not in fast path now!
-			setStatus(rf, line.mid(97), parNum);
+			setExtStatus(rf, line.mid(97), parNum);
 	}
 }
 
-void Git::setStatus(RevFile& rf, SCRef rowSt, int parNum) {
+void Git::setStatus(RevFile& rf, SCRef rowSt) {
+
+	char status = rowSt.at(0).latin1();
+	switch (status) {
+	case 'M':
+		rf.status.append(RevFile::MODIFIED);
+		break;
+	case 'D':
+		rf.status.append(RevFile::DELETED);
+		break;
+	case 'A':
+		rf.status.append(RevFile::NEW);
+		break;
+	case '?':
+		rf.status.append(RevFile::UNKNOWN);
+		break;
+	default:
+		dbp("ASSERT in Git::setStatus, unknown status %1", rowSt);
+		break;
+	}
+}
+
+void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 
 	const QStringList sl(QStringList::split('\t', rowSt));
 	if (sl.count() != 3) {
@@ -394,18 +413,22 @@ void Git::setStatus(RevFile& rf, SCRef rowSt, int parNum) {
 	SCRef type = sl[0];
 	SCRef orig = sl[1];
 	SCRef dest = sl[2];
-	const QString info("," + orig + " --> " + dest + " (" + type + "%),,");
+	const QString extStatusInfo(orig + " --> " + dest + " (" + type + "%)");
 
 	// simulate new file
 	appendFileName(rf, dest);
 	rf.mergeParent.append(parNum);
-	rf.status.append(NEW + info);
+	rf.status.append(RevFile::NEW);
+	rf.extStatus.resize(rf.status.size());
+	rf.extStatus[rf.status.size() - 1] = extStatusInfo;
 
 	// simulate deleted orig file only in case of rename
-	if (type.at(0) == RENAMED) {
+	if (type.at(0) == 'R') { // renamed file
 		appendFileName(rf, orig);
 		rf.mergeParent.append(parNum);
-		rf.status.append(DELETED + info);
+		rf.status.append(RevFile::DELETED);
+		rf.extStatus.resize(rf.status.size());
+		rf.extStatus[rf.status.size() - 1] = extStatusInfo;
 	}
 }
 

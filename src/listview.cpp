@@ -565,8 +565,8 @@ bool ListViewDelegate::changedFiles(SCRef sha) const {
 
 	const RevFile* f = git->getFiles(sha);
 	if (f)
-		for (int i = 0; i < f->names.count(); i++)
-			if (!f->statusCmp(i, UNKNOWN))
+		for (int i = 0; i < f->count(); i++)
+			if (!f->statusCmp(i, RevFile::UNKNOWN))
 				return true;
 	return false;
 }

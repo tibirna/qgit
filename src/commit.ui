@@ -52,7 +52,7 @@
          <bool>true</bool>
         </property>
         <property name="columnCount" >
-         <number>3</number>
+         <number>2</number>
         </property>
         <column>
          <property name="text" >
@@ -61,12 +61,7 @@
         </column>
         <column>
          <property name="text" >
-          <string>Status</string>
-         </property>
-        </column>
-        <column>
-         <property name="text" >
-          <string>Git index</string>
+          <string>Index status</string>
          </property>
         </column>
        </widget>

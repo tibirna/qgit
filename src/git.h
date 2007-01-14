@@ -137,7 +137,7 @@ public:
 	const QStringList getRefName(SCRef sha, RefType type, QString* curBranch = NULL) const;
 	const QStringList getAllRefNames(uint mask, bool onlyLoaded);
 	const QStringList getAllRefSha(uint mask);
-	void getWorkDirFiles(SList files, SList dirs, const QChar& status = QChar());
+	void getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status);
 	QTextCodec* getTextCodec(bool* isGitArchive);
 	bool formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir = "");
 	bool updateIndex(SCList selFiles);
@@ -252,7 +252,8 @@ private:
 	const QString quote(SCList sl);
 	const QStringList noSpaceSepHack(SCRef cmd);
 	void removeDeleted(SCList selFiles);
-	void setStatus(RevFile& rf, SCRef stInfo, int parNum);
+	void setStatus(RevFile& rf, SCRef rowSt);
+	void setExtStatus(RevFile& rf, SCRef rowSt, int parNum);
 	void appendNamesWithId(QStringList& names, SCRef sha, SCList data, bool onlyLoaded);
 	Reference* lookupReference(SCRef sha, bool create = false);
 
