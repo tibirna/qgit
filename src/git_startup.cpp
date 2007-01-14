@@ -365,11 +365,11 @@ void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
 
 		// TODO rename/copy is not supported for combined merges
 		appendFileName(rf, line.section('\t', -1));
-		setStatus(rf, line.section('\t', -2, -1).right(1));
+		setStatus(rf, line.section(' ', 6, 6).left(1));
 		rf.mergeParent.append(parNum);
 	} else { // faster parsing in normal case
 
-		if (line[98] == '\t') {
+		if (line.at(98) == '\t') {
 			appendFileName(rf, line.mid(99));
 			setStatus(rf, line.at(97));
 			rf.mergeParent.append(parNum);
@@ -397,6 +397,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 		break;
 	default:
 		dbp("ASSERT in Git::setStatus, unknown status %1", rowSt);
+		rf.status.append(RevFile::UNKNOWN);
 		break;
 	}
 }
@@ -405,7 +406,7 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 
 	const QStringList sl(QStringList::split('\t', rowSt));
 	if (sl.count() != 3) {
-		dbp("ASSERT in setStatus, unexpected status string %1", rowSt);
+		dbp("ASSERT in setExtStatus, unexpected status string %1", rowSt);
 		return;
 	}
 	// we want store extra info with format "orig --> dest (Rxx%)"

@@ -11,7 +11,7 @@
 #include "cache.h"
 
 using namespace QGit;
-#include <QTime>
+
 bool Cache::save(const QString& gitDir, const RevFileMap& rf,
                  const StrVect& dirs, const StrVect& files) {
 
@@ -31,14 +31,14 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 		return false;
 
 	dbs("Saving cache. Please wait...");
-dbStart;
+
 	// compress in memory before write to file
 	QByteArray data;
 	QDataStream stream(&data, QIODevice::WriteOnly);
 
 	// Write a header with a "magic number" and a version
 	stream << (Q_UINT32)C_MAGIC;
-	stream << (Q_INT32)C_VERSION;
+	stream << (Q_INT32)(C_VERSION + 1);
 
 	stream << (Q_INT32)dirs.count();
 	for (int i = 0; i < dirs.count(); ++i)
@@ -55,7 +55,7 @@ dbStart;
 	// almost the same.
 	uint bufSize = rf.count() * 40 + 1000; // a little bit more space then required
 	stream << (Q_INT32)bufSize;
-dbRestart;
+
 	QString buf;
 	buf.reserve(bufSize);
 	FOREACH (RevFileMap, it, rf) {
@@ -68,7 +68,7 @@ dbRestart;
 		buf.append(sha);
 	}
 	stream << buf;
-int tot = 0, esCnt = 0;
+
 	FOREACH (RevFileMap, it, rf) {
 		SCRef sha = it.key();
 		if (   sha == ZERO_SHA
@@ -78,24 +78,25 @@ int tot = 0, esCnt = 0;
 
 		stream << it.value()->names;
 		stream << it.value()->dirs;
-		stream << it.value()->mergeParent;
 		stream << it.value()->status;
 
-		bool isExtendedStatus = !it.value()->extStatus.isEmpty();
-		stream << isExtendedStatus;
-		if (isExtendedStatus) {
+		// avoid to save redundant information
+		// in common case of just one parent
+		bool isEmpty =    it.value()->mergeParent.isEmpty()
+		               || it.value()->mergeParent.last() == 1;
+
+		stream << isEmpty;
+		if (!isEmpty)
+			stream << it.value()->mergeParent;
+
+		isEmpty = it.value()->extStatus.isEmpty();
+		stream << isEmpty;
+		if (!isEmpty)
 			stream << it.value()->extStatus;
-			esCnt++;
-		}
-		tot++;
 	}
-dbRestart;
 	dbs("Compressing data...");
 	f.writeBlock(qCompress(data)); // no need to encode with compressed data
 	f.close();
-dbRestart;
-	dbg(esCnt);dbg(tot);
-	if (tot) dbg(esCnt*100/tot);
 
 	// rename C_DAT_FILE + BAK_EXT -> C_DAT_FILE
 	if (dir.exists(path)) {
@@ -120,14 +121,14 @@ bool Cache::load(const QString& gitDir, RevFileMap& rf, StrVect& dirs, StrVect& 
 
 	if (!f.open(QIODevice::ReadOnly))
 		return false;
-dbStart;
+
 	QDataStream* stream = new QDataStream(qUncompress(f.readAll()));
 	Q_UINT32 magic;
 	Q_INT32 version;
 	Q_INT32 dirsNum, filesNum, bufSize;
 	*stream >> magic;
 	*stream >> version;
-	if (magic != C_MAGIC || version != C_VERSION) {
+	if (magic != C_MAGIC || version != (C_VERSION + 1)) {
 		f.close();
 		delete stream;
 		return false;
@@ -147,25 +148,28 @@ dbStart;
 	QString buf;
 	buf.reserve(bufSize);
 	*stream >> buf;
-dbRestart; // about 250-300ms
+
 	uint bufIdx = 0;
-	bool isExtendedStatus;
+	bool isEmpty;
 	while (!stream->atEnd()) {
 
 		RevFile* p = new RevFile();
 		*stream >> p->names;
 		*stream >> p->dirs;
-		*stream >> p->mergeParent;
 		*stream >> p->status;
-		*stream >> isExtendedStatus;
-		if (isExtendedStatus)
+
+		*stream >> isEmpty;
+		if (!isEmpty)
+			*stream >> p->mergeParent;
+
+		*stream >> isEmpty;
+		if (!isEmpty)
 			*stream >> p->extStatus;
 
 		SCRef sha(buf.mid(bufIdx, 40));
 		rf.insert(sha, p);
 		bufIdx += 40;
 	}
-dbRestart; // about 800-830ms 15M res with QVector
 	f.close();
 	delete stream;
 	return true;

@@ -143,7 +143,8 @@ void FileList::insertFiles(const RevFile* files) {
 	if (files->names.empty())
 		return;
 
-	int prevPar = files->mergeParent[0];
+	bool isMergeParents = !files->mergeParent.isEmpty();
+	int prevPar = (isMergeParents ? files->mergeParent.first() : 1);
 	setUpdatesEnabled(false);
 	for (int i = 0; i < files->count(); ++i) {
 
@@ -151,7 +152,7 @@ void FileList::insertFiles(const RevFile* files) {
 			continue;
 
 		QColor clr = Qt::black;
-		if (files->mergeParent.at(i) != prevPar) {
+		if (isMergeParents && files->mergeParent.at(i) != prevPar) {
 			prevPar = files->mergeParent.at(i);
 			new QListWidgetItem("", this);
 			new QListWidgetItem("", this);
