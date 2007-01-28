@@ -15,7 +15,8 @@
 // exception manager sugar macro
 #define EM_DECLARE(x)    int x
 #define EM_INIT(x,y)     ExceptionManager::em()->init(&x, QString(y))
-#define EM_REGISTER(x)   ExceptionManager::em()->add(x)
+#define EM_REGISTER(x)   ExceptionManager::em()->add(x, true)
+#define EM_REGISTER_Q(x) ExceptionManager::em()->add(x, false)
 #define EM_REMOVE(x)     ExceptionManager::em()->remove(x)
 #define EM_RAISE(x)      ExceptionManager::em()->raise(x)
 #define EM_MATCH(x,y,z)  ExceptionManager::em()->isMatch(x,y,QString(z))
@@ -50,7 +51,7 @@ public:
 		return &private_em;
 	}
 	void init(int* excpId, const QString& desc);
-	void add(int excpId);
+	void add(int excpId, bool verbose);
 	void remove(int excpId);
 	void raise(int excpId);
 	void throwPending();
@@ -68,8 +69,9 @@ private:
 	class Exception {
 	public:
 		Exception() {}
-		Exception(int ex) : excpId(ex), isRaised(false) {}
+		Exception(int ex, bool v) : excpId(ex), verbose(v), isRaised(false) {}
 		int excpId;
+		bool verbose;
 		bool isRaised;
 	};
 	typedef QList<Exception> ThrowableSet;

@@ -39,15 +39,15 @@ bool ExceptionManager::isMatch(int value, int excp, const QString& context) {
 	return match;
 }
 
-void ExceptionManager::add(int excpId) {
+void ExceptionManager::add(int excpId, bool verbose) {
 // add a new exception in currentThrowableSet
 
 	// are prepended so to use a for loop starting
 	// from begin to find the latest. Exceptions are
 	// always added/removed from both totalThrowableSet
 	// and regionThrowableSet
-	totalThrowableSet.prepend(Exception(excpId));
-	regionThrowableSet.prepend(Exception(excpId));
+	totalThrowableSet.prepend(Exception(excpId, verbose));
+	regionThrowableSet.prepend(Exception(excpId, verbose));
 }
 
 void ExceptionManager::remove(int excpId) {
@@ -172,7 +172,8 @@ void ExceptionManager::throwPending() {
 		return;
 
 	int excpToThrow = (*it).excpId;
-	qDebug("Thrown exception \'%s\'", desc(excpToThrow).latin1());
+	if ((*it).verbose)
+		qDebug("Thrown exception \'%s\'", desc(excpToThrow).latin1());
 
 	throw excpToThrow;
 }

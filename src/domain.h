@@ -154,6 +154,7 @@ private:
 	void sendPopupEvent();
 
 	EM_DECLARE(exDeleteRequest);
+	EM_DECLARE(exCancelRequest);
 
 	FileHistory* _model;
 	bool readyToDrag;

@@ -360,6 +360,7 @@ bool PatchView::doUpdate(bool force) {
 	if (st.isChanged(StateInfo::ANY & ~StateInfo::FILE_NAME) || force) {
 
 		updatePatch();
+		patchTab->fileList->clear();
 		files = git->getFiles(st.sha(), st.diffToSha(), st.allMergeFiles());
 		newFiles = true;
 	}

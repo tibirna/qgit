@@ -1082,7 +1082,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	}
 	QString runCmd("git diff-tree -r -c -C " + sha), runOutput;
 	if (!run(runCmd, &runOutput))
-		return false;
+		return NULL;
 
 	if (revsFiles.contains(sha)) // has been created in the mean time?
 		return revsFiles[sha];

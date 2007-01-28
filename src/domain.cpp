@@ -92,6 +92,7 @@ bool StateInfo::isChanged(uint what) const {
 Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 
 	EM_INIT(exDeleteRequest, "Deleting domain");
+	EM_INIT(exCancelRequest, "Canceling update");
 
 	_model = new FileHistory(this, git);
 	if (isMain)
@@ -250,12 +251,13 @@ void Domain::populateState() {
 
 void Domain::update(bool fromMaster, bool force) {
 
-	if (busy && st.requestPending())
+	if (busy && st.requestPending()) {
 		// quick exit current (obsoleted) update but only if state
 		// is going to change. Without this check calling update()
 		// many times with the same data nullify the update
+		EM_RAISE(exCancelRequest);
 		emit cancelDomainProcesses();
-
+	}
 	if (busy || dragging)
 		return;
 
@@ -267,6 +269,7 @@ void Domain::update(bool fromMaster, bool force) {
 		return;
 	}
 	try {
+		EM_REGISTER_Q(exCancelRequest); // quiet, no messages when thrown
 		setThrowOnDelete(true);
 		git->setThrowOnStop(true);
 		git->setCurContext(this);
@@ -289,8 +292,9 @@ void Domain::update(bool fromMaster, bool force) {
 		git->setCurContext(NULL);
 		git->setThrowOnStop(false);
 		setThrowOnDelete(false);
+		EM_REMOVE(exCancelRequest);
 
-	} catch(int i) {
+	} catch (int i) {
 
 		st.rollBack();
 		st.setLock(false);
@@ -298,6 +302,7 @@ void Domain::update(bool fromMaster, bool force) {
 		git->setCurContext(NULL);
 		git->setThrowOnStop(false);
 		setThrowOnDelete(false);
+		EM_REMOVE(exCancelRequest);
 
 		if (QApplication::overrideCursor())
 			QApplication::restoreOverrideCursor();
@@ -311,10 +316,15 @@ void Domain::update(bool fromMaster, bool force) {
 			EM_THROW_PENDING;
 			return;
 		}
-		const QString info("Exception \'" + EM_DESC(i) + "\' "
-		                   "not handled in init...re-throw");
-		dbs(info);
-		throw;
+		if (i == exCancelRequest)
+			EM_THROW_PENDING;
+			// do not return
+		else {
+			const QString info("Exception \'" + EM_DESC(i) + "\' "
+			                   "not handled in init...re-throw");
+			dbs(info);
+			throw;
+		}
 	}
 	bool nextRequestPending = flushQueue();
 
