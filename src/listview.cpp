@@ -582,6 +582,9 @@ QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& op
 	if (rt & Git::BRANCH)
 		addRefPixmap(&pm, sha, Git::BRANCH, opt);
 
+	if (rt & Git::RMT_BRANCH)
+		addRefPixmap(&pm, sha, Git::RMT_BRANCH, opt);
+
 	if (rt & Git::TAG)
 		addRefPixmap(&pm, sha, Git::TAG, opt);
 
@@ -603,6 +606,9 @@ void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOpt
 		QColor clr;
 		if (type == Git::BRANCH)
 			clr = (isCur ? Qt::green : DARK_GREEN);
+
+		else if (type == Git::RMT_BRANCH)
+			clr = ORANGE;
 
 		else if (type == Git::TAG)
 			clr = Qt::yellow;

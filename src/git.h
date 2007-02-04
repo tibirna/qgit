@@ -84,11 +84,12 @@ public:
 	enum RefType {
 		TAG        = 1,
 		BRANCH     = 2,
-		CUR_BRANCH = 4,
-		REF        = 8,
-		APPLIED    = 16,
-		UN_APPLIED = 32,
-		ANY_REF    = 63
+		RMT_BRANCH = 4,
+		CUR_BRANCH = 8,
+		REF        = 16,
+		APPLIED    = 32,
+		UN_APPLIED = 64,
+		ANY_REF    = 127
 	};
 
 	void setDefaultModel(FileHistory* fh) { revData = fh; }
@@ -189,6 +190,7 @@ private:
 		Reference() : type(0) {}
 		uint type;
 		QStringList branches;
+		QStringList remoteBranches;
 		QString     currentBranch;
 		QStringList tags;
 		QStringList refs;

@@ -322,6 +322,9 @@ const QStringList Git::getRefName(SCRef sha, RefType type, QString* curBranch) c
 	else if (type == BRANCH)
 		return rf.branches;
 
+	else if (type == RMT_BRANCH)
+		return rf.remoteBranches;
+
 	else if (type == REF)
 		return rf.refs;
 
@@ -352,6 +355,9 @@ const QString Git::getRefSha(SCRef refName, RefType type, bool askGit) {
 			return it.key();
 
 		else if ((any || type == BRANCH) && rf.branches.contains(refName))
+			return it.key();
+
+		else if ((any || type == RMT_BRANCH) && rf.remoteBranches.contains(refName))
 			return it.key();
 
 		else if ((any || type == REF) && rf.refs.contains(refName))
@@ -397,6 +403,9 @@ const QStringList Git::getAllRefNames(uint mask, bool onlyLoaded) {
 		if (mask & BRANCH)
 			appendNamesWithId(names, it.key(), (*it).branches, onlyLoaded);
 
+		if (mask & RMT_BRANCH)
+			appendNamesWithId(names, it.key(), (*it).remoteBranches, onlyLoaded);
+
 		if (mask & REF)
 			appendNamesWithId(names, it.key(), (*it).refs, onlyLoaded);
 
@@ -423,6 +432,9 @@ const QString Git::getRevInfo(SCRef sha) {
 		const QString cap(type & CUR_BRANCH ? "Head: " : "Branch: ");
 		refsInfo =  cap + getRefName(sha, BRANCH).join(" ");
 	}
+	if (type & RMT_BRANCH)
+		refsInfo.append("   Remote branch: " + getRefName(sha, RMT_BRANCH).join(" "));
+
 	if (type & TAG)
 		refsInfo.append("   Tag: " + getRefName(sha, TAG).join(" "));
 

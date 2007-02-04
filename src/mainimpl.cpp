@@ -1013,10 +1013,13 @@ void MainImpl::doContexPopup(SCRef sha) {
 	// global scope because we use a signal/slot connection
 	delete contextMenu;
 	delete contextSubMenu;
+	delete contextRmtMenu;
 	contextMenu = new Q3PopupMenu(this);
 	contextSubMenu = new Q3PopupMenu(this);
+	contextRmtMenu = new Q3PopupMenu(this);
 	connect(contextMenu, SIGNAL(activated(int)), this, SLOT(goRef_activated(int)));
 	connect(contextSubMenu, SIGNAL(activated(int)), this, SLOT(goRef_activated(int)));
+	connect(contextRmtMenu, SIGNAL(activated(int)), this, SLOT(goRef_activated(int)));
 
 	Domain* t;
 	int tt = currentTabType(&t);
@@ -1055,35 +1058,36 @@ void MainImpl::doContexPopup(SCRef sha) {
 			ActPop->addTo(contextMenu);
 
 		const QStringList& bn(git->getAllRefNames(Git::BRANCH, Git::optOnlyLoaded));
+		const QStringList& rbn(git->getAllRefNames(Git::RMT_BRANCH, Git::optOnlyLoaded));
 		const QStringList& tn(git->getAllRefNames(Git::TAG, Git::optOnlyLoaded));
-		if (bn.empty() && tn.empty()) {
+		if (bn.empty() && rbn.empty() && tn.empty()) {
 			contextMenu->exec(QCursor::pos());
 			return;
 		}
-		int id = 1;
-		if (!bn.empty()) {
+		int id = 1; // // ref entries have id > 0 to disambiguate from actions
+		FOREACH_SL (it, rbn)
+			contextRmtMenu->insertItem(*it, id++);
+
+		if (contextRmtMenu->count() > 0)
+			contextMenu->insertItem("Remote branches", contextRmtMenu);
+
+		if (!bn.empty())
 			contextMenu->insertSeparator();
-			QStringList::const_iterator it = bn.constBegin();
-			for ( ; it != bn.constEnd(); ++it, id++) {
-				// branch names have id > 0 to disambiguate them from actions,
-				// Qt assigns negative id as default
-				if (id < MAX_MENU_ENTRIES)
-					contextMenu->insertItem(*it, id);
-				else
-					contextSubMenu->insertItem(*it, id);
-			}
+
+		FOREACH_SL (it, bn) {
+			if (id < MAX_MENU_ENTRIES)
+				contextMenu->insertItem(*it, id++);
+			else
+				contextSubMenu->insertItem(*it, id++);
 		}
-		if (!tn.empty()) {
+		if (!tn.empty())
 			contextMenu->insertSeparator();
-			QStringList::const_iterator it = tn.constBegin();
-			for ( ; it != tn.constEnd(); ++it, id++) {
-				// tag names have id > 0 to disambiguate them from actions,
-				// Qt assigns negative id as default
-				if (id < MAX_MENU_ENTRIES)
-					contextMenu->insertItem(*it, id);
-				else
-					contextSubMenu->insertItem(*it, id);
-			}
+
+		FOREACH_SL (it, tn) {
+			if (id < MAX_MENU_ENTRIES)
+				contextMenu->insertItem(*it, id++);
+			else
+				contextSubMenu->insertItem(*it, id++);
 		}
 		if (contextSubMenu->count() > 0)
 			contextMenu->insertItem("More...", contextSubMenu);
@@ -1131,7 +1135,18 @@ void MainImpl::goRef_activated(int id) {
 	if (id <= 0) // not a tag name entry
 		return;
 
-	SCRef refSha(git->getRefSha(contextMenu->text(id)));
+	QString ref(contextMenu->text(id));
+	if (ref.isEmpty())
+		ref = contextSubMenu->text(id);
+
+	if (ref.isEmpty())
+		ref = contextRmtMenu->text(id);
+
+	if (ref.isEmpty()) {
+		dbs("ASSERT in MainImpl::goRef_activated, tag entry not found");
+		return;
+	}
+	SCRef refSha(git->getRefSha(ref));
 	rv->st.setSha(refSha);
 	UPDATE_DOMAIN(rv);
 }
