@@ -71,12 +71,13 @@ void QGit::compat_usleep(int us) {
 const QString QGit::GIT_VERSION = "1.4.4";
 
 // colors
-const QColor QGit::BROWN       = QColor(150, 75, 0);
-const QColor QGit::ORANGE      = QColor(255, 160, 50);
-const QColor QGit::DARK_ORANGE = QColor(216, 144, 0);
-const QColor QGit::LIGHT_BLUE  = QColor(85, 255, 255);
-const QColor QGit::PURPLE      = QColor(221, 221, 255);
-const QColor QGit::DARK_GREEN  = QColor(0, 205, 0);
+const QColor QGit::BROWN        = QColor(150, 75, 0);
+const QColor QGit::ORANGE       = QColor(255, 160, 50);
+const QColor QGit::DARK_ORANGE  = QColor(216, 144, 0);
+const QColor QGit::LIGHT_ORANGE = QColor(255, 221, 170);
+const QColor QGit::LIGHT_BLUE   = QColor(85, 255, 255);
+const QColor QGit::PURPLE       = QColor(221, 221, 255);
+const QColor QGit::DARK_GREEN   = QColor(0, 205, 0);
 
 // initialized at startup according to system wide settings
 QColor QGit::ODD_LINE_COL;

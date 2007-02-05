@@ -608,7 +608,7 @@ void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOpt
 			clr = (isCur ? Qt::green : DARK_GREEN);
 
 		else if (type == Git::RMT_BRANCH)
-			clr = ORANGE;
+			clr = LIGHT_ORANGE;
 
 		else if (type == Git::TAG)
 			clr = Qt::yellow;

@@ -164,6 +164,7 @@ namespace QGit {
 	extern const QColor BROWN;
 	extern const QColor ORANGE;
 	extern const QColor DARK_ORANGE;
+	extern const QColor LIGHT_ORANGE;
 	extern const QColor LIGHT_BLUE;
 	extern const QColor PURPLE;
 	extern const QColor DARK_GREEN;

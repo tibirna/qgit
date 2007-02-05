@@ -1068,14 +1068,15 @@ void MainImpl::doContexPopup(SCRef sha) {
 		FOREACH_SL (it, rbn)
 			contextRmtMenu->insertItem(*it, id++);
 
-		if (contextRmtMenu->count() > 0)
+		int rbnCnt = contextRmtMenu->count();
+		if (rbnCnt > 0)
 			contextMenu->insertItem("Remote branches", contextRmtMenu);
 
 		if (!bn.empty())
 			contextMenu->insertSeparator();
 
 		FOREACH_SL (it, bn) {
-			if (id < MAX_MENU_ENTRIES)
+			if (id < MAX_MENU_ENTRIES + rbnCnt)
 				contextMenu->insertItem(*it, id++);
 			else
 				contextSubMenu->insertItem(*it, id++);
@@ -1084,7 +1085,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 			contextMenu->insertSeparator();
 
 		FOREACH_SL (it, tn) {
-			if (id < MAX_MENU_ENTRIES)
+			if (id < MAX_MENU_ENTRIES + rbnCnt)
 				contextMenu->insertItem(*it, id++);
 			else
 				contextSubMenu->insertItem(*it, id++);

@@ -174,7 +174,7 @@ bool Git::getRefs() {
 			cur->remoteBranches.append(refName.mid(13));
 			cur->type |= RMT_BRANCH;
 
-		} else if (!refName.endsWith("HEAD")) {
+		} else if (!refName.startsWith("refs/bases/") && !refName.endsWith("HEAD")) {
 
 			cur->refs.append(refName);
 			cur->type |= REF;
