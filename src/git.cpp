@@ -1006,12 +1006,11 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 
 	// highlight SHA's
 	//
-	// search for abbreviated sha too. To filter out debug backtraces sometimes
-	// added to commit logs, we avoid to call git rev-parse for a possible abbreviated sha
-	// if there isn't a leading trailing space and, in that case, before the space
-	// must not be a ':' character.
-	// It's an ugly heuristic, but seems to work.
-	QRegExp reSHA("..[0-9a-f]{21,40}|[^:]\\s[0-9a-f]{6,20}", false);
+	// added to commit logs, we avoid to call git rev-parse for a possible abbreviated
+	// sha if there isn't a leading trailing space or an open parenthesis and,
+	// in that case, before the space must not be a ':' character.
+	// It's an ugly heuristic, but seems to work in most cases.
+	QRegExp reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", false);
 	reSHA.setMinimal(false);
 	int pos = 0;
 	while ((pos = text.find(reSHA, pos)) != -1) {
