@@ -158,7 +158,7 @@ namespace QGit {
 	const int DEF_GRAPH_COL_WIDTH = 80;
 	const int DEF_LOG_COL_WIDTH   = 500;
 	const int DEF_AUTH_COL_WIDTH  = 230;
-	const int DEF_TIME_COL_WIDTH  = 130;
+	const int DEF_TIME_COL_WIDTH  = 160;
 
 	// colors
 	extern const QColor BROWN;
