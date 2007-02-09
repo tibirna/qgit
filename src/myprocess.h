@@ -51,8 +51,9 @@ private:
 	bool errorReportingEnabled;
 	bool canceling;
 	bool busy;
-	bool exitStatus;
 	bool async;
+	bool isWinShell;
+	bool isErrorExit;
 };
 
 #endif

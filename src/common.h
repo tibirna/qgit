@@ -255,7 +255,7 @@ namespace QGit {
 	bool stripPartialParaghraps(SCRef src, QString* dst, QString* prev);
 	bool writeToFile(SCRef fileName, SCRef data, bool setExecutable = false);
 	bool readFromFile(SCRef fileName, QString& data);
-	bool startProcess(QProcess* proc, SCList args, SCRef buf = "");
+	bool startProcess(QProcess* proc, SCList args, SCRef buf = "", bool* winShell = NULL);
 	void compat_usleep(int us);
 
 	// cache file
