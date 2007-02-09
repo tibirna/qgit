@@ -64,8 +64,8 @@ void ListView::setupGeometry() {
 	setPalette(pl); // does not seem to inherit application paletteAnnotate
 
 	QHeaderView* hv = header();
-	hv->setStretchLastSection(false);
-	hv->setResizeMode(LOG_COL, QHeaderView::Stretch);
+	hv->setStretchLastSection(true);
+	hv->setResizeMode(LOG_COL, QHeaderView::Interactive);
 	hv->setResizeMode(TIME_COL, QHeaderView::Interactive);
 	hv->setResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
 	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
