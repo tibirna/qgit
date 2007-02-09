@@ -190,7 +190,7 @@ Git::Git(QWidget* p) : QObject(p) {
 	EM_INIT(exGitStopped, "Stopping connection with git");
 
 	fileCacheAccessed = cacheNeedsUpdate = isMergeHead = false;
-	isStGIT = isGIT = loadingUnAppliedPatches = false;
+	isStGIT = isGIT = loadingUnAppliedPatches = isTextHighlighterFound = false;
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
 	revData = NULL;
