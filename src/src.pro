@@ -3,30 +3,36 @@
 # GIT_EXEC_DIR = C:\path\to\git\installation\directory
 
 
+# Platform dependent stuff
+win32 {
+	DEFINES += ON_WINDOWS
+	TARGET = qgit
+	target.path = $$GIT_EXEC_DIR
+}
+
+unix {
+	TARGET = qgit
+	target.path = ~/bin
+}
+
 # General stuff
 TEMPLATE = app
-CONFIG += qt warn_on exceptions debug_and_release
+CONFIG += qt console warn_on exceptions debug_and_release
 QT += qt3support
-win32:DEFINES += ON_WINDOWS
 INCLUDEPATH += ../src
 MAKEFILE = qmake
+RESOURCES += icons.qrc
 QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -frepo -Wno-long-long
 QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long
+INSTALLS += target
 
 # Directories
 DESTDIR = ../bin
-TARGET = qgit
 BUILD_DIR = ../build
 UI_DIR = $$BUILD_DIR
 MOC_DIR = $$BUILD_DIR
 RCC_DIR = $$BUILD_DIR
 OBJECTS_DIR = $$BUILD_DIR
-
-# misc
-RESOURCES += icons.qrc
-win32:target.path = $$GIT_EXEC_DIR
-unix:target.path = ~/bin
-INSTALLS += target
 
 # project files
 FORMS += commit.ui console.ui customaction.ui fileview.ui help.ui \
@@ -46,7 +52,6 @@ SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
            revsview.cpp settingsimpl.cpp treeview.cpp
 
 
-
 # Here we generate a batch called start_qgit.bat used, under Windows only,
 # to start qgit with proper PATH set.
 #
@@ -57,15 +62,19 @@ SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
 # Remember to set proper GIT_EXEC_DIR value at the beginning of this file
 #
 win32 {
+	!exists($${GIT_EXEC_DIR}/git.exe) {
+		error("I cannot found git files, please set GIT_EXEC_DIR in 'src.pro' file")
+	}
+	QGIT_BAT = ../start_qgit.bat
+	CUR_PATH = $$system(echo %PATH%)
+	LINE_1 = $$quote(set PATH=$$CUR_PATH;$$GIT_EXEC_DIR;)
+	LINE_2 = $$quote(set PATH=$$CUR_PATH;)
 
-START_BAT = ..\start_qgit.bat
-CUR_PATH = $$system(echo %PATH%)
-TEXT = $$quote(set PATH=$$CUR_PATH;$$GIT_EXEC_DIR;)
+	qgit_launcher.commands  =    @echo @echo OFF > $$QGIT_BAT
+	qgit_launcher.commands += && @echo $$LINE_1 >> $$QGIT_BAT
+	qgit_launcher.commands += && @echo $$TARGET >> $$QGIT_BAT
+	qgit_launcher.commands += && @echo $$LINE_2 >> $$QGIT_BAT
 
-run_qgit.commands  =    @echo @echo OFF > $$START_BAT
-run_qgit.commands += && @echo $$TEXT   >> $$START_BAT
-run_qgit.commands += && @echo $$TARGET >> $$START_BAT
-
-QMAKE_EXTRA_TARGETS += run_qgit
-PRE_TARGETDEPS += run_qgit
+	QMAKE_EXTRA_TARGETS += qgit_launcher
+	PRE_TARGETDEPS += qgit_launcher
 }
