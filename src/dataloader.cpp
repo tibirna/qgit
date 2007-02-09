@@ -241,11 +241,14 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 
 	// create a script to redirect 'git rev-list' stdout to dataFile
 	QDir dir("/tmp"); // use a tmpfs mounted filesystem if available
-	dataFileName.prepend(dir.exists() && dir.isReadable() ? "/tmp" : wd);
+	bool foundTmpDir = (dir.exists() && dir.isReadable());
+	scriptFileName.prepend(foundTmpDir ? "/tmp" : wd);
+	dataFileName.prepend(foundTmpDir ? "/tmp" : wd);
 	dataFile.setName(dataFileName);
 	QString runCmd(args.join(" ") + " > " +  dataFileName);
 	runCmd.append(" &\necho $!\nwait"); // we want to read git-rev-list PID
-	scriptFileName.prepend(wd);
+	runCmd.prepend("cd " + wd + "\n");
+
 	if (!QGit::writeToFile(scriptFileName, runCmd, true))
 		return false;
 
