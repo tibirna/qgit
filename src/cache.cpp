@@ -38,7 +38,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 	// Write a header with a "magic number" and a version
 	stream << (Q_UINT32)C_MAGIC;
-	stream << (Q_INT32)(C_VERSION + 2);
+	stream << (Q_INT32)C_VERSION;
 
 	stream << (Q_INT32)dirs.count();
 	for (int i = 0; i < dirs.count(); ++i)
@@ -132,7 +132,7 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect&
 	Q_INT32 dirsNum, filesNum, bufSize;
 	*stream >> magic;
 	*stream >> version;
-	if (magic != C_MAGIC || version != (C_VERSION + 2)) {
+	if (magic != C_MAGIC || version != C_VERSION) {
 		f.close();
 		delete stream;
 		return false;

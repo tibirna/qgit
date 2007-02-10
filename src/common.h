@@ -251,7 +251,7 @@ namespace QGit {
 
 	// cache file
 	const uint C_MAGIC  = 0xA0B0C0D0;
-	const int C_VERSION = 12;
+	const int C_VERSION = 13;
 
 	extern const QString BAK_EXT;
 	extern const QString C_DAT_FILE;
