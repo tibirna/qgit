@@ -59,6 +59,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	QString buf;
 	buf.reserve(bufSize);
 	FOREACH (RevFileMap, it, rf) {
+
 		SCRef sha = it.key();
 		if (   sha == ZERO_SHA
 		    || sha == CUSTOM_SHA
@@ -70,6 +71,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	stream << buf;
 
 	FOREACH (RevFileMap, it, rf) {
+
 		SCRef sha = it.key();
 		if (   sha == ZERO_SHA
 		    || sha == CUSTOM_SHA
@@ -82,19 +84,19 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 		// skip common case of only modified files
 		bool isEmpty = rf->onlyModified;
-		stream << isEmpty;
+		stream << (Q_UINT32)isEmpty;
 		if (!isEmpty)
 			stream << rf->status;
 
 		// skip common case of just one parent
-		isEmpty = rf->mergeParent.isEmpty() || rf->mergeParent.last() == 1;
-		stream << isEmpty;
+		isEmpty = (rf->mergeParent.isEmpty() || rf->mergeParent.last() == 1);
+		stream << (Q_UINT32)isEmpty;
 		if (!isEmpty)
 			stream << rf->mergeParent;
 
 		// skip common case of no rename/copies
 		isEmpty = rf->extStatus.isEmpty();
-		stream << isEmpty;
+		stream << (Q_UINT32)isEmpty;
 		if (!isEmpty)
 			stream << rf->extStatus;
 	}
@@ -155,21 +157,25 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect&
 
 	uint bufIdx = 0;
 	bool isEmpty;
+	Q_UINT32 tmp;
 	while (!stream->atEnd()) {
 
 		RevFile* rf = new RevFile();
 		*stream >> rf->names;
 		*stream >> rf->dirs;
 
-		*stream >> rf->onlyModified;
+		*stream >> tmp;
+		rf->onlyModified = (bool)tmp;
 		if (!rf->onlyModified)
 			*stream >> rf->status;
 
-		*stream >> isEmpty;
+		*stream >> tmp;
+		isEmpty = (bool)tmp;
 		if (!isEmpty)
 			*stream >> rf->mergeParent;
 
-		*stream >> isEmpty;
+		*stream >> tmp;
+		isEmpty = (bool)tmp;
 		if (!isEmpty)
 			*stream >> rf->extStatus;
 
