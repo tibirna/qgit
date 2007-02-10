@@ -64,8 +64,11 @@ void ListView::setupGeometry() {
 	setPalette(pl); // does not seem to inherit application paletteAnnotate
 
 	QHeaderView* hv = header();
-	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
+	hv->setStretchLastSection(true);
+	hv->setResizeMode(LOG_COL, QHeaderView::Interactive);
+	hv->setResizeMode(TIME_COL, QHeaderView::Interactive);
 	hv->setResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
+	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
 	hv->resizeSection(LOG_COL, DEF_LOG_COL_WIDTH);
 	hv->resizeSection(AUTH_COL, DEF_AUTH_COL_WIDTH);
 	hv->resizeSection(TIME_COL, DEF_TIME_COL_WIDTH);
@@ -582,6 +585,9 @@ QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& op
 	if (rt & Git::BRANCH)
 		addRefPixmap(&pm, sha, Git::BRANCH, opt);
 
+	if (rt & Git::RMT_BRANCH)
+		addRefPixmap(&pm, sha, Git::RMT_BRANCH, opt);
+
 	if (rt & Git::TAG)
 		addRefPixmap(&pm, sha, Git::TAG, opt);
 
@@ -603,6 +609,9 @@ void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOpt
 		QColor clr;
 		if (type == Git::BRANCH)
 			clr = (isCur ? Qt::green : DARK_GREEN);
+
+		else if (type == Git::RMT_BRANCH)
+			clr = LIGHT_ORANGE;
 
 		else if (type == Git::TAG)
 			clr = Qt::yellow;

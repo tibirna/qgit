@@ -19,8 +19,7 @@ MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : QProces
 	workDir = wd;
 	receiver = NULL;
 	errorReportingEnabled = err;
-	canceling = async = false;
-	exitStatus = true;
+	canceling = async = isWinShell = isErrorExit = false;
 }
 
 bool MyProcess::runAsync(SCRef rc, QObject* rcv, SCRef buf) {
@@ -70,7 +69,7 @@ bool MyProcess::runSync(SCRef rc, QString* ro, QObject* rcv, SCRef buf) {
 
 	git->setCurContext(d); // restore our context
 
-	return exitStatus;
+	return !isErrorExit;
 }
 
 void MyProcess::setupSignals() {
@@ -121,7 +120,7 @@ bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
 
 	setWorkingDirectory(workDir);
 
-	if (!QGit::startProcess(this, arguments, buf)) {
+	if (!QGit::startProcess(this, arguments, buf, &isWinShell)) {
 		sendErrorMsg(true);
 		return false;
 	}
@@ -155,19 +154,24 @@ void MyProcess::on_readyReadStandardError() {
 	}
 }
 
-void MyProcess::on_finished(int, QProcess::ExitStatus exitStatus) {
+void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 
 	// On Windows, if the process was terminated with TerminateProcess()
 	// from another application exitStatus is still NormalExit unless
-	// the exit code is less than 0. But test the exit code is unreliable,
-	// as example 'git status' returns -1 also without errors
+	// the exit code is less than 0. But test the exit code is unreliable
+	// in general case, as example 'git status' returns -1 also without
+	// errors. Luckily exit code seems valid in case of a command wrapped
+	// in Window shell interpreter.
+
+	isErrorExit =  (exitStatus != QProcess::NormalExit)
+	             ||(exitCode != 0 && isWinShell); // TODO check stdErr
 
 	if (!canceling) { // no more noise after cancel
 
 		if (receiver)
 			emit eof();
 
-		if (exitStatus != QProcess::NormalExit) // TODO check stdErr
+		if (isErrorExit)
 			sendErrorMsg();
 	}
 	busy = false;

@@ -153,6 +153,7 @@ private:
 	QRegExp longLogRE;
 	QPointer<Q3PopupMenu> contextMenu;
 	QPointer<Q3PopupMenu> contextSubMenu;
+	QPointer<Q3PopupMenu> contextRmtMenu;
 	QString startUpDir;
 	QString textToFind;
 	QFont listViewFont;

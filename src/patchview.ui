@@ -132,6 +132,14 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <widget class="QSplitter" name="splitter" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>7</vsizetype>
+          <horstretch>5</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="orientation" >
          <enum>Qt::Vertical</enum>
         </property>
@@ -156,6 +164,14 @@
         </widget>
        </widget>
        <widget class="FileList" name="fileList" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>13</hsizetype>
+          <vsizetype>13</vsizetype>
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="contextMenuPolicy" >
          <enum>Qt::CustomContextMenu</enum>
         </property>

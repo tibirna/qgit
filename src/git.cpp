@@ -190,7 +190,7 @@ Git::Git(QWidget* p) : QObject(p) {
 	EM_INIT(exGitStopped, "Stopping connection with git");
 
 	fileCacheAccessed = cacheNeedsUpdate = isMergeHead = false;
-	isStGIT = isGIT = loadingUnAppliedPatches = false;
+	isStGIT = isGIT = loadingUnAppliedPatches = isTextHighlighterFound = false;
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
 	revData = NULL;
@@ -322,6 +322,9 @@ const QStringList Git::getRefName(SCRef sha, RefType type, QString* curBranch) c
 	else if (type == BRANCH)
 		return rf.branches;
 
+	else if (type == RMT_BRANCH)
+		return rf.remoteBranches;
+
 	else if (type == REF)
 		return rf.refs;
 
@@ -352,6 +355,9 @@ const QString Git::getRefSha(SCRef refName, RefType type, bool askGit) {
 			return it.key();
 
 		else if ((any || type == BRANCH) && rf.branches.contains(refName))
+			return it.key();
+
+		else if ((any || type == RMT_BRANCH) && rf.remoteBranches.contains(refName))
 			return it.key();
 
 		else if ((any || type == REF) && rf.refs.contains(refName))
@@ -397,6 +403,9 @@ const QStringList Git::getAllRefNames(uint mask, bool onlyLoaded) {
 		if (mask & BRANCH)
 			appendNamesWithId(names, it.key(), (*it).branches, onlyLoaded);
 
+		if (mask & RMT_BRANCH)
+			appendNamesWithId(names, it.key(), (*it).remoteBranches, onlyLoaded);
+
 		if (mask & REF)
 			appendNamesWithId(names, it.key(), (*it).refs, onlyLoaded);
 
@@ -423,6 +432,9 @@ const QString Git::getRevInfo(SCRef sha) {
 		const QString cap(type & CUR_BRANCH ? "Head: " : "Branch: ");
 		refsInfo =  cap + getRefName(sha, BRANCH).join(" ");
 	}
+	if (type & RMT_BRANCH)
+		refsInfo.append("   Remote branch: " + getRefName(sha, RMT_BRANCH).join(" "));
+
 	if (type & TAG)
 		refsInfo.append("   Tag: " + getRefName(sha, TAG).join(" "));
 
@@ -994,12 +1006,11 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 
 	// highlight SHA's
 	//
-	// search for abbreviated sha too. To filter out debug backtraces sometimes
-	// added to commit logs, we avoid to call git rev-parse for a possible abbreviated sha
-	// if there isn't a leading trailing space and, in that case, before the space
-	// must not be a ':' character.
-	// It's an ugly heuristic, but seems to work.
-	QRegExp reSHA("..[0-9a-f]{21,40}|[^:]\\s[0-9a-f]{6,20}", false);
+	// added to commit logs, we avoid to call git rev-parse for a possible abbreviated
+	// sha if there isn't a leading trailing space or an open parenthesis and,
+	// in that case, before the space must not be a ':' character.
+	// It's an ugly heuristic, but seems to work in most cases.
+	QRegExp reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", false);
 	reSHA.setMinimal(false);
 	int pos = 0;
 	while ((pos = text.find(reSHA, pos)) != -1) {
@@ -1082,7 +1093,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	}
 	QString runCmd("git diff-tree -r -c -C " + sha), runOutput;
 	if (!run(runCmd, &runOutput))
-		return false;
+		return NULL;
 
 	if (revsFiles.contains(sha)) // has been created in the mean time?
 		return revsFiles[sha];

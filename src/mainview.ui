@@ -29,6 +29,14 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="TreeView" name="treeView" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>13</vsizetype>
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="contextMenuPolicy" >
         <enum>Qt::CustomContextMenu</enum>
        </property>
@@ -48,6 +56,14 @@
        </column>
       </widget>
       <widget class="QTabWidget" name="tabWdg" >
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>7</vsizetype>
+         <horstretch>5</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <widget class="QWidget" name="TabWdg" >
         <attribute name="title" >
          <string>Tab&amp;Wdg</string>
@@ -90,7 +106,7 @@
      <x>0</x>
      <y>0</y>
      <width>975</width>
-     <height>32</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="Edit" >

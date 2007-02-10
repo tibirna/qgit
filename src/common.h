@@ -158,12 +158,13 @@ namespace QGit {
 	const int DEF_GRAPH_COL_WIDTH = 80;
 	const int DEF_LOG_COL_WIDTH   = 500;
 	const int DEF_AUTH_COL_WIDTH  = 230;
-	const int DEF_TIME_COL_WIDTH  = 130;
+	const int DEF_TIME_COL_WIDTH  = 160;
 
 	// colors
 	extern const QColor BROWN;
 	extern const QColor ORANGE;
 	extern const QColor DARK_ORANGE;
+	extern const QColor LIGHT_ORANGE;
 	extern const QColor LIGHT_BLUE;
 	extern const QColor PURPLE;
 	extern const QColor DARK_GREEN;
@@ -246,7 +247,7 @@ namespace QGit {
 	bool stripPartialParaghraps(SCRef src, QString* dst, QString* prev);
 	bool writeToFile(SCRef fileName, SCRef data, bool setExecutable = false);
 	bool readFromFile(SCRef fileName, QString& data);
-	bool startProcess(QProcess* proc, SCList args, SCRef buf = "");
+	bool startProcess(QProcess* proc, SCList args, SCRef buf = "", bool* winShell = NULL);
 	void compat_usleep(int us);
 
 	// cache file

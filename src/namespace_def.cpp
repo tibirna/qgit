@@ -19,7 +19,7 @@
 #include <QPixmap>
 #include "common.h"
 
-#ifdef ON_WINDOWS   // *********  platform dependent code ******
+#ifdef ON_WINDOWS // *********  platform dependent code ******
 
 #include <windows.h> // used by Sleep(us)
 
@@ -30,25 +30,20 @@ void QGit::compat_usleep(int us) {
 	Sleep(us);
 }
 
-static void addShellWrapper(QStringList& args) {
+static bool addShellWrapper(QStringList& args) {
 /*
-   To start a process under Windows you must know the
-   absolute path, otherwise you need to wrap the command
-   line in the shell interpreter. You need this also to
-   start native commands as 'dir'.
+   To run an application/script under Windows you need
+   to wrap the command line in the shell interpreter.
+   You need this also to start native commands as 'dir'.
+   An exception is if application is in path as 'git' must
+   always be.
 */
-	if (   (args.first().startsWith("git-") || args.first() == "git")
-	     /* && !QGit::GIT_DIR.isEmpty() */ )
-
-		// we avoid wrapping in a shell this
-		// common case, just add the path
-// 		args[0].prepend(QGit::GIT_DIR + '\\');
-		;
-
-	else { // prepend "cmd.exe /c"
+	if (!args.first().startsWith("git-") && args.first() != "git") {
 		args.prepend("/c");
 		args.prepend("cmd.exe");
+		return true;
 	}
+	return false;
 }
 
 #else
@@ -64,6 +59,11 @@ void QGit::compat_usleep(int us) {
 	usleep(us);
 }
 
+static bool addShellWrapper(QStringList& args) {
+
+	return false;
+}
+
 #endif // *********  end of platform dependent code ******
 
 
@@ -71,12 +71,13 @@ void QGit::compat_usleep(int us) {
 const QString QGit::GIT_VERSION = "1.4.4";
 
 // colors
-const QColor QGit::BROWN       = QColor(150, 75, 0);
-const QColor QGit::ORANGE      = QColor(255, 160, 50);
-const QColor QGit::DARK_ORANGE = QColor(216, 144, 0);
-const QColor QGit::LIGHT_BLUE  = QColor(85, 255, 255);
-const QColor QGit::PURPLE      = QColor(221, 221, 255);
-const QColor QGit::DARK_GREEN  = QColor(0, 205, 0);
+const QColor QGit::BROWN        = QColor(150, 75, 0);
+const QColor QGit::ORANGE       = QColor(255, 160, 50);
+const QColor QGit::DARK_ORANGE  = QColor(216, 144, 0);
+const QColor QGit::LIGHT_ORANGE = QColor(255, 221, 170);
+const QColor QGit::LIGHT_BLUE   = QColor(85, 255, 255);
+const QColor QGit::PURPLE       = QColor(221, 221, 255);
+const QColor QGit::DARK_GREEN   = QColor(0, 205, 0);
 
 // initialized at startup according to system wide settings
 QColor QGit::ODD_LINE_COL;
@@ -272,16 +273,14 @@ bool QGit::readFromFile(SCRef fileName, QString& data) {
 	return true;
 }
 
-bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf) {
+bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) {
 
 	if (!proc || args.isEmpty())
 		return false;
 
 	QStringList arguments(args);
-
-#ifdef ON_WINDOWS
-	addShellWrapper(arguments);
-#endif
+	if (winShell)
+		*winShell = addShellWrapper(arguments);
 
 	QString prog(arguments.first());
 	arguments.removeFirst();
