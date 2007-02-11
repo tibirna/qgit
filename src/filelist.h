@@ -26,9 +26,10 @@ signals:
 	void contextMenu(const QString&, int);
 
 protected:
-	virtual void mousePressEvent(QMouseEvent* e);
-	virtual void mouseMoveEvent(QMouseEvent* e);
-	virtual void mouseReleaseEvent(QMouseEvent* e);
+	virtual void focusInEvent(QFocusEvent*);
+	virtual void mousePressEvent(QMouseEvent*);
+	virtual void mouseMoveEvent(QMouseEvent*);
+	virtual void mouseReleaseEvent(QMouseEvent*);
 
 private slots:
 	void on_currentItemChanged(QListWidgetItem*, QListWidgetItem*);

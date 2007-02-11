@@ -37,16 +37,24 @@ QString FileList::currentText() {
 	return (item ? item->data(Qt::DisplayRole).toString() : "");
 }
 
-void FileList::on_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous) {
+void FileList::focusInEvent(QFocusEvent*) {
+
+	// Workaround a Qt4.2 bug
+	//
+	// When an item is clicked and FileList still doesn't have the
+	// focus we could have a double currentItemChanged() signal,
+	// the first with current set to first item, the second with
+	// current correctly set to the clicked one. Unluckily in case
+	// the clicked one is the first in list we have only one event.
+	// Oddly enough overriding this virtual function we remove
+	// the spurious first signal if any.
+}
+
+void FileList::on_currentItemChanged(QListWidgetItem* current, QListWidgetItem*) {
 
 	if (!current)
 		return;
 
-	if (!previous) {
-		// we could have a double event the first time an item
-		// is selected. So filter the first spurious event
-		; // TODO
-	}
 	if (st->isMerge() && row(current) == 0) { // header clicked
 
 		// In a listbox without current item, as soon as the box
@@ -101,7 +109,7 @@ void FileList::mousePressEvent(QMouseEvent* e) {
 	QListWidget::mousePressEvent(e);
 }
 
-void FileList::mouseReleaseEvent(QMouseEvent* e ) {
+void FileList::mouseReleaseEvent(QMouseEvent* e) {
 
 	d->setReadyToDrag(false); // in case of just click without moving
 	QListWidget::mouseReleaseEvent(e);
