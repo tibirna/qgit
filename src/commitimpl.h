@@ -26,7 +26,7 @@ public slots:
 	void pushButtonCancel_clicked();
 	void pushButtonUpdateCache_clicked();
 	void pushButtonSettings_clicked();
-	void textEditMsg_cursorPositionChanged(int,int);
+	void textEditMsg_cursorPositionChanged();
 
 private slots:
 	void contextMenuPopup(const QPoint&);
@@ -39,10 +39,11 @@ private:
 	bool checkMsg(QString& msg);
 	bool checkPatchName(QString& patchName);
 	bool checkConfirm(SCRef msg, SCRef patchName, SCList selFiles);
-	void computePosition(int para, int pos, int &col_pos, int &line_pos);
+	void computePosition(int &col_pos, int &line_pos);
 
 	Git* git;
 	QString origMsg;
+	int _ofsX, _ofsY;
 };
 
 #endif
