@@ -180,10 +180,11 @@ void PatchView::centerTarget() {
  	tc.clearSelection();
 	te->setTextCursor(tc);
 
-	// and scroll to top of the page TODO make it simpler!!!!
-	int delta = te->verticalScrollBar()->pageStep() - te->fontMetrics().height();
-	int value = te->verticalScrollBar()->value();
-	te->verticalScrollBar()->setValue(value + delta);
+	int ps = te->verticalScrollBar()->pageStep();
+	if (tc.position() > ps) { // find() places cursor at the end of the page
+		int v = te->verticalScrollBar()->value();
+		te->verticalScrollBar()->setValue(v + ps - te->fontMetrics().height());
+	}
 }
 
 void PatchView::centerMatch(int id) {
