@@ -48,16 +48,18 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	const RevFile* f = git->getFiles(ZERO_SHA);
 	for (int i = 0; i < f->count(); ++i) {
 
+		bool inIndex = f->statusCmp(i, RevFile::IN_INDEX);
+		bool isNew = (f->statusCmp(i, RevFile::NEW) || f->statusCmp(i, RevFile::UNKNOWN));
 		QColor myColor = Qt::black;
-		if (f->statusCmp(i, RevFile::NEW) || f->statusCmp(i, RevFile::UNKNOWN))
+		if (isNew)
 			myColor = Qt::darkGreen;
 		else if (f->statusCmp(i, RevFile::DELETED))
 			myColor = Qt::red;
 
 		QTreeWidgetItem* item = new QTreeWidgetItem(treeWidgetFiles);
 		item->setText(0, git->filePath(*f, i));
-		item->setText(1, f->statusCmp(i, RevFile::IN_INDEX) ? "In sync" : "Out of sync");
-		item->setCheckState(0, f->statusCmp(i, RevFile::UNKNOWN) ? Qt::Unchecked : Qt::Checked);
+		item->setText(1, inIndex ? "In sync" : "Out of sync");
+		item->setCheckState(0, inIndex || !isNew ? Qt::Checked : Qt::Unchecked);
 		item->setForeground(0, myColor);
 		item->setTextAlignment(1, Qt::AlignHCenter);
 	}
