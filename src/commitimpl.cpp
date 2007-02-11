@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QToolTip>
+#include <QScrollBar>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "git.h"
@@ -72,6 +73,22 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	msg.append(status.stripWhiteSpace());
 	textEditMsg->setPlainText(msg);
 
+	// compute cursor offsets. Take advantage of fixed width font
+	textEditMsg->moveCursor(QTextCursor::Start);
+	textEditMsg->verticalScrollBar()->setValue(0);
+	textEditMsg->horizontalScrollBar()->setValue(0);
+	int y0 = textEditMsg->cursorRect().y();
+	int x0 = textEditMsg->cursorRect().x();
+	textEditMsg->moveCursor(QTextCursor::Down);
+	textEditMsg->moveCursor(QTextCursor::Right);
+	textEditMsg->verticalScrollBar()->setValue(0);
+	int y1 = textEditMsg->cursorRect().y();
+	int x1 = textEditMsg->cursorRect().x();
+	_ofsX = x1 - x0;
+	_ofsY = y1 - y0;
+	textEditMsg->moveCursor(QTextCursor::Start);
+	textEditMsg_cursorPositionChanged();
+
 	// if message is not changed we avoid calling refresh
 	// to change patch name in stgCommit()
 	origMsg = msg;
@@ -89,9 +106,11 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	}
 	connect(treeWidgetFiles, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(contextMenuPopup(const QPoint&)));
+	connect(textEditMsg, SIGNAL(cursorPositionChanged()),
+	        this, SLOT(textEditMsg_cursorPositionChanged()));
 }
 
-void CommitImpl::closeEvent(QCloseEvent* ce) {
+void CommitImpl::closeEvent(QCloseEvent*) {
 
 	QSettings settings;
 	settings.setValue(CMT_GEOM_KEY, saveGeometry());
@@ -272,69 +291,22 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 	close();
 }
 
-void CommitImpl::textEditMsg_cursorPositionChanged(int para, int pos) {
+void CommitImpl::textEditMsg_cursorPositionChanged() {
 
 	int col_pos, line_pos;
-	computePosition(para, pos, col_pos, line_pos);
+	computePosition(col_pos, line_pos);
 	QString lineNumber = QString("Line: %1 Col: %2")
 	                             .arg(line_pos + 1).arg(col_pos + 1);
 	textLabelLineCol->setText(lineNumber);
 }
 
-/*
-	Following code to compute cursor row and col position is
-	shameless taken from KEdit, indeed, it comes from
-	http://websvn.kde.org/branches/KDE/3.4/kdelibs/kdeui/keditcl1.cpp
-*/
-void CommitImpl::computePosition(int line, int col, int &col_pos, int &line_pos) {
-	return;
-// 	// line is expressed in paragraphs, we now need to convert to lines FIXME
-// 	line_pos = 0;
-// 	if (textEditMsg->wordWrap() == Q3TextEdit::NoWrap)
-// 		line_pos = line;
-// 	else {
-// 		for (int i = 0; i < line; i++)
-// 			line_pos += textEditMsg->linesOfParagraph(i);
-// 	}
-// 	int line_offset = textEditMsg->lineOfChar(line, col);
-// 	line_pos += line_offset;
-//
-// 	// We now calculate where the current line starts in the paragraph.
-// 	const QString linetext(QString::number(line));
-// 	int start_of_line = 0;
-// 	if (line_offset > 0) {
-// 		start_of_line = col;
-// 		while (textEditMsg->lineOfChar(line, --start_of_line) == line_offset);
-// 			start_of_line++;
-// 	}
-// 	// O.K here is the deal: The function getCursorPositoin returns the character
-// 	// position of the cursor, not the screenposition. I.e,. assume the line
-// 	// consists of ab\tc then the character c will be on the screen on position 8
-// 	// whereas getCursorPosition will return 3 if the cursors is on the character c.
-// 	// Therefore we need to compute the screen position from the character position.
-// 	// That's what all the following trouble is all about:
-// 	int coltemp = col - start_of_line;
-// 	int pos  = 0;
-// 	int find = 0;
-// 	int mem  = 0;
-// 	bool found_one = false;
-//
-// 	// if you understand the following algorithm you are worthy to look at the
-// 	// kedit+ sources -- if not, go away ;-)
-// 	while (find >= 0 && find <= coltemp - 1) {
-// 		find = linetext.find('\t', find + start_of_line, true) - start_of_line;
-// 		if (find >=0 && find <= coltemp - 1) {
-// 			found_one = true;
-// 			pos = pos + find - mem;
-// 			pos = pos + 8 - pos % 8;
-// 			mem = find;
-// 			find ++;
-// 		}
-// 	}
-// 	// add the number of characters behind the last tab on the line.
-// 	pos = pos + coltemp - mem;
-// 	if (found_one)
-// 		pos = pos - 1;
-//
-// 	col_pos = pos;
+void CommitImpl::computePosition(int &col_pos, int &line_pos) {
+
+	QRect r = textEditMsg->cursorRect();
+	int vs = textEditMsg->verticalScrollBar()->value();
+	int hs = textEditMsg->horizontalScrollBar()->value();
+
+	// when in start position r.x() = -r.width() / 2
+	col_pos = (r.x() + hs + r.width() / 2) / _ofsX;
+	line_pos = (r.y() + vs) / _ofsY;
 }
