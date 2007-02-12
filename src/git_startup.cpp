@@ -426,6 +426,14 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 	SCRef dest = sl[2];
 	const QString extStatusInfo(orig + " --> " + dest + " (" + type + "%)");
 
+	/*
+	   NOTE: we set rf.extStatus size equal to position of latest
+	         copied/renamed file. So it can have size lower then
+	         rf.count() if after copied/renamed file there are
+	         others. Here we have no possibility to know final
+	         dimension of this RefFile. We are still in parsing.
+	*/
+
 	// simulate new file
 	appendFileName(rf, dest);
 	rf.mergeParent.append(parNum);

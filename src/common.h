@@ -357,8 +357,12 @@ public:
 		return ((onlyModified ? MODIFIED : status.at(idx)) & sf);
 	}
 	const QString extendedStatus(int idx) const {
-
-		return (!extStatus.isEmpty() ? extStatus.at(idx) : "");
+	/*
+	   rf.extStatus has size equal to position of latest copied/renamed file,
+	   that could be lower then count(), so we have to explicitly check for
+	   an out of bound condition.
+	*/
+		return (!extStatus.isEmpty() && idx < extStatus.count() ? extStatus.at(idx) : "");
 	}
 };
 typedef QHash<QString, const RevFile*> RevFileMap;
