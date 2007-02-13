@@ -22,8 +22,8 @@ QT += qt3support
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
-QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -frepo -Wno-long-long
-QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long
+QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -frepo -Wno-long-long -pedantic -Wconversion
+QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 INSTALLS += target
 
 # Directories
