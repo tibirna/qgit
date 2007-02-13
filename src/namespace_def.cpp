@@ -59,7 +59,7 @@ void QGit::compat_usleep(int us) {
 	usleep(us);
 }
 
-static bool addShellWrapper(QStringList& args) {
+static bool addShellWrapper(QStringList&) {
 
 	return false;
 }

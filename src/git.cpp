@@ -6,6 +6,10 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#ifndef ON_WINDOWS
+#include <stdlib.h> // used by getenv()
+#endif
+
 #include <QApplication>
 #include <QDateTime>
 #include <QRegExp>
@@ -230,6 +234,39 @@ void Git::checkEnvironment() {
 	errorReportingEnabled = true;
 	if (isTextHighlighterFound)
 		dbp("Found %1", version.section('\n', 0, 0));
+}
+
+void Git::userInfo(SList info) {
+/*
+  git looks for commit user information in following order:
+
+	- GIT_AUTHOR_NAME and GIT_AUTHOR_EMAIL environment variables
+	- repository config file
+	- global config file
+	- your name, hostname and domain
+
+	Note that environment variables are not used under Windows
+*/
+	info.clear();
+
+#ifndef ON_WINDOWS
+	QString user(getenv("GIT_AUTHOR_NAME"));
+	QString email(getenv("GIT_AUTHOR_EMAIL"));
+	info << "Environment" << user << email;
+#else
+	QString user, email;
+#endif
+	errorReportingEnabled = false; // 'git repo-config' could fail, see docs
+
+	run("git repo-config user.name", &user);
+	run("git repo-config user.email", &email);
+	info << "Local config" << user << email;
+
+	run("git repo-config --global user.name", &user);
+	run("git repo-config --global user.email", &email);
+	info << "Global config" << user << email;
+
+	errorReportingEnabled = true;
 }
 
 void Git::setThrowOnStop(bool b) {

@@ -94,6 +94,7 @@ public:
 
 	void setDefaultModel(FileHistory* fh) { revData = fh; }
 	void checkEnvironment();
+	void userInfo(SList info);
 	const QString getBaseDir(bool* c, SCRef wd, bool* ok = NULL, QString* gd = NULL);
 	bool init(SCRef workDir, bool askForRange, QStringList* filterList, bool* quit);
 	bool stop(bool saveCache);

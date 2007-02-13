@@ -32,6 +32,7 @@ protected slots:
 	void lineEditTemplate_textChanged(const QString& s);
 	void lineEditCommitExtraOptions_textChanged(const QString& s);
 	void comboBoxCodecs_activated(int i);
+	void comboBoxUserSrc_activated(int i);
 	void pushButtonExtDiff_clicked();
 	void pushButtonFont_clicked();
 
@@ -39,9 +40,11 @@ private:
 	void writeSetting(const QString& key, const QVariant& value);
 	void setupCodecList(QStringList& list);
 	void setupCodecsCombo();
+	void userInfo();
 
 	Git* git;
 	static const char* en[];
+	QStringList _uInfo;
 };
 
 #endif

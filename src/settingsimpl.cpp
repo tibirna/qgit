@@ -70,6 +70,41 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	setupCodecsCombo();
 	checkBoxDiffCache_toggled(checkBoxDiffCache->isChecked());
 	tabDialog->setCurrentPage(defTab);
+	userInfo();
+}
+
+void SettingsImpl::userInfo() {
+/*
+	QGit::userInfo() returns a QStringList formed by
+	triples (defined in, user, email)
+*/
+	git->userInfo(_uInfo);
+	if (_uInfo.count() % 3 != 0) {
+		dbs("ASSERT in SettingsImpl::userInfo(), bad info returned");
+		return;
+	}
+	bool found = false;
+	int idx = 0;
+	FOREACH_SL(it, _uInfo) {
+		comboBoxUserSrc->insertItem(*it);
+		++it;
+		if (!found && !(*it).isEmpty())
+			found = true;
+		if (!found)
+			idx++;
+		++it;
+	}
+	if (!found)
+		idx = 0;
+
+	comboBoxUserSrc->setCurrentItem(idx);
+	comboBoxUserSrc_activated(idx);
+}
+
+void SettingsImpl::comboBoxUserSrc_activated(int i) {
+
+	lineEditAuthor->setText(_uInfo[i * 3 + 1]);
+	lineEditMail->setText(_uInfo[i * 3 + 2]);
 }
 
 void SettingsImpl::writeSetting(const QString& key, const QVariant& value) {
