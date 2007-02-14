@@ -240,8 +240,13 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 		dbp("ERROR: unable to write file %1", fileName);
 		return false;
 	}
+	QString data2(data);
 	QTextStream stream(&file);
-	stream << data;
+
+#ifdef ON_WINDOWS
+	data2.replace("\n", "\r\n");
+#endif
+	stream << data2;
 	file.close();
 
 #ifndef ON_WINDOWS

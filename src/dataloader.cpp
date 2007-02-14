@@ -246,7 +246,9 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 	dataFileName.prepend(foundTmpDir ? "/tmp" : wd);
 	dataFile.setName(dataFileName);
 	QString runCmd(args.join(" ") + " > " +  dataFileName);
+#ifndef ON_WINDOWS
 	runCmd.append(" &\necho $!\nwait"); // we want to read git-rev-list PID
+#endif
 	runCmd.prepend("cd " + wd + "\n");
 
 	if (!QGit::writeToFile(scriptFileName, runCmd, true))
