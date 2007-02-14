@@ -182,7 +182,12 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 void MyProcess::on_cancel() {
 
 	canceling = true;
-	terminate();
+
+#ifdef ON_WINDOWS
+	kill(); // uses TerminateProcess
+#else
+	terminate(); // uses SIGTERM signal
+#endif
 }
 
 void MyProcess::parseArgs(SCRef cmd, SList args) {

@@ -720,11 +720,23 @@ void Git::loadFileNames() {
 	}
 
 	QString diffTreeBuf;
+	int cnt = 0;
 	FOREACH (StrVect, it, revData->revOrder) {
 		if (!revsFiles.contains(*it)) {
 			const Rev* c = revLookup(*it);
-			if (c->parentsCount() == 1) // skip initials and merges
+			if (c->parentsCount() == 1)  {// skip initials and merges
 				diffTreeBuf.append(*it).append('\n');
+				cnt++;
+			}
+#ifdef ON_WINDOWS
+/*
+  FIXME: For some strange reason on Windows application hangs if
+  'git diff-tree' is called with a big number of revs.
+  More investigation needed!
+*/
+			if (cnt > 100)
+				break;
+#endif
 		}
 	}
 	if (!diffTreeBuf.isEmpty()) {
