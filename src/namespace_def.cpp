@@ -99,8 +99,6 @@ const QString QGit::PATCHES_NAME = "qgit_import";
 const QString QGit::ZERO_SHA        = "0000000000000000000000000000000000000000";
 const QString QGit::CUSTOM_SHA      = "CUSTOM";
 const QString QGit::ALL_MERGE_FILES = "ALL_MERGE_FILES";
-const QChar QGit::IN_INDEX          = 'I';
-const QChar QGit::NOT_IN_INDEX      = 'N';
 
 // settings keys
 const QString QGit::ORG_KEY         = "qgit";

@@ -182,8 +182,6 @@ namespace QGit {
 	// git index parameters
 	extern const QString ZERO_SHA;
 	extern const QString CUSTOM_SHA;
-	extern const QChar IN_INDEX;
-	extern const QChar NOT_IN_INDEX;
 	extern const QString ALL_MERGE_FILES;
 
 	// settings keys
