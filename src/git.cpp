@@ -6,10 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#ifndef ON_WINDOWS
-#include <stdlib.h> // used by getenv()
-#endif
-
 #include <QApplication>
 #include <QDateTime>
 #include <QRegExp>
@@ -244,18 +240,14 @@ void Git::userInfo(SList info) {
 	- repository config file
 	- global config file
 	- your name, hostname and domain
-
-	Note that environment variables are not used under Windows
 */
-	info.clear();
+	const QString env(QProcess::systemEnvironment().join(","));
+	QString user(env.section("GIT_AUTHOR_NAME", 1).section(",", 0, 0).section("=", 1).stripWhiteSpace());
+	QString email(env.section("GIT_AUTHOR_EMAIL", 1).section(",", 0, 0).section("=", 1).stripWhiteSpace());
 
-#ifndef ON_WINDOWS
-	QString user(getenv("GIT_AUTHOR_NAME"));
-	QString email(getenv("GIT_AUTHOR_EMAIL"));
+	info.clear();
 	info << "Environment" << user << email;
-#else
-	QString user, email;
-#endif
+
 	errorReportingEnabled = false; // 'git repo-config' could fail, see docs
 
 	run("git repo-config user.name", &user);
