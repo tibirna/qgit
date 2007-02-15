@@ -85,7 +85,7 @@ void ListView::on_repaintListViews(const QFont& f) {
 	scrollTo(currentIndex());
 }
 
-QString ListView::currentText(int column) {
+const QString ListView::currentText(int column) {
 
 	QModelIndex idx = model()->index(currentIndex().row(), column);
 	return (idx.isValid() ? idx.data().toString() : "");
@@ -217,6 +217,9 @@ void ListView::mouseReleaseEvent(QMouseEvent* e) {
 void ListView::mouseMoveEvent(QMouseEvent* e) {
 
 	if (d->isReadyToDrag()) {
+
+		if (indexAt(e->pos()).row() == currentIndex().row())
+			return; // move at least by one line to activate drag
 
 		if (!d->setDragging(true))
 			return;

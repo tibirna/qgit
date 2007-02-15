@@ -27,7 +27,7 @@ public:
 	void getSelectedItems(QStringList& selectedItems);
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);
-	QString currentText(int col);
+	const QString currentText(int col);
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
