@@ -71,7 +71,7 @@ private:
 	const QString setupAuthor(SCRef origAuthor, int annId);
 	void setAnnotation(SCRef diff, SCRef aut, SCLList pAnn, SLList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);
-	void unify(SLList dst, SCLList src);
+	static void unify(SLList dst, SCLList src);
 	void updatePatchScript(SCRef sha, SCRef par);
 	bool startPatchProc(SCRef buf, SCRef fileName);
 	const QString getNextPatch(QString& patchFile, SCRef fileName, SCRef sha);

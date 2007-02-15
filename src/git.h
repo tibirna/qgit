@@ -123,7 +123,7 @@ public:
 	bool getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap);
 	const RevFile* getFiles(SCRef sha, SCRef sha2 = "", bool all = false, SCRef path = "");
 	bool getTree(SCRef ts, SList nm, SList sha, SList type, bool wd, SCRef treePath);
-	const QString getLocalDate(SCRef gitDate);
+	static const QString getLocalDate(SCRef gitDate);
 	const QString getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE);
 	const QString getDefCommitMsg();
 	const QString getLaneParent(SCRef fromSHA, int laneNum);
@@ -218,7 +218,7 @@ private:
 	bool getRefs();
 	bool getStGITPatches();
 	bool addStGitPatch(SCRef pn, SCList files, SCList filesSHA, bool applied);
-	void dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter = "");
+	static void dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter = "");
 	void clearRevs();
 	void clearFileNames();
 	bool startRevList(SCRef args, FileHistory* fh);
@@ -243,17 +243,17 @@ private:
 	void mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, uint>, bool>&dm);
 	void mergeBranches(Rev* p, const Rev* r);
 	void updateLanes(Rev& c, Lanes& lns, SCRef sha);
-	void removeFiles(SCList selFiles, SCRef workDir, SCRef ext);
-	void restoreFiles(SCList selFiles, SCRef workDir, SCRef ext);
+	static void removeFiles(SCList selFiles, SCRef workDir, SCRef ext);
+	static void restoreFiles(SCList selFiles, SCRef workDir, SCRef ext);
 	bool mkPatchFromIndex(SCRef msg, SCRef patchFile);
 	const QStringList getOthersFiles();
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
-	const QString colorMatch(SCRef txt, QRegExp& regExp);
+	static const QString colorMatch(SCRef txt, QRegExp& regExp);
 	void appendFileName(RevFile& rf, SCRef name);
 	void populateFileNamesMap();
-	const QString quote(SCRef nm);
-	const QString quote(SCList sl);
-	const QStringList noSpaceSepHack(SCRef cmd);
+	static const QString quote(SCRef nm);
+	static const QString quote(SCList sl);
+	static const QStringList noSpaceSepHack(SCRef cmd);
 	void removeDeleted(SCList selFiles);
 	void setStatus(RevFile& rf, SCRef rowSt);
 	void setExtStatus(RevFile& rf, SCRef rowSt, int parNum);
@@ -262,7 +262,6 @@ private:
 
 	EM_DECLARE(exGitStopped);
 
-	Cache* cache;
 	Domain* curDomain;
 	QString workDir; // workDir is always without trailing '/'
 	QString gitDir;

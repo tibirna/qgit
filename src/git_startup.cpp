@@ -536,7 +536,7 @@ bool Git::stop(bool saveCache) {
 		if (!revsFiles.isEmpty()) {
 			POST_MSG("Saving cache. Please wait...");
 			EM_PROCESS_EVENTS_NO_INPUT; // to paint the message
-			if (!cache->save(gitDir, revsFiles, dirNamesVec, fileNamesVec))
+			if (!Cache::save(gitDir, revsFiles, dirNamesVec, fileNamesVec))
 				dbs("ERROR unable to save file names cache");
 		}
 	}
@@ -710,7 +710,7 @@ void Git::loadFileNames() {
 		bool isWorkingDirRevFile = (getFiles(ZERO_SHA) != NULL);
 		clearFileNames(); // any already created RevFile will be lost
 
-		if (cache->load(gitDir, revsFiles, dirNamesVec, fileNamesVec))
+		if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec))
 			populateFileNamesMap();
 		else
 			dbs("ERROR: unable to load file names cache");

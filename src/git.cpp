@@ -194,9 +194,7 @@ Git::Git(QWidget* p) : QObject(p) {
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
 	revData = NULL;
-
 	revsFiles.reserve(MAX_DICT_SIZE);
-	cache = new Cache(this);
 }
 
 void Git::checkEnvironment() {
