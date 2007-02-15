@@ -296,7 +296,18 @@ void Domain::update(bool fromMaster, bool force) {
 
 	} catch (int i) {
 
-		st.rollBack();
+		/*
+		   If we have a cancel request because of a new update is in queue we
+		   cannot roolback current state to avoid new update is filtered out
+		   in case rolled back sha and new sha are the same.
+		   This could happen with arrow navigation:
+
+		   sha -> go UP (new sha) -> go DOWN (cancel) -> rollback to sha
+
+		   And pending request 'sha' is filtered out leaving us in an
+		   inconsistent state.
+		*/
+		st.commit();
 		st.setLock(false);
 		busy = false;
 		git->setCurContext(NULL);
