@@ -181,13 +181,15 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 			else
 				st->setDiffToSha(""); // restore std view
 
-			UPDATE_DOMAIN(d);
 			filterNextContextMenuRequest = true;
+			UPDATE_DOMAIN(d);
 			return true; // filter event out
 		}
 	}
 	// check for 'children & parents' function, i.e. if mouse is on the graph
 	if (index.column() == GRAPH_COL) {
+
+		filterNextContextMenuRequest = true;
 		QStringList parents, children;
 		if (getLaneParentsChilds(sha, e->pos().x(), parents, children))
 			emit lanesContextMenuRequested(parents, children);
