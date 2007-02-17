@@ -1654,6 +1654,7 @@ void MainImpl::closeEvent(QCloseEvent* ce) {
 		// still some run() call not returned somewhere, it is
 		// not safe to delete run() callers objects now
 		QTimer::singleShot(100, this, SLOT(ActClose_activated()));
+		ce->ignore();
 		return;
 	}
 	emit closeAllTabs();
