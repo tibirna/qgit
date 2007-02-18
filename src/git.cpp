@@ -1003,33 +1003,51 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 
 	QString text;
 	if (c->isDiffCache)
-		text = c->longLog();
+		text = Qt::convertFromPlainText( c->longLog() );
 	else {
-		text = QString("Author: " + c->author() + "\nDate:   ");
+		text = "<html><head><style type=\"text/css\">"
+				"td.h { font-weight: bold; }\n"
+				"table { background-color: #e0e0f0; }\n"
+				"div.l { white-space: pre; font-family: Monospace; }\n"
+				"</style></head><body>\n";
+		text.append( "<div class='t'><table>\n" );
+		text.append( QString("<tr><td class='h'>Author</th> <td>" + c->author()
+					+ "</td></tr>\n<tr><td class='h'>Date</th><td>") );
 		text.append(getLocalDate(c->authorDate()));
+		text.append("</td></tr>\n");
 		if (!c->isUnApplied && !c->isApplied) {
-			text.append("\nParent: ").append(c->parents().join("\nParent: "));
+			text.append("<tr><td class='h'>Parent</td> <td>").append(c->parents()
+					.join("</td></tr>\n<tr><td class='h'>Parent</td> <td>"));
+			text.append("</td></tr>\n");
 
 			QStringList sl = getChilds(sha);
 			if (!sl.isEmpty())
-				text.append("\nChild: ").append(sl.join("\nChild: "));
+				text.append("<tr><td class='h'>Child</td> <td>").append(sl
+						.join("</td></tr>\n<tr><td class='h'>Child</td> <td>"));
+			text.append("</td></tr>\n");
 
 			sl = getDescendantBranches(sha);
 			if (!sl.empty())
-				text.append("\nBranch: ").append(sl.join("\nBranch: "));
+				text.append("<tr><td class='h'>Branch</td> <td>").append(sl
+						.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>"));
+			text.append("</td></tr>\n");
 
 			sl = getNearTags(!optGoDown, sha);
 			if (!sl.isEmpty())
-				text.append("\nFollows: ").append(sl.join(", "));
+				text.append("<tr><td class='h'>Follows</td> <td>").append(sl.join(", "));
+			text.append("</td></tr>\n");
 
 			sl = getNearTags(optGoDown, sha);
 			if (!sl.isEmpty())
-				text.append("\nPrecedes: ").append(sl.join(", "));
+				text.append("<tr><td class='h'>Precedes</td> <td>").append(sl.join(", "));
+			text.append("</td></tr>\n");
 		}
-		text.append("\n\n    " + colorMatch(c->shortLog(), shortLogRE) +
+		text.append( "</table></div>\n" );
+		text.append("\n\n<div class='l'>    " + colorMatch(c->shortLog(), shortLogRE) +
 		            '\n' + colorMatch(c->longLog(), longLogRE));
+		text.append( "</div></body></html>\n" );
 	}
-	text = Qt::convertFromPlainText(text);
+//	text = Qt::convertFromPlainText(text);
 
 	// highlight SHA's
 	//
