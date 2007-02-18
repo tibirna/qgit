@@ -1006,15 +1006,25 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 		text = Qt::convertFromPlainText( c->longLog() );
 	else {
 		text = "<html><head><style type=\"text/css\">"
+				"tr.head { background-color: #a0a0e0 }\n"
 				"td.h { font-weight: bold; }\n"
 				"table { background-color: #e0e0f0; }\n"
-				"div.l { white-space: pre; font-family: Monospace; }\n"
-				"</style></head><body>\n";
-		text.append( "<div class='t'><table>\n" );
-		text.append( QString("<tr><td class='h'>Author</th> <td>" + c->author()
-					+ "</td></tr>\n<tr><td class='h'>Date</th><td>") );
+				"span.h { font-weight: bold; font-size: medium; }\n"
+				"div.l { white-space: pre; font-family: ";
+		text.append( TYPE_WRITER_FONT.family() );
+		text.append( "; }\n"
+				"</style></head><body>\n" );
+
+		text.append( "<div class='t'><table border=0 cellspacing=0 cellpadding=2>\n" );
+		text.append("<tr class='head'> <th colspan=2> <span class='h'>" );
+		text.append(colorMatch(c->shortLog(), shortLogRE));
+		text.append("</span></th></tr>\n");
+
+		text.append( QString("<tr><td class='h'>Author</td> <td>" + c->author()
+					+ "</td></tr>\n<tr><td class='h'>Date</td><td>") );
 		text.append(getLocalDate(c->authorDate()));
 		text.append("</td></tr>\n");
+
 		if (!c->isUnApplied && !c->isApplied) {
 			text.append("<tr><td class='h'>Parent</td> <td>").append(c->parents()
 					.join("</td></tr>\n<tr><td class='h'>Parent</td> <td>"));
@@ -1043,8 +1053,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 			text.append("</td></tr>\n");
 		}
 		text.append( "</table></div>\n" );
-		text.append("\n\n<div class='l'>    " + colorMatch(c->shortLog(), shortLogRE) +
-		            '\n' + colorMatch(c->longLog(), longLogRE));
+		text.append("\n\n<div class='l'>" + colorMatch(c->longLog(), longLogRE));
 		text.append( "</div></body></html>\n" );
 	}
 //	text = Qt::convertFromPlainText(text);
