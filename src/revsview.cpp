@@ -6,6 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QMenu>
 #include <QStatusBar>
 #include "common.h"
 #include "git.h"
@@ -221,24 +222,20 @@ void RevsView::updateLineEditSHA(bool clear) {
 
 void RevsView::on_lanesContextMenuRequested(SCList parents, SCList childs) {
 
-	Q3PopupMenu contextMenu;
-	uint i = 0;
+	QMenu contextMenu;
 	FOREACH_SL (it, childs)
-		contextMenu.insertItem("Child: " + git->getShortLog(*it), i++);
+		contextMenu.addAction("Child: " + git->getShortLog(*it));
 
 	FOREACH_SL (it, parents) {
-
 		QString log(git->getShortLog(*it));
-		if (log.isEmpty())
-			log = *it;
-
-		contextMenu.insertItem("Parent: " + log, i++);
+		contextMenu.addAction("Parent: " + (log.isEmpty() ? *it : log));
 	}
-	int id = contextMenu.exec(QCursor::pos()); // modal exec
-	if (id == -1)
+	QAction* act = contextMenu.exec(QCursor::pos()); // modal exec
+	if (!act)
 		return;
 
-	int cc = (int)childs.count();
+	int cc = childs.count();
+	int id = contextMenu.actions().indexOf(act);
 	SCRef target(id < cc ? childs[id] : parents[id - cc]);
 	st.setSha(target);
 	UPDATE();

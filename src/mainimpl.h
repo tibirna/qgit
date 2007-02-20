@@ -7,11 +7,9 @@
 #ifndef MAINIMPL_H
 #define MAINIMPL_H
 
-#include <Q3PopupMenu>
 #include <QSet>
 #include <QModelIndex>
 #include <QProcess>
-#include <QPointer>
 #include <QRegExp>
 #include <QTimer>
 #include <QCloseEvent>
@@ -21,8 +19,9 @@
 #include "common.h"
 #include "ui_mainview.h"
 
-class Q3Accel;
+class QShortcutEvent;
 class QComboBox;
+class QAction;
 class QTextEdit;
 class Git;
 class Domain;
@@ -65,12 +64,11 @@ protected slots:
 	void openRecent_activated(int id);
 	void customAction_activated(int id);
 	void customAction_exited(const QString& name);
-	void goRef_activated(int id);
+	void goRef_triggered(QAction*);
 	void changesCommitted(bool);
 	void lineEditSHA_returnPressed();
 	void lineEditFilter_returnPressed();
 	void pushButtonCloseTab_clicked();
-	void accelActivated(int);
 	void ActBack_activated();
 	void ActForward_activated();
 	void ActFind_activated();
@@ -115,7 +113,7 @@ private:
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
 	void updateContextActions(SCRef newRevSha, SCRef newFileName, bool isDir, bool found);
-	void setupAccelerator(Q3Accel* accel);
+	void setupAccelerator();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
 	bool passFilter(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
@@ -131,8 +129,9 @@ private:
 	void doFileContexPopup(SCRef fileName, int type);
 	void adjustFontSize(int delta);
 	void scrollTextEdit(int delta);
-	void scrollListView(int delta);
+	void selectNextItem(bool itemAbove);
 	void goMatch(int delta);
+	bool accelActivated(QShortcutEvent* se);
 	bool askApplyPatchParameters(bool* commit, bool* fold);
 	QTextEdit* getCurrentTextEdit();
 	template<class X> QList<X*>* getTabs(int tabPos = -1);
@@ -151,14 +150,10 @@ private:
 	QString curDir;
 	QRegExp shortLogRE;
 	QRegExp longLogRE;
-	QPointer<Q3PopupMenu> contextMenu;
-	QPointer<Q3PopupMenu> contextSubMenu;
-	QPointer<Q3PopupMenu> contextRmtMenu;
 	QString startUpDir;
 	QString textToFind;
 	QFont listViewFont;
 	bool setRepositoryBusy;
-	int recentRepoMenuPos;
 
 	QLineEdit* lineEditSHA;
 	QLineEdit* lineEditFilter;

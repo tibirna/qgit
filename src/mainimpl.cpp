@@ -8,14 +8,14 @@
 */
 #include <QWheelEvent>
 #include <QCloseEvent>
-#include <QKeyEvent>
 #include <QEvent>
 #include <QSettings>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStatusBar>
 #include <QFileDialog>
-#include <q3accel.h>
+#include <QMenu>
+#include <QShortcutEvent>
 #include "config.h" // defines PACKAGE_VERSION
 #include "help.h"
 #include "ui_help.h"
@@ -60,8 +60,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 	EVEN_LINE_COL = ODD_LINE_COL.dark(103);
 
 	git = new Git(this);
-	Q3Accel* accel = new Q3Accel(this);
-	setupAccelerator(accel);
+	setupAccelerator();
 	qApp->installEventFilter(this);
 
 	// init native types
@@ -103,9 +102,6 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p, "", Qt::WDestructiveCl
 
 	// set-up menu for recent visited repositories
 	connect(File, SIGNAL(activated(int)), this, SLOT(openRecent_activated(int)));
-	recentRepoMenuPos = 0;
-	while (File->idAt(recentRepoMenuPos) != -1)
-		recentRepoMenuPos++;
 	doUpdateRecentRepoMenu("");
 
 	// set-up menu for custom actions
@@ -648,8 +644,12 @@ bool MainImpl::passFilter(SCRef sha, SCRef filter, int colNum, const QMap<QStrin
 
 bool MainImpl::event(QEvent* e) {
 
+	QShortcutEvent* se = dynamic_cast<QShortcutEvent*>(e);
+	if (se && accelActivated(se))
+		return true;
+
 	BaseEvent* de = dynamic_cast<BaseEvent*>(e);
-	if (de == NULL)
+	if (!de)
 		return QWidget::event(e);
 
 	SCRef data = de->myData();
@@ -773,85 +773,101 @@ void MainImpl::tabWdg_currentChanged(QWidget* w) {
 	}
 }
 
-void MainImpl::accelActivated(int id) {
+bool MainImpl::accelActivated(QShortcutEvent* se) {
 
-	switch (id) {
-	case KEY_UP:
-		scrollListView(-1);
+	bool found = true, isKey_P = false;
+	const QKeySequence& key = se->key();
+	switch (key) {
+// 	case Qt::Key_Up:
+	case Qt::Key_I:
+		if (key == QKeySequence(Qt::Key_Up, Qt::SHIFT))
+			goMatch(-1);
+		else
+			selectNextItem(true);
 		break;
-	case KEY_DOWN:
-		scrollListView(1);
+// 	case Qt::Key_Down:
+	case Qt::Key_K:
+	case Qt::Key_N:
+		if (key == QKeySequence(Qt::Key_Down, Qt::SHIFT))
+			goMatch(1);
+		else
+			selectNextItem(false);
 		break;
-	case SHIFT_KEY_UP:
-		goMatch(-1);
-		break;
-	case SHIFT_KEY_DOWN:
-		goMatch(1);
-		break;
-	case KEY_LEFT:
+	case Qt::Key_Left:
 		ActBack_activated();
 		break;
-	case KEY_RIGHT:
+	case Qt::Key_Right:
 		ActForward_activated();
 		break;
-	case CTRL_PLUS:
-		adjustFontSize(1);
+	case Qt::Key_Plus:
+		if (key == QKeySequence(Qt::Key_Plus, Qt::CTRL))
+			adjustFontSize(1);
+		else
+			found = false;
 		break;
-	case CTRL_MINUS:
-		adjustFontSize(-1);
+	case Qt::Key_Minus:
+		if (key == QKeySequence(Qt::Key_Minus, Qt::CTRL))
+			adjustFontSize(-1);
+		else
+			found = false;
 		break;
-	case KEY_U:
+	case Qt::Key_U:
 		scrollTextEdit(-18);
 		break;
-	case KEY_D:
+	case Qt::Key_D:
 		scrollTextEdit(18);
 		break;
-	case KEY_DELETE:
-	case KEY_B:
-	case KEY_BCKSPC:
+	case Qt::Key_Delete:
+	case Qt::Key_B:
+	case Qt::Key_Backspace:
 		scrollTextEdit(-1);
 		break;
-	case KEY_SPACE:
+	case Qt::Key_Space:
 		scrollTextEdit(1);
 		break;
-	case KEY_R:
+	case Qt::Key_R:
 		tabWdg->setCurrentPage(rv->tabPos());
 		break;
-	case KEY_P:
-	case KEY_F:{
+	case Qt::Key_P:
+		isKey_P = true;
+	case Qt::Key_F:{
 		int cp = tabWdg->currentPageIndex();
-		Domain* d = (id == KEY_P) ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
-		                            static_cast<Domain*>(firstTab<FileView>(cp));
+		Domain* d = (isKey_P) ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
+		                        static_cast<Domain*>(firstTab<FileView>(cp));
 		if (d)
 			tabWdg->setCurrentPage(d->tabPos()); }
 		break;
+	default:
+		found = false;
+		break;
 	}
+	return found;
 }
 
-void MainImpl::setupAccelerator(Q3Accel* accel) {
+void MainImpl::setupAccelerator() {
 
-	accel->insertItem(Qt::Key_Up,         KEY_UP);
-	accel->insertItem(Qt::Key_I,          KEY_UP);
-	accel->insertItem(Qt::Key_Down,       KEY_DOWN);
-	accel->insertItem(Qt::Key_N,          KEY_DOWN);
-	accel->insertItem(Qt::Key_K,          KEY_DOWN);
-	accel->insertItem(Qt::Key_Left,       KEY_LEFT);
-	accel->insertItem(Qt::Key_Right,      KEY_RIGHT);
-	accel->insertItem(Qt::SHIFT+Qt::Key_Up,   SHIFT_KEY_UP);
-	accel->insertItem(Qt::SHIFT+Qt::Key_Down, SHIFT_KEY_DOWN);
-	accel->insertItem(Qt::CTRL+Qt::Key_Plus,  CTRL_PLUS);
-	accel->insertItem(Qt::CTRL+Qt::Key_Minus, CTRL_MINUS);
-	accel->insertItem(Qt::Key_U,          KEY_U);
-	accel->insertItem(Qt::Key_D,          KEY_D);
-	accel->insertItem(Qt::Key_Delete,     KEY_DELETE);
-	accel->insertItem(Qt::Key_B,          KEY_B);
-	accel->insertItem(Qt::Key_Backspace,  KEY_BCKSPC);
-	accel->insertItem(Qt::Key_Space,      KEY_SPACE);
-	accel->insertItem(Qt::Key_R,          KEY_R);
-	accel->insertItem(Qt::Key_P,          KEY_P);
-	accel->insertItem(Qt::Key_F,          KEY_F);
+// 	this->grabShortcut(Qt::Key_Up);
+// 	this->grabShortcut(Qt::Key_Down);
+	this->grabShortcut(Qt::Key_Left);
+	this->grabShortcut(Qt::Key_Right);
+	this->grabShortcut(Qt::Key_Delete);
+	this->grabShortcut(Qt::Key_Backspace);
+	this->grabShortcut(Qt::Key_Space);
 
-	connect(accel, SIGNAL(activated(int)), this, SLOT(accelActivated(int)));
+	this->grabShortcut(Qt::Key_B);
+	this->grabShortcut(Qt::Key_D);
+	this->grabShortcut(Qt::Key_F);
+	this->grabShortcut(Qt::Key_K);
+	this->grabShortcut(Qt::Key_I);
+	this->grabShortcut(Qt::Key_N);
+	this->grabShortcut(Qt::Key_P);
+	this->grabShortcut(Qt::Key_R);
+	this->grabShortcut(Qt::Key_U);
+
+// 	this->grabShortcut(QKeySequence(Qt::Key_Up, Qt::SHIFT));
+// 	this->grabShortcut(QKeySequence(Qt::Key_Down, Qt::SHIFT));
+	this->grabShortcut(QKeySequence(Qt::Key_Plus, Qt::CTRL));
+	this->grabShortcut(QKeySequence(Qt::Key_Minus, Qt::CTRL));
 }
 
 void MainImpl::goMatch(int delta) {
@@ -914,7 +930,7 @@ void MainImpl::scrollTextEdit(int delta) {
 		vs->setValue(vs->value() + delta * vs->singleStep());
 }
 
-void MainImpl::scrollListView(int delta) {
+void MainImpl::selectNextItem(bool itemAbove) {
 
 	QWidget* lv = NULL;
 	Domain* t;
@@ -932,7 +948,7 @@ void MainImpl::scrollListView(int delta) {
 	if (!lv)
 		return;
 
-	int key = (delta == 1) ? Qt::Key_Down : Qt::Key_Up;
+	int key = (itemAbove ? Qt::Key_Up : Qt::Key_Down);
 	QKeyEvent p(QEvent::KeyPress, key, 0, 0);
 	QKeyEvent r(QEvent::KeyRelease, key, 0, 0);
 	QApplication::sendEvent(lv, &p);
@@ -954,17 +970,17 @@ void MainImpl::adjustFontSize(int delta) {
 
 void MainImpl::updateCommitMenu(bool isStGITStack) {
 
-	int i = 0;
-	bool found = false;
-	while (!found && Edit->idAt(i) != -1) {
-		SCRef txt(Edit->text(Edit->idAt(i++)));
-		found = (txt == "&Commit..." || txt == "St&GIT patch...");
+	QAction* act = NULL;
+	QList<QAction*> al(Edit->actions());
+	FOREACH (QList<QAction*>, it, al) {
+		SCRef txt = (*it)->text();
+		if (txt == "&Commit..." || txt == "St&GIT patch...") {
+			act = *it;
+			break;
+		}
 	}
-	if (!found)
-		return;
-
-	const QString newText(isStGITStack ? "St&GIT patch..." : "&Commit...");
-	Edit->changeItem(Edit->idAt(--i), newText);
+	if (act)
+		act->setText(isStGITStack ? "St&GIT patch..." : "&Commit...");
 }
 
 void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
@@ -980,46 +996,39 @@ void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
 
 void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 
-	while (File->idAt(recentRepoMenuPos) != -1)
-		File->removeItemAt(recentRepoMenuPos); // removes also any separator
-
+	QList<QAction*> al(File->actions());
+	FOREACH (QList<QAction*>, it, al) {
+		SCRef txt = (*it)->text();
+		if (!txt.isEmpty() && txt.at(0).isDigit())
+			File->removeAction(*it);
+	}
 	QSettings settings;
 	QStringList recents(settings.value(REC_REP_KEY).toStringList());
-	if (recents.isEmpty() && newEntry.isEmpty())
-		return;
-
-	QStringList::iterator it = recents.find(newEntry);
-	if (it != recents.end())
-		recents.remove(it);
+	int idx = recents.indexOf(newEntry);
+	if (idx != -1)
+		recents.removeAt(idx);
 
 	if (!newEntry.isEmpty())
 		recents.prepend(newEntry);
 
-	File->insertSeparator();
-
-	QStringList::const_iterator it2 = recents.constBegin();
-	for (int i = 1; it2 != recents.constEnd() && i <= MAX_RECENT_REPOS; ++it2, ++i)
-		File->insertItem(QString::number(i) + " " + *it2);
-
-	for (int i = recents.count() - MAX_RECENT_REPOS; i > 0; i--)
-		recents.pop_back();
-
-	settings.setValue(REC_REP_KEY, recents);
+	idx = 1;
+	QStringList newRecents;
+	FOREACH_SL (it, recents) {
+		File->addAction(QString::number(idx++) + " " + *it);
+		newRecents << *it;
+		if (idx > MAX_RECENT_REPOS)
+			break;
+	}
+	settings.setValue(REC_REP_KEY, newRecents);
 }
 
 void MainImpl::doContexPopup(SCRef sha) {
 
-	// we need to use popup() to be non blocking and we need a
-	// global scope because we use a signal/slot connection
-	delete contextMenu;
-	delete contextSubMenu;
-	delete contextRmtMenu;
-	contextMenu = new Q3PopupMenu(this);
-	contextSubMenu = new Q3PopupMenu(this);
-	contextRmtMenu = new Q3PopupMenu(this);
-	connect(contextMenu, SIGNAL(activated(int)), this, SLOT(goRef_activated(int)));
-	connect(contextSubMenu, SIGNAL(activated(int)), this, SLOT(goRef_activated(int)));
-	connect(contextRmtMenu, SIGNAL(activated(int)), this, SLOT(goRef_activated(int)));
+	QMenu contextMenu(this);
+	QMenu contextSubMenu("More...", this);
+	QMenu contextRmtMenu("Remote branches", this);
+
+	connect(&contextMenu, SIGNAL(triggered(QAction*)), this, SLOT(goRef_triggered(QAction*)));
 
 	Domain* t;
 	int tt = currentTabType(&t);
@@ -1028,77 +1037,78 @@ void MainImpl::doContexPopup(SCRef sha) {
 	bool isFilePage = (tt == TAB_FILE);
 
 	if (!isFilePage && ActCheckWorkDir->isEnabled()) {
-		ActCheckWorkDir->addTo(contextMenu);
-		contextMenu->insertSeparator();
+		contextMenu.addAction(ActCheckWorkDir);
+		contextMenu.addSeparator();
 	}
 	if (isFilePage && ActViewRev->isEnabled())
-		ActViewRev->addTo(contextMenu);
+		contextMenu.addAction(ActViewRev);
 
 	if (!isPatchPage && ActViewDiff->isEnabled())
-		ActViewDiff->addTo(contextMenu);
+		contextMenu.addAction(ActViewDiff);
 
 	if (isRevPage && ActViewDiffNewTab->isEnabled())
-		ActViewDiffNewTab->addTo(contextMenu);
+		contextMenu.addAction(ActViewDiffNewTab);
 
 	if (!isFilePage && ActExternalDiff->isEnabled())
-		ActExternalDiff->addTo(contextMenu);
+		contextMenu.addAction(ActExternalDiff);
 
 	if (isRevPage) {
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
-			ActCommit->addTo(contextMenu);
+			contextMenu.addAction(ActCommit);
 		if (ActTag->isEnabled())
-			ActTag->addTo(contextMenu);
+			contextMenu.addAction(ActTag);
 		if (ActTagDelete->isEnabled())
-			ActTagDelete->addTo(contextMenu);
+			contextMenu.addAction(ActTagDelete);
 		if (ActMailFormatPatch->isEnabled())
-			ActMailFormatPatch->addTo(contextMenu);
+			contextMenu.addAction(ActMailFormatPatch);
 		if (ActPush->isEnabled())
-			ActPush->addTo(contextMenu);
+			contextMenu.addAction(ActPush);
 		if (ActPop->isEnabled())
-			ActPop->addTo(contextMenu);
+			contextMenu.addAction(ActPop);
 
 		const QStringList& bn(git->getAllRefNames(Git::BRANCH, Git::optOnlyLoaded));
 		const QStringList& rbn(git->getAllRefNames(Git::RMT_BRANCH, Git::optOnlyLoaded));
 		const QStringList& tn(git->getAllRefNames(Git::TAG, Git::optOnlyLoaded));
-		if (bn.empty() && rbn.empty() && tn.empty()) {
-			contextMenu->exec(QCursor::pos());
-			return;
-		}
-		int id = 1; // // ref entries have id > 0 to disambiguate from actions
-		FOREACH_SL (it, rbn)
-			contextRmtMenu->insertItem(*it, id++);
+		QAction* act = NULL;
 
-		int rbnCnt = contextRmtMenu->count();
-		if (rbnCnt > 0)
-			contextMenu->insertItem("Remote branches", contextRmtMenu);
+		FOREACH_SL (it, rbn) {
+			act = contextRmtMenu.addAction(*it);
+			act->setData("Ref");
+		}
+		if (contextRmtMenu.count() > 0)
+			contextMenu.addMenu(&contextRmtMenu);
 
 		if (!bn.empty())
-			contextMenu->insertSeparator();
+			contextMenu.addSeparator();
 
 		FOREACH_SL (it, bn) {
-			if (id < MAX_MENU_ENTRIES + rbnCnt)
-				contextMenu->insertItem(*it, id++);
+			if (contextMenu.count() < MAX_MENU_ENTRIES)
+				act = contextMenu.addAction(*it);
 			else
-				contextSubMenu->insertItem(*it, id++);
+				act = contextSubMenu.addAction(*it);
+
+			act->setData("Ref");
 		}
 		if (!tn.empty())
-			contextMenu->insertSeparator();
+			contextMenu.addSeparator();
 
 		FOREACH_SL (it, tn) {
-			if (id < MAX_MENU_ENTRIES + rbnCnt)
-				contextMenu->insertItem(*it, id++);
+			if (contextMenu.count() < MAX_MENU_ENTRIES)
+				act = contextMenu.addAction(*it);
 			else
-				contextSubMenu->insertItem(*it, id++);
+				act = contextSubMenu.addAction(*it);
+
+			act->setData("Ref");
 		}
-		if (contextSubMenu->count() > 0)
-			contextMenu->insertItem("More...", contextSubMenu);
+		if (contextSubMenu.count() > 0)
+			contextMenu.addMenu(&contextSubMenu);
 	}
-	contextMenu->popup(QCursor::pos());
+	contextMenu.exec(QCursor::pos());
 }
 
 void MainImpl::doFileContexPopup(SCRef fileName, int type) {
 
-	Q3PopupMenu contextMenu;
+	QMenu contextMenu(this);
 
 	Domain* t;
 	int tt = currentTabType(&t);
@@ -1108,46 +1118,35 @@ void MainImpl::doFileContexPopup(SCRef fileName, int type) {
 
 	if (type == POPUP_FILE_EV)
 		if (!isPatchPage && ActViewDiff->isEnabled())
-			ActViewDiff->addTo(&contextMenu);
+			contextMenu.addAction(ActViewDiff);
 
 	if (!isDir && ActViewFile->isEnabled())
-		ActViewFile->addTo(&contextMenu);
+		contextMenu.addAction(ActViewFile);
 
 	if (!isDir && ActViewFileNewTab->isEnabled())
-		ActViewFileNewTab->addTo(&contextMenu);
+		contextMenu.addAction(ActViewFileNewTab);
 
 	if (!isRevPage && (type == POPUP_FILE_EV) && ActViewRev->isEnabled())
-		ActViewRev->addTo(&contextMenu);
+		contextMenu.addAction(ActViewRev);
 
 	if (ActFilterTree->isEnabled())
-		ActFilterTree->addTo(&contextMenu);
+		contextMenu.addAction(ActFilterTree);
 
 	if (!isDir) {
 		if (ActSaveFile->isEnabled())
-			ActSaveFile->addTo(&contextMenu);
+			contextMenu.addAction(ActSaveFile);
 		if ((type == POPUP_FILE_EV) && ActExternalDiff->isEnabled())
-			ActExternalDiff->addTo(&contextMenu);
+			contextMenu.addAction(ActExternalDiff);
 	}
 	contextMenu.exec(QCursor::pos());
 }
 
-void MainImpl::goRef_activated(int id) {
+void MainImpl::goRef_triggered(QAction* act) {
 
-	if (id <= 0) // not a tag name entry
+	if (!act || act->data() != "Ref")
 		return;
 
-	QString ref(contextMenu->text(id));
-	if (ref.isEmpty())
-		ref = contextSubMenu->text(id);
-
-	if (ref.isEmpty())
-		ref = contextRmtMenu->text(id);
-
-	if (ref.isEmpty()) {
-		dbs("ASSERT in MainImpl::goRef_activated, tag entry not found");
-		return;
-	}
-	SCRef refSha(git->getRefSha(ref));
+	SCRef refSha(git->getRefSha(act->text()));
 	rv->st.setSha(refSha);
 	UPDATE_DOMAIN(rv);
 }
