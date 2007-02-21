@@ -70,7 +70,7 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	// setup textEditMsg with default value
 	QString status(git->getDefCommitMsg());
 	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
-	msg.append(status.stripWhiteSpace());
+	msg.append(status.trimmed());
 	textEditMsg->setPlainText(msg);
 
 	// compute cursor offsets. Take advantage of fixed width font
@@ -96,13 +96,11 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	// setup button functions
 	if (git->isStGITStack()) {
 		pushButtonOk->setText("&New patch");
-		pushButtonOk->setAccel(QKeySequence("Alt+N"));
-		QToolTip::remove(pushButtonOk);
-		QToolTip::add(pushButtonOk, "Create a new patch");
+		pushButtonOk->setShortcut(QKeySequence("Alt+N"));
+		pushButtonOk->setToolTip("Create a new patch");
 		pushButtonUpdateCache->setText("&Add to top");
-		pushButtonOk->setAccel(QKeySequence("Alt+A"));
-		QToolTip::remove(pushButtonUpdateCache);
-		QToolTip::add(pushButtonUpdateCache, "Refresh top stack patch");
+		pushButtonOk->setShortcut(QKeySequence("Alt+A"));
+		pushButtonUpdateCache->setToolTip("Refresh top stack patch");
 	}
 	connect(treeWidgetFiles, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(contextMenuPopup(const QPoint&)));
@@ -162,7 +160,7 @@ bool CommitImpl::checkMsg(QString& msg) {
 	msg = textEditMsg->toPlainText();
 	msg.remove(QRegExp("(^|\\n)\\s*#[^\\n]*")); // strip comments
 	msg.replace(QRegExp("[ \\t\\r\\f\\v]+\\n"), "\n"); // strip line trailing cruft
-	msg = msg.stripWhiteSpace();
+	msg = msg.trimmed();
 	if (msg.isEmpty()) {
 		QMessageBox::warning(this, "Commit changes - QGit",
 		                     "Sorry, I don't want an empty message.",
@@ -171,7 +169,7 @@ bool CommitImpl::checkMsg(QString& msg) {
 	}
 	// split subject from message body
 	QString subj(msg.section('\n', 0, 0, QString::SectionIncludeTrailingSep));
-	QString body(msg.section('\n', 1).stripWhiteSpace());
+	QString body(msg.section('\n', 1).trimmed());
 	msg = subj + '\n' + body + '\n';
 	return true;
 }
@@ -179,14 +177,14 @@ bool CommitImpl::checkMsg(QString& msg) {
 bool CommitImpl::checkPatchName(QString& patchName) {
 
 	bool ok;
-	patchName = patchName.simplifyWhiteSpace().stripWhiteSpace();
+	patchName = patchName.simplified();
 	patchName.replace(' ', "_");
-	patchName = QInputDialog::getText("Create new patch - QGit", "Enter patch name:",
-	                                  QLineEdit::Normal, patchName, &ok, this);
+	patchName = QInputDialog::getText(this, "Create new patch - QGit", "Enter patch name:",
+	                                  QLineEdit::Normal, patchName, &ok);
 	if (!ok || patchName.isEmpty())
 		return false;
 
-	QString tmp(patchName.simplifyWhiteSpace());
+	QString tmp(patchName.trimmed());
 	if (patchName != tmp.remove(' '))
 		QMessageBox::warning(this, "Create new patch - QGit", "Sorry, control "
 		                     "characters or spaces\n are not allowed in patch name.");
