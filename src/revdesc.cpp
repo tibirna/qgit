@@ -5,6 +5,7 @@
 */
 #include <QApplication>
 #include <QMenu>
+#include <QContextMenuEvent>
 #include <QRegExp>
 #include <QClipboard>
 #include "domain.h"
@@ -25,7 +26,7 @@ void RevDesc::on_anchorClicked(const QUrl& link) {
 	if (re.exactMatch(link.toString())) {
 
 		setSource(QUrl()); // override default navigation behavior
-		d->st.setSha(link);
+		d->st.setSha(link.toString());
 		UPDATE_DOMAIN(d);
 	}
 }
