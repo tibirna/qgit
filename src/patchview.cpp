@@ -90,7 +90,7 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	seekTarget = diffLoaded = false;
 	pickAxeRE.setMinimal(true);
-	pickAxeRE.setCaseSensitive(false);
+	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
 
 	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	patchTab = new Ui_TabPatch();
@@ -127,7 +127,7 @@ PatchView::~PatchView() {
 	delete diffHighlighter;
 
 	// remove before to delete, avoids a Qt warning in QInputContext()
-	m()->tabWdg->removePage(container);
+	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
 	delete patchTab;
 	delete container;
 }
@@ -225,7 +225,7 @@ void PatchView::computeMatches() {
 	if (pickAxeRE.isEmpty())
 		return;
 
-	SCRef txt = patchTab->textEditDiff->text();
+	SCRef txt = patchTab->textEditDiff->toPlainText();
 	int pos, lastPos = 0, lastPara = 0;
 
 	// must be at the end to catch patterns across more the one chunk
@@ -236,14 +236,14 @@ void PatchView::computeMatches() {
 
 		s.paraFrom = txt.mid(lastPos, pos - lastPos).count('\n');
 		s.paraFrom += lastPara;
-		s.indexFrom = pos - txt.findRev('\n', pos) - 1; // index starts from 0
+		s.indexFrom = pos - txt.lastIndexOf('\n', pos) - 1; // index starts from 0
 
 		lastPos = pos;
 		pos += (isRegExp) ? pickAxeRE.matchedLength() : pickAxeRE.pattern().length();
 		pos--;
 
 		s.paraTo = s.paraFrom + txt.mid(lastPos, pos - lastPos).count('\n');
-		s.indexTo = pos - txt.findRev('\n', pos) - 1;
+		s.indexTo = pos - txt.lastIndexOf('\n', pos) - 1;
 		s.indexTo++; // in QTextEdit::setSelection() indexTo is not included
 
 		lastPos = pos;
@@ -350,7 +350,7 @@ bool PatchView::doUpdate(bool force) {
 		if (!isLinked()) {
 			QString caption(git->getShortLog(st.sha()));
 			if (caption.length() > 30)
-				caption = caption.left(30 - 3).stripWhiteSpace().append("...");
+				caption = caption.left(30 - 3).trimmed().append("...");
 
 			int idx = m()->tabWdg->indexOf(container);
 			m()->tabWdg->setTabText(idx, caption);
