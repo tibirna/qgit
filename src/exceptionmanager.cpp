@@ -34,7 +34,7 @@ bool ExceptionManager::isMatch(int value, int excp, const QString& context) {
 	if (match) {
 		QString info("Caught exception \'" + descriptions[excp] +
 		             "\' while in " + context);
-		qDebug(info);
+		qDebug(info.toLatin1().constData());
 	}
 	return match;
 }
@@ -65,7 +65,7 @@ void ExceptionManager::remove(int excpId) {
 		qDebug("ASSERT in remove: %i is not the first in list", excpId);
 		return;
 	}
-	regionThrowableSet.remove(itReg);
+	regionThrowableSet.erase(itReg);
 
 	// remove from total.
 	SetIt itTot(totalThrowableSet.begin());
@@ -73,7 +73,7 @@ void ExceptionManager::remove(int excpId) {
 		qDebug("ASSERT in remove: %i is not the first in list", excpId);
 		return;
 	}
-	totalThrowableSet.remove(itTot);
+	totalThrowableSet.erase(itTot);
 }
 
 ExceptionManager::SetIt ExceptionManager::findExcp(ThrowableSet& ts,
@@ -173,7 +173,7 @@ void ExceptionManager::throwPending() {
 
 	int excpToThrow = (*it).excpId;
 	if ((*it).verbose)
-		qDebug("Thrown exception \'%s\'", desc(excpToThrow).latin1());
+		qDebug("Thrown exception \'%s\'", desc(excpToThrow).toLatin1().constData());
 
 	throw excpToThrow;
 }
