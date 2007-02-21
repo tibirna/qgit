@@ -61,8 +61,8 @@ protected slots:
 	void treeView_doubleClicked(QTreeWidgetItem*, int);
 	void histListView_doubleClicked(const QModelIndex&);
 	void customActionListChanged(const QStringList& list);
-	void openRecent_activated(int id);
-	void customAction_activated(int id);
+	void openRecent_triggered(QAction*);
+	void customAction_triggered(QAction*);
 	void customAction_exited(const QString& name);
 	void goRef_triggered(QAction*);
 	void changesCommitted(bool);

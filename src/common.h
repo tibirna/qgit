@@ -256,9 +256,9 @@ namespace QGit {
 	extern const QString C_DAT_FILE;
 
 	// misc
-	const int  MAX_DICT_SIZE    = 100003; // must be a prime number see QDict docs
-	const uint MAX_MENU_ENTRIES = 20;
-	const int  MAX_RECENT_REPOS = 7;
+	const int MAX_DICT_SIZE    = 100003; // must be a prime number see QDict docs
+	const int MAX_MENU_ENTRIES = 20;
+	const int MAX_RECENT_REPOS = 7;
 	extern const QString QUOTE_CHAR;
 	extern const QString SCRIPT_EXT;
 }
