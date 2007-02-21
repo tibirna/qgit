@@ -206,7 +206,7 @@ const QStringList MyProcess::splitArgList(SCRef cmd) {
 	if (!(   cmd.contains(QGit::QUOTE_CHAR)
 	      || cmd.contains("\"")
 	      || cmd.contains("\'")))
-		return cmd.split(' ');
+		return cmd.split(' ', QString::SkipEmptyParts);
 
 	// we have some work to do...
 	// first find a possible separator

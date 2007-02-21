@@ -55,7 +55,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
 bool Annotate::startPatchProc(SCRef buf, SCRef fileName) {
 
 	QString cmd("git diff-tree -r -m --patch-with-raw --no-commit-id --stdin --");
-	QStringList args(cmd.split(' '));
+	QStringList args(cmd.split(' ', QString::SkipEmptyParts));
 	args.append(fileName); // handle file name with spaces case
 	patchProc.setWorkingDirectory(git->workDir);
 	patchProcBuf = "";
