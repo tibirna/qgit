@@ -21,7 +21,7 @@ ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) : git(g), actionName(nm) {
 	QFont f = textLabelCmd->font();
 	f.setBold(true);
 	textLabelCmd->setFont(f);
-	setCaption("\'" + actionName + "\' output window - QGit");
+	setWindowTitle("\'" + actionName + "\' output window - QGit");
 	QSettings settings;
 	restoreGeometry(settings.value(QGit::CON_GEOM_KEY).toByteArray());
 }
@@ -57,7 +57,7 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 
 bool ConsoleImpl::start(const QString& cmd, const QString& cmdArgs) {
 
-	statusBar()->message("Executing \'" + actionName + "\' action...");
+	statusBar()->showMessage("Executing \'" + actionName + "\' action...");
 
 	QString t(cmd.section('\n', 1, 0xffffffff, QString::SectionIncludeLeadingSep));
 
@@ -65,9 +65,9 @@ bool ConsoleImpl::start(const QString& cmd, const QString& cmdArgs) {
 	QString txt = cmd.section('\n', 0, 0).append(cmdArgs).append(t);
 	textLabelCmd->setText(txt);
 
-	if (t.stripWhiteSpace().isEmpty())
+	if (t.trimmed().isEmpty())
 		// any one-line command followed by a newline would fail
-		proc = git->runAsync(cmd.stripWhiteSpace(), this);
+		proc = git->runAsync(cmd.trimmed(), this);
 	else
 		proc = git->runAsScript(cmd, this); // wrap in a script
 
@@ -93,7 +93,7 @@ void ConsoleImpl::procFinished() {
 	textEditOutput->append(inpBuf);
 	inpBuf = "";
 	QApplication::restoreOverrideCursor();
-	statusBar()->message("End of \'" + actionName + "\' execution.");
+	statusBar()->showMessage("End of \'" + actionName + "\' execution.");
 	pushButtonTerminate->setEnabled(false);
 	emit customAction_exited(actionName);
 }
