@@ -79,13 +79,13 @@ FileView::~FileView() {
 		return;
 
 	// remove before to delete, avoids a Qt warning in QInputContext()
-	m()->tabWdg->removePage(container);
+	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
 
 	delete textEditFile; // delete this before fileTab->textEditFile
 	delete fileTab;
 	delete container;
 
-	m()->statusBar()->clear(); // cleanup any pending progress info
+	m()->statusBar()->clearMessage(); // cleanup any pending progress info
 	QApplication::restoreOverrideCursor();
 }
 
@@ -104,9 +104,9 @@ void FileView::clear(bool complete) {
 	updateEnabledButtons();
 
 	fileTab->toolButtonPin->setEnabled(false);
-	fileTab->toolButtonPin->setOn(false); // should not trigger an update
+	fileTab->toolButtonPin->setChecked(false); // TODO signals pressed() and clicked() are not emitted
 	fileTab->spinBoxRevision->setEnabled(false);
-	fileTab->spinBoxRevision->setValue(fileTab->spinBoxRevision->minValue()); // clears the box
+	fileTab->spinBoxRevision->setValue(fileTab->spinBoxRevision->minimum()); // clears the box
 }
 
 bool FileView::goToCurrentAnnotation() {
@@ -143,15 +143,15 @@ bool FileView::doUpdate(bool force) {
 
 		QApplication::restoreOverrideCursor();
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		m()->statusBar()->message("Retrieving history of '" + st.fileName() + "'...");
+		m()->statusBar()->showMessage("Retrieving history of '" + st.fileName() + "'...");
 		git->startFileHistory(model());
 
 	} else if (fileTab->histListView->update() || st.sha().isEmpty()) {
 
 		updateSpinBoxValue();
-		m()->statusBar()->message(git->getRevInfo(st.sha()));
+		m()->statusBar()->showMessage(git->getRevInfo(st.sha()));
 	}
-	if (!fileTab->toolButtonPin->isOn())
+	if (!fileTab->toolButtonPin->isChecked())
 		textEditFile->update();
 
 	return true; // always accept new state
@@ -175,18 +175,18 @@ void FileView::updateEnabledButtons() {
 	highlight->setEnabled(fileAvailable && git->isTextHighlighter());
 
 	// then disable
-	if (!showAnnotate->isOn())
+	if (!showAnnotate->isChecked())
 		findAnnotate->setEnabled(false);
 
-	if (highlight->isOn()) {
+	if (highlight->isChecked()) {
 		findAnnotate->setEnabled(false);
 		rangeFilter->setEnabled(false);
 	}
-	if (rangeFilter->isOn())
+	if (rangeFilter->isChecked())
 		highlight->setEnabled(false);
 
 	// special case: reset range filter when changing file
-	if (!annotateAvailable && rangeFilter->isOn())
+	if (!annotateAvailable && rangeFilter->isChecked())
 		rangeFilter->toggle();
 }
 
@@ -200,7 +200,7 @@ void FileView::on_toolButtonShowAnnotate_toggled(bool b) {
 	updateEnabledButtons();
 	textEditFile->setShowAnnotate(b);
 
-	if (b && fileTab->toolButtonFindAnnotate->isOn())
+	if (b && fileTab->toolButtonFindAnnotate->isChecked())
 		goToCurrentAnnotation();
 }
 
@@ -231,7 +231,7 @@ void FileView::on_toolButtonRangeFilter_toggled(bool b) {
 			return;
 		}
 		if (!fileTab->textEditFile->hasSelectedText()) {
-			m()->statusBar()->message("Please select some text");
+			m()->statusBar()->showMessage("Please select some text");
 			return;
 		}
 	}
@@ -247,7 +247,7 @@ void FileView::on_toolButtonHighlightText_toggled(bool b) {
 
 void FileView::on_spinBoxRevision_valueChanged(int id) {
 
-	if (id != fileTab->spinBoxRevision->minValue()) {
+	if (id != fileTab->spinBoxRevision->minimum()) {
 
 		SCRef selRev(fileTab->histListView->getSha(id));
 		if (st.sha() != selRev) { // to avoid looping
@@ -268,10 +268,10 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 	fileTab->histListView->showIdValues();
 	int maxId = model()->rowCount();
 	if (maxId == 0) {
-		m()->statusBar()->clear();
+		m()->statusBar()->clearMessage();
 		return;
 	}
-	fileTab->spinBoxRevision->setMaxValue(maxId);
+	fileTab->spinBoxRevision->setMaximum(maxId);
 	fileTab->toolButtonPin->setEnabled(true);
 	fileTab->spinBoxRevision->setEnabled(true);
 
@@ -283,14 +283,14 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 
 void FileView::showAnnotation() {
 
-	if (  !fileTab->toolButtonPin->isOn()
+	if (  !fileTab->toolButtonPin->isChecked()
 	    && fileTab->toolButtonShowAnnotate->isEnabled()
-	    && fileTab->toolButtonShowAnnotate->isOn()) {
+	    && fileTab->toolButtonShowAnnotate->isChecked()) {
 
 		textEditFile->setShowAnnotate(true);
 
 		if (   fileTab->toolButtonFindAnnotate->isEnabled()
-		    && fileTab->toolButtonFindAnnotate->isOn())
+		    && fileTab->toolButtonFindAnnotate->isChecked())
 
 			goToCurrentAnnotation();
 	}
@@ -312,7 +312,7 @@ void FileView::on_fileAvailable(bool b) {
 
 	if (b) {
 		// code range is independent from annotation
-		if (fileTab->toolButtonRangeFilter->isOn())
+		if (fileTab->toolButtonRangeFilter->isChecked())
 			textEditFile->goToRangeStart();
 
 		showAnnotation(); // in case file got ready after annotation
@@ -349,7 +349,7 @@ void FileView::updateProgressBar(int annotatedNum) {
 	QString done, toDo;
 	done.fill('.', idx);
 	toDo.fill(' ', 40 - idx);
-	m()->statusBar()->message(head + done + toDo + tail);
+	m()->statusBar()->showMessage(head + done + toDo + tail);
 }
 
 void FileView::filterOnRange(bool isOn) {
