@@ -251,7 +251,7 @@ void TreeView::updateTree() {
 		return;
 	}
 	setUpdatesEnabled(false);
-	const QStringList lst(QStringList::split("/", st->fileName()));
+	const QStringList lst(st->fileName().split("/"));
 
 	QTreeWidgetItemIterator item(this);
 	++item; // first item is repository name
