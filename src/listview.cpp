@@ -172,7 +172,7 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 	if (sha.isEmpty())
 		return false;
 
-	if (e->state() == Qt::ControlButton) { // check for 'diff to' function
+	if (e->modifiers() == Qt::ControlModifier) { // check for 'diff to' function
 
 		if (sha != ZERO_SHA && st->sha() != ZERO_SHA) {
 
@@ -228,11 +228,11 @@ void ListView::mouseMoveEvent(QMouseEvent* e) {
 
 		QStringList selRevs;
 		getSelectedItems(selRevs);
-		selRevs.remove(ZERO_SHA);
+		selRevs.removeAll(ZERO_SHA);
 		if (!selRevs.empty()) {
 
 			const QString h(d->dragHostName() + '\n');
-			QString dragRevs = selRevs.join(h).append(h).stripWhiteSpace();
+			QString dragRevs = selRevs.join(h).append(h).trimmed();
 			QDrag* drag = new QDrag(this);
 			QMimeData* mimeData = new QMimeData;
 			mimeData->setText(dragRevs);
@@ -642,7 +642,7 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 	QPainter p;
 	p.begin(newPm);
 	if (!pm->isNull()) {
-		newPm->fill(opt.palette.base());
+		newPm->fill(opt.palette.base().color());
 		p.drawPixmap(0, 0, *pm);
 	}
 	p.setPen(opt.palette.color(QPalette::WindowText));
