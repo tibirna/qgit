@@ -94,7 +94,7 @@ void RangeSelectImpl::checkBoxShowAll_toggled(bool b) {
 	if (b)
 		opt.append(" --all");
 
-	lineEditOptions->setText(opt.stripWhiteSpace());
+	lineEditOptions->setText(opt.trimmed());
 	setFlag(ALL_BRANCHES_F, b);
 }
 
@@ -117,6 +117,6 @@ void RangeSelectImpl::pushButtonOk_clicked() {
 		range->append(comboBoxTo->currentText());
 	}
 	range->prepend(lineEditOptions->text() + " ");
-	*range = range->stripWhiteSpace();
+	*range = range->trimmed();
 	done(QDialog::Accepted);
 }
