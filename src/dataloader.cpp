@@ -229,7 +229,7 @@ void DataLoader::on_cancel() {
 		canceling = true;
 		git->cancelProcess(proc);
 		if (!procPID.isEmpty())
-			git->run("kill " + procPID.stripWhiteSpace());
+			git->run("kill " + procPID.trimmed());
 	}
 }
 
@@ -244,7 +244,7 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 	bool foundTmpDir = (dir.exists() && dir.isReadable());
 	scriptFileName.prepend(foundTmpDir ? "/tmp" : wd);
 	dataFileName.prepend(foundTmpDir ? "/tmp" : wd);
-	dataFile.setName(dataFileName);
+	dataFile.setFileName(dataFileName);
 	QString runCmd(args.join(" ") + " > " +  dataFileName);
 #ifndef ON_WINDOWS
 	runCmd.append(" &\necho $!\nwait"); // we want to read git-rev-list PID
@@ -279,7 +279,8 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// this is the ONLY deep copy involved in the whole loading
 		// QFile::read() calls standard C read() function when
 		// file is open with Unbuffered flag, or fread() otherwise
-		QByteArray* ba = new QByteArray(READ_BLOCK_SIZE);
+		QByteArray* ba = new QByteArray();
+		ba->reserve(READ_BLOCK_SIZE);
 		uint len = dataFile.read(ba->data(), READ_BLOCK_SIZE);
 		if (len <= 0) {
 			delete ba;
