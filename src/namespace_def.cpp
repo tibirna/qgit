@@ -220,7 +220,7 @@ const QPixmap* QGit::mimePix(SCRef fileName) {
 
 bool QGit::stripPartialParaghraps(SCRef src, QString* dst, QString* prev) {
 
-	int idx = src.findRev('\n');
+	int idx = src.lastIndexOf('\n');
 	if (idx == -1) {
 		prev->append(src);
 		*dst = "";
@@ -249,7 +249,7 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 
 #ifndef ON_WINDOWS
 	if (setExecutable)
-		chmod(fileName, 0755);
+		chmod(fileName.toLatin1().constData(), 0755);
 #endif
 	return true;
 }
@@ -263,7 +263,7 @@ bool QGit::readFromFile(SCRef fileName, QString& data) {
 		return false;
 	}
 	QTextStream stream(&file);
-	data = stream.read();
+	data = stream.readAll();
 	file.close();
 	return true;
 }
