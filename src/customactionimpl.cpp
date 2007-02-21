@@ -101,8 +101,8 @@ bool CustomActionImpl::getNewName(QString& name, const QString& caption) {
 
 	bool ok;
 	const QString oldName = name;
-	name = QInputDialog::getText(caption + " - QGit", "Enter action name:",
-	                             QLineEdit::Normal, name, &ok, this);
+	name = QInputDialog::getText(this, caption + " - QGit", "Enter action name:",
+	                             QLineEdit::Normal, name, &ok);
 
 	if (!ok || name.isEmpty() || name == oldName)
 		return false;
