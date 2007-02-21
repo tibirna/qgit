@@ -37,14 +37,14 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	QDataStream stream(&data, QIODevice::WriteOnly);
 
 	// Write a header with a "magic number" and a version
-	stream << (Q_UINT32)C_MAGIC;
-	stream << (Q_INT32)C_VERSION;
+	stream << (quint32)C_MAGIC;
+	stream << (qint32)C_VERSION;
 
-	stream << (Q_INT32)dirs.count();
+	stream << (qint32)dirs.count();
 	for (int i = 0; i < dirs.count(); ++i)
 		stream << dirs.at(i);
 
-	stream << (Q_INT32)files.count();
+	stream << (qint32)files.count();
 	for (int i = 0; i < files.count(); ++i)
 		stream << files.at(i);
 
@@ -54,7 +54,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	// in the final compressed file. The save/load speed is
 	// almost the same.
 	uint bufSize = rf.count() * 40 + 1000; // a little bit more space then required
-	stream << (Q_INT32)bufSize;
+	stream << (qint32)bufSize;
 
 	QString buf;
 	buf.reserve(bufSize);
@@ -84,24 +84,24 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 		// skip common case of only modified files
 		bool isEmpty = rf->onlyModified;
-		stream << (Q_UINT32)isEmpty;
+		stream << (quint32)isEmpty;
 		if (!isEmpty)
 			stream << rf->status;
 
 		// skip common case of just one parent
 		isEmpty = (rf->mergeParent.isEmpty() || rf->mergeParent.last() == 1);
-		stream << (Q_UINT32)isEmpty;
+		stream << (quint32)isEmpty;
 		if (!isEmpty)
 			stream << rf->mergeParent;
 
 		// skip common case of no rename/copies
 		isEmpty = rf->extStatus.isEmpty();
-		stream << (Q_UINT32)isEmpty;
+		stream << (quint32)isEmpty;
 		if (!isEmpty)
 			stream << rf->extStatus;
 	}
 	dbs("Compressing data...");
-	f.writeBlock(qCompress(data)); // no need to encode with compressed data
+	f.write(qCompress(data)); // no need to encode with compressed data
 	f.close();
 
 	// rename C_DAT_FILE + BAK_EXT -> C_DAT_FILE
@@ -129,9 +129,9 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect&
 		return false;
 
 	QDataStream* stream = new QDataStream(qUncompress(f.readAll()));
-	Q_UINT32 magic;
-	Q_INT32 version;
-	Q_INT32 dirsNum, filesNum, bufSize;
+	quint32 magic;
+	qint32 version;
+	qint32 dirsNum, filesNum, bufSize;
 	*stream >> magic;
 	*stream >> version;
 	if (magic != C_MAGIC || version != C_VERSION) {
@@ -157,7 +157,7 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect&
 
 	uint bufIdx = 0;
 	bool isEmpty;
-	Q_UINT32 tmp;
+	quint32 tmp;
 	while (!stream->atEnd()) {
 
 		RevFile* rf = new RevFile();
