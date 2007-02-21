@@ -63,7 +63,7 @@ RevsView::~RevsView() {
 	if (!parent())
 		return;
 
-	m()->tabWdg->removePage(container);
+	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
 	delete linkedPatchView;
 	delete revTab;
 	delete container;
@@ -91,11 +91,11 @@ void RevsView::setEnabled(bool b) {
 void RevsView::viewPatch(bool newTab) {
 
 	if (!newTab && linkedPatchView) {
-		m()->tabWdg->setCurrentPage(linkedPatchView->tabPos());
+		m()->tabWdg->setCurrentIndex(linkedPatchView->tabPos());
 		return;
 	}
 	PatchView* pv = new PatchView(m(), git);
-	m()->tabWdg->setCurrentPage(pv->tabPos());
+	m()->tabWdg->setCurrentIndex(pv->tabPos());
 
 	if (!newTab) { // linkedPatchView == NULL
 		linkedPatchView = pv;
@@ -146,7 +146,7 @@ bool RevsView::doUpdate(bool force) {
 
 		const QString tmp("Sorry, revision " + st.sha() +
 		                  " has not been found in main view");
-		m()->statusBar()->message(tmp);
+		m()->statusBar()->showMessage(tmp);
 
 	} else { // sha could be NULL
 
@@ -154,7 +154,7 @@ bool RevsView::doUpdate(bool force) {
 
 			updateLineEditSHA();
 			on_updateRevDesc();
-			m()->statusBar()->message(git->getRevInfo(st.sha()));
+			m()->statusBar()->showMessage(git->getRevInfo(st.sha()));
 		}
 		const RevFile* files = NULL;
 		bool newFiles = false;
@@ -249,8 +249,8 @@ void RevsView::on_droppedRevisions(SCList remoteRevs) {
 
 	QDir dr(m()->curDir + QGit::PATCHES_DIR);
 	if (dr.exists()) {
-		const QString tmp("Please remove stale import directory " + dr.absPath());
-		m()->statusBar()->message(tmp);
+		const QString tmp("Please remove stale import directory " + dr.absolutePath());
+		m()->statusBar()->showMessage(tmp);
 		return;
 	}
 	bool commit, fold;
@@ -270,7 +270,7 @@ void RevsView::on_droppedRevisions(SCList remoteRevs) {
 		--it;
 
 		QString tmp("Importing revision %1 of %2");
-		m()->statusBar()->message(tmp.arg(++revNum).arg(remoteRevs.count()));
+		m()->statusBar()->showMessage(tmp.arg(++revNum).arg(remoteRevs.count()));
 
 		SCRef sha((*it).section('@', 0, 0));
 		SCRef remoteRepo((*it).section('@', 1));
@@ -279,16 +279,16 @@ void RevsView::on_droppedRevisions(SCList remoteRevs) {
 			break;
 
 		// we create patches one by one
-		if (!git->formatPatch(QStringList(sha), dr.absPath(), remoteRepo))
+		if (!git->formatPatch(QStringList(sha), dr.absolutePath(), remoteRepo))
 			break;
 
 		dr.refresh();
 		if (dr.count() != 1) {
 			qDebug("ASSERT in on_droppedRevisions: found %i files "
-			       "in %s", dr.count(), QGit::PATCHES_DIR.latin1());
+			       "in %s", dr.count(), QGit::PATCHES_DIR.toLatin1().constData());
 			break;
 		}
-		SCRef fn(dr.absFilePath(dr[0]));
+		SCRef fn(dr.absoluteFilePath(dr[0]));
 		if (!git->applyPatchFile(fn, commit, fold, Git::optDragDrop))
 			break;
 
@@ -297,14 +297,14 @@ void RevsView::on_droppedRevisions(SCList remoteRevs) {
 	} while (it != remoteRevs.constBegin());
 
 	if (it == remoteRevs.constBegin())
-		m()->statusBar()->clear();
+		m()->statusBar()->clearMessage();
 	else
-		m()->statusBar()->message("Failed to import revision " + QString::number(revNum--));
+		m()->statusBar()->showMessage("Failed to import revision " + QString::number(revNum--));
 
 	if (!commit && (revNum > 0))
 		git->resetCommits(revNum);
 
-	dr.rmdir(dr.absPath()); // 'dr' must be already empty
+	dr.rmdir(dr.absolutePath()); // 'dr' must be already empty
 	QApplication::restoreOverrideCursor();
 	setDropping(false);
 	m()->refreshRepo();
