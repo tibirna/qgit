@@ -66,7 +66,7 @@ const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
 	bool ret = run("git rev-parse --git-dir", &runOutput); // run under newWorkDir
 	errorReportingEnabled = true;
 	workDir = tmp;
-	runOutput = runOutput.stripWhiteSpace();
+	runOutput = runOutput.trimmed();
 	if (!ret || runOutput.isEmpty()) {
 		*changed = true;
 		if (ok)
@@ -76,13 +76,13 @@ const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
 	// 'git rev-parse --git-dir' output could be a relative
 	// to working dir (as ex .git) or an absolute path
 	QDir d(runOutput.startsWith("/") ? runOutput : wd + "/" + runOutput);
-	*changed = (d.absPath() != gitDir);
+	*changed = (d.absolutePath() != gitDir);
 	if (gd)
-		*gd = d.absPath();
+		*gd = d.absolutePath();
 	if (ok)
 		*ok = true;
 	d.cdUp();
-	return d.absPath();
+	return d.absolutePath();
 }
 
 Git::Reference* Git::lookupReference(SCRef sha, bool create) {
@@ -114,9 +114,9 @@ bool Git::getRefs() {
 	if (!run("git branch", &curBranchName))
 		return false;
 
-	curBranchSHA = curBranchSHA.stripWhiteSpace();
+	curBranchSHA = curBranchSHA.trimmed();
 	curBranchName = curBranchName.prepend('\n').section("\n*", 1);
-	curBranchName = curBranchName.section('\n', 0, 0).stripWhiteSpace();
+	curBranchName = curBranchName.section('\n', 0, 0).trimmed();
 
 	// read refs, normally unsorted
 	QString runOutput;
@@ -125,7 +125,7 @@ bool Git::getRefs() {
 
 	refsShaMap.clear();
 	QString prevRefSha;
-	const QStringList rLst(QStringList::split('\n', runOutput));
+	const QStringList rLst(runOutput.split('\n'));
 	FOREACH_SL (it, rLst) {
 
 		SCRef revSha = (*it).left(40);
@@ -199,7 +199,7 @@ void Git::dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter
 		SCRef path(f.absolutePath() + '/' + f[i]);
 		readFromFile(path, sha);
 		// we accept also files with a sha + other stuff
-		sha = sha.stripWhiteSpace().append('\n').section('\n', 0, 0);
+		sha = sha.trimmed().append('\n').section('\n', 0, 0);
 		if (sha.length() == 40) {
 			files.append(path);
 			filesSHA.append(sha);
@@ -209,13 +209,13 @@ void Git::dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter
 
 bool Git::addStGitPatch(SCRef patchName, SCList files, SCList filesSHA, bool applied) {
 
-	const QStringList fl(files.grep("/" + patchName + "/top"));
+	const QStringList fl(files.filter("/" + patchName + "/top"));
 	if (fl.count() != 1) {
 		qDebug("ASSERT: found %i patches instead of 1 in %s",
-		       (int)fl.count(), patchName.latin1());
+		       (int)fl.count(), patchName.toLatin1().constData());
 		return false;
 	}
-	int pos = files.findIndex(fl.first());
+	int pos = files.indexOf(fl.first());
 	Reference* cur = lookupReference(filesSHA[pos], true);
 	cur->stgitPatch = patchName;
 	cur->type |= (applied ? APPLIED : UN_APPLIED);
@@ -237,10 +237,10 @@ bool Git::getStGITPatches() {
 	if (!run("stg branch", &branch))
 		return false;
 
-	branch = branch.stripWhiteSpace();
+	branch = branch.trimmed();
 
 	QStringList uNames, aNames;
-	const QStringList pl(QStringList::split('\n', runOutput));
+	const QStringList pl(runOutput.split('\n'));
 	FOREACH_SL (it, pl) {
 
 		SCRef st = (*it).left(1);
@@ -253,7 +253,7 @@ bool Git::getStGITPatches() {
 	// get all sha's in "top" files under /<gitDir>/patches/<current branch>
 	QDir d(gitDir + "/patches/" + branch);
 	QStringList files, filesSHA;
-	dirWalker(d.absPath(), files, filesSHA, "top");
+	dirWalker(d.absolutePath(), files, filesSHA, "top");
 
 	// now match names and SHA's for unapplied
 	FOREACH_SL (it, uNames)
@@ -286,7 +286,7 @@ const QStringList Git::getOthersFiles() {
 
 	QString runOutput;
 	run(runCmd, &runOutput);
-	return QStringList::split('\n', runOutput);
+	return runOutput.split('\n');
 }
 
 const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh) {
@@ -387,7 +387,7 @@ void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
 
 void Git::setStatus(RevFile& rf, SCRef rowSt) {
 
-	char status = rowSt.at(0).latin1();
+	char status = rowSt.at(0).toLatin1();
 	switch (status) {
 	case 'M':
 		rf.status.append(RevFile::MODIFIED);
@@ -414,7 +414,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 
 void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 
-	const QStringList sl(QStringList::split('\t', rowSt));
+	const QStringList sl(rowSt.split('\t'));
 	if (sl.count() != 3) {
 		dbp("ASSERT in setExtStatus, unexpected status string %1", rowSt);
 		return;
@@ -454,7 +454,7 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 
 void Git::parseDiffFormat(RevFile& rf, SCRef buf) {
 
-	int parNum = 1, startPos = 0, endPos = buf.find('\n');
+	int parNum = 1, startPos = 0, endPos = buf.indexOf('\n');
 	while (endPos != -1) {
 
 		SCRef line = buf.mid(startPos, endPos - startPos);
@@ -464,7 +464,7 @@ void Git::parseDiffFormat(RevFile& rf, SCRef buf) {
 			parNum++;
 
 		startPos = endPos + 1;
-		endPos = buf.find('\n', endPos + 99);
+		endPos = buf.indexOf('\n', endPos + 99);
 	}
 }
 
@@ -926,12 +926,12 @@ void Git::procReadyRead(const QString& fileChunk) {
 	if (revsFiles.contains(filesLoadingCurSha))
 		rf = const_cast<RevFile*>(revsFiles[filesLoadingCurSha]);
 
-	int nextEOL = filesLoadingPending.find('\n');
+	int nextEOL = filesLoadingPending.indexOf('\n');
 	int lastEOL = -1;
 	while (nextEOL != -1) {
 
 		SCRef line(filesLoadingPending.mid(lastEOL + 1, nextEOL - lastEOL - 1));
-		if (line.constref(0) != ':') {
+		if (line.at(0) != ':') {
 			SCRef sha = line.left(40);
 			if (!rf || sha != filesLoadingCurSha) { // new commit
 				rf = new RevFile();
@@ -944,7 +944,7 @@ void Git::procReadyRead(const QString& fileChunk) {
 			parseDiffFormatLine(*rf, line, 1);
 
 		lastEOL = nextEOL;
-		nextEOL = filesLoadingPending.find('\n', lastEOL + 1);
+		nextEOL = filesLoadingPending.indexOf('\n', lastEOL + 1);
 	}
 	if (lastEOL != -1)
 		filesLoadingPending.remove(0, lastEOL + 1);
@@ -952,7 +952,7 @@ void Git::procReadyRead(const QString& fileChunk) {
 
 void Git::appendFileName(RevFile& rf, SCRef name) {
 
-	int idx = name.findRev('/') + 1;
+	int idx = name.lastIndexOf('/') + 1;
 	SCRef dr = name.left(idx);
 	SCRef nm = name.mid(idx);
 
@@ -1176,7 +1176,7 @@ const QStringList Rev::parents() const {
 		return QStringList();
 
 	int ofs = start + boundaryOfs + 41;
-	return QStringList::split(" ", mid(ofs, 41 * parentsCnt - 1));
+	return mid(ofs, 41 * parentsCnt - 1).split(" ");
 }
 
 int Rev::indexData() { // fast path here, less then 4% of load time
@@ -1236,7 +1236,7 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 
 	// ok, from here we are sure we have a complete chunk
 	while (++idx < end && ba.at(idx) != '\n') // check for the first blank line
-		idx = ba.find('\n', idx);
+		idx = ba.indexOf('\n', idx);
 
 	sLogStart = idx + 5;
 	if (end < sLogStart) { // no shortlog and no longLog

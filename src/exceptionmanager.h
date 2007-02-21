@@ -34,9 +34,9 @@
                                EM_AFTER_PROCESS_EVENTS;  \
                           } while (false)
 
-#define EM_PROCESS_EVENTS_NO_INPUT do { EM_BEFORE_PROCESS_EVENTS;                          \
-                                        qApp->processEvents(QEventLoop::ExcludeUserInput); \
-                                        EM_AFTER_PROCESS_EVENTS;                           \
+#define EM_PROCESS_EVENTS_NO_INPUT do { EM_BEFORE_PROCESS_EVENTS;                                \
+                                        qApp->processEvents(QEventLoop::ExcludeUserInputEvents); \
+                                        EM_AFTER_PROCESS_EVENTS;                                 \
                                    } while (false)
 
 class ExceptionManager { // singleton class
