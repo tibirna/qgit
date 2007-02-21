@@ -125,7 +125,7 @@ bool Git::getRefs() {
 
 	refsShaMap.clear();
 	QString prevRefSha;
-	const QStringList rLst(runOutput.split('\n'));
+	const QStringList rLst(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, rLst) {
 
 		SCRef revSha = (*it).left(40);
@@ -240,7 +240,7 @@ bool Git::getStGITPatches() {
 	branch = branch.trimmed();
 
 	QStringList uNames, aNames;
-	const QStringList pl(runOutput.split('\n'));
+	const QStringList pl(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, pl) {
 
 		SCRef st = (*it).left(1);
@@ -272,7 +272,7 @@ bool Git::getStGITPatches() {
 const QStringList Git::getOthersFiles() {
 // add files present in working directory but not in git archive
 
-	QString runCmd("git ls-files --others ");
+	QString runCmd("git ls-files --others");
 	QSettings settings;
 	QString exFile(settings.value(EX_KEY, EX_DEF).toString());
 	if (!exFile.isEmpty()) {
@@ -286,7 +286,7 @@ const QStringList Git::getOthersFiles() {
 
 	QString runOutput;
 	run(runCmd, &runOutput);
-	return runOutput.split('\n');
+	return runOutput.split('\n', QString::SkipEmptyParts);
 }
 
 const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh) {

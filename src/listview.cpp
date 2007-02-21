@@ -258,7 +258,7 @@ void ListView::dragMoveEvent(QDragMoveEvent* e) {
 
 void ListView::dropEvent(QDropEvent *e) {
 
-	SCList remoteRevs(e->mimeData()->text().split('\n'));
+	SCList remoteRevs(e->mimeData()->text().split('\n', QString::SkipEmptyParts));
 	if (!remoteRevs.isEmpty()) {
 		// some sanity check on dropped data
 		SCRef sha(remoteRevs.first().section('@', 0, 0));
