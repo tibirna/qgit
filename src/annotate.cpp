@@ -39,7 +39,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
 
 	AnnotateHistory::const_iterator it = ah.find(sha);
 	if (it != ah.constEnd())
-		return &(it.data());
+		return &(it.value());
 
 	// ok, we are not lucky. Check for an ancestor before to give up
 	int shaIdx;
@@ -47,7 +47,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
 	if (!ancestorSha.isEmpty()) {
 		it = ah.find(ancestorSha);
 		if (it != ah.constEnd())
-			return &(it.data());
+			return &(it.value());
 	}
 	return NULL;
 }
@@ -55,7 +55,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
 bool Annotate::startPatchProc(SCRef buf, SCRef fileName) {
 
 	QString cmd("git diff-tree -r -m --patch-with-raw --no-commit-id --stdin --");
-	QStringList args(QStringList::split(' ', cmd));
+	QStringList args(cmd.split(' '));
 	args.append(fileName); // handle file name with spaces case
 	patchProc.setWorkingDirectory(git->workDir);
 	patchProcBuf = "";
@@ -160,7 +160,7 @@ void Annotate::slotComputeDiffs() {
 		while (++it != ah.end());
 
 		// remove first 'next patch' marker
-		int first = patchProcBuf.find(':');
+		int first = patchProcBuf.indexOf(':');
 		if (first != -1) {
 			nextFileSha = patchProcBuf.mid(first + 56, 40);
 			patchProcBuf.remove(0, first + 100);
@@ -246,8 +246,8 @@ void Annotate::doAnnotate(SCRef fileName, SCRef sha, bool buildPatchScript) {
 
 		// the two annotations must be of the same length
 		if (fa->lines.count() != tmpAnn.count()) {
-			qDebug("ASSERT: merging annotations of different length\n"
-			       " merging %s in %s", (*it).latin1(), sha.latin1());
+			qDebug("ASSERT: merging annotations of different length\n merging "
+			       "%s in %s", (*it).toLatin1().constData(), sha.toLatin1().constData());
 			isError = true;
 			return;
 		}
@@ -299,11 +299,11 @@ void Annotate::setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* f
 const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 
 	QString author(QString("%1.").arg(annId, annNumLen)); // first field is annotation id
-	QString tmp(origAuthor.section('<', 0, 0).stripWhiteSpace()); // strip e-mail address
+	QString tmp(origAuthor.section('<', 0, 0).trimmed()); // strip e-mail address
 	if (tmp.isEmpty()) { // probably only e-mail
 		tmp = origAuthor;
 		tmp.remove('<').remove('>');
-		tmp = tmp.stripWhiteSpace();
+		tmp = tmp.trimmed();
 		tmp.truncate(MAX_AUTHOR_LEN);
 	}
 	// shrink author name if necessary
@@ -334,7 +334,7 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 	QString line;
 	int idx = 0, num, lineNumStart, lineNumEnd;
 	while (getNextSection(diff, idx, line, "\n")) {
-		char firstChar = line[0].latin1();
+		char firstChar = line.at(0).toLatin1();
 		switch (firstChar) {
 		case '@':
 			// an unified diff fragment header has form '@@ -a,b +c,d @@'
@@ -342,10 +342,10 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 			// number of lines of the hunk, 'c' and 'd' are the same
 			// for new file. If the file does not have enough lines
 			// then also the form '@@ -a +c @@' is used.
-			lineNumStart = line.find('+') + 1;
-			lineNumEnd = line.find(',', lineNumStart);
+			lineNumStart = line.indexOf('+') + 1;
+			lineNumEnd = line.indexOf(',', lineNumStart);
 			if (lineNumEnd == -1) // small file case
-				lineNumEnd = line.find(' ', lineNumStart);
+				lineNumEnd = line.indexOf(' ', lineNumStart);
 
 			num = line.mid(lineNumStart, lineNumEnd - lineNumStart).toInt();
 			num -= ofs; // offset for range filter computation
@@ -374,7 +374,7 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 		case '-':
 			if (!newAnn.isEmpty()) {
 				if (cur != newAnn.end())
-					cur = newAnn.remove(cur);
+					cur = newAnn.erase(cur);
 				else {
 					dbp("ASSERT processDiff: remove end of "
 					    "file, diff is %1", diff);
@@ -439,7 +439,7 @@ const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef s
 	if (noNewLine)
 		dbp("WARNING: No newline at the end of %1 patch", sha);
 
-	int end = (noNewLine) ? 0 : patchFile.find("\n:");
+	int end = (noNewLine) ? 0 : patchFile.indexOf("\n:");
 	QString diff;
 	if (end != -1) {
 		diff = patchFile.left(end + 1);
@@ -448,7 +448,7 @@ const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef s
 	} else
 		diff = patchFile;
 
-	int start = diff.find('@');
+	int start = diff.indexOf('@');
 	// handle a possible file mode only change and remove header
 	diff = (start != -1) ? diff.mid(start) : "";
 
@@ -464,7 +464,7 @@ bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
 	if (idx >= (int)d.length())
 		return false;
 
-	int newIdx = d.find(target, idx);
+	int newIdx = d.indexOf(target, idx);
 	if (newIdx == -1) // last section, take all
 		newIdx = d.length() - 1;
 
@@ -647,12 +647,12 @@ void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
 		// number of lines of the hunk, 'c' and 'd' are the same
 		// for new file. If the file does not have enough lines
 		// then also the form '@@ -a +c @@' is used.
-		chunk = *chunkIt++;
-		int m = chunk.find('-');
-		int c1 = chunk.find(',', m);
-		int p = chunk.find('+', c1);
-		int c2 = chunk.find(',', p);
-		int e = chunk.find(' ', c2);
+		chunk  = *chunkIt++;
+		int m  = chunk.indexOf('-');
+		int c1 = chunk.indexOf(',', m);
+		int p  = chunk.indexOf('+', c1);
+		int c2 = chunk.indexOf(',', p);
+		int e  = chunk.indexOf(' ', c2);
 
 		int oldLineCnt = chunk.mid(c1 + 1, p - c1 - 2).toInt();
 		int newLineId = chunk.mid(p + 1, c2 - p - 1).toInt();
