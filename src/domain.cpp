@@ -319,11 +319,11 @@ void Domain::update(bool fromMaster, bool force) {
 			QApplication::restoreOverrideCursor();
 
 		QString context("updating ");
-		if (git->isThrowOnStopRaised(i,  context + className())) {
+		if (git->isThrowOnStopRaised(i,  context + metaObject()->className())) {
 			EM_THROW_PENDING;
 			return;
 		}
-		if (isThrowOnDeleteRaised(i,  context + className())) {
+		if (isThrowOnDeleteRaised(i,  context + metaObject()->className())) {
 			EM_THROW_PENDING;
 			return;
 		}
