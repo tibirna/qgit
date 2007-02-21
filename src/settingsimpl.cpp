@@ -69,7 +69,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 
 	setupCodecsCombo();
 	checkBoxDiffCache_toggled(checkBoxDiffCache->isChecked());
-	tabDialog->setCurrentPage(defTab);
+	tabDialog->setCurrentIndex(defTab);
 	userInfo();
 }
 
@@ -86,7 +86,7 @@ void SettingsImpl::userInfo() {
 	bool found = false;
 	int idx = 0;
 	FOREACH_SL(it, _uInfo) {
-		comboBoxUserSrc->insertItem(*it);
+		comboBoxUserSrc->addItem(*it);
 		++it;
 		if (!found && !(*it).isEmpty())
 			found = true;
@@ -97,7 +97,7 @@ void SettingsImpl::userInfo() {
 	if (!found)
 		idx = 0;
 
-	comboBoxUserSrc->setCurrentItem(idx);
+	comboBoxUserSrc->setCurrentIndex(idx);
 	comboBoxUserSrc_activated(idx);
 }
 
@@ -141,7 +141,7 @@ void SettingsImpl::setupCodecsCombo() {
 		dbp("ASSERT: codec <%1> not available, using local codec", curCodec);
 		idx = 0;
 	}
-	comboBoxCodecs->setCurrentItem(idx);
+	comboBoxCodecs->setCurrentIndex(idx);
 	if (idx == 0) // signal activated() will not fire in this case
 		comboBoxCodecs_activated(0);
 }
