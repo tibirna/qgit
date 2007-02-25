@@ -279,8 +279,7 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// this is the ONLY deep copy involved in the whole loading
 		// QFile::read() calls standard C read() function when
 		// file is open with Unbuffered flag, or fread() otherwise
-		QByteArray* ba = new QByteArray();
-		ba->reserve(READ_BLOCK_SIZE);
+		QByteArray* ba = new QByteArray(READ_BLOCK_SIZE);
 		uint len = dataFile.read(ba->data(), READ_BLOCK_SIZE);
 		if (len <= 0) {
 			delete ba;
