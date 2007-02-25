@@ -1016,8 +1016,8 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 					"table { background-color: #e0e0f0; }\n"
 					"span.h { font-weight: bold; font-size: medium; }\n"
 					"div.l { white-space: pre; "
-					"font-family: "	<< TYPE_WRITER_FONT.family() << ";"
-					"font-size: "	<< TYPE_WRITER_FONT.pointSize() << "pt;"
+					"font-family: " << TYPE_WRITER_FONT.family() << ";"
+					"font-size: " << TYPE_WRITER_FONT.pointSize() << "pt;"
 					"}\n"
 				"</style>"
 				"</head>"
@@ -1025,9 +1025,10 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 
 		ts << "<div class='t'>"
 			"<table border=0 cellspacing=0 cellpadding=2>"
-			"<tr class='head'> <th colspan=2> <span class='h'>"
-			<< colorMatch(c->shortLog(), shortLogRE)
-			<< "</span></th></tr>";
+			"<tr class='head'> <th></th> <th>"
+			"<span class='h'>" << colorMatch(c->shortLog(), shortLogRE)
+			<< "</span>"
+			"</th></tr>";
 
 		ts << "<tr> <td class='h'>Author</td>"
 			"<td>" << c->author() << "</td>"
