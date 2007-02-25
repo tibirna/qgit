@@ -976,7 +976,7 @@ const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 
 	QString text;
 
-	text = Qt::convertFromPlainText( txt );
+	text = Qt::escape( txt );
 
 	if (regExp.isEmpty())
 		return text;
@@ -1076,7 +1076,6 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 			"</body>"
 			"</html>";
 	}
-//	text = Qt::convertFromPlainText(text);
 
 	// highlight SHA's
 	//
