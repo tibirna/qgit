@@ -978,9 +978,8 @@ const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 	if (regExp.isEmpty())
 		return text;
 
-	// we use $_1 and $_2 instead of '<' and '>' to avoid later substitutions
-	SCRef startCol(QString::fromLatin1("$_1b$_2$_1font color=\"red\"$_2"));
-	SCRef endCol(QString::fromLatin1("$_1/font$_2$_1/b$_2"));
+	SCRef startCol(QString::fromLatin1("<b><font color=\"red\">"));
+	SCRef endCol(QString::fromLatin1("</font></b>"));
 	int pos = 0;
 	while ((pos = text.find(regExp, pos)) != -1) {
 
@@ -1102,8 +1101,6 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 		} else
 			pos += reSHA.cap(0).length();
 	}
-	text.replace("$_1", "<"); // see colorMatch()
-	text.replace("$_2", ">");
 	return text;
 }
 
