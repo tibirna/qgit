@@ -1013,8 +1013,9 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 					"table { background-color: #e0e0f0; }\n"
 					"span.h { font-weight: bold; font-size: medium; }\n"
 					"div.l { white-space: pre; "
-					"font-family: "	<< TYPE_WRITER_FONT.family() << "; "
-					"}"
+					"font-family: "	<< TYPE_WRITER_FONT.family() << ";"
+					"font-size: "	<< TYPE_WRITER_FONT.pointSize() << "pt;"
+					"}\n"
 				"</style>"
 				"</head>"
 				"<body>\n";
