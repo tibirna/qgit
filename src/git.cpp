@@ -974,7 +974,10 @@ const QString Git::getDefCommitMsg() {
 
 const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 
-	QString text(txt);
+	QString text;
+
+	text = Qt::convertFromPlainText( txt );
+
 	if (regExp.isEmpty())
 		return text;
 
