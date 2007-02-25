@@ -1006,40 +1006,50 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 		text = Qt::convertFromPlainText( c->longLog() );
 	else {
 		QTextStream ts( &text );
-		ts << "<html><head><style type=\"text/css\">"
-				"tr.head { background-color: #a0a0e0 }\n"
-				"td.h { font-weight: bold; }\n"
-				"table { background-color: #e0e0f0; }\n"
-				"span.h { font-weight: bold; font-size: medium; }\n"
-				"div.l { white-space: pre; font-family: "
-			<< TYPE_WRITER_FONT.family() << "; }"
-			<< "</style></head><body>\n";
+		ts << "<html>"
+				"<head>"
+				"<style type=\"text/css\">"
+					"tr.head { background-color: #a0a0e0 }\n"
+					"td.h { font-weight: bold; }\n"
+					"table { background-color: #e0e0f0; }\n"
+					"span.h { font-weight: bold; font-size: medium; }\n"
+					"div.l { white-space: pre; "
+					"font-family: "	<< TYPE_WRITER_FONT.family() << "; "
+					"}"
+				"</style>"
+				"</head>"
+				"<body>\n";
 
-		ts << "<div class='t'><table border=0 cellspacing=0 cellpadding=2>\n"
-			<< "<tr class='head'> <th colspan=2> <span class='h'>"
+		ts << "<div class='t'>"
+			"<table border=0 cellspacing=0 cellpadding=2>"
+			"<tr class='head'> <th colspan=2> <span class='h'>"
 			<< colorMatch(c->shortLog(), shortLogRE)
-			<< "</span></th></tr>\n";
+			<< "</span></th></tr>";
 
-		ts << "<tr><td class='h'>Author</td> <td>"
-			<< c->author()
-			<< "</td></tr>\n<tr><td class='h'>Date</td><td>"
-			<< getLocalDate(c->authorDate())
-			<< "</td></tr>\n";
+		ts << "<tr> <td class='h'>Author</td>"
+			"<td>" << c->author() << "</td>"
+			"</tr>"
+			"<tr> <td class='h'>Date</td>"
+			"<td>" << getLocalDate(c->authorDate()) << "</td>"
+			"</tr>";
 
 		if (!c->isUnApplied && !c->isApplied) {
-			ts << "<tr><td class='h'>Parent</td> <td>"
-				<< c->parents().join("</td></tr>\n<tr><td class='h'>Parent</td> <td>")
-				<< "</td></tr>\n";
+			ts << "<tr><td class='h'>Parent</td>"
+				"<td>"
+				<< c->parents().join("</td></tr>\n<tr><td class='h'>Parent</td> <td>");
+			ts << "</td></tr>\n";
 
 			QStringList sl = getChilds(sha);
 			if (!sl.isEmpty())
-				ts << "<tr><td class='h'>Child</td> <td>"
+				ts << "<tr><td class='h'>Child</td>"
+					"<td>"
 					<< sl.join("</td></tr>\n<tr><td class='h'>Child</td> <td>");
 			ts << "</td></tr>\n";
 
 			sl = getDescendantBranches(sha);
 			if (!sl.empty())
-				ts << "<tr><td class='h'>Branch</td> <td>"
+				ts << "<tr><td class='h'>Branch</td>"
+					"<td>"
 					<< sl.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>");
 			ts << "</td></tr>\n";
 
@@ -1055,9 +1065,13 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 					<< sl.join(", ");
 			ts << "</td></tr>\n";
 		}
-		ts << "</table></div>\n"
-			<< "\n\n<div class='l'>" + colorMatch(c->longLog(), longLogRE)
-			<< "</div></body></html>\n";
+		ts << "</table>"
+			"</div>"
+			"<div class='l'>"
+			<< colorMatch(c->longLog(), longLogRE)
+			<< "</div>"
+			"</body>"
+			"</html>";
 	}
 //	text = Qt::convertFromPlainText(text);
 
