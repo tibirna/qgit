@@ -414,7 +414,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 
 void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 
-	const QStringList sl(rowSt.split('\t'));
+	const QStringList sl(rowSt.split('\t', QString::SkipEmptyParts));
 	if (sl.count() != 3) {
 		dbp("ASSERT in setExtStatus, unexpected status string %1", rowSt);
 		return;
@@ -1176,7 +1176,7 @@ const QStringList Rev::parents() const {
 		return QStringList();
 
 	int ofs = start + boundaryOfs + 41;
-	return mid(ofs, 41 * parentsCnt - 1).split(" ");
+	return mid(ofs, 41 * parentsCnt - 1).split(" ", QString::SkipEmptyParts);
 }
 
 int Rev::indexData() { // fast path here, less then 4% of load time
