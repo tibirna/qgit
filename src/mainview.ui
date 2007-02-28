@@ -15,6 +15,9 @@
   <property name="windowTitle" >
    <string>QGit</string>
   </property>
+  <property name="windowIcon" >
+   <iconset resource="icons.qrc" >:/icons/resources/logo.png</iconset>
+  </property>
   <widget class="QWidget" name="widget" >
    <layout class="QHBoxLayout" >
     <property name="margin" >
