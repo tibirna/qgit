@@ -340,7 +340,7 @@ public:
 		COPIED   = 16,
 		UNKNOWN  = 32,
 		IN_INDEX = 64,
-		ANY      = 128
+		ANY      = 127
 	};
 
 	RevFile() : onlyModified(true) {}
