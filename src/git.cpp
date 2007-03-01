@@ -14,6 +14,7 @@
 #include <QTextStream>
 #include <QSettings>
 #include <QTextDocument>
+#include <QTextCodec>
 #include "lanes.h"
 #include "myprocess.h"
 #include "annotate.h"
@@ -185,7 +186,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 
 // ****************************************************************************
 
-Git::Git(QWidget* p) : QObject(p) {
+Git::Git(QObject* p) : QObject(p) {
 
 	EM_INIT(exGitStopped, "Stopping connection with git");
 
@@ -204,7 +205,7 @@ void Git::checkEnvironment() {
 		dbs("Cannot found git files");
 		return;
 	}
-	QGit::GIT_DIR = version.stripWhiteSpace();
+	QGit::GIT_DIR = version.trimmed();
 
 	if (run("git --version", &version)) {
 
@@ -240,8 +241,8 @@ void Git::userInfo(SList info) {
 	- your name, hostname and domain
 */
 	const QString env(QProcess::systemEnvironment().join(","));
-	QString user(env.section("GIT_AUTHOR_NAME", 1).section(",", 0, 0).section("=", 1).stripWhiteSpace());
-	QString email(env.section("GIT_AUTHOR_EMAIL", 1).section(",", 0, 0).section("=", 1).stripWhiteSpace());
+	QString user(env.section("GIT_AUTHOR_NAME", 1).section(",", 0, 0).section("=", 1).trimmed());
+	QString email(env.section("GIT_AUTHOR_EMAIL", 1).section(",", 0, 0).section("=", 1).trimmed());
 
 	info.clear();
 	info << "Environment" << user << email;
@@ -274,9 +275,8 @@ bool Git::isThrowOnStopRaised(int excpId, SCRef curContext) {
 
 bool Git::allProcessDeleted() {
 
-	QObjectList l = this->queryList("QProcess");
-	bool allProcessAreDeleted = (l.count() == 0);
-	return allProcessAreDeleted;
+	QList<QProcess*> l = this->findChildren<QProcess*>();
+	return l.empty();
 }
 
 void Git::setTextCodec(QTextCodec* tc) {
@@ -305,7 +305,7 @@ QTextCodec* Git::getTextCodec(bool* isGitArchive) {
 	if (runOutput.isEmpty()) // git docs says default is utf-8
 		return QTextCodec::codecForName(QByteArray("utf8"));
 
-	return QTextCodec::codecForName(runOutput.stripWhiteSpace().toLatin1());
+	return QTextCodec::codecForName(runOutput.trimmed().toLatin1());
 }
 
 const QString Git::quote(SCRef nm) {
@@ -401,7 +401,7 @@ const QString Git::getRefSha(SCRef refName, RefType type, bool askGit) {
 	errorReportingEnabled = false;
 	bool ok = run("git rev-parse " + refName, &runOutput);
 	errorReportingEnabled = true;
-	return (ok ? runOutput.stripWhiteSpace() : "");
+	return (ok ? runOutput.trimmed() : "");
 }
 
 void Git::appendNamesWithId(QStringList& names, SCRef sha, SCList data, bool onlyLoaded) {
@@ -479,7 +479,7 @@ const QString Git::getRevInfo(SCRef sha) {
 		if (!msg.isEmpty())
 			refsInfo.append("  [" + msg + "]");
 	}
-	return refsInfo.stripWhiteSpace();
+	return refsInfo.trimmed();
 }
 
 const QString Git::getTagMsg(SCRef sha) {
@@ -493,12 +493,13 @@ const QString Git::getTagMsg(SCRef sha) {
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
 
-	QRegExp pgp("-----BEGIN PGP SIGNATURE*END PGP SIGNATURE-----", true, true);
+	QRegExp pgp("-----BEGIN PGP SIGNATURE*END PGP SIGNATURE-----",
+	            Qt::CaseSensitive, QRegExp::Wildcard);
 
 	if (!rf.tagObj.isEmpty()) {
 		QString ro;
 		if (run("git cat-file tag " + rf.tagObj, &ro))
-			rf.tagMsg = ro.section("\n\n", 1).remove(pgp).stripWhiteSpace();
+			rf.tagMsg = ro.section("\n\n", 1).remove(pgp).trimmed();
 	}
 	return rf.tagMsg;
 }
@@ -635,7 +636,7 @@ int Git::findFileIndex(const RevFile& rf, SCRef name) {
 	if (name.isEmpty())
 		return -1;
 
-	int idx = name.findRev('/') + 1;
+	int idx = name.lastIndexOf('/') + 1;
 	SCRef dr = name.left(idx);
 	SCRef nm = name.mid(idx);
 
@@ -775,7 +776,7 @@ MyProcess* Git::getHighlightedFile(SCRef file, SCRef sha, QObject* receiver, QSt
 void Git::on_getHighlightedFile_eof() {
 
 	QDir dir(workDir);
-	const QStringList sl(dir.entryList("qgit_hlght_input*"));
+	const QStringList sl(dir.entryList(QStringList() << "qgit_hlght_input*"));
 	FOREACH_SL (it, sl)
 		dir.remove(*it);
 }
@@ -808,7 +809,7 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 	if (!run("git ls-tree " + tree, &runOutput))
 		return false;
 
-	const QStringList sl(QStringList::split('\n', runOutput));
+	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, sl) {
 		// insert in order any good unknown file to the list,
 		// newFiles must be already sorted
@@ -821,7 +822,7 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 		}
 		// append any not deleted file
 		SCRef fp(treePath.isEmpty() ? fn : treePath + '/' + fn);
-		if (delFiles.empty() || (delFiles.findIndex(fp) == -1)) {
+		if (delFiles.empty() || (delFiles.indexOf(fp) == -1)) {
 			names.append(fn);
 			shas.append((*it).mid(12, 40));
 			types.append((*it).mid(7, 4));
@@ -853,7 +854,7 @@ void Git::getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status) {
 			for (int j = 0, cnt = fp.count('/'); j < cnt; j++) {
 
 				SCRef dir(fp.section('/', 0, j));
-				if (dirs.findIndex(dir) == -1)
+				if (dirs.indexOf(dir) == -1)
 					dirs.append(dir);
 			}
 		}
@@ -904,7 +905,7 @@ bool Git::isSameFiles(SCRef tree1Sha, SCRef tree2Sha) {
 	if (!run(runCmd, &runOutput))
 		return false;
 
-	bool isChanged = (runOutput.find(" A\t") != -1 || runOutput.find(" D\t") != -1);
+	bool isChanged = (runOutput.indexOf(" A\t") != -1 || runOutput.indexOf(" D\t") != -1);
 	return !isChanged;
 }
 
@@ -959,7 +960,7 @@ const QString Git::getDefCommitMsg() {
 	if (isStGIT && !getAllRefSha(APPLIED).isEmpty()) {
 		QString top;
 		if (run("stg top", &top))
-			sha = getRefSha(top.stripWhiteSpace(), APPLIED, false);
+			sha = getRefSha(top.trimmed(), APPLIED, false);
 	}
 	const Rev* c = revLookup(sha);
 	if (!c) {
@@ -969,7 +970,7 @@ const QString Git::getDefCommitMsg() {
 	if (sha == ZERO_SHA)
 		return c->longLog();
 
-	return c->shortLog() + '\n' + c->longLog().stripWhiteSpace();
+	return c->shortLog() + '\n' + c->longLog().trimmed();
 }
 
 const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
@@ -984,7 +985,7 @@ const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 	SCRef startCol(QString::fromLatin1("<b><font color=\"red\">"));
 	SCRef endCol(QString::fromLatin1("</font></b>"));
 	int pos = 0;
-	while ((pos = text.find(regExp, pos)) != -1) {
+	while ((pos = text.indexOf(regExp, pos)) != -1) {
 
 		SCRef match(regExp.cap(0));
 		const QString coloredText(startCol + match + endCol);
@@ -1007,75 +1008,58 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 	if (c->isDiffCache)
 		text = Qt::convertFromPlainText( c->longLog() );
 	else {
-		QTextStream ts( &text );
-		ts << "<html>"
-				"<head>"
-				"<style type=\"text/css\">"
-					"tr.head { background-color: #a0a0e0 }\n"
-					"td.h { font-weight: bold; }\n"
-					"table { background-color: #e0e0f0; }\n"
-					"span.h { font-weight: bold; font-size: medium; }\n"
-					"div.l { white-space: pre; "
-					"font-family: " << TYPE_WRITER_FONT.family() << ";"
-					"font-size: " << TYPE_WRITER_FONT.pointSize() << "pt;"
-					"}\n"
-				"</style>"
-				"</head>"
-				"<body>\n";
+		QTextStream ts(&text);
+		ts << "<html><head><style type=\"text/css\">"
+		        "tr.head { background-color: #a0a0e0 }\n"
+		        "td.h { font-weight: bold; }\n"
+		        "table { background-color: #e0e0f0; }\n"
+		        "span.h { font-weight: bold; font-size: medium; }\n"
+		        "div.l { white-space: pre; "
+		        "font-family: " << TYPE_WRITER_FONT.family() << ";"
+		        "font-size: " << TYPE_WRITER_FONT.pointSize() << "pt;}\n"
+		"</style></head><body>\n";
 
 		ts << "<div class='t'>"
-			"<table border=0 cellspacing=0 cellpadding=2>"
-			"<tr class='head'> <th></th> <th>"
-			"<span class='h'>" << colorMatch(c->shortLog(), shortLogRE)
-			<< "</span>"
-			"</th></tr>";
+		        "<table border=0 cellspacing=0 cellpadding=2>"
+		        "<tr class='head'> <th></th> <th><span class='h'>"
+		        << colorMatch(c->shortLog(), shortLogRE)
+		        << "</span></th></tr>";
 
-		ts << "<tr> <td class='h'>Author</td>"
-			"<td>" << c->author() << "</td>"
-			"</tr>"
-			"<tr> <td class='h'>Date</td>"
-			"<td>" << getLocalDate(c->authorDate()) << "</td>"
-			"</tr>";
+		ts << "<tr> <td class='h'>Author</td><td>"
+		        << c->author() << "</td>"
+		        "</tr><tr> <td class='h'>Date</td><td>"
+		        << getLocalDate(c->authorDate()) << "</td></tr>";
 
 		if (!c->isUnApplied && !c->isApplied) {
-			ts << "<tr><td class='h'>Parent</td>"
-				"<td>"
-				<< c->parents().join("</td></tr>\n<tr><td class='h'>Parent</td> <td>");
+			ts << "<tr><td class='h'>Parent</td><td>"
+			   << c->parents().join("</td></tr>\n<tr><td class='h'>Parent</td> <td>");
 			ts << "</td></tr>\n";
 
 			QStringList sl = getChilds(sha);
 			if (!sl.isEmpty())
-				ts << "<tr><td class='h'>Child</td>"
-					"<td>"
-					<< sl.join("</td></tr>\n<tr><td class='h'>Child</td> <td>");
+				ts << "<tr><td class='h'>Child</td><td>"
+				   << sl.join("</td></tr>\n<tr><td class='h'>Child</td> <td>");
 			ts << "</td></tr>\n";
 
 			sl = getDescendantBranches(sha);
 			if (!sl.empty())
-				ts << "<tr><td class='h'>Branch</td>"
-					"<td>"
-					<< sl.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>");
+				ts << "<tr><td class='h'>Branch</td><td>"
+				   << sl.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>");
 			ts << "</td></tr>\n";
 
 			sl = getNearTags(!optGoDown, sha);
 			if (!sl.isEmpty())
-				ts << "<tr><td class='h'>Follows</td> <td>"
-					<< sl.join(", ");
+				ts << "<tr><td class='h'>Follows</td> <td>" << sl.join(", ");
 			ts << "</td></tr>\n";
 
 			sl = getNearTags(optGoDown, sha);
 			if (!sl.isEmpty())
-				ts << ("<tr><td class='h'>Precedes</td> <td>")
-					<< sl.join(", ");
+				ts << "<tr><td class='h'>Precedes</td> <td>" << sl.join(", ");
 			ts << "</td></tr>\n";
 		}
-		ts << "</table>"
-			"</div>"
-			"<div class='l'>"
-			<< colorMatch(c->longLog(), longLogRE)
-			<< "</div>"
-			"</body>"
-			"</html>";
+		ts << "</table></div><div class='l'>"
+		   << colorMatch(c->longLog(), longLogRE)
+		   << "</div></body></html>";
 	}
 
 	// highlight SHA's
@@ -1084,10 +1068,10 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 	// sha if there isn't a leading trailing space or an open parenthesis and,
 	// in that case, before the space must not be a ':' character.
 	// It's an ugly heuristic, but seems to work in most cases.
-	QRegExp reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", false);
+	QRegExp reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", Qt::CaseInsensitive);
 	reSHA.setMinimal(false);
 	int pos = 0;
-	while ((pos = text.find(reSHA, pos)) != -1) {
+	while ((pos = text.indexOf(reSHA, pos)) != -1) {
 
 		SCRef ref = reSHA.cap(0).mid(2);
 		const Rev* r = (ref.length() == 40 ? revLookup(ref) : revLookup(getRefSha(ref)));
@@ -1096,7 +1080,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 			if (slog.isEmpty()) // very rare but possible
 				slog = r->sha();
 			if (slog.length() > 60)
-				slog = slog.left(57).stripWhiteSpace().append("...");
+				slog = slog.left(57).trimmed().append("...");
 
 			slog = Qt::escape(slog);
 			const QString link("<a href=\"" + r->sha() + "\">" + slog + "</a>");
@@ -1182,7 +1166,7 @@ void Git::startFileHistory(FileHistory* fh) {
 void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 
 	shaMap.clear();
-	QRegExp rx(path, false, true); // not case sensitive and with wildcard
+	QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);
 	FOREACH (StrVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it))
@@ -1217,7 +1201,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap) 
 	if (!run(runCmd, &runOutput, NULL, buf)) // could be slow
 		return false;
 
-	const QStringList sl(QStringList::split('\n', runOutput));
+	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, sl)
 		shaMap.insert(*it, true);
 
@@ -1378,7 +1362,7 @@ const QStringList Git::getOtherFiles(SCList selFiles, bool onlyInIndex) {
 	QStringList notSelFiles;
 	for (int i = 0; i < files->count(); ++i) {
 		SCRef fp = filePath(*files, i);
-		if (selFiles.find(fp) == selFiles.constEnd()) { // not selected...
+		if (selFiles.indexOf(fp) == -1) { // not selected...
 			if (!onlyInIndex)
 				notSelFiles.append(fp);
 			else if (files->statusCmp(i, RevFile::IN_INDEX))
@@ -1453,7 +1437,7 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 	if (fold) {
 		// update patch message before to fold so to use refresh only as a rename tool
 		if (!msg.isEmpty()) {
-			if (!run("stg refresh --message \"" + msg.stripWhiteSpace() + "\""))
+			if (!run("stg refresh --message \"" + msg.trimmed() + "\""))
 				goto rollback;
 		}
 		if (!run("stg fold " + quote(patchFile)))
@@ -1523,7 +1507,7 @@ bool Git::stgPop(SCRef sha) {
 		dbp("ASSERT in Git::stgPop, found %1 patches instead of 1", patch.count());
 		return false;
 	}
-	if (patch.first() != top.stripWhiteSpace())
+	if (patch.first() != top.trimmed())
 		if (!run("stg pop " + quote(patch)))
 			return false;
 

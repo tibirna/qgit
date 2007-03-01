@@ -69,7 +69,7 @@ private:
 class Git : public QObject {
 Q_OBJECT
 public:
-	explicit Git(QWidget* parent);
+	explicit Git(QObject* parent);
 
 	enum BoolOption { // used as self-documenting boolean parameters
 		optFalse,
