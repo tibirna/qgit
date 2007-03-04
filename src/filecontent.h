@@ -7,12 +7,10 @@
 #ifndef FILECONTENT_H
 #define FILECONTENT_H
 
-#include <qobject.h>
-#include <qpointer.h>
+#include <QPointer>
+#include <QTextEdit>
 #include "common.h"
 
-class Q3TextEdit;
-class Q3ListView;
 class FileHighlighter;
 class Domain;
 class StateInfo;
@@ -22,14 +20,15 @@ class MyProcess;
 class RangeInfo;
 class FileHistory;
 
-class FileContent: public QObject {
+class FileContent: public QTextEdit {
 Q_OBJECT
 public:
-	FileContent(Domain* parent, Git* git, Q3TextEdit* f);
+	FileContent(QWidget* parent);
 	~FileContent();
+	void setup(Domain* parent, Git* git);
 	void update(bool force = false);
 	bool annotateAvailable() { return curAnn != NULL; };
-	void clear();
+	void clearAll();
 	void copySelection();
 	void goToAnnotation(int id);
 	bool goToRangeStart();
@@ -45,7 +44,6 @@ signals:
 	void revIdSelected(int);
 
 public slots:
-	void on_doubleClicked(int, int);
 	void on_annotateReady(Annotate*, const QString&, bool, const QString&);
 	void procReadyRead(const QString&);
 	void procFinished(bool emitSignal = true);
@@ -53,18 +51,19 @@ public slots:
 private:
 	friend class FileHighlighter;
 
+	void clear(); // declared as private, to avoid indirect access to QTextEdit::clear()
 	void clearAnnotate();
-	void clearText(bool emitSignal = true);
+	void clearText(bool emitSignal);
 	void findInFile(SCRef str);
 	bool lookupAnnotation();
 	uint annotateLength(const FileAnnotation* curAnn);
 	void saveScreenState();
 	void restoreScreenState();
 	uint processData(const QString& fileChunk);
+	virtual void mouseDoubleClickEvent(QMouseEvent*);
 
 	Domain* d;
 	Git* git;
-	Q3TextEdit* ft;
 	StateInfo* st;
 	RangeInfo* rangeInfo;
 	FileHighlighter* fileHighlighter;

@@ -16,6 +16,8 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QShortcutEvent>
+#include <QMenu>
+#include <QScrollBar>
 #include "config.h" // defines PACKAGE_VERSION
 #include "help.h"
 #include "ui_help.h"

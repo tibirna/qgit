@@ -21,6 +21,8 @@ public:
 	void setCombinedLength(uint c) { cl = c; }
 	virtual void highlightBlock(const QString& text) {
 
+		// state is used to count paragraphs, starting from 0
+		setCurrentBlockState(previousBlockState() + 1);
 		if (text.isEmpty())
 			return;
 
@@ -66,9 +68,9 @@ public:
 		if (myColor.isValid())
 			setFormat(0, text.length(), myColor);
 
-/*		if (pv->matches.count() > 0) { FIXME
+		if (pv->matches.count() > 0) {
 			int indexFrom, indexTo;
-			if (pv->getMatch(currentParagraph(), &indexFrom, &indexTo)) {
+			if (pv->getMatch(currentBlockState(), &indexFrom, &indexTo)) {
 
 				QTextCharFormat fmt;
 				fmt.setFont(document()->defaultFont()); // FIXME use currentFont()
@@ -79,7 +81,7 @@ public:
 
 				setFormat(indexFrom, indexTo - indexFrom, fmt);
 			}
-		}*/
+		}
 	}
 private:
 	PatchView* pv;

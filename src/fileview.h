@@ -11,7 +11,6 @@
 #include "common.h"
 #include "domain.h"
 
-class FileContent;
 class MainImpl;
 class Git;
 class FileHistory;
@@ -58,7 +57,6 @@ private:
 	void updateEnabledButtons();
 
 	Ui_TabFile* fileTab;
-	FileContent* textEditFile;
 	bool annotateAvailable;
 	bool fileAvailable;
 };

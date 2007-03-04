@@ -25,12 +25,12 @@
       <number>0</number>
      </property>
      <property name="spacing" >
-      <number>0</number>
+      <number>6</number>
      </property>
      <item>
       <layout class="QHBoxLayout" >
        <property name="margin" >
-        <number>3</number>
+        <number>0</number>
        </property>
        <property name="spacing" >
         <number>0</number>
@@ -272,32 +272,18 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="Q3TextEdit" name="textEditFile" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>7</hsizetype>
-          <vsizetype>7</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>2</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="textFormat" >
-         <enum>Qt::PlainText</enum>
-        </property>
-        <property name="linkUnderline" >
+       <widget class="FileContent" name="textEditFile" >
+        <property name="undoRedoEnabled" >
          <bool>false</bool>
         </property>
-        <property name="wordWrap" >
-         <enum>Q3TextEdit::NoWrap</enum>
+        <property name="lineWrapMode" >
+         <enum>QTextEdit::NoWrap</enum>
         </property>
         <property name="readOnly" >
          <bool>true</bool>
         </property>
-        <property name="undoRedoEnabled" >
+        <property name="acceptRichText" >
          <bool>false</bool>
-        </property>
-        <property name="autoFormatting" >
-         <set>Q3TextEdit::AutoNone</set>
         </property>
        </widget>
       </widget>
@@ -314,9 +300,9 @@
    <header>listview.h</header>
   </customwidget>
   <customwidget>
-   <class>Q3TextEdit</class>
-   <extends>Q3Frame</extends>
-   <header>q3textedit.h</header>
+   <class>FileContent</class>
+   <extends>QTextEdit</extends>
+   <header>filecontent.h</header>
   </customwidget>
  </customwidgets>
  <resources>
