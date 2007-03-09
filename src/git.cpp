@@ -1026,7 +1026,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE) {
 		        << "</span></th></tr>";
 
 		ts << "<tr> <td class='h'>Author</td><td>"
-		        << c->author() << "</td>"
+		        << Qt::escape(c->author()) << "</td>"
 		        "</tr><tr> <td class='h'>Date</td><td>"
 		        << getLocalDate(c->authorDate()) << "</td></tr>";
 
