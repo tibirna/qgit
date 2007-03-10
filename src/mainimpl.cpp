@@ -1370,7 +1370,11 @@ void MainImpl::customActionListChanged(const QStringList& list) {
 
 void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 
+	QAction* setupAct = Actions->actions().first(); // is never empty
+	Actions->removeAction(setupAct);
 	Actions->clear();
+	Actions->addAction(setupAct);
+
 	if (list.isEmpty())
 		return;
 
