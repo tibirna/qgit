@@ -923,8 +923,14 @@ const QStringList Git::getDescendantBranches(SCRef sha) {
 		SCRef sha = revData->revOrder[nr[i]];
 		SCRef cap = " (" + sha + ") ";
 		RefMap::const_iterator it(refsShaMap.find(sha));
-		if (it != refsShaMap.constEnd())
+		if (it == refsShaMap.constEnd())
+			continue;
+
+		if (!(*it).branches.empty())
 			tl.append((*it).branches.join(cap).append(cap));
+
+		if (!(*it).remoteBranches.empty())
+			tl.append((*it).remoteBranches.join(cap).append(cap));
 	}
 	return tl;
 }

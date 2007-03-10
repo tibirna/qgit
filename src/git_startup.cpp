@@ -494,7 +494,7 @@ bool Git::startRevList(SCRef args, FileHistory* fh) {
 	if (!isMainHistory(fh)) {
 		// fetch history from all branches so any revision in
 		// main view that changes the file is always found
-		SCRef allBranches = getAllRefSha(BRANCH).join(" ");
+		SCRef allBranches = getAllRefSha(BRANCH | RMT_BRANCH).join(" ");
 		initCmd.append("--remove-empty " + allBranches + " -- ");
 	} else
 		initCmd.append("--topo-order ");
@@ -627,7 +627,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			}
 
 		} else { // filteredLoading
-			SCRef allBranches = getAllRefSha(BRANCH).join(" ");
+			SCRef allBranches = getAllRefSha(BRANCH | RMT_BRANCH).join(" ");
 			args.append(allBranches + " -- ");
 			args.append(filterList->join(" "));
 		}
@@ -1007,7 +1007,7 @@ void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm
 
 void Git::mergeBranches(Rev* p, const Rev* r) {
 
-	int r_descBrnMaster = (checkRef(r->sha(), BRANCH) ? r->orderIdx : r->descBrnMaster);
+	int r_descBrnMaster = (checkRef(r->sha(), BRANCH | RMT_BRANCH) ? r->orderIdx : r->descBrnMaster);
 
 	if (p->descBrnMaster == r_descBrnMaster || r_descBrnMaster == -1)
 		return;
@@ -1096,7 +1096,7 @@ void Git::indexTree() {
 	for (uint i = 0, cnt = ro.count(); i < cnt; i++) {
 
 		uint type = checkRef(ro[i]);
-		bool isB = (type & BRANCH);
+		bool isB = (type & (BRANCH | RMT_BRANCH));
 		bool isT = (type & TAG);
 
 		const Rev* r = revLookup(ro[i]);
