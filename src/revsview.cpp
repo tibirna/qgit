@@ -132,7 +132,8 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
 void RevsView::on_updateRevDesc() {
 
-	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
+	bool showHeader = m()->ActShowDescHeader->isChecked();
+	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE, showHeader));
 	tab()->textBrowserDesc->setHtml(d);
 }
 

@@ -112,52 +112,12 @@
      <height>32</height>
     </rect>
    </property>
-   <widget class="QMenu" name="Edit" >
-    <property name="title" >
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="ActCommit" />
-    <addaction name="ActTag" />
-    <addaction name="ActTagDelete" />
-    <addaction name="ActPush" />
-    <addaction name="ActPop" />
-    <addaction name="separator" />
-    <addaction name="ActFind" />
-    <addaction name="ActFindNext" />
-    <addaction name="separator" />
-    <addaction name="ActSettings" />
-   </widget>
-   <widget class="QMenu" name="View" >
-    <property name="title" >
-     <string>&amp;View</string>
-    </property>
-    <addaction name="ActBack" />
-    <addaction name="ActForward" />
-    <addaction name="separator" />
-    <addaction name="ActCheckWorkDir" />
-    <addaction name="separator" />
-    <addaction name="ActViewRev" />
-    <addaction name="ActViewDiff" />
-    <addaction name="ActViewDiffNewTab" />
-    <addaction name="ActViewFile" />
-    <addaction name="ActViewFileNewTab" />
-    <addaction name="ActExternalDiff" />
-    <addaction name="ActShowTree" />
-    <addaction name="ActSplitView" />
-    <addaction name="ActFilterTree" />
-   </widget>
    <widget class="QMenu" name="Help" >
     <property name="title" >
      <string>&amp;Help</string>
     </property>
     <addaction name="ActHelp" />
     <addaction name="ActAbout" />
-   </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
-     <string>&amp;Actions</string>
-    </property>
-    <addaction name="ActCustomActionSetup" />
    </widget>
    <widget class="QMenu" name="File" >
     <property name="title" >
@@ -176,6 +136,47 @@
     <addaction name="ActClose" />
     <addaction name="ActExit" />
     <addaction name="separator" />
+   </widget>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="ActCommit" />
+    <addaction name="ActTag" />
+    <addaction name="ActTagDelete" />
+    <addaction name="ActPush" />
+    <addaction name="ActPop" />
+    <addaction name="separator" />
+    <addaction name="ActFind" />
+    <addaction name="ActFindNext" />
+    <addaction name="separator" />
+    <addaction name="ActSettings" />
+   </widget>
+   <widget class="QMenu" name="Actions" >
+    <property name="title" >
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="ActCustomActionSetup" />
+   </widget>
+   <widget class="QMenu" name="View" >
+    <property name="title" >
+     <string>&amp;View</string>
+    </property>
+    <addaction name="ActBack" />
+    <addaction name="ActForward" />
+    <addaction name="separator" />
+    <addaction name="ActCheckWorkDir" />
+    <addaction name="separator" />
+    <addaction name="ActViewRev" />
+    <addaction name="ActViewDiff" />
+    <addaction name="ActViewDiffNewTab" />
+    <addaction name="ActViewFile" />
+    <addaction name="ActViewFileNewTab" />
+    <addaction name="ActExternalDiff" />
+    <addaction name="ActShowTree" />
+    <addaction name="ActSplitView" />
+    <addaction name="ActShowDescHeader" />
+    <addaction name="ActFilterTree" />
    </widget>
    <addaction name="File" />
    <addaction name="Edit" />
@@ -668,6 +669,29 @@
    </property>
    <property name="statusTip" >
     <string>Toggle match highlight</string>
+   </property>
+  </action>
+  <action name="ActShowDescHeader" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Show header info</string>
+   </property>
+   <property name="iconText" >
+    <string>Show header info</string>
+   </property>
+   <property name="toolTip" >
+    <string>Show revision description header info</string>
+   </property>
+   <property name="shortcut" >
+    <string>H</string>
+   </property>
+   <property name="menuRole" >
+    <enum>QAction::TextHeuristicRole</enum>
    </property>
   </action>
  </widget>
@@ -1216,6 +1240,22 @@
    <signal>toggled(bool)</signal>
    <receiver>MainBase</receiver>
    <slot>ActSearchAndHighlight_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>487</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActShowDescHeader</sender>
+   <signal>activated()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActShowDescHeader_activated()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

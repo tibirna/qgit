@@ -309,7 +309,8 @@ void PatchView::button_clicked(int diffType) {
 
 void PatchView::on_updateRevDesc() {
 
-	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE));
+	bool showHeader = m()->ActShowDescHeader->isChecked();
+	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE, showHeader));
 	patchTab->textBrowserDesc->setHtml(d);
 }
 

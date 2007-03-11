@@ -1189,6 +1189,11 @@ void MainImpl::ActSplitView_activated() {
 	}
 }
 
+void MainImpl::ActShowDescHeader_activated() {
+
+	emit updateRevDesc();
+}
+
 void MainImpl::ActShowTree_toggled(bool b) {
 
 	if (b) {
