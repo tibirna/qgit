@@ -919,7 +919,7 @@ QTextEdit* MainImpl::getCurrentTextEdit() {
  		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
 		break;
 	case TAB_FILE:
-// 		te = static_cast<FileView*>(t)->tab()->textEditFile; FIXME
+ 		te = static_cast<FileView*>(t)->tab()->textEditFile;
 		break;
 	default:
 		break;
