@@ -44,6 +44,7 @@ public slots:
 protected:
 	virtual bool event(QEvent* e);
 	virtual bool doUpdate(bool force);
+	virtual bool isMatch(SCRef sha);
 
 private:
 	friend class MainImpl;

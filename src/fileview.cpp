@@ -127,6 +127,27 @@ void FileView::updateSpinBoxValue() {
 	fileTab->spinBoxRevision->setValue(ids.toInt()); // emit QSpinBox::valueChanged()
 }
 
+bool FileView::isMatch(SCRef sha) {
+
+	static RangeInfo r; // fast path here, avoid allocation on each call
+	if (!fileTab->textEditFile->getRange(sha, &r))
+		return false;
+
+	return r.modified;
+}
+
+void FileView::filterOnRange(bool isOn) {
+
+	int matchedCnt = fileTab->histListView->filterRows(isOn, false);
+	QString msg;
+	if (isOn)
+		msg = QString("Found %1 matches. Toggle filter "
+		              "button to remove the filter").arg(matchedCnt);
+
+// 	m()->statusBar()->message(msg);
+	QApplication::postEvent(this, new MessageEvent(msg)); // deferred message, after update
+}
+
 bool FileView::doUpdate(bool force) {
 
 	if (st.fileName().isEmpty())
@@ -349,43 +370,4 @@ void FileView::updateProgressBar(int annotatedNum) {
 	done.fill('.', idx);
 	toDo.fill(' ', 40 - idx);
 	m()->statusBar()->showMessage(head + done + toDo + tail);
-}
-
-void FileView::filterOnRange(bool isOn) {
-// TODO integrate with mainimpl function
-
-// 	Q3ListView* hv = fileTab->histListView; FIXME
-// 	Q3ListViewItemIterator it(hv);
-// 	bool evenLine = false;
-// 	int visibleCnt = 0;
-// 	RangeInfo r;
-// 	while (it.current()) {
-// 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-//
-// 		if (isOn) {
-// 			if (!textEditFile->getRange(item->sha(), &r))
-// 				continue;
-//
-// 			if (r.modified) {
-// 				item->setEven(evenLine);
-// 				evenLine = !evenLine;
-// 				visibleCnt++;
-// 			} else
-// 				item->setVisible(false);
-// 		} else {
-// 			item->setEven(evenLine);
-// 			evenLine = !evenLine;
-// 			if (!item->isVisible())
-// 				item->setVisible(true);
-// 		}
-// 		++it;
-// 	}
-// 	QString msg;
-// 	if (isOn)
-// 		msg = QString("Found %1 matches. Toggle filter "
-// 		              "button to remove the filter").arg(visibleCnt);
-// 	else
-// 		hv->ensureItemVisible(hv->currentItem());
-//
-// 	m()->statusBar()->message(msg);
 }

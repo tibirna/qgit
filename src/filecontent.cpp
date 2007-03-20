@@ -6,6 +6,8 @@
 */
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
+#include <QTextCursor>
+#include <QScrollBar>
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QApplication>
@@ -29,8 +31,10 @@ public:
 	FileHighlighter(FileContent* fc) : QSyntaxHighlighter(fc), f(fc) {};
 	virtual void highlightBlock(const QString& p) {
 
-		// state is used to count paragraphs, starting from 0
-		setCurrentBlockState(previousBlockState() + 1);
+		// state is used to count lines, starting from 0
+		if (currentBlockState() == -1) // only once
+			setCurrentBlockState(previousBlockState() + 1);
+
 		if (f->isHtmlSource)
 			return;
 
@@ -43,8 +47,8 @@ public:
 		setFormat(0, headLen, fileFormat);
 
 		if (f->isRangeFilterActive && f->rangeInfo->start != 0)
-			if (   f->rangeInfo->start - 1 <= currentBlockState()
-			    && f->rangeInfo->end - 1 >= currentBlockState()) {
+			if (   f->rangeInfo->start <= currentBlockState()
+			    && f->rangeInfo->end >= currentBlockState()) {
 
 				fileFormat.setFontWeight(QFont::Bold);
 				fileFormat.setForeground(Qt::blue);
@@ -75,7 +79,7 @@ void FileContent::setup(Domain* dm, Git* g) {
 	st = &(d->st);
 
 	clearAnnotate();
-	clearText(false);
+	clearText(!optEmitSignal);
 
 	connect(git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
 	        this, SLOT(on_annotateReady(Annotate*,const QString&,bool, const QString&)));
@@ -116,7 +120,7 @@ void FileContent::clearText(bool emitSignal) {
 void FileContent::clearAll() {
 
 	clearAnnotate();
-	clearText(true);
+	clearText(optEmitSignal);
 }
 
 void FileContent::setShowAnnotate(bool b) {
@@ -126,17 +130,17 @@ void FileContent::setShowAnnotate(bool b) {
 
 	isShowAnnotate = b;
 
-	if (   !isFileAvailable
-	    || (curAnn == NULL && isShowAnnotate)
+	if (    !isFileAvailable
+	    || (!curAnn && isShowAnnotate)
 	    || (isAnnotationAppended == isShowAnnotate))
 		return;
 
 	// re-feed with file content processData()
 	saveScreenState();
 	const QString tmp(fileRowData);
-	clearText(false); // emitSignal = false
+	clearText(!optEmitSignal);
 	processData(tmp);
-	procFinished(false); // print and call restoreScreenState()
+	procFinished(!optEmitSignal); // print and call restoreScreenState()
 }
 
 void FileContent::setHighlightSource(bool b) {
@@ -162,7 +166,7 @@ void FileContent::update(bool force) {
 	if (fileNameChanged)
 		clearAll();
 	else
-		clearText(true);
+		clearText(optEmitSignal);
 
 	if (!force)
 		lookupAnnotation(); // before file loading
@@ -206,6 +210,43 @@ bool FileContent::getRange(SCRef sha, RangeInfo* r) {
 	return false;
 }
 
+void FileContent::scrollCursorToTop() {
+
+	QRect r = cursorRect();
+	QScrollBar* vsb = verticalScrollBar();
+	vsb->setValue(vsb->value() + r.top());
+}
+
+void FileContent::scrollLineToTop(int lineNum) {
+
+	QTextCursor tc = textCursor();
+	tc.movePosition(QTextCursor::Start);
+	tc.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, lineNum);
+	setTextCursor(tc);
+	scrollCursorToTop();
+}
+
+int FileContent::positionToLineNum(int pos) {
+
+	QTextCursor tc = textCursor();
+	tc.setPosition(pos);
+	return tc.blockNumber();
+}
+
+void FileContent::setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo) {
+// dbg(paraFrom);dbg(indexFrom);dbg(paraTo);dbg(indexTo);
+
+	scrollLineToTop(paraFrom);
+	QTextCursor tc = textCursor();
+	tc.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, indexFrom);
+// 	tc.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+
+	int delta = paraTo - paraFrom; // FIXME delta == 0
+	tc.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor, delta);
+	tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, indexTo);
+	setTextCursor(tc);
+}
+
 void FileContent::goToAnnotation(int revId) {
 
 	if (   !isAnnotationAppended
@@ -215,15 +256,13 @@ void FileContent::goToAnnotation(int revId) {
 		return;
 
 	const QString firstLine(QString::number(revId) + ".");
-// 	int idx = 0;
 	FOREACH (QLinkedList<QString>, it, curAnn->lines) {
 		if ((*it).trimmed().startsWith(firstLine)) {
-			find(*it);
-// 			ft->setSelection(idx, 0, idx, (*it).length());
-// 			return;
+			moveCursor(QTextCursor::Start);
+			if (find(*it))
+				scrollCursorToTop();
 			break;
 		}
-// 		++idx;
 	}
 }
 
@@ -234,38 +273,41 @@ bool FileContent::goToRangeStart() {
 	    || (rangeInfo->start == 0))
 		return false;
 
-	// scroll the viewport so that range is at top
-// 	ft->setCursorPosition(rangeInfo->start - 2, 0);
-// 	int t = ft->paragraphRect(rangeInfo->start - 2).top();
-// 	ft->setContentsPos(0, t);
+	scrollLineToTop(rangeInfo->start);
 	return true;
 }
 
 void FileContent::copySelection() {
 
-	if (!textCursor().hasSelection())
+	QTextCursor tc = textCursor();
+	if (!tc.hasSelection())
 		return;
 
 	int headLen = isAnnotationAppended ? annoLen + MAX_LINE_NUM : MAX_LINE_NUM;
 	headLen++; // to count the space after line number
 
-// 	Qt::TextFormat tf = ft->textFormat();
-// 	ft->setTextFormat(Qt::PlainText); // we want text without formatting tags, this
-// 	QString sel(ft->selectedText());  // trick does not work with getSelection()
-// 	ft->setTextFormat(tf);
-
-// 	int indexFrom, dummy;
-// 	ft->getSelection(&dummy, &indexFrom, &dummy, &dummy);
 	QClipboard* cb = QApplication::clipboard();
-	QString sel(textCursor().selectedText());
-	int indexFrom = textCursor().columnNumber();
-	if (indexFrom < headLen) { // && (tf != Qt::RichText)
-		sel.remove(0, headLen - indexFrom);
+	QString sel(tc.selectedText());
+	tc.setPosition(tc.selectionStart());
+	int colNum = tc.columnNumber();
+	if (colNum < headLen) { // && (tf != Qt::RichText) FIXME
+		sel.remove(0, headLen - colNum);
 		if (sel.isEmpty()) { // an header part, like the author name, was selected
 			cb->setText(textCursor().selectedText(), QClipboard::Clipboard);
 			return;
 		}
 	}
+	/*
+	   Workaround a Qt issue, QTextCursor::selectedText()
+	   substitutes '\n' with '\0'. Restore proper content.
+	   QString::replace() doesn't seem to work, go with a loop.
+	*/
+	for (int i = 0; i < sel.length(); i++) {
+		const char c = sel.at(i).toLatin1();
+		if (c == 0)
+			sel[i] = '\n';
+	}
+	// remove annotate info if any
 	QRegExp re("\n.{0," + QString::number(headLen) + "}");
 	sel.replace(re, "\n");
 	cb->setText(sel, QClipboard::Clipboard);
@@ -275,53 +317,51 @@ bool FileContent::rangeFilter(bool b) {
 
 	isRangeFilterActive = false;
 
-// 	if (b) {
-// 		if (!annotateObj) {
-// 			dbs("ASSERT in rangeFilter: annotateObj not available");
-// 			return false;
-// 		}
-// 		int indexFrom, paraFrom, paraTo, dummy;
-// 		ft->getSelection(&paraFrom, &indexFrom, &paraTo, &dummy); // does not work with RichText
-//
-// 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-// 		EM_PROCESS_EVENTS_NO_INPUT;
-// 		QString anc;
-//
-// 		try {
-// 			d->setThrowOnDelete(true);
-// 			// could call qApp->processEvents()
-// 			anc = annotateObj->computeRanges(st->sha(), ++paraFrom, ++paraTo);
-// 			d->setThrowOnDelete(false);
-//
-// 		} catch (int i) {
-// 			d->setThrowOnDelete(false);
-// 			QApplication::restoreOverrideCursor();
-// 			if (d->isThrowOnDeleteRaised(i, "range filtering")) {
-// 				EM_THROW_PENDING;
-// 				return false;
-// 			}
-// 			const QString info("Exception \'" + EM_DESC(i) + "\' "
-// 			                   "not handled in lookupAnnotation...re-throw");
-// 			dbs(info);
-// 			throw;
-// 		}
-// 		QApplication::restoreOverrideCursor();
-//
-// 		if (!anc.isEmpty() && getRange(anc, rangeInfo)) {
-//
-// 			isRangeFilterActive = true;
-// 			fileHighlighter->rehighlight();
-// 			int st = rangeInfo->start - 1;
-// 			ft->setSelection(st, 0, st, 0); // clear selection
-// 			goToRangeStart();
-// 			return true;
-// 		}
-// 	} else {
-// 		ft->setBold(false); // bold if the first paragraph was highlighted
-// 		fileHighlighter->rehighlight();
-// 		ft->setSelection(rangeInfo->start - 1, 0, rangeInfo->end, 0);
-// 		rangeInfo->clear();
-// 	}
+	if (b) {
+		if (!annotateObj) {
+			dbs("ASSERT in rangeFilter: annotateObj not available");
+			return false;
+		}
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+		EM_PROCESS_EVENTS_NO_INPUT;
+		QString ancestor;
+		QTextCursor tc = textCursor();
+		int paraFrom = positionToLineNum(tc.selectionStart());
+		int paraTo = positionToLineNum(tc.selectionEnd());
+
+		try {
+			d->setThrowOnDelete(true);
+			// could call qApp->processEvents()
+			ancestor = annotateObj->computeRanges(st->sha(), paraFrom, paraTo);
+			d->setThrowOnDelete(false);
+
+		} catch (int i) {
+			d->setThrowOnDelete(false);
+			QApplication::restoreOverrideCursor();
+			if (d->isThrowOnDeleteRaised(i, "range filtering")) {
+				EM_THROW_PENDING;
+				return false;
+			}
+			const QString info("Exception \'" + EM_DESC(i) + "\' "
+			                   "not handled in lookupAnnotation...re-throw");
+			dbs(info);
+			throw;
+		}
+		QApplication::restoreOverrideCursor();
+
+		if (!ancestor.isEmpty() && getRange(ancestor, rangeInfo)) {
+
+			isRangeFilterActive = true;
+			fileHighlighter->rehighlight();
+			goToRangeStart();
+			return true;
+		}
+	} else {
+		setFontWeight(QFont::Normal); // bold if the first line was highlighted
+		fileHighlighter->rehighlight();
+ 		setSelection(rangeInfo->start, 0, rangeInfo->end, 0);
+		rangeInfo->clear();
+	}
 	return false;
 }
 
@@ -370,18 +410,24 @@ bool FileContent::lookupAnnotation() {
 void FileContent::saveScreenState() {
 
 	// getSelection() does not work with RichText
-// 	ss.isValid = (textFormat() != Qt::RichText); FIXME
-	ss.isValid = true;
+ 	ss.isValid = !isHtmlSource; // FIXME, test
 	if (!ss.isValid)
 		return;
 
-// 	ss.topPara = ft->paragraphAt(QPoint(ft->contentsX(), ft->contentsY()));
-// 	ss.hasSelectedText = ft->hasSelectedText();
-// 	if (ss.hasSelectedText) {
-// 		ft->getSelection(&ss.paraFrom, &ss.indexFrom, &ss.paraTo, &ss.indexTo);
-// 		ss.annoLen = annoLen;
-// 		ss.isAnnotationAppended = isAnnotationAppended;
-// 	}
+	QTextCursor tc = textCursor();
+	ss.hasSelectedText = tc.hasSelection();
+	if (ss.hasSelectedText) {
+		int endPos = tc.selectionEnd();
+		ss.paraFrom = positionToLineNum(tc.selectionStart());
+		ss.paraTo = positionToLineNum(tc.selectionEnd());
+		tc.setPosition(tc.selectionStart());
+		ss.indexFrom = tc.columnNumber();
+		tc.setPosition(endPos);
+		ss.indexTo = tc.columnNumber();
+		ss.annoLen = annoLen;
+		ss.isAnnotationAppended = isAnnotationAppended;
+	} else
+		ss.topPara = cursorForPosition(QPoint(0, 0)).blockNumber();
 }
 
 void FileContent::restoreScreenState() {
@@ -399,12 +445,11 @@ void FileContent::restoreScreenState() {
 		ss.indexTo += (isAnnotationAppended ? annoLen : 0);
 		ss.indexFrom = qMax(ss.indexFrom, 0);
 		ss.indexTo = qMax(ss.indexTo, 0);
-// 		ft->setSelection(ss.paraFrom, ss.indexFrom, ss.paraTo, ss.indexTo); // slow FIXME
 
-// 	} else if (ss.topPara != 0) { FIXME
-// 		int t = ft->paragraphRect(ss.topPara).bottom(); // slow for big files
-// 		ft->setContentsPos(0, t);
-	}
+		setSelection(ss.paraFrom, ss.indexFrom, ss.paraTo, ss.indexTo);
+	} else
+		scrollLineToTop(ss.topPara);
+
 	// leave ss in a consistent state with current screen settings
 	ss.isAnnotationAppended = isAnnotationAppended;
 	ss.annoLen = annoLen;
@@ -535,7 +580,7 @@ uint FileContent::processData(SCRef fileChunk) {
 		} else
 			fileProcessedData.append(*it);
 
-		fileProcessedData.append('\n'); // removed by stripPartialParaghraps()
+		fileProcessedData.append('\n'); // removed by QString::split()
 	}
 	return sl.count();
 }

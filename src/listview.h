@@ -19,6 +19,8 @@ class FileHistory;
 class ListView: public QTreeView {
 Q_OBJECT
 public:
+	typedef const QMap<QString, bool> ShaMap;
+
 	ListView(QWidget* parent);
 	~ListView();
 	void setup(Domain* d, Git* g);
@@ -28,12 +30,14 @@ public:
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);
 	const QString currentText(int col);
+	int filterRows(bool, bool, SCRef = QString(), int = -1, ShaMap& = ShaMap());
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
 	void droppedRevisions(const QStringList&);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
+	void matchedRowsChanged(const QSet<int>&);
 
 public slots:
 	void on_repaintListViews(const QFont& f);
@@ -55,6 +59,7 @@ private:
 	bool filterRightButtonPressed(QMouseEvent* e);
 	bool getLaneParentsChilds(SCRef sha, int x, SList p, SList c);
 	int getLaneType(SCRef sha, int pos) const;
+	bool isMatch(SCRef sha, SCRef filter, int colNum, ShaMap& shaMap);
 
 	Domain* d;
 	Git* git;
@@ -79,7 +84,7 @@ signals:
 
 public slots:
 	void diffTargetChanged(int);
-	void highlightedRowsChanged(const QSet<int>&);
+	void matchedRowsChanged(const QSet<int>&);
 
 private:
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -94,7 +99,7 @@ private:
 	FileHistory* fh;
 	int _laneHeight;
 	int _diffTargetRow;
-	QSet<int> _hlRows;
+	QSet<int> _matchedRows;
 };
 
 #endif

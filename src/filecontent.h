@@ -37,6 +37,7 @@ public:
 	void startAnnotate(FileHistory* fh);
 	void setShowAnnotate(bool b);
 	void setHighlightSource(bool b);
+	void setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo);
 
 signals:
 	void annotationAvailable(bool);
@@ -55,6 +56,9 @@ private:
 	void clearAnnotate();
 	void clearText(bool emitSignal);
 	void findInFile(SCRef str);
+	void scrollCursorToTop();
+	void scrollLineToTop(int lineNum);
+	int positionToLineNum(int pos);
 	bool lookupAnnotation();
 	uint annotateLength(const FileAnnotation* curAnn);
 	void saveScreenState();
@@ -88,6 +92,11 @@ private:
 		int topPara, paraFrom, indexFrom, paraTo, indexTo, annoLen;
 	};
 	ScreenState ss;
+
+	enum BoolOption { // used as self-documenting boolean parameters
+		optFalse,
+		optEmitSignal
+	};
 
 	static const QString HTML_HEAD;
 	static const QString HTML_TAIL;

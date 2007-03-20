@@ -119,6 +119,7 @@ public:
 	bool isLinked() const { return linked; }
 	int tabPos() const { return tabPosition; }
 	QWidget* tabContainer() { return container; }
+	virtual bool isMatch(SCRef) { return false; }
 
 	StateInfo st;
 

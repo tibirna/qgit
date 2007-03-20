@@ -580,31 +580,14 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 		shortLogRE.setPattern("");
 		longLogRE.setPattern("");
 	}
-	// TODO move in list view or in revsview below this point
-	QTreeView* lv = rv->tab()->listViewLog;
-	int visibleRows = 0, row = 0, rowCnt = rv->model()->rowCount();
-	QSet<int> highlightedRows;
-	QModelIndex parent;
-	for ( ; row < rowCnt; row++) {
-		if (isOn) {
-			if (passFilter(rv->model()->sha(row), filter, colNum, shaMap)) {
-				visibleRows++;
-				if (onlyHighlight)
-					highlightedRows.insert(row);
-
-			} else if (!onlyHighlight)
-				lv->setRowHidden(row, parent, true);
-
-		} else if (lv->isRowHidden(row, parent))
-			lv->setRowHidden(row, parent, false);
-	}
-	emit highlightedRowsChanged(highlightedRows);
+	ListView* lv = rv->tab()->listViewLog;
+	int matchedCnt = lv->filterRows(isOn, onlyHighlight, filter, colNum, shaMap);
 	emit updateRevDesc(); // could be highlighted
 	if (patchNeedsUpdate)
 		emit highlightPatch(isOn ? filter : "", isRegExp);
 
 	QModelIndex cur = lv->currentIndex();
-	if (cur.isValid() && lv->isRowHidden(cur.row(), parent) && visibleRows > 0) {
+	if (cur.isValid() && lv->isRowHidden(cur.row(), QModelIndex()) && matchedCnt != 0) {
 		// we have an hidden current item so main list is
 		// out of sync with description and file list
 		// a workaround could be to select the first item in list
@@ -617,34 +600,8 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	QString msg;
 	if (isOn)
 		msg = QString("Found %1 matches. Toggle filter/highlight "
-		              "button to remove the filter").arg(visibleRows);
+		              "button to remove the filter").arg(matchedCnt);
 	QApplication::postEvent(rv, new MessageEvent(msg)); // deferred message, after update
-}
-
-bool MainImpl::passFilter(SCRef sha, SCRef filter, int colNum, const QMap<QString, bool>& shaMap) {
-// TODO move in git
-
-	if (colNum == SHA_MAP_COL)
-		// in this case shaMap contains all good sha to search for
-		return shaMap.contains(sha);
-
-	const Rev* r = git->revLookup(sha);
-	if (!r) {
-		dbs("ASSERT in MainImpl::passFilter, sha <%1> not found");
-		return false;
-	}
-	QString target;
-	if (colNum == LOG_COL)
-		target = r->shortLog();
-	else if (colNum == AUTH_COL)
-		target = r->author();
-	else if (colNum == LOG_MSG_COL)
-		target = r->longLog();
-	else if (colNum == COMMIT_COL)
-		target = sha;
-
-	// wildcard search, case insensitive
-	return target.contains(QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard));
 }
 
 bool MainImpl::event(QEvent* e) {

@@ -17,8 +17,6 @@
 #include "git.h"
 #include "listview.h"
 
-#include "mainimpl.h" // TODO remove, connect(d->m(), SIGNAL(highlightedRowsChanged
-
 using namespace QGit;
 
 ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL) {}
@@ -41,8 +39,8 @@ void ListView::setup(Domain* dm, Git* g) {
 
 	connect(this, SIGNAL(diffTargetChanged(int)), lvd, SLOT(diffTargetChanged(int)));
 
-	connect(d->m(), SIGNAL(highlightedRowsChanged(const QSet<int>&)),
-	        lvd, SLOT(highlightedRowsChanged(const QSet<int>&)));
+	connect(this, SIGNAL(matchedRowsChanged(const QSet<int>&)),
+	        lvd, SLOT(matchedRowsChanged(const QSet<int>&)));
 
 	connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 	        this, SLOT(on_currentChanged(const QModelIndex&, const QModelIndex&)));
@@ -117,6 +115,59 @@ const QString ListView::getSha(uint id) {
 		return "";
 
 	return fh->sha(fh->rowCount() - id);
+}
+
+bool ListView::isMatch(SCRef sha, SCRef filter, int colNum, ShaMap& shaMap) {
+
+	if (colNum == SHA_MAP_COL)
+		// in this case shaMap contains all good sha to search for
+		return shaMap.contains(sha);
+
+	const Rev* r = git->revLookup(sha);
+	if (!r) {
+		dbp("ASSERT in Domain::isMatch, sha <%1> not found", sha);
+		return false;
+	}
+	QString target;
+	if (colNum == LOG_COL)
+		target = r->shortLog();
+	else if (colNum == AUTH_COL)
+		target = r->author();
+	else if (colNum == LOG_MSG_COL)
+		target = r->longLog();
+	else if (colNum == COMMIT_COL)
+		target = sha;
+
+	// wildcard search, case insensitive
+	return target.contains(QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard));
+}
+
+int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, ShaMap& sm) {
+
+	setUpdatesEnabled(false);
+	QSet<int> matchedRows;
+	QModelIndex parent;
+	int row = 0, rowCnt = model()->rowCount();
+	bool matched,  extFilter = (colNum == -1);
+	for ( ; row < rowCnt; row++) {
+		if (isOn) {
+			matched =   (!extFilter && isMatch(fh->sha(row), filter, colNum, sm))
+			          ||( extFilter && d->isMatch(fh->sha(row)));
+
+			if (!matched && !highlight)
+				setRowHidden(row, parent, true);
+
+			else if (matched)
+				matchedRows.insert(row);
+
+		} else if (isRowHidden(row, parent))
+			setRowHidden(row, parent, false);
+	}
+	if (highlight)
+		emit matchedRowsChanged(matchedRows);
+
+	setUpdatesEnabled(true);
+	return matchedRows.count();
 }
 
 bool ListView::update() {
@@ -333,10 +384,10 @@ void ListViewDelegate::diffTargetChanged(int row) {
 	}
 }
 
-void ListViewDelegate::highlightedRowsChanged(const QSet<int>& rows) {
+void ListViewDelegate::matchedRowsChanged(const QSet<int>& rows) {
 
-	_hlRows.clear();
-	_hlRows.unite(rows);
+	_matchedRows.clear();
+	_matchedRows.unite(rows);
 	emit updateView();
 }
 
@@ -479,7 +530,8 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 	else
 		p->fillRect(opt.rect, opt.palette.base());
 
-	const Rev* r = git->revLookup(fh->sha(i.row()), fh);
+	int row = i.row();
+	const Rev* r = git->revLookup(fh->sha(row), fh);
 	if (!r)
 		return;
 
@@ -538,7 +590,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 	if (_diffTargetRow == row)
 		p->fillRect(opt.rect, LIGHT_BLUE);
 
-	bool isHighlighted = (!_hlRows.isEmpty() && _hlRows.contains(row));
+	bool isHighlighted = (!_matchedRows.isEmpty() && _matchedRows.contains(row));
 	QPixmap* pm = getTagMarks(r->sha(), opt);
 
 	if (!pm && !isHighlighted) { // fast path in common case

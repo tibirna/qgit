@@ -37,7 +37,6 @@ public:
 	QString curWorkDir() const { return curDir; }
 
 signals:
-	void highlightedRowsChanged(const QSet<int>&);
 	void highlightPatch(const QString&, bool);
 	void updateRevDesc();
 	void closeAllWindows();
@@ -117,7 +116,7 @@ private:
 	void setupAccelerator();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
-	bool passFilter(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
+	bool isMatch(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
 	void setRepository(SCRef wd, bool r, bool ks, QStringList* fl = NULL);
 	void getExternalDiffArgs(QStringList* args);
 	void lineEditSHASetText(SCRef text);
