@@ -797,7 +797,7 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 		getWorkDirFiles(unfiles, dummy, RevFile::UNKNOWN);
 		FOREACH_SL (it, unfiles) { // don't add unknown files under other directories
 			QFileInfo f(*it);
-			SCRef d(f.dirPath(false));
+			SCRef d(f.dir().path());
 			if (d == treePath || (treePath.isEmpty() && d == "."))
 				newFiles.append(f.fileName());
 		}

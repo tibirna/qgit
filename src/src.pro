@@ -18,7 +18,6 @@ unix {
 # General stuff
 TEMPLATE = app
 CONFIG += qt console warn_on exceptions debug_and_release
-QT += qt3support
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
