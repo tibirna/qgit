@@ -234,16 +234,14 @@ int FileContent::positionToLineNum(int pos) {
 }
 
 void FileContent::setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo) {
-// dbg(paraFrom);dbg(indexFrom);dbg(paraTo);dbg(indexTo);
 
 	scrollLineToTop(paraFrom);
 	QTextCursor tc = textCursor();
-	tc.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, indexFrom);
-// 	tc.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-
-	int delta = paraTo - paraFrom; // FIXME delta == 0
+	tc.setPosition(tc.position() + indexFrom);
+	tc.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+	int delta = paraTo - paraFrom;
 	tc.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor, delta);
-	tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, indexTo);
+	tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, indexTo);
 	setTextCursor(tc);
 }
 
@@ -427,7 +425,7 @@ void FileContent::saveScreenState() {
 		ss.annoLen = annoLen;
 		ss.isAnnotationAppended = isAnnotationAppended;
 	} else
-		ss.topPara = cursorForPosition(QPoint(0, 0)).blockNumber();
+		ss.topPara = cursorForPosition(QPoint(1, 1)).blockNumber();
 }
 
 void FileContent::restoreScreenState() {
