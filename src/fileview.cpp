@@ -198,10 +198,9 @@ void FileView::updateEnabledButtons() {
 	if (!showAnnotate->isChecked())
 		findAnnotate->setEnabled(false);
 
-	if (highlight->isChecked()) {
-		findAnnotate->setEnabled(false);
+	if (highlight->isChecked())
 		rangeFilter->setEnabled(false);
-	}
+
 	if (rangeFilter->isChecked())
 		highlight->setEnabled(false);
 

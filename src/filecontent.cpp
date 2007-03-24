@@ -247,10 +247,7 @@ void FileContent::setSelection(int paraFrom, int indexFrom, int paraTo, int inde
 
 void FileContent::goToAnnotation(int revId) {
 
-	if (   !isAnnotationAppended
-	    || !curAnn
-	    || (revId == 0)
-	    ) //|| (textFormat() == Qt::RichText)) // setSelection() fails in this case FIXME
+	if (!isAnnotationAppended || !curAnn || (revId == 0))
 		return;
 
 	const QString firstLine(QString::number(revId) + ".");
@@ -288,7 +285,7 @@ void FileContent::copySelection() {
 	QString sel(tc.selectedText());
 	tc.setPosition(tc.selectionStart());
 	int colNum = tc.columnNumber();
-	if (colNum < headLen) { // && (tf != Qt::RichText) FIXME
+	if (colNum < headLen) {
 		sel.remove(0, headLen - colNum);
 		if (sel.isEmpty()) { // an header part, like the author name, was selected
 			cb->setText(textCursor().selectedText(), QClipboard::Clipboard);
@@ -407,11 +404,7 @@ bool FileContent::lookupAnnotation() {
 
 void FileContent::saveScreenState() {
 
-	// getSelection() does not work with RichText
- 	ss.isValid = !isHtmlSource; // FIXME, test
-	if (!ss.isValid)
-		return;
-
+	ss.isValid = true;
 	QTextCursor tc = textCursor();
 	ss.hasSelectedText = tc.hasSelection();
 	if (ss.hasSelectedText) {
