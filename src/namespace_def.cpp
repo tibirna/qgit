@@ -233,7 +233,7 @@ bool QGit::stripPartialParaghraps(SCRef src, QString* dst, QString* prev) {
 
 bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 
-	QFile file(QFile::encodeName(fileName));
+	QFile file(fileName);
 	if (!file.open(QIODevice::WriteOnly)) {
 		dbp("ERROR: unable to write file %1", fileName);
 		return false;
@@ -257,7 +257,7 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 bool QGit::readFromFile(SCRef fileName, QString& data) {
 
 	data = "";
-	QFile file(QFile::encodeName(fileName));
+	QFile file(fileName);
 	if (!file.open(QIODevice::ReadOnly)) {
 		dbp("ERROR: unable to read file %1", fileName);
 		return false;
