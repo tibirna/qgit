@@ -390,6 +390,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 	char status = rowSt.at(0).toLatin1();
 	switch (status) {
 	case 'M':
+	case 'T':
 		rf.status.append(RevFile::MODIFIED);
 		break;
 	case 'D':
@@ -405,9 +406,9 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 		rf.onlyModified = false;
 		break;
 	default:
-		dbp("ASSERT in Git::setStatus, unknown status %1", rowSt);
-		rf.status.append(RevFile::UNKNOWN);
-		rf.onlyModified = false;
+		dbp("ASSERT in Git::setStatus, unknown status <%1>. "
+		    "'MODIFIED' will be used instead.", rowSt);
+		rf.status.append(RevFile::MODIFIED);
 		break;
 	}
 }
