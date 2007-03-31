@@ -1167,9 +1167,9 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	return insertNewFiles(sha, runOutput);
 }
 
-void Git::startFileHistory(FileHistory* fh) {
+bool Git::startFileHistory(FileHistory* fh) {
 
-	startRevList(quote(fh->fileName()), fh);
+	return startRevList(quote(fh->fileName()), fh);
 }
 
 void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {

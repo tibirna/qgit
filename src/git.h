@@ -104,7 +104,7 @@ public:
 	Annotate* startAnnotate(FileHistory* fh, QObject* guiObj);
 	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
-	void startFileHistory(FileHistory* fh);
+	bool startFileHistory(FileHistory* fh);
 	void cancelDataLoading(const FileHistory* fh);
 	void cancelProcess(MyProcess* p);
 	bool isCommittingMerge() const { return isMergeHead; }

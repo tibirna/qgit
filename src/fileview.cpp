@@ -161,11 +161,12 @@ bool FileView::doUpdate(bool force) {
 		int idx = m()->tabWdg->indexOf(container);
 		m()->tabWdg->setTabText(idx, st.fileName());
 
-		QApplication::restoreOverrideCursor();
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		m()->statusBar()->showMessage("Retrieving history of '" + st.fileName() + "'...");
-		git->startFileHistory(model());
-
+		if (git->startFileHistory(model())) {
+			QApplication::restoreOverrideCursor();
+			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+			m()->statusBar()->showMessage("Retrieving history of '" +
+			                              st.fileName() + "'...");
+		}
 	} else if (fileTab->histListView->update() || st.sha().isEmpty()) {
 
 		updateSpinBoxValue();
