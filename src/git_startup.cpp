@@ -495,8 +495,13 @@ bool Git::startRevList(SCRef args, FileHistory* fh) {
 	if (!isMainHistory(fh)) {
 		// fetch history from all branches so any revision in
 		// main view that changes the file is always found
+		// NOTE: we don't use '--remove-empty' option because
+		// in case a file is deleted and then a new file with
+		// the same name is created again in the same directory
+		// then, with this option, file history is truncated to
+		// the file deletion revision.
 		SCRef allBranches = getAllRefSha(BRANCH | RMT_BRANCH).join(" ");
-		initCmd.append("--remove-empty " + allBranches + " -- ");
+		initCmd.append(allBranches + " -- ");
 	} else
 		initCmd.append("--topo-order ");
 
