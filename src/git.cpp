@@ -733,10 +733,26 @@ const QString Git::getFileSha(SCRef file, SCRef revSha) {
 MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QString* result) {
 
 	QString runCmd;
-	if (revSha == ZERO_SHA)
+	/*
+	  symlinks in git are one line files with just the name of the target,
+	  not the target content. Instead 'cat' command resolves symlinks and
+	  returns target content. So we use 'cat' only if the file is modified
+	  in working dir, to let annotation work for changed files, otherwise
+	  we go with a safe 'git cat-file blob HEAD' instead.
+	  NOTE: This fails if the modified file is a new symlink, converted
+	  from an old plain file. In this case annotation will fail until
+	  change is committed.
+	*/
+	bool isFileModified = false;
+	if (revSha == ZERO_SHA){
+		QStringList files, dummy;
+		getWorkDirFiles(files, dummy, RevFile::ANY);
+		isFileModified = files.contains(file);
+	}
+	if (isFileModified)
 		runCmd = "cat " + quote(file);
 	else {
-		SCRef fileSha(getFileSha(file, revSha));
+		SCRef fileSha(getFileSha(file, (revSha == ZERO_SHA ? "HEAD" : revSha)));
 		if (!fileSha.isEmpty())
 			runCmd = "git cat-file blob " + fileSha;
 		else
