@@ -197,11 +197,17 @@ void QGit::initMimePix() {
 	pm = new QPixmap(*pm);
 	mimePixMap.insert("gz", pm);
 	pm = new QPixmap(*pm);
+	mimePixMap.insert("tgz", pm);
+	pm = new QPixmap(*pm);
 	mimePixMap.insert("zip", pm);
 	pm = new QPixmap(*pm);
 	mimePixMap.insert("bz", pm);
 	pm = new QPixmap(*pm);
 	mimePixMap.insert("bz2", pm);
+	pm = new QPixmap(QString::fromUtf8(":/icons/resources/html.png"));
+	mimePixMap.insert("html", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("xml", pm);
 }
 
 void QGit::freeMimePix() {
