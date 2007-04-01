@@ -272,8 +272,8 @@ FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 
 void Annotate::setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* fa) {
 
-	QString f;
-	SCRef fileSha(git->getFileSha(fileName, sha)); // calls Qt event loop
+	QString fileTxt, fileSha;
+	git->getFile(fileName, sha, NULL, &fileTxt, &fileSha); // calls Qt event loop
 	if (cancelingAnnotate)
 		return;
 
@@ -283,13 +283,8 @@ void Annotate::setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* f
 		return;
 	}
 	ah[sha].fileSha = fileSha;
-
-	git->getFile(fileName, sha, NULL, &f); // blocking call, calls Qt event loop
-	if (cancelingAnnotate)
-		return;
-
-	int lineNum = f.count('\n');
-	if (!f.endsWith("\n")) // No newline at end of file
+	int lineNum = fileTxt.count('\n');
+	if (!fileTxt.endsWith("\n")) // No newline at end of file
 		lineNum++;
 
 	for (int i = 0; i < lineNum; i++)

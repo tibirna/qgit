@@ -172,9 +172,9 @@ void FileContent::update(bool force) {
 		lookupAnnotation(); // before file loading
 
 	if (isHtmlSource) // both calls bound procFinished() and procReadyRead() slots
-		proc = git->getHighlightedFile(st->fileName(), st->sha(), this, NULL);
+		proc = git->getHighlightedFile(st->fileName(), st->sha(), this);
 	else
-		proc = git->getFile(st->fileName(), st->sha(), this, NULL); // non blocking
+		proc = git->getFile(st->fileName(), st->sha(), this); // non blocking
 
 	ss.isValid = false;
 	if (isRangeFilterActive)

@@ -722,7 +722,13 @@ MyProcess* Git::getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool comb
 
 const QString Git::getFileSha(SCRef file, SCRef revSha) {
 
-	const QString sha(revSha == ZERO_SHA ? "HEAD" : revSha); // FIXME ZERO_SHA != HEAD
+	if (revSha == ZERO_SHA) {
+		QStringList files, dummy;
+		getWorkDirFiles(files, dummy, RevFile::ANY);
+		if (files.contains(file))
+			return ZERO_SHA; // it is unknown to git
+	}
+	const QString sha(revSha == ZERO_SHA ? "HEAD" : revSha);
 	QString runCmd("git ls-tree -r " + sha + " " + quote(file)), runOutput;
 	if (!run(runCmd, &runOutput))
 		return "";
@@ -730,7 +736,7 @@ const QString Git::getFileSha(SCRef file, SCRef revSha) {
 	return runOutput.mid(12, 40); // could be empty, deleted file case
 }
 
-MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QString* result) {
+MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QString* result, QString* fSha) {
 
 	QString runCmd;
 	/*
@@ -743,21 +749,18 @@ MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QString* re
 	  from an old plain file. In this case annotation will fail until
 	  change is committed.
 	*/
-	bool isFileModified = false;
-	if (revSha == ZERO_SHA){
-		QStringList files, dummy;
-		getWorkDirFiles(files, dummy, RevFile::ANY);
-		isFileModified = files.contains(file);
-	}
-	if (isFileModified)
+	const QString fileSha(getFileSha(file, revSha));
+	if (fileSha == ZERO_SHA)
 		runCmd = "cat " + quote(file);
 	else {
-		SCRef fileSha(getFileSha(file, (revSha == ZERO_SHA ? "HEAD" : revSha)));
-		if (!fileSha.isEmpty())
-			runCmd = "git cat-file blob " + fileSha;
-		else
+		if (fileSha.isEmpty()) // deleted
 			runCmd = "git diff-tree HEAD HEAD"; // fake an empty file reading
+		else
+			runCmd = "git cat-file blob " + fileSha;
 	}
+	if (fSha)
+		*fSha = fileSha;
+
 	if (!receiver) {
 		run(runCmd, result);
 		return NULL; // in case of sync call we ignore run() return value
