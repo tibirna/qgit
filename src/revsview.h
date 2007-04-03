@@ -30,7 +30,6 @@ public:
 private slots:
 	void on_loadCompleted(const FileHistory*, const QString& stats);
 	void on_lanesContextMenuRequested(const QStringList&, const QStringList&);
-	void on_droppedRevisions(const QStringList&);
 	void on_updateRevDesc();
 
 protected:

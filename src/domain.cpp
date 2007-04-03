@@ -162,11 +162,6 @@ MainImpl* Domain::m() const {
 	return static_cast<MainImpl*>(parent());
 }
 
-const QString Domain::dragHostName() const {
-
-	return QString::fromLatin1("@") + m()->curWorkDir();
-}
-
 bool Domain::setReadyToDrag(bool b) {
 
 	readyToDrag = (b && !busy && !dragging && !dropping);

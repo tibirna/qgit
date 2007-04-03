@@ -9,7 +9,6 @@
 #include <QPainter>
 #include <QHeaderView>
 #include <QApplication>
-#include <QDropEvent>
 #include <QMouseEvent>
 #include <QPixmap>
 #include "common.h"
@@ -280,16 +279,9 @@ void ListView::mouseMoveEvent(QMouseEvent* e) {
 		QStringList selRevs;
 		getSelectedItems(selRevs);
 		selRevs.removeAll(ZERO_SHA);
-		if (!selRevs.empty()) {
+		if (!selRevs.empty())
+			emit revisionsDragged(selRevs); // blocking until drop event
 
-			const QString h(d->dragHostName() + '\n');
-			QString dragRevs = selRevs.join(h).append(h).trimmed();
-			QDrag* drag = new QDrag(this);
-			QMimeData* mimeData = new QMimeData;
-			mimeData->setText(dragRevs);
-			drag->setMimeData(mimeData);
-			drag->start(); // blocking until drop event
-		}
 		d->setDragging(false);
 	}
 	QTreeView::mouseMoveEvent(e);
@@ -315,7 +307,7 @@ void ListView::dropEvent(QDropEvent *e) {
 		SCRef sha(remoteRevs.first().section('@', 0, 0));
 		SCRef remoteRepo(remoteRevs.first().section('@', 1));
 		if (sha.length() == 40 && !remoteRepo.isEmpty())
-			emit droppedRevisions(remoteRevs);
+			emit revisionsDropped(remoteRevs);
 	}
 }
 

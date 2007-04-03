@@ -34,7 +34,8 @@ public:
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
-	void droppedRevisions(const QStringList&);
+	void revisionsDragged(const QStringList&);
+	void revisionsDropped(const QStringList&);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
 	void matchedRowsChanged(const QSet<int>&);

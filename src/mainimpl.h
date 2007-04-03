@@ -34,7 +34,15 @@ class MainImpl : public QMainWindow, public Ui_MainBase {
 Q_OBJECT
 public:
 	MainImpl(const QString& curDir = "", QWidget* parent = 0);
-	QString curWorkDir() const { return curDir; }
+	void updateContextActions(SCRef newRevSha, SCRef newFileName, bool isDir, bool found);
+
+	QRegExp shortLogRE;
+	QRegExp longLogRE;
+
+	// not buildable with Qt designer, will be created manually
+	QLineEdit* lineEditSHA;
+	QLineEdit* lineEditFilter;
+	QComboBox* cmbSearch;
 
 signals:
 	void highlightPatch(const QString&, bool);
@@ -48,6 +56,8 @@ signals:
 public slots:
 	void tabWdg_currentChanged(QWidget*);
 	void newRevsAdded(const FileHistory*, const QVector<QString>&);
+	void revisionsDragged(const QStringList&);
+	void revisionsDropped(const QStringList&);
 
 protected:
 	virtual bool event(QEvent* e);
@@ -105,14 +115,10 @@ protected slots:
 	void closeEvent(QCloseEvent* ce);
 
 private:
-	friend class FileView;
-	friend class RevsView;
-	friend class PatchView;
 	friend class setRepoDelayed;
 
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
-	void updateContextActions(SCRef newRevSha, SCRef newFileName, bool isDir, bool found);
 	void setupAccelerator();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
@@ -148,16 +154,10 @@ private:
 	// so only after git->isArchive() that updates curDir to point to working dir
 	// we are sure is correct.
 	QString curDir;
-	QRegExp shortLogRE;
-	QRegExp longLogRE;
 	QString startUpDir;
 	QString textToFind;
 	QFont listViewFont;
 	bool setRepositoryBusy;
-
-	QLineEdit* lineEditSHA;
-	QLineEdit* lineEditFilter;
-	QComboBox* cmbSearch;
 };
 
 class ExternalDiffProc : public QProcess {

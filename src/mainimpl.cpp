@@ -15,6 +15,7 @@
 #include <QStatusBar>
 #include <QFileDialog>
 #include <QMenu>
+#include <QDrag>
 #include <QShortcutEvent>
 #include <QMenu>
 #include <QScrollBar>
@@ -483,6 +484,86 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 		}
 	}
 	return QWidget::eventFilter(obj, ev);
+}
+
+void MainImpl::revisionsDragged(SCList selRevs) {
+
+	const QString h(QString::fromLatin1("@") + curDir + '\n');
+	const QString dragRevs = selRevs.join(h).append(h).trimmed();
+	QDrag* drag = new QDrag(this);
+	QMimeData* mimeData = new QMimeData;
+	mimeData->setText(dragRevs);
+	drag->setMimeData(mimeData);
+	drag->start(); // blocking until drop event
+}
+
+void MainImpl::revisionsDropped(SCList remoteRevs) {
+// remoteRevs is already sanity checked to contain some possible valid data
+
+	if (rv->isDropping()) // avoid reentrancy
+		return;
+
+	QDir dr(curDir + QGit::PATCHES_DIR);
+	if (dr.exists()) {
+		const QString tmp("Please remove stale import directory " + dr.absolutePath());
+		statusBar()->showMessage(tmp);
+		return;
+	}
+	bool commit, fold;
+	if (!askApplyPatchParameters(&commit, &fold))
+		return;
+
+	// ok, let's go
+	rv->setDropping(true);
+	dr.setFilter(QDir::Files);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	raise();
+	EM_PROCESS_EVENTS;
+
+	uint revNum = 0;
+	QStringList::const_iterator it(remoteRevs.constEnd());
+	do {
+		--it;
+
+		QString tmp("Importing revision %1 of %2");
+		statusBar()->showMessage(tmp.arg(++revNum).arg(remoteRevs.count()));
+
+		SCRef sha((*it).section('@', 0, 0));
+		SCRef remoteRepo((*it).section('@', 1));
+
+		if (!dr.exists(remoteRepo))
+			break;
+
+		// we create patches one by one
+		if (!git->formatPatch(QStringList(sha), dr.absolutePath(), remoteRepo))
+			break;
+
+		dr.refresh();
+		if (dr.count() != 1) {
+			qDebug("ASSERT in on_droppedRevisions: found %i files "
+			       "in %s", dr.count(), QGit::PATCHES_DIR.toLatin1().constData());
+			break;
+		}
+		SCRef fn(dr.absoluteFilePath(dr[0]));
+		if (!git->applyPatchFile(fn, commit, fold, Git::optDragDrop))
+			break;
+
+		dr.remove(fn);
+
+	} while (it != remoteRevs.constBegin());
+
+	if (it == remoteRevs.constBegin())
+		statusBar()->clearMessage();
+	else
+		statusBar()->showMessage("Failed to import revision " + QString::number(revNum--));
+
+	if (!commit && (revNum > 0))
+		git->resetCommits(revNum);
+
+	dr.rmdir(dr.absolutePath()); // 'dr' must be already empty
+	QApplication::restoreOverrideCursor();
+	rv->setDropping(false);
+	refreshRepo();
 }
 
 // ******************************* Filter ******************************

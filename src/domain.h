@@ -109,7 +109,6 @@ public:
 	bool isThrowOnDeleteRaised(int excpId, SCRef curContext);
 	MainImpl* m() const;
 	FileHistory* model() const { return _model; }
-	const QString dragHostName() const;
 	bool isReadyToDrag() const { return readyToDrag; }
 	bool setReadyToDrag(bool b);
 	bool isDragging() const { return dragging; }
