@@ -285,20 +285,20 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 	if (f != model())
 		return;
 
+	m()->statusBar()->clearMessage();
 	fileTab->histListView->showIdValues();
 	int maxId = model()->rowCount();
-	if (maxId == 0) {
-		m()->statusBar()->clearMessage();
+	if (maxId == 0)
 		return;
-	}
+
 	fileTab->spinBoxRevision->setMaximum(maxId);
 	fileTab->toolButtonPin->setEnabled(true);
 	fileTab->spinBoxRevision->setEnabled(true);
 
 	UPDATE();
 
-	updateProgressBar(0);
-	fileTab->textEditFile->startAnnotate(model());
+	if (fileTab->textEditFile->startAnnotate(model()))
+		updateProgressBar(0);
 }
 
 void FileView::showAnnotation() {

@@ -128,16 +128,18 @@ bool Annotate::start(const FileHistory* _fh) {
 	// This is very fast.
 	isError = false;
 	annotateFileHistory(fileName, true);
+	cancelingAnnotate = cancelingAnnotate || patchScript.isEmpty(); // only one (initial) rev
 
-	if (isError || cancelingAnnotate) {
-		slotComputeDiffs(); // clean-up in case of error/canceling
+	// start an async call to get the patches. This is the slowest part.
+	if (isError || cancelingAnnotate || !startPatchProc(patchScript, fileName)) {
+		slotComputeDiffs(); // clean-up if something went wrong
 		return false;
 	}
-	connect(&progressTimer, SIGNAL(timeout()), this, SLOT(on_progressTimer_timeout()));
-	progressTimer.start(500);
+	connect(&progressTimer, SIGNAL(timeout()),
+	        this, SLOT(on_progressTimer_timeout()));
 
-	// now we get the patches with an async call. This is the slowest part.
-	return startPatchProc(patchScript, fileName);
+	progressTimer.start(500);
+	return true;
 }
 
 void Annotate::on_patchProc_finished(int, QProcess::ExitStatus) {

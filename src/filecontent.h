@@ -34,7 +34,7 @@ public:
 	bool goToRangeStart();
 	bool rangeFilter(bool b);
 	bool getRange(SCRef sha, RangeInfo* r);
-	void startAnnotate(FileHistory* fh);
+	bool startAnnotate(FileHistory* fh);
 	void setShowAnnotate(bool b);
 	void setHighlightSource(bool b);
 	void setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo);

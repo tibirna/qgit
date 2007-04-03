@@ -187,9 +187,10 @@ void FileContent::update(bool force) {
 	}
 }
 
-void FileContent::startAnnotate(FileHistory* fh) {
+bool FileContent::startAnnotate(FileHistory* fh) {
 
 	annotateObj = git->startAnnotate(fh, d); // non blocking
+	return (annotateObj != NULL);
 }
 
 uint FileContent::annotateLength(const FileAnnotation* annFile) {

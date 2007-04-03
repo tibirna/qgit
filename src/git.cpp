@@ -556,7 +556,9 @@ void Git::formatPatchFileHeader(QString* rowName, SCRef sha, SCRef diffToSha,
 Annotate* Git::startAnnotate(FileHistory* fh, QObject* guiObj) { // non blocking
 
 	Annotate* ann = new Annotate(this, guiObj);
-	ann->start(fh); // non blocking call
+	if (!ann->start(fh)) // non blocking call
+		return NULL; // ann will delete itself when done
+
 	return ann; // caller will delete with Git::cancelAnnotate()
 }
 

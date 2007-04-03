@@ -40,7 +40,7 @@ public:
 class Annotate : public QObject {
 Q_OBJECT
 public:
-	Annotate (Git* parent, QObject* guiObj);
+	Annotate(Git* parent, QObject* guiObj);
 	void deleteWhenDone();
 	const FileAnnotation* lookupAnnotation(SCRef sha, SCRef fileName);
 	bool start(const FileHistory* fh);
