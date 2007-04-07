@@ -245,7 +245,15 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 	scriptFileName.prepend(foundTmpDir ? "/tmp" : wd);
 	dataFileName.prepend(foundTmpDir ? "/tmp" : wd);
 	dataFile.setFileName(dataFileName);
-	QString runCmd(args.join(" ") + " > " +  dataFileName);
+	QString runCmd;
+	FOREACH_SL (it, args)
+		if ((*it).contains(' '))
+			runCmd.append("\"" + *it + "\" ");
+		else
+			runCmd.append(*it + " ");
+
+	runCmd.append("> " +  dataFileName);
+
 #ifndef ON_WINDOWS
 	runCmd.append(" &\necho $!\nwait"); // we want to read git-rev-list PID
 #endif

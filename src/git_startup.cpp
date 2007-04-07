@@ -484,9 +484,7 @@ bool Git::startParseProc(SCRef initCmd, FileHistory* fh) {
 	        SLOT(on_loaded(const FileHistory*, ulong, int,
 	        bool, const QString&, const QString&)));
 
-	QStringList args;
-	MyProcess::parseArgs(initCmd, args);
-	return dl->start(args, workDir);
+	return dl->start(MyProcess::splitArgList(initCmd), workDir);
 }
 
 bool Git::startRevList(SCRef args, FileHistory* fh) {
@@ -635,7 +633,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 		} else { // filteredLoading
 			SCRef allBranches = getAllRefSha(BRANCH | RMT_BRANCH).join(" ");
 			args.append(allBranches + " -- ");
-			args.append(filterList->join(" "));
+			args.append(quote(*filterList));
 		}
 		POST_MSG(msg1 + "revisions...");
 		if (!startRevList(args, revData))

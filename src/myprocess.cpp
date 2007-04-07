@@ -190,11 +190,6 @@ void MyProcess::on_cancel() {
 #endif
 }
 
-void MyProcess::parseArgs(SCRef cmd, SList args) {
-
-	args = splitArgList(cmd);
-}
-
 const QStringList MyProcess::splitArgList(SCRef cmd) {
 // return argument list handling quotes and double quotes
 // substring, as example from:

@@ -20,7 +20,7 @@ public:
 	MyProcess(QObject *go, Git* g, const QString& wd, bool reportErrors);
 	bool runSync(SCRef runCmd, QString* runOutput, QObject* rcv, SCRef buf);
 	bool runAsync(SCRef rc, QObject* rcv, SCRef buf);
-	static void parseArgs(SCRef cmd, SList args);
+	static const QStringList splitArgList(SCRef cmd);
 
 signals:
 	void procDataReady(const QString&);
@@ -39,7 +39,6 @@ private:
 	bool launchMe(SCRef runCmd, SCRef buf);
 	void sendErrorMsg(bool notStarted = false);
 	static void restoreSpaces(QString& newCmd, const QChar& sepChar);
-	static const QStringList splitArgList(SCRef cmd);
 
 	QObject* guiObject;
 	Git* git;
