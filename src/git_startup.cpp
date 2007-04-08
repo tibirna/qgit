@@ -23,7 +23,7 @@
 
 using namespace QGit;
 
-const QString Git::getArgs(bool askForRange, bool* quit) {
+const QStringList Git::getArgs(bool askForRange, bool* quit) {
 
 	static bool startup = true; // it's OK to be unique among qgit windows
 	if (startup) {
@@ -46,15 +46,15 @@ const QString Git::getArgs(bool askForRange, bool* quit) {
 		RangeSelectImpl rs((QWidget*)parent(), &curRange, names, this);
 		*quit = (rs.exec() == QDialog::Rejected); // modal execution
 		if (*quit)
-			return "";
+			return QStringList();
 	}
 	startup = false;
 	QString runOutput;
 	if (!run("git rev-parse --default HEAD " + curRange, &runOutput)) {
 		*quit = true;
-		return "";
+		return QStringList();
 	}
-	return runOutput.replace('\n', " ");
+	return runOutput.split('\n');
 }
 
 const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
@@ -469,7 +469,7 @@ void Git::parseDiffFormat(RevFile& rf, SCRef buf) {
 	}
 }
 
-bool Git::startParseProc(SCRef initCmd, FileHistory* fh) {
+bool Git::startParseProc(SCList initCmd, FileHistory* fh) {
 
 	DataLoader* dl = new DataLoader(this, fh); // auto-deleted when done
 
@@ -484,12 +484,12 @@ bool Git::startParseProc(SCRef initCmd, FileHistory* fh) {
 	        SLOT(on_loaded(const FileHistory*, ulong, int,
 	        bool, const QString&, const QString&)));
 
-	return dl->start(MyProcess::splitArgList(initCmd), workDir);
+	return dl->start(initCmd, workDir);
 }
 
-bool Git::startRevList(SCRef args, FileHistory* fh) {
+bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	QString initCmd("git rev-list --header --boundary --parents ");
+	QStringList initCmd(QString("git rev-list --header --boundary --parents").split(' '));
 	if (!isMainHistory(fh)) {
 		// fetch history from all branches so any revision in
 		// main view that changes the file is always found
@@ -498,10 +498,9 @@ bool Git::startRevList(SCRef args, FileHistory* fh) {
 		// the same name is created again in the same directory
 		// then, with this option, file history is truncated to
 		// the file deletion revision.
-		SCRef allBranches = getAllRefSha(BRANCH | RMT_BRANCH).join(" ");
-		initCmd.append(allBranches + " -- ");
+		initCmd << getAllRefSha(BRANCH | RMT_BRANCH) << "--";
 	} else
-		initCmd.append("--topo-order ");
+		initCmd << "--topo-order";
 
 	return startParseProc(initCmd + args, fh);
 }
@@ -510,9 +509,8 @@ bool Git::startUnappliedList() {
 
 	// WARNING: with this command git rev-list could send spurious
 	// revs so we need some filter out logic during loading
-	QString initCmd("git rev-list --header --parents ");
-	initCmd.append(getAllRefSha(UN_APPLIED).join(" "));
-	initCmd.append(QString::fromLatin1(" ^HEAD"));
+	QStringList initCmd(QString("git rev-list --header --parents").split(' '));
+	initCmd << getAllRefSha(UN_APPLIED) << QString::fromLatin1("^HEAD");
 	loadingUnAppliedPatches = true;
 	bool started = startParseProc(initCmd, revData);
 	if (!started)
@@ -589,7 +587,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			return false;
 		}
 		const QString msg1("Path is '" + workDir + "'    Loading ");
-		QString args;
+		QStringList args;
 		if (!filteredLoading) {
 
 			// update text codec according to repo settings
@@ -630,11 +628,9 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 				getDiffIndex(); // blocking, we are in setRepository() now
 			}
 
-		} else { // filteredLoading
-			SCRef allBranches = getAllRefSha(BRANCH | RMT_BRANCH).join(" ");
-			args.append(allBranches + " -- ");
-			args.append(quote(*filterList));
-		}
+		} else // filteredLoading
+			args << getAllRefSha(BRANCH | RMT_BRANCH) << "--" << *filterList;
+
 		POST_MSG(msg1 + "revisions...");
 		if (!startRevList(args, revData))
 			dbs("ERROR: unable to start git-rev-list loading");
@@ -1180,7 +1176,7 @@ const QStringList Rev::parents() const {
 		return QStringList();
 
 	int ofs = start + boundaryOfs + 41;
-	return mid(ofs, 41 * parentsCnt - 1).split(" ", QString::SkipEmptyParts);
+	return mid(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
 int Rev::indexData() { // fast path here, less then 4% of load time
