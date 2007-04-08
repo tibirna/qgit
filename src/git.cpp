@@ -1044,15 +1044,14 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, b
 		        "div.l { white-space: pre; "
 		        "font-family: " << TYPE_WRITER_FONT.family() << ";"
 		        "font-size: " << TYPE_WRITER_FONT.pointSize() << "pt;}\n"
-		        "</style></head><body>\n";
-
-		ts << "<div class='t'>"
-		        "<table border=0 cellspacing=0 cellpadding=2>"
-		        "<tr class='head'> <th></th> <th><span class='h'>"
-		        << colorMatch(c->shortLog(), shortLogRE)
-		        << "</span></th></tr>";
+		        "</style></head><body><div class='t'>\n"
+		        "<table border=0 cellspacing=0 cellpadding=2>";
 
 		if (showHeader) {
+
+			ts << "<tr class='head'> <th></th> <th><span class='h'>"
+				<< colorMatch(c->shortLog(), shortLogRE)
+				<< "</span></th></tr>";
 
 			ts << "<tr> <td class='h'>Author</td><td>"
 				<< Qt::escape(c->author()) << "</td>"
@@ -1087,11 +1086,12 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, b
 				ts << "</td></tr>\n";
 			}
 		}
-		ts << "</table></div><div class='l'>"
-		   << colorMatch(c->longLog(), longLogRE)
-		   << "</div></body></html>";
-	}
+		QString log(colorMatch(c->longLog(), longLogRE));
+		if (!showHeader && log.trimmed().isEmpty())
+			log = colorMatch(c->shortLog(), shortLogRE);
 
+		ts << "</table></div><div class='l'>" << log << "</div></body></html>";
+	}
 	// highlight SHA's
 	//
 	// added to commit logs, we avoid to call git rev-parse for a possible abbreviated
