@@ -37,7 +37,7 @@ public slots:
 	void procFinished(); // used by Git::run()
 
 private slots:
-	void procReadyRead(const QString&);
+	void procReadyRead(const QByteArray&);
 	void on_finished(int, QProcess::ExitStatus);
 	void on_cancel();
 	void on_cancel(const FileHistory*);

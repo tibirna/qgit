@@ -23,7 +23,7 @@ public:
 	static const QStringList splitArgList(SCRef cmd);
 
 signals:
-	void procDataReady(const QString&);
+	void procDataReady(const QByteArray&);
 	void eof();
 
 public slots:

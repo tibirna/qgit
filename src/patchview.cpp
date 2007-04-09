@@ -198,10 +198,11 @@ void PatchView::centerMatch(int id) {
 // 	                                     matches[id].paraTo, matches[id].indexTo);
 }
 
-void PatchView::procReadyRead(const QString& data) {
+void PatchView::procReadyRead(const QByteArray& data) {
 
-	patchTab->textEditDiff->insertPlainText(data);
-	if (seekTarget && data.contains(target))
+	QString txt(data);
+	patchTab->textEditDiff->insertPlainText(txt);
+	if (seekTarget && txt.contains(target))
 		centerTarget();
 }
 

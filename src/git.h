@@ -171,7 +171,7 @@ signals:
 	void annotateReady(Annotate*, const QString&, bool, const QString&);
 
 public slots:
-	void procReadyRead(const QString&);
+	void procReadyRead(const QByteArray&);
 	void procFinished() { filesLoadingPending = filesLoadingCurSha = ""; }
 
 private slots:

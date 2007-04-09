@@ -915,7 +915,7 @@ void Git::updateLanes(Rev& c, Lanes& lns, SCRef sha) {
 //	qDebug("%s %s",tmp.latin1(), c.sha.latin1());
 }
 
-void Git::procReadyRead(const QString& fileChunk) {
+void Git::procReadyRead(const QByteArray& fileChunk) {
 
 	if (filesLoadingPending.isEmpty())
 		filesLoadingPending = fileChunk;

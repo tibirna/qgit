@@ -32,7 +32,7 @@ signals:
 public slots:
 	void lineEditDiff_returnPressed();
 	void button_clicked(int);
-	void procReadyRead(const QString& data);
+	void procReadyRead(const QByteArray& data);
 	void procFinished();
 	void on_highlightPatch(const QString&, bool);
 	void on_updateRevDesc();

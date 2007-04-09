@@ -479,7 +479,7 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		emit annotationAvailable(true);
 }
 
-void FileContent::procReadyRead(const QString& fileChunk) {
+void FileContent::procReadyRead(const QByteArray& fileChunk) {
 
 	processData(fileChunk);
 }

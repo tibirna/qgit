@@ -88,8 +88,8 @@ void MyProcess::setupSignals() {
 		connect(this, SIGNAL(readyReadStandardError ()),
 		        this, SLOT(on_readyReadStandardError()));
 
-		connect(this, SIGNAL(procDataReady(const QString&)),
-		        receiver, SLOT(procReadyRead(const QString&)));
+		connect(this, SIGNAL(procDataReady(const QByteArray&)),
+		        receiver, SLOT(procReadyRead(const QByteArray&)));
 
 		connect(this, SIGNAL(eof()), receiver, SLOT(procFinished()));
 	}
@@ -129,7 +129,7 @@ bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
 
 void MyProcess::on_readyReadStandardOutput() {
 
-	const QString tmp(readAllStandardOutput());
+	const QByteArray tmp(readAllStandardOutput());
 	if (canceling)
 		return;
 
@@ -142,16 +142,14 @@ void MyProcess::on_readyReadStandardOutput() {
 
 void MyProcess::on_readyReadStandardError() {
 
-	const QString tmp(readAllStandardError());
+	const QByteArray tmp(readAllStandardError());
 	if (canceling)
 		return;
 
 	if (receiver != NULL)
 		emit procDataReady(tmp); // redirect to stdout
-	else {
+	else
 		dbs("ASSERT in myReadFromStderr: NULL receiver");
-		return;
-	}
 }
 
 void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {

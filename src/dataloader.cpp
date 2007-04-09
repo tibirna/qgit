@@ -178,7 +178,7 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 	return true;
 }
 
-void DataLoader::procReadyRead(const QString&) { /* timeout based */ }
+void DataLoader::procReadyRead(const QByteArray&) { /* timeout based */ }
 
 ulong DataLoader::readNewData(bool) {
 
@@ -266,7 +266,7 @@ bool DataLoader::doStart(SCList args, SCRef wd) {
 	return (proc != NULL);
 }
 
-void DataLoader::procReadyRead(const QString& data) {
+void DataLoader::procReadyRead(const QByteArray& data) {
 // the script sends pid of launched git-rev-list, to be used for canceling
 
 	procPID.append(data);
