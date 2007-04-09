@@ -17,6 +17,7 @@ MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : QProces
 	guiObject = go;
 	git = g;
 	workDir = wd;
+	runOutput = NULL;
 	receiver = NULL;
 	errorReportingEnabled = err;
 	canceling = async = isWinShell = isErrorExit = false;
@@ -34,14 +35,14 @@ bool MyProcess::runAsync(SCRef rc, QObject* rcv, SCRef buf) {
 	return true;
 }
 
-bool MyProcess::runSync(SCRef rc, QString* ro, QObject* rcv, SCRef buf) {
+bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
 
 	async = false;
 	runCmd = rc;
 	runOutput = ro;
 	receiver = rcv;
-	if (runOutput != NULL)
-		*runOutput = "";
+	if (runOutput)
+		runOutput->clear();
 
 	setupSignals();
 	if (!launchMe(runCmd, buf))
@@ -63,7 +64,7 @@ bool MyProcess::runSync(SCRef rc, QString* ro, QObject* rcv, SCRef buf) {
 
 	EM_AFTER_PROCESS_EVENTS;
 
-	if (git->curContext() != NULL)
+	if (git->curContext())
 		qDebug("ASSERT in MyProcess::runSync, context is %p "
 		       "instead of NULL", (void*)git->curContext());
 
@@ -129,25 +130,23 @@ bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
 
 void MyProcess::on_readyReadStandardOutput() {
 
-	const QByteArray tmp(readAllStandardOutput());
 	if (canceling)
 		return;
 
-	if (receiver != NULL)
-		emit procDataReady(tmp);
+	if (receiver)
+		emit procDataReady(readAllStandardOutput());
 
-	else if (runOutput != NULL)
-		runOutput->append(tmp);
+	else if (runOutput)
+		runOutput->append(readAllStandardOutput());
 }
 
 void MyProcess::on_readyReadStandardError() {
 
-	const QByteArray tmp(readAllStandardError());
 	if (canceling)
 		return;
 
-	if (receiver != NULL)
-		emit procDataReady(tmp); // redirect to stdout
+	if (receiver)
+		emit procDataReady(readAllStandardError()); // redirect to stdout
 	else
 		dbs("ASSERT in myReadFromStderr: NULL receiver");
 }

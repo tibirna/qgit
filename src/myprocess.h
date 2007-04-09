@@ -18,7 +18,7 @@ class MyProcess : public QProcess {
 Q_OBJECT
 public:
 	MyProcess(QObject *go, Git* g, const QString& wd, bool reportErrors);
-	bool runSync(SCRef runCmd, QString* runOutput, QObject* rcv, SCRef buf);
+	bool runSync(SCRef runCmd, QByteArray* runOutput, QObject* rcv, SCRef buf);
 	bool runAsync(SCRef rc, QObject* rcv, SCRef buf);
 	static const QStringList splitArgList(SCRef cmd);
 
@@ -43,7 +43,7 @@ private:
 	QObject* guiObject;
 	Git* git;
 	QString runCmd;
-	QString* runOutput;
+	QByteArray* runOutput;
 	QString workDir;
 	QObject* receiver;
 	QStringList arguments;

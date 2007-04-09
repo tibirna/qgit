@@ -26,7 +26,7 @@ signals:
 	void customAction_exited(const QString& name);
 
 public slots:
-	void procReadyRead(const QString& data);
+	void procReadyRead(const QByteArray& data);
 	void procFinished();
 
 protected slots:

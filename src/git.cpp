@@ -595,6 +595,16 @@ const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
 
 bool Git::run(SCRef runCmd, QString* runOutput, QObject* receiver, SCRef buf) {
 
+	QByteArray ba;
+	bool ret = run(runOutput ? &ba : NULL, runCmd, receiver, buf);
+	if (runOutput)
+		*runOutput = ba;
+
+	return ret;
+}
+
+bool Git::run(QByteArray* runOutput, SCRef runCmd, QObject* receiver, SCRef buf) {
+
 	MyProcess p(parent(), this, workDir, errorReportingEnabled);
 	return p.runSync(runCmd, runOutput, receiver, buf);
 }

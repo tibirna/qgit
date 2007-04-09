@@ -79,7 +79,7 @@ bool ConsoleImpl::start(const QString& cmd, const QString& cmdArgs) {
 	return !proc.isNull();
 }
 
-void ConsoleImpl::procReadyRead(const QString& data) {
+void ConsoleImpl::procReadyRead(const QByteArray& data) {
 
 	QString newParagraph;
 	if (QGit::stripPartialParaghraps(data, &newParagraph, &inpBuf))
