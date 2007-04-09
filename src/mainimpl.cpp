@@ -198,13 +198,13 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	QString fileContent;
+	QByteArray fileContent;
 	git->getFile(rv->st.fileName(), rv->st.sha(), NULL, &fileContent);
-	if (!writeToFile(fName1, fileContent))
+	if (!writeToFile(fName1, QString(fileContent))) // FIXME
 		statusBar()->showMessage("Unable to save " + fName1);
 
 	git->getFile(rv->st.fileName(), prevRevSha, NULL, &fileContent);
-	if (!writeToFile(fName2, fileContent))
+	if (!writeToFile(fName2, QString(fileContent))) // FIXME
 		statusBar()->showMessage("Unable to save " + fName2);
 
 	// get external diff viewer

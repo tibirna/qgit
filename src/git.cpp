@@ -748,7 +748,7 @@ const QString Git::getFileSha(SCRef file, SCRef revSha) {
 	return runOutput.mid(12, 40); // could be empty, deleted file case
 }
 
-MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QString* result, QString* fSha) {
+MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray* result, QString* fSha) {
 
 	QString runCmd;
 	/*
@@ -774,7 +774,7 @@ MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QString* re
 		*fSha = fileSha;
 
 	if (!receiver) {
-		run(runCmd, result);
+		run(result, runCmd);
 		return NULL; // in case of sync call we ignore run() return value
 	}
 	return runAsync(runCmd, receiver);
@@ -814,9 +814,9 @@ void Git::on_getHighlightedFile_eof() {
 
 bool Git::saveFile(SCRef file, SCRef sha, SCRef path) {
 
-	QString fileData;
+	QByteArray fileData;
 	getFile(file, sha, NULL, &fileData); // sync call
-	return writeToFile(path, fileData);
+	return writeToFile(path, QString(fileData)); // FIXME
 }
 
 bool Git::getTree(SCRef treeSha, SList names, SList shas,
