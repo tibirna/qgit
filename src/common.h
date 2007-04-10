@@ -242,8 +242,9 @@ namespace QGit {
 	const QPixmap* mimePix(SCRef fileName);
 
 	// misc helpers
-	bool stripPartialParaghraps(SCRef src, QString* dst, QString* prev);
+	bool stripPartialParaghraps(const QByteArray& src, QString* dst, QString* prev);
 	bool writeToFile(SCRef fileName, SCRef data, bool setExecutable = false);
+	bool writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable = false);
 	bool readFromFile(SCRef fileName, QString& data);
 	bool startProcess(QProcess* proc, SCList args, SCRef buf = "", bool* winShell = NULL);
 	void compat_usleep(int us);

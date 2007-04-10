@@ -63,7 +63,8 @@ private:
 	uint annotateLength(const FileAnnotation* curAnn);
 	void saveScreenState();
 	void restoreScreenState();
-	uint processData(const QString& fileChunk);
+	uint processData(const QByteArray& fileChunk);
+	void showFileImage();
 	virtual void mouseDoubleClickEvent(QMouseEvent*);
 
 	Domain* d;
@@ -74,7 +75,7 @@ private:
 	QPointer<Annotate> annotateObj;
 	QPointer<MyProcess> proc;
 	const FileAnnotation* curAnn;
-	QString fileRowData;
+	QByteArray fileRowData;
 	QString fileProcessedData;
 	QString halfLine;
 	uint curLine;
@@ -86,6 +87,7 @@ private:
 	bool isRangeFilterActive;
 	bool isShowAnnotate;
 	bool isHtmlSource;
+	bool isImageFile;
 
 	struct ScreenState {
 		bool isValid, hasSelectedText, isAnnotationAppended;

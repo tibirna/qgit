@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QClipboard>
+#include <QTemporaryFile>
 #include "domain.h"
 #include "myprocess.h"
 #include "mainimpl.h"
@@ -63,7 +64,7 @@ private:
 FileContent::FileContent(QWidget* parent) : QTextEdit(parent) {
 
 	// init native types
-	isRangeFilterActive = isHtmlSource = false;
+	isRangeFilterActive = isHtmlSource = isImageFile = false;
 	isShowAnnotate = true;
 
 	rangeInfo = new RangeInfo();
@@ -106,7 +107,8 @@ void FileContent::clearText(bool emitSignal) {
 
 	git->cancelProcess(proc);
 	QTextEdit::clear(); // explicit call because our clear() is only declared
-	fileRowData = fileProcessedData = halfLine = "";
+	fileProcessedData = halfLine = "";
+	fileRowData.clear();
 	isFileAvailable = isAnnotationAppended = false;
 	curLine = 1;
 
@@ -137,9 +139,10 @@ void FileContent::setShowAnnotate(bool b) {
 
 	// re-feed with file content processData()
 	saveScreenState();
-	const QString tmp(fileRowData);
+	const QByteArray tmp(fileRowData);
 	clearText(!optEmitSignal);
-	processData(tmp);
+	fileRowData = tmp;
+	processData(fileRowData);
 	procFinished(!optEmitSignal); // print and call restoreScreenState()
 }
 
@@ -163,15 +166,17 @@ void FileContent::update(bool force) {
 
 	saveScreenState();
 
-	if (fileNameChanged)
+	if (fileNameChanged) {
 		clearAll();
-	else
+		isImageFile = Git::isImageFile(st->fileName());
+	} else
 		clearText(optEmitSignal);
 
 	if (!force)
 		lookupAnnotation(); // before file loading
 
-	if (isHtmlSource) // both calls bound procFinished() and procReadyRead() slots
+	// both calls bound procFinished() and procReadyRead() slots
+	if (isHtmlSource && !isImageFile)
 		proc = git->getHighlightedFile(st->fileName(), st->sha(), this);
 	else
 		proc = git->getFile(st->fileName(), st->sha(), this); // non blocking
@@ -189,7 +194,9 @@ void FileContent::update(bool force) {
 
 bool FileContent::startAnnotate(FileHistory* fh) {
 
-	annotateObj = git->startAnnotate(fh, d); // non blocking
+	if (!isImageFile)
+		annotateObj = git->startAnnotate(fh, d); // non blocking
+
 	return (annotateObj != NULL);
 }
 
@@ -481,30 +488,35 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 
 void FileContent::procReadyRead(const QByteArray& fileChunk) {
 
-	processData(fileChunk);
+	fileRowData.append(fileChunk);
+	if (!isImageFile)
+		processData(fileChunk);
 }
 
 void FileContent::procFinished(bool emitSignal) {
 
-	if (!fileRowData.endsWith("\n"))
-		processData(QString("\n")); // fake a trailing new line
+	if (isImageFile)
+		showFileImage();
+	else {
+		if (!fileRowData.endsWith("\n"))
+			processData("\n"); // fake a trailing new line
 
-	if (isHtmlSource)
-		setHtml(fileProcessedData);
-	else
-		setPlainText(fileProcessedData); // much faster then append()
+		if (isHtmlSource)
+			setHtml(fileProcessedData);
+		else
+			// much faster then append()
+			setPlainText(fileProcessedData);
 
+		if (ss.isValid)
+			restoreScreenState(); // could be slow for big files
+	}
 	isFileAvailable = true;
-	if (ss.isValid)
-		restoreScreenState(); // could be slow for big files
 
 	if (emitSignal)
 		emit fileAvailable(true);
 }
 
-uint FileContent::processData(SCRef fileChunk) {
-
-	fileRowData.append(fileChunk);
+uint FileContent::processData(const QByteArray& fileChunk) {
 
 	QString newLines;
 	if (!QGit::stripPartialParaghraps(fileChunk, &newLines, &halfLine))
@@ -575,4 +587,17 @@ uint FileContent::processData(SCRef fileChunk) {
 		fileProcessedData.append('\n'); // removed by QString::split()
 	}
 	return sl.count();
+}
+
+void FileContent::showFileImage() {
+
+	QTemporaryFile f;
+     	if (f.open()) {
+
+		QString header("<p class=Image><img src=\"" +
+		               f.fileName() + "\"></p>");
+
+	     	QGit::writeToFile(f.fileName(), fileRowData);
+		setHtml(header);
+	}
 }

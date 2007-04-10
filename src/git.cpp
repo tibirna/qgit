@@ -15,6 +15,7 @@
 #include <QSettings>
 #include <QTextDocument>
 #include <QTextCodec>
+#include <QImageReader>
 #include "lanes.h"
 #include "myprocess.h"
 #include "annotate.h"
@@ -258,6 +259,12 @@ void Git::userInfo(SList info) {
 	info << "Global config" << user << email;
 
 	errorReportingEnabled = true;
+}
+
+bool Git::isImageFile(SCRef file) {
+
+	const QString ext(file.section('.', -1).toLower());
+	return QImageReader::supportedImageFormats().contains(ext.toAscii());
 }
 
 void Git::setThrowOnStop(bool b) {
@@ -816,7 +823,10 @@ bool Git::saveFile(SCRef file, SCRef sha, SCRef path) {
 
 	QByteArray fileData;
 	getFile(file, sha, NULL, &fileData); // sync call
-	return writeToFile(path, QString(fileData)); // FIXME
+	if (isImageFile(file))
+		return writeToFile(path, fileData);
+
+	return writeToFile(path, QString(fileData));
 }
 
 bool Git::getTree(SCRef treeSha, SList names, SList shas,

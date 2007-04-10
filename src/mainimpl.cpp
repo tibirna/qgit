@@ -200,11 +200,11 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 
 	QByteArray fileContent;
 	git->getFile(rv->st.fileName(), rv->st.sha(), NULL, &fileContent);
-	if (!writeToFile(fName1, QString(fileContent))) // FIXME
+	if (!writeToFile(fName1, QString(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName1);
 
 	git->getFile(rv->st.fileName(), prevRevSha, NULL, &fileContent);
-	if (!writeToFile(fName2, QString(fileContent))) // FIXME
+	if (!writeToFile(fName2, QString(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName2);
 
 	// get external diff viewer
@@ -1244,7 +1244,7 @@ void MainImpl::ActShowTree_toggled(bool b) {
 void MainImpl::ActSaveFile_activated() {
 
 	QFileInfo f(rv->st.fileName());
-	const QString fileName(QFileDialog::getSaveFileName(this, f.fileName(), "save file dialog"));
+	const QString fileName(QFileDialog::getSaveFileName(this, "Save file as", f.fileName()));
 	if (fileName.isEmpty())
 		return;
 

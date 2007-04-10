@@ -224,8 +224,9 @@ const QPixmap* QGit::mimePix(SCRef fileName) {
 	return mimePixMap.value("#DEFAULT");
 }
 
-bool QGit::stripPartialParaghraps(SCRef src, QString* dst, QString* prev) {
+bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
 
+	const QString src(ba);
 	int idx = src.lastIndexOf('\n');
 	if (idx == -1) {
 		prev->append(src);
@@ -251,6 +252,24 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 	data2.replace("\n", "\r\n");
 #endif
 	stream << data2;
+	file.close();
+
+#ifndef ON_WINDOWS
+	if (setExecutable)
+		chmod(fileName.toLatin1().constData(), 0755);
+#endif
+	return true;
+}
+
+bool QGit::writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable) {
+
+	QFile file(fileName);
+	if (!file.open(QIODevice::WriteOnly)) {
+		dbp("ERROR: unable to write file %1", fileName);
+		return false;
+	}
+	QDataStream stream(&file);
+	stream.writeRawData(data.constData(), data.size());
 	file.close();
 
 #ifndef ON_WINDOWS
