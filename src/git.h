@@ -112,6 +112,7 @@ public:
 	bool isPatchName(SCRef nm);
 	bool isSameFiles(SCRef tree1Sha, SCRef tree2Sha);
 	static bool isImageFile(SCRef file);
+	static bool isBinaryFile(SCRef file);
 	bool isNothingToCommit();
 	bool isUnknownFiles() const { return (_wd.otherFiles.count() > 0); }
 	bool isTextHighlighter() const { return isTextHighlighterFound; }

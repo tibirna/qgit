@@ -267,6 +267,23 @@ bool Git::isImageFile(SCRef file) {
 	return QImageReader::supportedImageFormats().contains(ext.toAscii());
 }
 
+bool Git::isBinaryFile(SCRef file) {
+
+	static const char* binaryFileExtensions[] = {"bmp", "gif", "jpeg", "jpg",
+	                   "png", "svg", "tiff", "pcx", "xcf", "xpm",
+	                   "bz", "bz2", "rar", "tar", "z", "gz", "tgz", "zip", 0};
+
+	if (isImageFile(file))
+		return true;
+
+	const QString ext(file.section('.', -1).toLower());
+	int i = 0;
+	while (binaryFileExtensions[i] != 0)
+		if (ext == binaryFileExtensions[i++])
+			return true;
+	return false;
+}
+
 void Git::setThrowOnStop(bool b) {
 
 	if (b)
@@ -823,7 +840,7 @@ bool Git::saveFile(SCRef file, SCRef sha, SCRef path) {
 
 	QByteArray fileData;
 	getFile(file, sha, NULL, &fileData); // sync call
-	if (isImageFile(file))
+	if (isBinaryFile(file))
 		return writeToFile(path, fileData);
 
 	return writeToFile(path, QString(fileData));
