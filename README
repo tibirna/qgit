@@ -239,6 +239,9 @@ also with a CTRL+right click on a revision in main list. Selected target
 will be highlighted. CTRL+right click again on the highlighted revision to
 release the filter.
 
+With the 'filter' button at the right of the tool bar it is possible to
+toggle the display of removed code lines. This can be useful to easy
+reading of the patch.
 
 External diff viewer
 --------------------

@@ -124,6 +124,22 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonFilterPatch" >
+         <property name="toolTip" >
+          <string>Toggle view of removed lines (CTRL+H)</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
+         </property>
+         <property name="shortcut" >
+          <string>CTRL+H</string>
+         </property>
+         <property name="checkable" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -198,6 +214,8 @@
  <includes>
   <include location="local" >revdesc.h</include>
  </includes>
- <resources/>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
  <connections/>
 </ui>

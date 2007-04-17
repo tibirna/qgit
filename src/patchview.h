@@ -30,6 +30,7 @@ signals:
 	void diffViewerDocked();
 
 public slots:
+	void buttonFilter_clicked();
 	void lineEditDiff_returnPressed();
 	void button_clicked(int);
 	void procReadyRead(const QByteArray& data);
@@ -47,6 +48,11 @@ private:
 	friend class DiffHighlighter;
 
 	void updatePatch();
+	void processData(const QByteArray& fileChunk, int* origLineNum = NULL);
+	void scrollCursorToTop();
+	void scrollLineToTop(int lineNum);
+	int positionToLineNum(int pos);
+	int topToLineNum();
 	void centerOnFileHeader(const QString& fileName);
 	void centerTarget();
 	void saveRestoreSizes(bool startup = false);
@@ -58,12 +64,14 @@ private:
 	Ui_TabPatch* patchTab;
 	DiffHighlighter* diffHighlighter;
 	QPointer<MyProcess> proc;
+	QByteArray patchRowData;
+	QString halfLine;
 	QString target;
-	QString partialParagraphs;
 	QString normalizedSha;
 	bool seekTarget;
 	bool diffLoaded;
 	bool isRegExp;
+	bool isStripRemovedLines;
 	QRegExp pickAxeRE;
 
 	enum ButtonId {

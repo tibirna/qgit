@@ -90,7 +90,7 @@ private:
 
 PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
-	seekTarget = diffLoaded = false;
+	seekTarget = diffLoaded = isStripRemovedLines = false;
 	pickAxeRE.setMinimal(true);
 	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
 
@@ -118,6 +118,9 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	connect(patchTab->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
+
+	connect(patchTab->toolButtonFilterPatch, SIGNAL(clicked()),
+	        this, SLOT(buttonFilter_clicked()));
 }
 
 PatchView::~PatchView() {
@@ -138,6 +141,8 @@ void PatchView::clear(bool complete) {
 
 	if (complete) {
 		st.clear();
+		patchRowData.clear();
+		halfLine = "";
 		patchTab->textBrowserDesc->clear();
 		patchTab->fileList->clear();
 	}
@@ -145,7 +150,48 @@ void PatchView::clear(bool complete) {
 	matches.clear();
 	diffLoaded = false;
 	seekTarget = !target.isEmpty();
-	partialParagraphs = "";
+}
+
+void PatchView::buttonFilter_clicked() {
+
+	int topPara = topToLineNum();
+	patchTab->textEditDiff->clear();
+	halfLine = "";
+	isStripRemovedLines = !isStripRemovedLines;
+	processData(patchRowData, &topPara);
+	scrollLineToTop(topPara);
+}
+
+void PatchView::scrollCursorToTop() {
+
+	QTextEdit* te = patchTab->textEditDiff;
+	QRect r = te->cursorRect();
+	QScrollBar* vsb = te->verticalScrollBar();
+	vsb->setValue(vsb->value() + r.top());
+}
+
+void PatchView::scrollLineToTop(int lineNum) {
+
+	QTextEdit* te = patchTab->textEditDiff;
+	QTextCursor tc = te->textCursor();
+	tc.movePosition(QTextCursor::Start);
+	tc.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, lineNum);
+	te->setTextCursor(tc);
+	scrollCursorToTop();
+}
+
+int PatchView::positionToLineNum(int pos) {
+
+	QTextEdit* te = patchTab->textEditDiff;
+	QTextCursor tc = te->textCursor();
+	tc.setPosition(pos);
+	return tc.blockNumber();
+}
+
+int PatchView::topToLineNum() {
+
+	QTextEdit* te = patchTab->textEditDiff;
+	return te->cursorForPosition(QPoint(1, 1)).blockNumber();
 }
 
 void PatchView::centerOnFileHeader(const QString& fileName) {
@@ -200,13 +246,57 @@ void PatchView::centerMatch(int id) {
 
 void PatchView::procReadyRead(const QByteArray& data) {
 
-	QString txt(data);
-	patchTab->textEditDiff->insertPlainText(txt);
-	if (seekTarget && txt.contains(target))
-		centerTarget();
+	patchRowData.append(data);
+	processData(data);
+}
+
+void PatchView::processData(const QByteArray& fileChunk, int* origLineNum) {
+
+	QString newLines;
+	if (!QGit::stripPartialParaghraps(fileChunk, &newLines, &halfLine))
+		return;
+
+	QString filteredLines;
+	const QStringList sl(newLines.split('\n', QString::KeepEmptyParts));
+	int lineCnt = 0, filteredLineCnt = 0;
+	FOREACH_SL (it, sl) {
+
+		// do not remove diff header because of centerTarget
+		bool toRemove = (*it).startsWith("-") && !(*it).startsWith("---");
+
+		lineCnt++;
+		if (!toRemove)
+			filteredLineCnt++;
+
+		if (isStripRemovedLines) {
+
+			if (!toRemove)
+				filteredLines.append(*it).append('\n');
+
+			if (origLineNum && *origLineNum == lineCnt)
+				// use a negative value to assign once
+				*origLineNum = -filteredLineCnt;
+		} else
+			if (origLineNum && *origLineNum == filteredLineCnt)
+				*origLineNum = -lineCnt;
+	}
+	if (isStripRemovedLines)
+		newLines = filteredLines;
+
+	if (origLineNum && *origLineNum < 0)
+		*origLineNum = -(*origLineNum);
+
+	patchTab->textEditDiff->append(newLines);
+	patchTab->textEditDiff->moveCursor(QTextCursor::Start);
 }
 
 void PatchView::procFinished() {
+
+	if (!patchRowData.endsWith("\n"))
+		processData("\n"); // flush pending half lines
+
+	if (seekTarget)
+		centerTarget();
 
 	diffLoaded = true;
 	computeMatches();
