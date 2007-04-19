@@ -125,18 +125,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonFilterPatch" >
+        <widget class="QToolButton" name="buttonFilterPatch" >
          <property name="toolTip" >
           <string>Toggle view of removed lines (CTRL+H)</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
-         </property>
          <property name="shortcut" >
-          <string>CTRL+H</string>
-         </property>
-         <property name="checkable" >
-          <bool>true</bool>
+          <string>Ctrl+H</string>
          </property>
         </widget>
        </item>

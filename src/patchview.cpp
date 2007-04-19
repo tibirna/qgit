@@ -53,6 +53,7 @@ public:
 			    || text.startsWith("rename ")
 			    || text.startsWith("similarity "))
 				myColor = Qt::darkBlue;
+
 			else if (cl > 0 && text.startsWith("diff --combined"))
 				myColor = Qt::darkBlue;
 			break;
@@ -72,8 +73,9 @@ public:
 			int indexFrom, indexTo;
 			if (pv->getMatch(currentBlockState(), &indexFrom, &indexTo)) {
 
+				QTextEdit* te = dynamic_cast<QTextEdit*>(parent());
 				QTextCharFormat fmt;
-				fmt.setFont(document()->defaultFont()); // FIXME use currentFont()
+				fmt.setFont(te->currentFont());
 				fmt.setFontWeight(QFont::Bold);
 				fmt.setForeground(Qt::blue);
 				if (indexTo == 0)
@@ -90,13 +92,16 @@ private:
 
 PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
-	seekTarget = diffLoaded = isStripRemovedLines = false;
+	seekTarget = diffLoaded = false;
 	pickAxeRE.setMinimal(true);
 	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
 
 	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	patchTab = new Ui_TabPatch();
 	patchTab->setupUi(container);
+	SCRef ic(QString::fromUtf8(":/icons/resources/view_diff_all.png"));
+	patchTab->buttonFilterPatch->setIcon(QIcon(ic));
+	curFilter = prevFilter = VIEW_ALL;
 
 	QButtonGroup* bg = new QButtonGroup(this);
 	bg->addButton(patchTab->radioButtonParent, DIFF_TO_PARENT);
@@ -105,7 +110,6 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	connect(bg, SIGNAL(buttonClicked(int)), this, SLOT(button_clicked(int)));
 
 	m()->tabWdg->addTab(container, "&Patch");
-	tabPosition = m()->tabWdg->count() - 1;
 
 	patchTab->textEditDiff->setFont(QGit::TYPE_WRITER_FONT);
 	patchTab->textBrowserDesc->setup(this);
@@ -119,8 +123,8 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	connect(patchTab->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(patchTab->toolButtonFilterPatch, SIGNAL(clicked()),
-	        this, SLOT(buttonFilter_clicked()));
+	connect(patchTab->buttonFilterPatch, SIGNAL(clicked()),
+	        this, SLOT(buttonFilterPatch_clicked()));
 }
 
 PatchView::~PatchView() {
@@ -141,25 +145,42 @@ void PatchView::clear(bool complete) {
 
 	if (complete) {
 		st.clear();
-		patchRowData.clear();
-		halfLine = "";
 		patchTab->textBrowserDesc->clear();
 		patchTab->fileList->clear();
 	}
 	patchTab->textEditDiff->clear();
+	patchRowData.clear();
+	halfLine = "";
 	matches.clear();
 	diffLoaded = false;
 	seekTarget = !target.isEmpty();
 }
 
-void PatchView::buttonFilter_clicked() {
+void PatchView::buttonFilterPatch_clicked() {
+
+	QString ic;
+	prevFilter = curFilter;
+	if (curFilter == VIEW_ALL) {
+		curFilter = VIEW_ADDED;
+		ic = QString::fromUtf8(":/icons/resources/view_diff_added.png");
+
+	} else if (curFilter == VIEW_ADDED) {
+		curFilter = VIEW_REMOVED;
+		ic = QString::fromUtf8(":/icons/resources/view_diff_removed.png");
+
+	} else if (curFilter == VIEW_REMOVED) {
+		curFilter = VIEW_ALL;
+		ic = QString::fromUtf8(":/icons/resources/view_diff_all.png");
+	}
+	patchTab->buttonFilterPatch->setIcon(QIcon(ic));
 
 	int topPara = topToLineNum();
+	patchTab->textEditDiff->setUpdatesEnabled(false);
 	patchTab->textEditDiff->clear();
 	halfLine = "";
-	isStripRemovedLines = !isStripRemovedLines;
 	processData(patchRowData, &topPara);
 	scrollLineToTop(topPara);
+	patchTab->textEditDiff->setUpdatesEnabled(true);
 }
 
 void PatchView::scrollCursorToTop() {
@@ -250,44 +271,81 @@ void PatchView::procReadyRead(const QByteArray& data) {
 	processData(data);
 }
 
-void PatchView::processData(const QByteArray& fileChunk, int* origLineNum) {
+void PatchView::processData(const QByteArray& fileChunk, int* prevLineNum) {
 
 	QString newLines;
 	if (!QGit::stripPartialParaghraps(fileChunk, &newLines, &halfLine))
 		return;
 
+	if (!prevLineNum && curFilter == VIEW_ALL)
+		goto skip_filter; // optimize common case
+
+	{ // scoped code because of goto
+
 	QString filteredLines;
+	int notNegCnt = 0, notPosCnt = 0;
+	QVector<int> toAdded(1), toRemoved(1); // lines count from 1
+
+	// prevLineNum will be set to the number of corresponding
+	// line in full patch. Number is negative just for algorithm
+	// reasons, prevLineNum counts lines from 1
+	if (prevLineNum && prevFilter == VIEW_ALL)
+		*prevLineNum = -(*prevLineNum); // set once
+
 	const QStringList sl(newLines.split('\n', QString::KeepEmptyParts));
-	int lineCnt = 0, filteredLineCnt = 0;
 	FOREACH_SL (it, sl) {
 
 		// do not remove diff header because of centerTarget
-		bool toRemove = (*it).startsWith("-") && !(*it).startsWith("---");
+		bool n = (*it).startsWith('-') && !(*it).startsWith("---");
+		bool p = (*it).startsWith('+') && !(*it).startsWith("+++");
 
-		lineCnt++;
+		if (!p)
+			notPosCnt++;
+		if (!n)
+			notNegCnt++;
+
+		toAdded.append(notNegCnt);
+		toRemoved.append(notPosCnt);
+
+		int curLineNum = toAdded.count() - 1;
+
+		bool toRemove = (n && curFilter == VIEW_ADDED) || (p && curFilter == VIEW_REMOVED);
 		if (!toRemove)
-			filteredLineCnt++;
+			filteredLines.append(*it).append('\n');
 
-		if (isStripRemovedLines) {
+		if (prevLineNum && *prevLineNum == notNegCnt && prevFilter == VIEW_ADDED)
+			*prevLineNum = -curLineNum; // set once
 
-			if (!toRemove)
-				filteredLines.append(*it).append('\n');
-
-			if (origLineNum && *origLineNum == lineCnt)
-				// use a negative value to assign once
-				*origLineNum = -filteredLineCnt;
-		} else
-			if (origLineNum && *origLineNum == filteredLineCnt)
-				*origLineNum = -lineCnt;
+		if (prevLineNum && *prevLineNum == notPosCnt && prevFilter == VIEW_REMOVED)
+			*prevLineNum = -curLineNum; // set once
 	}
-	if (isStripRemovedLines)
-		newLines = filteredLines;
+	if (prevLineNum && *prevLineNum <= 0) {
+		if (curFilter == VIEW_ALL)
+			*prevLineNum = -(*prevLineNum);
 
-	if (origLineNum && *origLineNum < 0)
-		*origLineNum = -(*origLineNum);
+		else if (curFilter == VIEW_ADDED)
+			*prevLineNum = toAdded.at(-(*prevLineNum));
 
-	patchTab->textEditDiff->append(newLines);
-	patchTab->textEditDiff->moveCursor(QTextCursor::Start);
+		else if (curFilter == VIEW_REMOVED)
+			*prevLineNum = toRemoved.at(-(*prevLineNum));
+
+		if (*prevLineNum < 0)
+			*prevLineNum = 0;
+	}
+	newLines = filteredLines;
+
+	} // end of scoped code
+
+skip_filter:
+
+	if (prevLineNum)
+		// in this case data is passed in one big chunk,
+		// so we can use the faster setPlainText()
+		patchTab->textEditDiff->setPlainText(newLines);
+	else {
+		patchTab->textEditDiff->append(newLines);
+		patchTab->textEditDiff->moveCursor(QTextCursor::Start);
+	}
 }
 
 void PatchView::procFinished() {
