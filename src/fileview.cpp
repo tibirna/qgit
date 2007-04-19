@@ -73,13 +73,8 @@ FileView::~FileView() {
 	if (!parent())
 		return;
 
-	// remove before to delete, avoids a Qt warning in QInputContext()
-	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
-
 	delete fileTab->textEditFile; // must be deleted before fileTab
 	delete fileTab;
-	delete container;
-
 	showStatusBarMessage(""); // cleanup any pending progress info
 	QApplication::restoreOverrideCursor();
 }

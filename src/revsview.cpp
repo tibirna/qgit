@@ -62,11 +62,8 @@ RevsView::~RevsView() {
 	if (!parent())
 		return;
 
-	// remove before to delete, avoids a Qt warning in QInputContext()
-	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
 	delete linkedPatchView;
 	delete revTab;
-	delete container;
 }
 
 void RevsView::clear(bool complete) {

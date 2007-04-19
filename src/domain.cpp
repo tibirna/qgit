@@ -105,6 +105,16 @@ Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 	popupType = 0;
 }
 
+Domain::~Domain() {
+
+	if (!parent())
+		return;
+
+	// remove before to delete, avoids a Qt warning in QInputContext()
+	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
+	delete container;
+}
+
 void Domain::clear(bool complete) {
 
 	if (complete)

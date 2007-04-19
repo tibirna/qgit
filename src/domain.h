@@ -104,6 +104,7 @@ Q_OBJECT
 public:
 	Domain() {}
 	Domain(MainImpl* m, Git* git, bool isMain);
+	~Domain();
 	void deleteWhenDone(); // will delete when no more run() are pending
 	void showStatusBarMessage(const QString& msg, int timeout = 0);
 	void setThrowOnDelete(bool b);

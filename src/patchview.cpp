@@ -132,11 +132,7 @@ PatchView::~PatchView() {
 
 	git->cancelProcess(proc);
 	delete diffHighlighter;
-
-	// remove before to delete, avoids a Qt warning in QInputContext()
-	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
 	delete patchTab;
-	delete container;
 }
 
 void PatchView::clear(bool complete) {
