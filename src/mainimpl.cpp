@@ -91,6 +91,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	// set-up tab view
 	delete tabWdg->currentWidget(); // cannot be done in Qt Designer
 	rv = new RevsView(this, git, true); // set has main domain
+	tabWdg->addTab(rv->tabPage(), "&Rev list");
 
 	// set-up tab corner widget ('close tab' button)
 	QToolButton* ct = new QToolButton(tabWdg);
@@ -434,6 +435,7 @@ void MainImpl::openFileTab(FileView* fv) {
 
 	if (!fv) {
 		fv = new FileView(this, git);
+		tabWdg->addTab(fv->tabPage(), "File");
 
 		connect(fv->tab()->histListView, SIGNAL(doubleClicked(const QModelIndex&)),
 		        this, SLOT(histListView_doubleClicked(const QModelIndex&)));

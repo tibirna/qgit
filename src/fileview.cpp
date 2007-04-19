@@ -24,8 +24,6 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	fileTab->histListView->setup(this, git);
 	fileTab->textEditFile->setup(this, git);
 
-	m()->tabWdg->addTab(container, "File");
-
 	// an empty string turn off the special-value text display
 	fileTab->spinBoxRevision->setSpecialValueText(" ");
 

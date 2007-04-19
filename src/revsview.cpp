@@ -25,8 +25,6 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	revTab = new Ui_TabRev();
 	revTab->setupUi(container);
 
-	m()->tabWdg->addTab(container, "&Rev list");
-
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
 	tab()->fileList->setup(this, git);
@@ -97,6 +95,7 @@ void RevsView::viewPatch(bool newTab) {
 		return;
 	}
 	PatchView* pv = new PatchView(m(), git);
+	m()->tabWdg->addTab(pv->tabPage(), "&Patch");
 	m()->tabWdg->setCurrentWidget(pv->tabPage());
 
 	if (!newTab) { // linkedPatchView == NULL

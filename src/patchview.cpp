@@ -109,8 +109,6 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	bg->addButton(patchTab->radioButtonSha, DIFF_TO_SHA);
 	connect(bg, SIGNAL(buttonClicked(int)), this, SLOT(button_clicked(int)));
 
-	m()->tabWdg->addTab(container, "&Patch");
-
 	patchTab->textEditDiff->setFont(QGit::TYPE_WRITER_FONT);
 	patchTab->textBrowserDesc->setup(this);
 	patchTab->fileList->setup(this, git);
