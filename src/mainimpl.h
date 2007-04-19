@@ -49,7 +49,6 @@ signals:
 	void updateRevDesc();
 	void closeAllWindows();
 	void closeAllTabs();
-	void tabClosed(int tabPos);
 	void repaintListViews(const QFont&);
 	void closeTabButtonEnabled(bool);
 
@@ -140,8 +139,8 @@ private:
 	bool accelActivated(QShortcutEvent* se);
 	bool askApplyPatchParameters(bool* commit, bool* fold);
 	QTextEdit* getCurrentTextEdit();
-	template<class X> QList<X*>* getTabs(int tabPos = -1);
-	template<class X> X* firstTab(int startPos = -1);
+	template<class X> QList<X*>* getTabs(QWidget* tabPage = NULL);
+	template<class X> X* firstTab(QWidget* startPage = NULL);
 	void openFileTab(FileView* fv = NULL);
 
 	EM_DECLARE(exExiting);

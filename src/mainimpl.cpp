@@ -392,19 +392,16 @@ void MainImpl::treeView_doubleClicked(QTreeWidgetItem* item, int) {
 
 void MainImpl::pushButtonCloseTab_clicked() {
 
-	int curPos = tabWdg->currentIndex();
 	Domain* t;
 	switch (currentTabType(&t)) {
 	case TAB_REV:
 		break;
 	case TAB_PATCH:
 		t->deleteWhenDone();
-		emit tabClosed(curPos);
 		ActViewDiffNewTab->setEnabled(ActViewDiff->isEnabled() && firstTab<PatchView>());
 		break;
 	case TAB_FILE:
 		t->deleteWhenDone();
-		emit tabClosed(curPos);
 		ActViewFileNewTab->setEnabled(ActViewFile->isEnabled() && firstTab<FileView>());
 		break;
 	default:
@@ -420,7 +417,7 @@ void MainImpl::ActViewRev_activated() {
 		rv->st = t->st;
 		UPDATE_DOMAIN(rv);
 	}
-	tabWdg->setCurrentIndex(rv->tabPos());
+	tabWdg->setCurrentWidget(rv->tabPage());
 }
 
 void MainImpl::ActViewFile_activated() {
@@ -445,7 +442,7 @@ void MainImpl::openFileTab(FileView* fv) {
 
 		ActViewFileNewTab->setEnabled(ActViewFile->isEnabled());
 	}
-	tabWdg->setCurrentIndex(fv->tabPos());
+	tabWdg->setCurrentWidget(fv->tabPage());
 	fv->st = rv->st;
 	UPDATE_DOMAIN(fv);
 }
@@ -729,19 +726,19 @@ bool MainImpl::event(QEvent* e) {
 int MainImpl::currentTabType(Domain** t) {
 
 	*t = NULL;
-	int curPos = tabWdg->currentIndex();
-	if (curPos == rv->tabPos()) {
+	QWidget* curPage = tabWdg->currentWidget();
+	if (curPage == rv->tabPage()) {
 		*t = rv;
 		return TAB_REV;
 	}
-	QList<PatchView*>* l = getTabs<PatchView>(curPos);
+	QList<PatchView*>* l = getTabs<PatchView>(curPage);
 	if (l->count() > 0) {
 		*t = l->first();
 		delete l;
 		return TAB_PATCH;
 	}
 	delete l;
-	QList<FileView*>* l2 = getTabs<FileView>(curPos);
+	QList<FileView*>* l2 = getTabs<FileView>(curPage);
 	if (l2->count() > 0) {
 		*t = l2->first();
 		delete l2;
@@ -754,7 +751,7 @@ int MainImpl::currentTabType(Domain** t) {
 	return -1;
 }
 
-template<class X> QList<X*>* MainImpl::getTabs(int tabPos) {
+template<class X> QList<X*>* MainImpl::getTabs(QWidget* tabPage) {
 
 	X dummy;
 	const char* clName = dummy.metaObject()->className();
@@ -767,27 +764,29 @@ template<class X> QList<X*>* MainImpl::getTabs(int tabPos) {
 			continue;
 
 		X* x = static_cast<X*>(l.at(i));
-		if (tabPos == -1 || x->tabPos() == tabPos)
+		if (!tabPage || x->tabPage() == tabPage)
 			ret->append(x);
 	}
 	return ret; // 'ret' must be deleted by caller
 }
 
-template<class X> X* MainImpl::firstTab(int startPos) {
+template<class X> X* MainImpl::firstTab(QWidget* startPage) {
 
 	int minVal = 99, firstVal = 99;
+	int startPos = tabWdg->indexOf(startPage);
 	X* min = NULL;
 	X* first = NULL;
 	QList<X*>* l = getTabs<X>();
 	for (int i = 0; i < l->size(); ++i) {
 
 		X* d = l->at(i);
-		if (d->tabPos() < minVal) {
-			minVal = d->tabPos();
+		int idx = tabWdg->indexOf(d->tabPage());
+		if (idx < minVal) {
+			minVal = idx;
 			min = d;
 		}
-		if (d->tabPos() < firstVal && d->tabPos() > startPos) {
-			firstVal = d->tabPos();
+		if (idx < firstVal && idx > startPos) {
+			firstVal = idx;
 			first = d;
 		}
 	}
@@ -874,16 +873,16 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 		scrollTextEdit(1);
 		break;
 	case Qt::Key_R:
-		tabWdg->setCurrentIndex(rv->tabPos());
+		tabWdg->setCurrentWidget(rv->tabPage());
 		break;
 	case Qt::Key_P:
 		isKey_P = true;
 	case Qt::Key_F:{
-		int cp = tabWdg->currentIndex();
+		QWidget* cp = tabWdg->currentWidget();
 		Domain* d = (isKey_P) ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
 		                        static_cast<Domain*>(firstTab<FileView>(cp));
 		if (d)
-			tabWdg->setCurrentIndex(d->tabPos()); }
+			tabWdg->setCurrentWidget(d->tabPage()); }
 		break;
 	default:
 		found = false;

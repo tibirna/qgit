@@ -25,7 +25,6 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	fileTab->textEditFile->setup(this, git);
 
 	m()->tabWdg->addTab(container, "File");
-	tabPosition = m()->tabWdg->count() - 1;
 
 	// an empty string turn off the special-value text display
 	fileTab->spinBoxRevision->setSpecialValueText(" ");

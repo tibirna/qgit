@@ -102,9 +102,6 @@ Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 	st.clear();
 	busy = readyToDrag = dragging = dropping = linked = false;
 	popupType = 0;
-	tabPosition = -1;
-
-	connect(m, SIGNAL(tabClosed(int)), this, SLOT(on_tabClosed(int)));
 }
 
 void Domain::clear(bool complete) {
@@ -136,12 +133,6 @@ void Domain::on_deleteWhenDone() {
 		deleteLater();
 	else
 		QTimer::singleShot(20, this, SLOT(on_deleteWhenDone()));
-}
-
-void Domain::on_tabClosed(int tabPos) {
-
-	if (tabPosition > tabPos)
-		tabPosition--;
 }
 
 void Domain::setThrowOnDelete(bool b) {

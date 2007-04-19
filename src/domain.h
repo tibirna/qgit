@@ -116,8 +116,7 @@ public:
 	bool isDropping() const { return dropping; }
 	void setDropping(bool b) { dropping = b; }
 	bool isLinked() const { return linked; }
-	int tabPos() const { return tabPosition; }
-	QWidget* tabContainer() { return container; }
+	QWidget* tabPage() { return container; }
 	virtual bool isMatch(SCRef) { return false; }
 
 	StateInfo st;
@@ -131,7 +130,6 @@ public slots:
 
 protected slots:
 	virtual void on_contextMenu(const QString&, int);
-	void on_tabClosed(int);
 	void on_updateRequested(StateInfo newSt);
 	void on_deleteWhenDone();
 
@@ -145,7 +143,6 @@ protected:
 	Git* git;
 	QWidget* container;
 	bool busy;
-	int tabPosition;
 
 private:
 	void populateState();

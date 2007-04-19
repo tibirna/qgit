@@ -75,7 +75,7 @@ void FileList::on_currentItemChanged(QListWidgetItem* current, QListWidgetItem*)
 		// as the user clicks on the merge header. Note that a
 		// lb->clearFocus() is not enough, we really need to
 		// reassign the focus to someone else.
-		d->tabContainer()->setFocus();
+		d->tabPage()->setFocus();
 		st->setAllMergeFiles(!st->allMergeFiles());
 
 	} else {

@@ -26,7 +26,6 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	revTab->setupUi(container);
 
 	m()->tabWdg->addTab(container, "&Rev list");
-	tabPosition = m()->tabWdg->count() - 1;
 
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
@@ -88,17 +87,17 @@ void RevsView::setEnabled(bool b) {
 
 	container->setEnabled(b);
  	if (linkedPatchView)
- 		linkedPatchView->tabContainer()->setEnabled(b);
+ 		linkedPatchView->tabPage()->setEnabled(b);
 }
 
 void RevsView::viewPatch(bool newTab) {
 
 	if (!newTab && linkedPatchView) {
-		m()->tabWdg->setCurrentIndex(linkedPatchView->tabPos());
+		m()->tabWdg->setCurrentWidget(linkedPatchView->tabPage());
 		return;
 	}
 	PatchView* pv = new PatchView(m(), git);
-	m()->tabWdg->setCurrentIndex(pv->tabPos());
+	m()->tabWdg->setCurrentWidget(pv->tabPage());
 
 	if (!newTab) { // linkedPatchView == NULL
 		linkedPatchView = pv;
