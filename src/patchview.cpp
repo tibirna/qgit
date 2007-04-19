@@ -12,7 +12,6 @@
 #include "git.h"
 #include "myprocess.h"
 #include "mainimpl.h"
-#include "filelist.h" // TODO remove
 #include "patchview.h"
 
 class DiffHighlighter : public QSyntaxHighlighter {
