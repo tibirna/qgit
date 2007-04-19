@@ -99,10 +99,10 @@ Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 	if (isMain)
 		git->setDefaultModel(_model);
 
-	container = NULL;
 	st.clear();
 	busy = readyToDrag = dragging = dropping = linked = false;
 	popupType = 0;
+	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 }
 
 Domain::~Domain() {
@@ -167,6 +167,12 @@ MainImpl* Domain::m() const {
 void Domain::showStatusBarMessage(const QString& msg, int timeout) {
 
 	m()->statusBar()->showMessage(msg, timeout);
+}
+
+void Domain::setTabCaption(const QString& caption) {
+
+	int idx = m()->tabWdg->indexOf(container);
+	m()->tabWdg->setTabText(idx, caption);
 }
 
 bool Domain::setReadyToDrag(bool b) {

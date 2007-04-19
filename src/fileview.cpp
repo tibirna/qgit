@@ -17,7 +17,6 @@
 
 FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
-	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	fileTab = new Ui_TabFile();
 	fileTab->setupUi(container);
 	fileTab->histListView->setup(this, git);
@@ -84,8 +83,7 @@ void FileView::clear(bool complete) {
 	Domain::clear(complete);
 
 	if (complete) {
-		int idx = m()->tabWdg->indexOf(container);
-		m()->tabWdg->setTabText(idx, "File");
+		setTabCaption("File");
 		fileTab->toolButtonCopy->setEnabled(false);
 	}
 	fileTab->textEditFile->clearAll();
@@ -148,9 +146,7 @@ bool FileView::doUpdate(bool force) {
 
 		clear(false);
 		model()->setFileName(st.fileName());
-
-		int idx = m()->tabWdg->indexOf(container);
-		m()->tabWdg->setTabText(idx, st.fileName());
+		setTabCaption(st.fileName());
 
 		if (git->startFileHistory(model())) {
 			QApplication::restoreOverrideCursor();

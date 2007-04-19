@@ -20,7 +20,6 @@
 
 RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
-	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	revTab = new Ui_TabRev();
 	revTab->setupUi(container);
 

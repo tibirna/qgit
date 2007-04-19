@@ -96,7 +96,6 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	pickAxeRE.setMinimal(true);
 	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
 
-	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 	patchTab = new Ui_TabPatch();
 	patchTab->setupUi(container);
 	SCRef ic(QString::fromUtf8(":/icons/resources/view_diff_all.png"));
@@ -497,8 +496,7 @@ bool PatchView::doUpdate(bool force) {
 			if (caption.length() > 30)
 				caption = caption.left(30 - 3).trimmed().append("...");
 
-			int idx = m()->tabWdg->indexOf(container);
-			m()->tabWdg->setTabText(idx, caption);
+			setTabCaption(caption);
 		}
 		on_updateRevDesc();
 	}

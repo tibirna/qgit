@@ -141,6 +141,7 @@ protected:
 	virtual bool doUpdate(bool force) = 0;
 	void linkDomain(Domain* d);
 	void unlinkDomain(Domain* d);
+	void setTabCaption(const QString& caption);
 
 	Git* git;
 	QWidget* container;
