@@ -141,7 +141,7 @@ void FileView::filterOnRange(bool isOn) {
 		msg = QString("Found %1 matches. Toggle filter "
 		              "button to remove the filter").arg(matchedCnt);
 
-// 	m()->statusBar()->message(msg);
+	m()->statusBar()->showMessage(msg);
 	QApplication::postEvent(this, new MessageEvent(msg)); // deferred message, after update
 }
 

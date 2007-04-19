@@ -116,7 +116,7 @@ public:
 	bool isDropping() const { return dropping; }
 	void setDropping(bool b) { dropping = b; }
 	bool isLinked() const { return linked; }
-	QWidget* tabPage() { return container; }
+	QWidget* tabPage() const { return container; }
 	virtual bool isMatch(SCRef) { return false; }
 
 	StateInfo st;

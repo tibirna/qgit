@@ -63,6 +63,7 @@ RevsView::~RevsView() {
 	if (!parent())
 		return;
 
+	// remove before to delete, avoids a Qt warning in QInputContext()
 	m()->tabWdg->removeTab(m()->tabWdg->indexOf(container));
 	delete linkedPatchView;
 	delete revTab;
@@ -107,9 +108,8 @@ void RevsView::viewPatch(bool newTab) {
 
 		connect(linkedPatchView->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 			m(), SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
-
-		connect(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
 	}
+	connect(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
 	connect(m(), SIGNAL(closeAllTabs()), pv, SLOT(on_closeAllTabs()));
 	pv->st = st;
 	UPDATE_DM_MASTER(pv, false);
@@ -133,8 +133,7 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
 void RevsView::on_updateRevDesc() {
 
-	bool showHeader = m()->ActShowDescHeader->isChecked();
-	SCRef d(git->getDesc(st.sha(), m()->shortLogRE, m()->longLogRE, showHeader));
+	SCRef d = m()->getRevisionDesc(st.sha());
 	tab()->textBrowserDesc->setHtml(d);
 }
 

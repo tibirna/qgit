@@ -129,7 +129,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 
-	connect(this->treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+	connect(treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
 	        this, SLOT(treeView_doubleClicked(QTreeWidgetItem*, int)));
 
 	// MainImpl c'tor is called before to enter event loop,
@@ -278,7 +278,7 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 		// tree name should be set before init because in case of
 		// StGIT archives the first revs are sent before init returns
 		QString n(curDir);
-		this->treeView->setTreeName(n.prepend('/').section('/', -1, -1));
+		treeView->setTreeName(n.prepend('/').section('/', -1, -1));
 
 		bool quit;
 		bool ok = git->init(curDir, !refresh, filterList, &quit); // blocking call
@@ -1163,7 +1163,7 @@ void MainImpl::doFileContexPopup(SCRef fileName, int type) {
 	int tt = currentTabType(&t);
 	bool isRevPage = (tt == TAB_REV);
 	bool isPatchPage = (tt == TAB_PATCH);
-	bool isDir = this->treeView->isDir(fileName);
+	bool isDir = treeView->isDir(fileName);
 
 	if (type == POPUP_FILE_EV)
 		if (!isPatchPage && ActViewDiff->isEnabled())
@@ -1228,8 +1228,16 @@ void MainImpl::ActSplitView_activated() {
 	}
 }
 
+const QString MainImpl::getRevisionDesc(SCRef sha) {
+
+	bool showHeader = ActShowDescHeader->isChecked();
+	return git->getDesc(sha, shortLogRE, longLogRE, showHeader);
+}
+
 void MainImpl::ActShowDescHeader_activated() {
 
+	// each open tab get his description,
+	// could be different for each tab
 	emit updateRevDesc();
 }
 
@@ -1598,9 +1606,9 @@ void MainImpl::ActFilterTree_toggled(bool b) {
 	if (b) {
 		QStringList selectedItems;
 		if (!treeView->isVisible())
-			this->treeView->updateTree(); // force tree updating
+			treeView->updateTree(); // force tree updating
 
-		this->treeView->getTreeSelectedItems(selectedItems);
+		treeView->getTreeSelectedItems(selectedItems);
 		if (selectedItems.count() == 0) {
 			dbs("ASSERT tree filter action activated with no selected items");
 			return;

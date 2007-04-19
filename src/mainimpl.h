@@ -35,9 +35,7 @@ Q_OBJECT
 public:
 	MainImpl(const QString& curDir = "", QWidget* parent = 0);
 	void updateContextActions(SCRef newRevSha, SCRef newFileName, bool isDir, bool found);
-
-	QRegExp shortLogRE;
-	QRegExp longLogRE;
+	const QString getRevisionDesc(SCRef sha);
 
 	// not buildable with Qt designer, will be created manually
 	QLineEdit* lineEditSHA;
@@ -156,6 +154,8 @@ private:
 	QString startUpDir;
 	QString textToFind;
 	QFont listViewFont;
+	QRegExp shortLogRE;
+	QRegExp longLogRE;
 	bool setRepositoryBusy;
 };
 
