@@ -6,7 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <QStatusBar>
 #include "mainimpl.h"
 #include "git.h"
 #include "annotate.h"
@@ -81,7 +80,7 @@ FileView::~FileView() {
 	delete fileTab;
 	delete container;
 
-	m()->statusBar()->clearMessage(); // cleanup any pending progress info
+	showStatusBarMessage(""); // cleanup any pending progress info
 	QApplication::restoreOverrideCursor();
 }
 
@@ -141,7 +140,7 @@ void FileView::filterOnRange(bool isOn) {
 		msg = QString("Found %1 matches. Toggle filter "
 		              "button to remove the filter").arg(matchedCnt);
 
-	m()->statusBar()->showMessage(msg);
+	showStatusBarMessage(msg);
 	QApplication::postEvent(this, new MessageEvent(msg)); // deferred message, after update
 }
 
@@ -161,13 +160,13 @@ bool FileView::doUpdate(bool force) {
 		if (git->startFileHistory(model())) {
 			QApplication::restoreOverrideCursor();
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			m()->statusBar()->showMessage("Retrieving history of '" +
-			                              st.fileName() + "'...");
+			showStatusBarMessage("Retrieving history of '" +
+			                      st.fileName() + "'...");
 		}
 	} else if (fileTab->histListView->update() || st.sha().isEmpty()) {
 
 		updateSpinBoxValue();
-		m()->statusBar()->showMessage(git->getRevInfo(st.sha()));
+		showStatusBarMessage(git->getRevInfo(st.sha()));
 	}
 	if (!fileTab->toolButtonPin->isChecked())
 		fileTab->textEditFile->update();
@@ -248,7 +247,7 @@ void FileView::on_toolButtonRangeFilter_toggled(bool b) {
 			return;
 		}
 		if (!fileTab->textEditFile->textCursor().hasSelection()) {
-			m()->statusBar()->showMessage("Please select some text");
+			showStatusBarMessage("Please select some text");
 			return;
 		}
 	}
@@ -282,7 +281,7 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 	if (f != model())
 		return;
 
-	m()->statusBar()->clearMessage();
+	showStatusBarMessage("");
 	fileTab->histListView->showIdValues();
 	int maxId = model()->rowCount();
 	if (maxId == 0)
@@ -366,5 +365,5 @@ void FileView::updateProgressBar(int annotatedNum) {
 	QString done, toDo;
 	done.fill('.', idx);
 	toDo.fill(' ', 40 - idx);
-	m()->statusBar()->showMessage(head + done + toDo + tail);
+	showStatusBarMessage(head + done + toDo + tail);
 }

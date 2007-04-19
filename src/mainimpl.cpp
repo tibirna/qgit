@@ -1435,7 +1435,7 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 		Actions->addAction(*it);
 }
 
-void MainImpl::customAction_triggered(QAction* act){
+void MainImpl::customAction_triggered(QAction* act) {
 
 	SCRef actionName = act->text();
 	if (actionName == "Setup actions...")

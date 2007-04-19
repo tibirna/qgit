@@ -105,6 +105,7 @@ public:
 	Domain() {}
 	Domain(MainImpl* m, Git* git, bool isMain);
 	void deleteWhenDone(); // will delete when no more run() are pending
+	void showStatusBarMessage(const QString& msg, int timeout = 0);
 	void setThrowOnDelete(bool b);
 	bool isThrowOnDeleteRaised(int excpId, SCRef curContext);
 	MainImpl* m() const;

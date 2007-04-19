@@ -7,7 +7,6 @@
 
 */
 #include <QMenu>
-#include <QStatusBar>
 #include "common.h"
 #include "git.h"
 #include "domain.h"
@@ -147,7 +146,7 @@ bool RevsView::doUpdate(bool force) {
 
 		const QString tmp("Sorry, revision " + st.sha() +
 		                  " has not been found in main view");
-		m()->statusBar()->showMessage(tmp);
+		showStatusBarMessage(tmp);
 
 	} else { // sha could be NULL
 
@@ -155,7 +154,7 @@ bool RevsView::doUpdate(bool force) {
 
 			updateLineEditSHA();
 			on_updateRevDesc();
-			m()->statusBar()->showMessage(git->getRevInfo(st.sha()));
+			showStatusBarMessage(git->getRevInfo(st.sha()));
 		}
 		const RevFile* files = NULL;
 		bool newFiles = false;

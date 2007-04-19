@@ -8,7 +8,6 @@
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QScrollBar>
-#include <QStatusBar>
 #include <QMessageBox>
 #include <QApplication>
 #include <QClipboard>
@@ -472,15 +471,14 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		return;
 
 	if (!ok) {
-		d->m()->statusBar()->showMessage("Sorry, annotation not available for this file.");
+		d->showStatusBarMessage("Sorry, annotation not available for this file.");
 		return;
 	}
 	if (st->fileName() != fileName) {
 		dbp("ASSERT arrived annotation of wrong file <%1>", fileName);
 		return;
 	}
-	d->m()->statusBar()->showMessage(msg, 7000);
-
+	d->showStatusBarMessage(msg, 7000);
 	isAnnotationAvailable = true;
 	if (lookupAnnotation())
 		emit annotationAvailable(true);

@@ -5,6 +5,7 @@
 
 */
 #include <QApplication>
+#include <QStatusBar>
 #include "exceptionmanager.h"
 #include "mainimpl.h"
 #include "git.h"
@@ -151,6 +152,11 @@ bool Domain::isThrowOnDeleteRaised(int excpId, SCRef curContext) {
 MainImpl* Domain::m() const {
 
 	return static_cast<MainImpl*>(parent());
+}
+
+void Domain::showStatusBarMessage(const QString& msg, int timeout) {
+
+	m()->statusBar()->showMessage(msg, timeout);
 }
 
 bool Domain::setReadyToDrag(bool b) {

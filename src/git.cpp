@@ -804,7 +804,7 @@ MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray*
 	return runAsync(runCmd, receiver);
 }
 
-MyProcess* Git::getHighlightedFile(SCRef file, SCRef sha, QObject* receiver, QString* result){
+MyProcess* Git::getHighlightedFile(SCRef file, SCRef sha, QObject* receiver, QString* result) {
 
 	if (!isTextHighlighter()) {
 		dbs("ASSERT in getHighlightedFile: highlighter not found");
