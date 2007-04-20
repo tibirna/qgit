@@ -105,6 +105,7 @@ public:
 	MyProcess* startPatchLoading(SCList shaList, SCRef fileName, QObject* receiver);
 	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
+	void annotateFinished(Annotate* ann);
 	bool startFileHistory(FileHistory* fh);
 	void cancelDataLoading(const FileHistory* fh);
 	void cancelProcess(MyProcess* p);
@@ -122,6 +123,7 @@ public:
 	const QString getWorkDirDiff(SCRef fileName = "");
 	MyProcess* getFile(SCRef file, SCRef revSha, QObject* rcv, QByteArray* ro = NULL, QString* fSha = NULL);
 	MyProcess* getHighlightedFile(SCRef file, SCRef revSha, QObject* rcv, QString* ro = NULL);
+	const QString getFileSha(SCRef file, SCRef revSha);
 	bool saveFile(SCRef fileName, SCRef sha, SCRef path);
 	void getFileFilter(SCRef path, QMap<QString, bool>& shaMap);
 	bool getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap);
@@ -186,7 +188,6 @@ private slots:
 	void on_loaded(const FileHistory*, ulong,int,bool,const QString&,const QString&);
 
 private:
-	friend class Annotate;
 	friend class MainImpl;
 	friend class DataLoader;
 	friend class ConsoleImpl;
@@ -234,7 +235,6 @@ private:
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);
 	void getDiffIndex();
-	const QString getFileSha(SCRef file, SCRef revSha);
 	const Rev* fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh);
 	const RevFile* fakeWorkDirRevFile(const WorkingDirInfo& wd);
 	bool copyDiffIndex(FileHistory* fh, SCRef parent);
@@ -243,7 +243,6 @@ private:
 	bool isParentOf(SCRef par, SCRef child);
 	bool isTreeModified(SCRef sha);
 	void indexTree();
-	void annotateExited(Annotate* ann);
 	void updateDescMap(const Rev* r, uint i, QMap<QPair<uint, uint>,bool>& dm,
 	                   QMap<uint, QVector<int> >& dv);
 	void mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, uint>, bool>&dm);

@@ -599,7 +599,7 @@ void Git::cancelAnnotate(Annotate* ann) {
 		ann->deleteWhenDone();
 }
 
-void Git::annotateExited(Annotate* ann) {
+void Git::annotateFinished(Annotate* ann) {
 
 	SCRef msg = QString("Annotated %1 files in %2 ms")
 	            .arg(ann->count()).arg(ann->elapsed());

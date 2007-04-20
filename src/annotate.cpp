@@ -160,7 +160,7 @@ void Annotate::slotComputeDiffs() {
 	if (canceled)
 		deleteWhenDone();
 	else
-		git->annotateExited(this);
+		git->annotateFinished(this);
 
 //	StrVect::const_iterator it(histRevOrder.constBegin());
 //	do {
