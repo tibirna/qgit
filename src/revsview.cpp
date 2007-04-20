@@ -179,18 +179,6 @@ bool RevsView::doUpdate(bool force) {
 			UPDATE_DM_MASTER(linkedPatchView, force); // async call
 		}
 	}
-// 	Q3ListViewItem* item = tab()->listViewLog->currentItem(); FIXME
-// 	if (item && item->isVisible() && !found && force) {
-// 		// we are in an inconsistent state: list view current item is
-// 		// not selected and secondary panes are empty.
-// 		// This could happen as example after removing a tree filter.
-// 		// At least populate secondary panes
-// 		st.setSha(((ListViewItem*)item)->sha());
-// 		st.setSelectItem(false);
-// 		UpdateDomainEvent* e = new UpdateDomainEvent(false);
-// 		this->event(e); // will be queued immediately
-// 		delete e;
-// 	}
 	return (found || st.sha().isEmpty());
 }
 
