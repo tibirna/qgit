@@ -763,6 +763,18 @@ MyProcess* Git::getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool comb
 	return runAsync(runCmd, receiver);
 }
 
+const QString Git::getWorkDirDiff(SCRef fileName) {
+
+	QString runCmd("git diff-index -r -m -p HEAD"), runOutput;
+	if (!fileName.isEmpty())
+		runCmd.append(" -- " + quote(fileName));
+
+	if (!run(runCmd, &runOutput))
+		return "";
+
+	return 	runOutput;
+}
+
 const QString Git::getFileSha(SCRef file, SCRef revSha) {
 
 	if (revSha == ZERO_SHA) {

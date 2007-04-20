@@ -119,6 +119,7 @@ public:
 	bool isTextHighlighter() const { return isTextHighlighterFound; }
 	bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
 	MyProcess* getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool combined);
+	const QString getWorkDirDiff(SCRef fileName = "");
 	MyProcess* getFile(SCRef file, SCRef revSha, QObject* rcv, QByteArray* ro = NULL, QString* fSha = NULL);
 	MyProcess* getHighlightedFile(SCRef file, SCRef revSha, QObject* rcv, QString* ro = NULL);
 	bool saveFile(SCRef fileName, SCRef sha, SCRef path);
@@ -183,6 +184,7 @@ private slots:
 	void on_getHighlightedFile_eof();
 	void on_newDataReady(const FileHistory*);
 	void on_loaded(const FileHistory*, ulong,int,bool,const QString&,const QString&);
+
 private:
 	friend class Annotate;
 	friend class MainImpl;

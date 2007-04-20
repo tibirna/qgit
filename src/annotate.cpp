@@ -388,8 +388,8 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 
 void Annotate::updateShaList(SCRef sha, SCRef par) {
 
-	if (sha == QGit::ZERO_SHA) // diff-tree --stdin doesn't work with working
-		return;            // dir patch will be directly fetched when needed
+	if (sha == QGit::ZERO_SHA) // shaList works only with real sha values
+		return;
 
 	shaList.append(QString(sha + " " + par));
 }
@@ -397,21 +397,17 @@ void Annotate::updateShaList(SCRef sha, SCRef par) {
 const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef sha) {
 
 	if (sha == QGit::ZERO_SHA) {
-		// diff-tree --stdin doesn't work with working dir so get it
-		// directly. We don't need file sha info because is ZERO_SHA
-		QString runOutput;
-		QString runCmd("git diff-index -r -m -p HEAD -- " + QGit::QUOTE_CHAR +
-				fileName + QGit::QUOTE_CHAR);
-
-		git->run(runCmd, &runOutput);
+		// standard patch loading Git::startPatchLoading() does not
+		// work with working dir content, so we need to read directly
+		QString wdDiff(git->getWorkDirDiff(fileName));
 		if (cancelingAnnotate)
 			return "";
 
 		// restore removed head line of next patch
 		const QString nextHeader("\n:100644 100644 " + QGit::ZERO_SHA + ' '
 		                         + nextFileSha + " M\t" + fileName + '\n');
-		runOutput.append(nextHeader);
-		patchFile.prepend(runOutput);
+		wdDiff.append(nextHeader);
+		patchFile.prepend(wdDiff);
 		nextFileSha = QGit::ZERO_SHA;
 	}
 	// use patchProcBuf to get proper diff. Patches in patchProcBuf are
