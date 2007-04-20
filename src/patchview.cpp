@@ -97,7 +97,7 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	patchTab = new Ui_TabPatch();
 	patchTab->setupUi(container);
-	SCRef ic(QString::fromUtf8(":/icons/resources/view_diff_all.png"));
+	SCRef ic(QString::fromUtf8(":/icons/resources/plusminus.png"));
 	patchTab->buttonFilterPatch->setIcon(QIcon(ic));
 	curFilter = prevFilter = VIEW_ALL;
 
@@ -154,15 +154,15 @@ void PatchView::buttonFilterPatch_clicked() {
 	prevFilter = curFilter;
 	if (curFilter == VIEW_ALL) {
 		curFilter = VIEW_ADDED;
-		ic = QString::fromUtf8(":/icons/resources/view_diff_added.png");
+		ic = QString::fromUtf8(":/icons/resources/plusonly.png");
 
 	} else if (curFilter == VIEW_ADDED) {
 		curFilter = VIEW_REMOVED;
-		ic = QString::fromUtf8(":/icons/resources/view_diff_removed.png");
+		ic = QString::fromUtf8(":/icons/resources/minusonly.png");
 
 	} else if (curFilter == VIEW_REMOVED) {
 		curFilter = VIEW_ALL;
-		ic = QString::fromUtf8(":/icons/resources/view_diff_all.png");
+		ic = QString::fromUtf8(":/icons/resources/plusminus.png");
 	}
 	patchTab->buttonFilterPatch->setIcon(QIcon(ic));
 
