@@ -19,7 +19,6 @@ class MyProcess : public QProcess {
 Q_OBJECT
 public:
 	MyProcess(QObject *go, Git* g, const QString& wd, bool reportErrors);
-	~MyProcess();
 	bool runSync(SCRef runCmd, QByteArray* runOutput, QObject* rcv, SCRef buf);
 	bool runAsync(SCRef rc, QObject* rcv, SCRef buf);
 	static const QStringList splitArgList(SCRef cmd);

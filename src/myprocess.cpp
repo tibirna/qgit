@@ -26,11 +26,6 @@ MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : QProces
 	canceling = async = isWinShell = isErrorExit = false;
 }
 
-MyProcess::~MyProcess() {
-
-	delete bufFile;
-}
-
 bool MyProcess::runAsync(SCRef rc, QObject* rcv, SCRef buf) {
 
 	async = true;
@@ -139,7 +134,7 @@ bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
 	   Process stdin will be redirected to this file in
 	   QGit::startProcess()
 	*/
-		bufFile = new QTemporaryFile();
+		bufFile = new QTemporaryFile(this);
 		bufFile->open();
 		QTextStream stream(bufFile);
 		stream << buf;
