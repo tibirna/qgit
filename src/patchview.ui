@@ -127,7 +127,7 @@
        <item>
         <widget class="QToolButton" name="buttonFilterPatch" >
          <property name="toolTip" >
-          <string>Toggle view of removed lines (CTRL+H)</string>
+          <string>Toggle view of added and removed lines (CTRL+H)</string>
          </property>
          <property name="shortcut" >
           <string>Ctrl+H</string>
