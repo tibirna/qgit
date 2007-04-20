@@ -8,15 +8,16 @@
 #define ANNOTATE_H
 
 #include <QObject>
-#include <QTime>
 #include <QPair>
+#include <QPointer>
+#include <QTime>
 #include <QTimer>
-#include <QProcess>
 #include "exceptionmanager.h"
 #include "common.h"
 
 class Git;
 class FileHistory;
+class MyProcess;
 
 class ReachInfo {
 public:
@@ -54,9 +55,11 @@ public:
 	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);
 	const QString computeRanges(SCRef sha, int rStart, int rEnd, SCRef target = "");
 
+public slots:
+	void procReadyRead(const QByteArray&);
+	void procFinished();
+
 private slots:
-	void on_patchProc_readyReadStandardOutput();
-	void on_patchProc_finished(int, QProcess::ExitStatus);
 	void on_progressTimer_timeout();
 	void on_deleteWhenDone();
 	void slotComputeDiffs();
@@ -64,16 +67,15 @@ private slots:
 private:
 	typedef QMap<QString, FileAnnotation> AnnotateHistory;
 
-	void annotateFileHistory(SCRef fileName, bool buildPatchScript);
-	void doAnnotate(SCRef fileName, SCRef sha, bool buildPatchScript);
+	void annotateFileHistory(SCRef fileName, bool buildShaList);
+	void doAnnotate(SCRef fileName, SCRef sha, bool buildShaList);
 	FileAnnotation* getFileAnnotation(SCRef sha);
 	void setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* fa);
 	const QString setupAuthor(SCRef origAuthor, int annId);
 	void setAnnotation(SCRef diff, SCRef aut, SCLList pAnn, SLList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);
 	static void unify(SLList dst, SCLList src);
-	void updatePatchScript(SCRef sha, SCRef par);
-	bool startPatchProc(SCRef buf, SCRef fileName);
+	void updateShaList(SCRef sha, SCRef par);
 	const QString getNextPatch(QString& patchFile, SCRef fileName, SCRef sha);
 	bool getNextSection(SCRef d, int& idx, QString& sec, SCRef target);
 	void updateRange(RangeInfo* r, SCRef diff, bool reverse);
@@ -93,11 +95,11 @@ private:
 	int annNumLen;
 	int annId;
 	int annFilesNum;
-	QString patchScript;
+	QStringList shaList;
 	QString fileName;
 	StrVect histRevOrder; // TODO use reference
-	QProcess patchProc;
 	QString patchProcBuf;
+	QPointer<MyProcess> patchProc;
 	QString nextFileSha;
 	bool valid;
 	bool canceled;

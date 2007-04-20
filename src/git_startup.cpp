@@ -730,9 +730,10 @@ void Git::loadFileNames() {
 			}
 #ifdef ON_WINDOWS
 /*
-  FIXME: For some strange reason on Windows application hangs if
-  'git diff-tree' is called with a big number of revs.
-  More investigation needed!
+  FIXME: When calling 'git diff-tree --stdin', arguments are passed
+  writing a buffer to process stdin. On Windows buffer size is quite
+  limited and application hangs. So for now limit buffer size when
+  using --stdin option in 'git diff-tree'
 */
 			if (cnt > 100)
 				break;
