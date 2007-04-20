@@ -10,6 +10,7 @@
 #include <QProcess>
 #include "git.h"
 
+class QTemporaryFile;
 class Git;
 
 //custom process used to run shell commands in parallel
@@ -18,6 +19,7 @@ class MyProcess : public QProcess {
 Q_OBJECT
 public:
 	MyProcess(QObject *go, Git* g, const QString& wd, bool reportErrors);
+	~MyProcess();
 	bool runSync(SCRef runCmd, QByteArray* runOutput, QObject* rcv, SCRef buf);
 	bool runAsync(SCRef rc, QObject* rcv, SCRef buf);
 	static const QStringList splitArgList(SCRef cmd);
@@ -47,6 +49,7 @@ private:
 	QString workDir;
 	QObject* receiver;
 	QStringList arguments;
+	QTemporaryFile* bufFile;
 	bool errorReportingEnabled;
 	bool canceling;
 	bool busy;

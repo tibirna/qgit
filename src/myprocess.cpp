@@ -7,6 +7,8 @@
 
 */
 #include <QApplication>
+#include <QTemporaryFile>
+#include <QTextStream>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "domain.h"
@@ -19,8 +21,14 @@ MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : QProces
 	workDir = wd;
 	runOutput = NULL;
 	receiver = NULL;
+	bufFile = NULL;
 	errorReportingEnabled = err;
 	canceling = async = isWinShell = isErrorExit = false;
+}
+
+MyProcess::~MyProcess() {
+
+	delete bufFile;
 }
 
 bool MyProcess::runAsync(SCRef rc, QObject* rcv, SCRef buf) {
@@ -121,7 +129,24 @@ bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
 
 	setWorkingDirectory(workDir);
 
-	if (!QGit::startProcess(this, arguments, buf, &isWinShell)) {
+	QString bufFileName;
+	if (!buf.isEmpty()) {
+	/*
+	   On Windows buffer size of QProcess's standard input
+	   pipe is quite limited and a crash can occur in case
+	   a big chunk of data is written to process stdin.
+	   As a workaround we use a temporary file to store data.
+	   Process stdin will be redirected to this file in
+	   QGit::startProcess()
+	*/
+		bufFile = new QTemporaryFile();
+		bufFile->open();
+		QTextStream stream(bufFile);
+		stream << buf;
+		bufFileName = bufFile->fileName();
+		bufFile->close();
+	}
+	if (!QGit::startProcess(this, arguments, bufFileName, &isWinShell)) {
 		sendErrorMsg(true);
 		return false;
 	}

@@ -720,24 +720,11 @@ void Git::loadFileNames() {
 	}
 
 	QString diffTreeBuf;
-	int cnt = 0;
 	FOREACH (StrVect, it, revData->revOrder) {
 		if (!revsFiles.contains(*it)) {
 			const Rev* c = revLookup(*it);
-			if (c->parentsCount() == 1)  {// skip initials and merges
+			if (c->parentsCount() == 1) // skip initials and merges
 				diffTreeBuf.append(*it).append('\n');
-				cnt++;
-			}
-#ifdef ON_WINDOWS
-/*
-  FIXME: When calling 'git diff-tree --stdin', arguments are passed
-  writing a buffer to process stdin. On Windows buffer size is quite
-  limited and application hangs. So for now limit buffer size when
-  using --stdin option in 'git diff-tree'
-*/
-			if (cnt > 100)
-				break;
-#endif
 		}
 	}
 	if (!diffTreeBuf.isEmpty()) {

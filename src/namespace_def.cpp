@@ -13,7 +13,7 @@
 */
 #include <QProcess>
 #include <QSettings>
-#include <QFile>
+#include <QTemporaryFile>
 #include <QTextStream>
 #include <QHash>
 #include <QPixmap>
@@ -293,7 +293,7 @@ bool QGit::readFromFile(SCRef fileName, QString& data) {
 	return true;
 }
 
-bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) {
+bool QGit::startProcess(QProcess* proc, SCList args, SCRef bufFile, bool* winShell) {
 
 	if (!proc || args.isEmpty())
 		return false;
@@ -304,10 +304,10 @@ bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) 
 
 	QString prog(arguments.first());
 	arguments.removeFirst();
+	if (!bufFile.isEmpty())
+		// read from file to avoid pipe buffer size limits
+		proc->setStandardInputFile(bufFile);
+
 	proc->start(prog, arguments); // TODO test QIODevice::Unbuffered
-	if (!buf.isEmpty()) {
-		proc->write(buf.toLatin1());
-		proc->closeWriteChannel();
-	}
 	return proc->waitForStarted();
 }
