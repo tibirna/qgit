@@ -210,9 +210,9 @@ void MyProcess::on_cancel() {
 const QStringList MyProcess::splitArgList(SCRef cmd) {
 // return argument list handling quotes and double quotes
 // substring, as example from:
-// cmd arg1 "some thing" arg2='some value'
-// to
-// sl = <cmd/arg1/some thing/arg2='some value'>
+// cmd some_arg "some thing" v='some value'
+// to (comma separated fields)
+// sl = <cmd,some_arg,some thing,v='some value'>
 
 	// early exit the common case
 	if (!(   cmd.contains(QGit::QUOTE_CHAR)

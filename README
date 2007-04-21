@@ -69,7 +69,7 @@ define in 'src/dataloader.h' before to compile.
 Command line arguments
 ----------------------
 Run qgit from a git working directory, command line arguments
-are filtered by 'git rev-parse'. Some examples:
+are filtered by 'git rev-list'. Some examples:
 
 	qgit v2.6.12-rc5..v2.6.12-rc6
 	qgit v2.6.12-rc6
@@ -79,7 +79,7 @@ are filtered by 'git rev-parse'. Some examples:
 If qgit is launched without arguments or if you change archive with
 'open' menu, a dialog for range select is shown.
 You can select top and bottom rev tags from the list or paste a
-specific revision. Values are passed to 'git rev-parse' to narrow
+specific revision. Values are passed to 'git rev-list' to narrow
 data loading to chosen revisions.
 
 

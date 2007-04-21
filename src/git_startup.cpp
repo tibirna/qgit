@@ -49,12 +49,7 @@ const QStringList Git::getArgs(bool askForRange, bool* quit) {
 			return QStringList();
 	}
 	startup = false;
-	QString runOutput;
-	if (!run("git rev-parse --default HEAD " + curRange, &runOutput)) {
-		*quit = true;
-		return QStringList();
-	}
-	return runOutput.split('\n');
+	return MyProcess::splitArgList(curRange);
 }
 
 const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
@@ -352,7 +347,7 @@ void Git::getDiffIndex() {
 
 	// then mockup the corresponding Rev
 	QString parent;
-	if (!run("git rev-parse --default HEAD", &parent))
+	if (!run("git rev-parse HEAD", &parent))
 		return;
 
 	parent = parent.section('\n', 0, 0);
@@ -489,7 +484,8 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	QStringList initCmd(QString("git rev-list --header --boundary --parents").split(' '));
+	const QString baseCmd("git rev-list --header --parents --boundary --default HEAD");
+	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh)) {
 		// fetch history from all branches so any revision in
 		// main view that changes the file is always found
