@@ -7,19 +7,19 @@
 
 */
 #include <QDir>
-#include "myprocess.h"
+#include <QTemporaryFile>
 #include "git.h"
 #include "dataloader.h"
 
 #define GUI_UPDATE_INTERVAL 500
 #define READ_BLOCK_SIZE     65535
 
-DataLoader::DataLoader(Git* g, FileHistory* f) : QObject(g), git(g), fh(f) {
+DataLoader::DataLoader(Git* g, FileHistory* f) : QProcess(g), git(g), fh(f) {
 
 	canceling = parsing = false;
 	isProcExited = true;
 	halfChunk = NULL;
-	proc = NULL;
+	dataFile = NULL;
 	loadedBytes = 0;
 	guiUpdateTimer.setSingleShot(true);
 
@@ -33,25 +33,33 @@ void DataLoader::on_cancel(const FileHistory* f) {
 		on_cancel();
 }
 
+void DataLoader::on_cancel() {
+
+	if (!canceling) { // just once
+		canceling = true;
+		terminate();
+	}
+}
+
 bool DataLoader::start(SCList args, SCRef wd) {
 
 	if (!isProcExited) {
-		dbs("ASSERT in DataLoader::start, called while processing");
+		dbs("ASSERT in DataLoader::start(), called while processing");
 		return false;
 	}
 	isProcExited = false;
-	if (!doStart(args, wd))
-		return false;
+	setWorkingDirectory(wd);
 
+	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+
+	if (!createTemporaryFile() || !QGit::startProcess(this, args)) {
+		deleteLater();
+		return false;
+	}
 	loadTime.start();
 	guiUpdateTimer.start(GUI_UPDATE_INTERVAL);
 	return true;
-}
-
-void DataLoader::procFinished() {
-
-	// Git::runAsync() hook
-	on_finished(0, QProcess::NormalExit);
 }
 
 void DataLoader::on_finished(int, QProcess::ExitStatus) {
@@ -154,32 +162,6 @@ void DataLoader::baAppend(QByteArray** baPtr, const char* ascii, int len) {
 
 #ifdef USE_QPROCESS
 
-DataLoader::~DataLoader() {}
-
-void DataLoader::on_cancel() {
-
-	if (!canceling) { // just once
-		canceling = true;
-		if (proc)
-			proc->terminate();
-	}
-}
-
-bool DataLoader::doStart(SCList args, SCRef wd) {
-
-	proc = new QProcess(this);
-	proc->setWorkingDirectory(wd);
-	if (!QGit::startProcess(proc, args))
-		return false;
-
-	connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
-	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
-	// readyReadStandardOutput() is not connected, read is timeout based. Faster.
-	return true;
-}
-
-void DataLoader::procReadyRead(const QByteArray&) { /* timeout based */ }
-
 ulong DataLoader::readNewData(bool) {
 
 	/*
@@ -201,7 +183,7 @@ ulong DataLoader::readNewData(bool) {
 		....
 		return buf->readAll(); // memcpy() here
 	*/
-	QByteArray* ba = new QByteArray(proc->readAllStandardOutput());
+	QByteArray* ba = new QByteArray(readAllStandardOutput());
 	if (ba->size() == 0) {
 		delete ba;
 		return 0;
@@ -211,85 +193,27 @@ ulong DataLoader::readNewData(bool) {
 	return ba->size();
 }
 
+bool DataLoader::createTemporaryFile() { return true; }
+
 #else // temporary file as data exchange facility
-
-DataLoader::~DataLoader() {
-
-	if (dataFile.isOpen())
-		dataFile.close();
-
-	QDir dir;
-	dir.remove(dataFileName);
-	dir.remove(scriptFileName);
-}
-
-void DataLoader::on_cancel() {
-
-	if (!canceling) { // just once
-		canceling = true;
-		git->cancelProcess(proc);
-		if (!procPID.isEmpty())
-			git->run("kill " + procPID.trimmed());
-	}
-}
-
-bool DataLoader::doStart(SCList args, SCRef wd) {
-
-	// ensure unique names for our DataLoader instance file
-	dataFileName = "/qgit_" + QString::number((ulong)this) + ".txt";
-	scriptFileName = "/qgit_" + QString::number((ulong)this) + QGit::SCRIPT_EXT;
-
-	// create a script to redirect 'git rev-list' stdout to dataFile
-	QDir dir("/tmp"); // use a tmpfs mounted filesystem if available
-	bool foundTmpDir = (dir.exists() && dir.isReadable());
-	scriptFileName.prepend(foundTmpDir ? "/tmp" : wd);
-	dataFileName.prepend(foundTmpDir ? "/tmp" : wd);
-	dataFile.setFileName(dataFileName);
-	QString runCmd;
-	FOREACH_SL (it, args)
-		if ((*it).contains(' '))
-			runCmd.append("\"" + *it + "\" ");
-		else
-			runCmd.append(*it + " ");
-
-	runCmd.append("> " +  dataFileName);
-
-#ifndef ON_WINDOWS
-	runCmd.append(" &\necho $!\nwait"); // we want to read git-rev-list PID
-#endif
-	runCmd.prepend("cd " + wd + "\n");
-
-	if (!QGit::writeToFile(scriptFileName, runCmd, true))
-		return false;
-
-	proc = git->runAsync(scriptFileName, this, "");
-	return (proc != NULL);
-}
-
-void DataLoader::procReadyRead(const QByteArray& data) {
-// the script sends pid of launched git-rev-list, to be used for canceling
-
-	procPID.append(data);
-}
 
 ulong DataLoader::readNewData(bool lastBuffer) {
 
-	bool ok =     dataFile.isOpen()
-	          || (dataFile.exists() && dataFile.open(QIODevice::Unbuffered | QIODevice::ReadOnly));
+	bool ok = dataFile && (dataFile->isOpen() || (dataFile->exists() && dataFile->open()));
 	if (!ok)
 		return 0;
 
 	ulong cnt = 0;
-	qint64 readPos = dataFile.pos();
+	qint64 readPos = dataFile->pos();
 
-	while (!dataFile.atEnd()) {
+	while (!dataFile->atEnd()) {
 
 		// this is the ONLY deep copy involved in the whole loading
 		// QFile::read() calls standard C read() function when
 		// file is open with Unbuffered flag, or fread() otherwise
 		QByteArray* ba = new QByteArray();
 		ba->resize(READ_BLOCK_SIZE);
-		uint len = dataFile.read(ba->data(), READ_BLOCK_SIZE);
+		uint len = dataFile->read(ba->data(), READ_BLOCK_SIZE);
 		if (len <= 0) {
 			delete ba;
 			break;
@@ -301,7 +225,7 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// not correctly incremented by read() if the producer
 		// process has already finished
 		readPos += len;
-		dataFile.seek(readPos);
+		dataFile->seek(readPos);
 
 		cnt += len;
 		fh->rowData.append(ba);
@@ -312,6 +236,50 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 			break;
 	}
 	return cnt;
+}
+
+bool DataLoader::createTemporaryFile() {
+
+	// redirect 'git rev-list' output to a temporary file
+	dataFile = new QTemporaryFile(this);
+
+#ifndef ON_WINDOWS
+	/*
+	   For performance reasons we would like to use a tmpfs filesystem
+	   if available, this is normally mounted under '/tmp' in Linux.
+
+	   According to Qt docs, a temporary file is placed in QDir::tempPath(),
+	   that should be system's temporary directory. On Unix/Linux systems this
+	   is usually /tmp; on Windows this is usually the path in the TEMP or TMP
+	   environment variable.
+
+	   But due to a bug in Qt 4.2 QDir::tempPath() is instead set to $HOME/tmp
+	   under Unix/Linux, that is not a tmpfs filesystem.
+
+	   So try to manually set the best directory for our temporary file.
+	*/
+		QDir dir("/tmp");
+		bool foundTmpDir = (dir.exists() && dir.isReadable());
+		if (foundTmpDir && dir.absolutePath() != QDir::tempPath()) {
+
+			dataFile->setFileTemplate(dir.absolutePath() + "/qt_temp");
+			if (!dataFile->open()) { // test for write access
+
+				delete dataFile;
+				dataFile = new QTemporaryFile(this);
+				dbs("WARNING: directory '/tmp' is not writable, "
+				    "fallback on Qt default one, there could "
+				    "be a performance penalty.");
+			} else
+				dataFile->close();
+		}
+#endif
+	if (!dataFile->open()) // to read the file name
+		return false;
+
+	setStandardOutputFile(dataFile->fileName(), QIODevice::WriteOnly);
+	dataFile->close();
+	return true;
 }
 
 #endif // USE_QPROCESS

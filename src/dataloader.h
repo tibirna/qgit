@@ -7,37 +7,30 @@
 #ifndef DATALOADER_H
 #define DATALOADER_H
 
-#include <QObject>
+#include <QProcess>
 #include <QTime>
 #include <QTimer>
-#include <QFile>
-#include <QProcess>
 
 class QString;
+class QTemporaryFile;
 class Git;
 class FileHistory;
-class MyProcess;
 
 // data exchange facility with git-rev-list could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
 // #define USE_QPROCESS
 
-class DataLoader : public QObject {
+class DataLoader : public QProcess {
 Q_OBJECT
 public:
 	DataLoader(Git* g, FileHistory* f);
-	~DataLoader();
 	bool start(const QStringList& args, const QString& wd);
 
 signals:
 	void newDataReady(const FileHistory*);
 	void loaded(const FileHistory*,ulong,int,bool,const QString&,const QString&);
 
-public slots:
-	void procFinished(); // used by Git::run()
-
 private slots:
-	void procReadyRead(const QByteArray&);
 	void on_finished(int, QProcess::ExitStatus);
 	void on_cancel();
 	void on_cancel(const FileHistory*);
@@ -47,28 +40,19 @@ private:
 	void parseSingleBuffer(const QByteArray& ba);
 	void baAppend(QByteArray** src, const char* ascii, int len);
 	void addSplittedChunks(const QByteArray* halfChunk);
-	bool doStart(const QStringList& args, const QString& wd);
+	bool createTemporaryFile();
 	ulong readNewData(bool lastBuffer);
 
 	Git* git;
 	FileHistory* fh;
 	QByteArray* halfChunk;
+	QTemporaryFile* dataFile;
 	QTime loadTime;
 	QTimer guiUpdateTimer;
 	ulong loadedBytes;
 	bool isProcExited;
 	bool parsing;
 	bool canceling;
-
-#ifdef USE_QPROCESS
-	QProcess* proc;
-#else
-	MyProcess* proc;
-	QString procPID;
-	QString scriptFileName;
-	QString dataFileName;
-	QFile dataFile;
-#endif
 };
 
 #endif
