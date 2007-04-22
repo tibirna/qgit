@@ -228,7 +228,7 @@ const QStringList MyProcess::splitArgList(SCRef cmd) {
 		i++;
 
 	if (i == sepList.length()) {
-		dbs("ASSERT no unique separator found");
+		dbs("ASSERT no unique separator found.");
 		return QStringList();
 	}
 	const QChar& sepChar(sepList[i]);
@@ -248,7 +248,7 @@ const QStringList MyProcess::splitArgList(SCRef cmd) {
 
 	// QProcess::setArguments doesn't want quote
 	// delimited arguments, so remove trailing quotes
-	QStringList sl(newCmd.split(sepChar));
+	QStringList sl(newCmd.split(sepChar, QString::SkipEmptyParts));
 	QStringList::iterator it(sl.begin());
 	for ( ; it != sl.end(); ++it) {
 		if (((*it).left(1) == "\"" && (*it).right(1) == "\"") ||
