@@ -61,8 +61,8 @@ bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
 	EM_BEFORE_PROCESS_EVENTS;
 
 	while (busy) {
-		qApp->processEvents();
 		waitForFinished(20); // suspend 20ms to let OS reschedule
+		qApp->processEvents();
 	}
 
 	EM_AFTER_PROCESS_EVENTS;
