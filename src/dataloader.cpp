@@ -37,7 +37,7 @@ void DataLoader::on_cancel() {
 
 	if (!canceling) { // just once
 		canceling = true;
-		terminate();
+		kill();
 	}
 }
 
