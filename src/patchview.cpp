@@ -382,7 +382,7 @@ void PatchView::computeMatches() {
 		s.indexFrom = pos - txt.lastIndexOf('\n', pos) - 1; // index starts from 0
 
 		lastPos = pos;
-		pos += (isRegExp) ? pickAxeRE.matchedLength() : pickAxeRE.pattern().length();
+		pos += (isRegExp ? pickAxeRE.matchedLength() : pickAxeRE.pattern().length());
 		pos--;
 
 		s.paraTo = s.paraFrom + txt.mid(lastPos, pos - lastPos).count('\n');
@@ -399,8 +399,8 @@ bool PatchView::getMatch(int para, int* indexFrom, int* indexTo) {
 	for (int i = 0; i < matches.count(); i++)
 		if (matches[i].paraFrom <= para && matches[i].paraTo >= para) {
 
-			*indexFrom = (para == matches[i].paraFrom) ? matches[i].indexFrom : 0;
-			*indexTo = (para == matches[i].paraTo) ? matches[i].indexTo : 0;
+			*indexFrom = (para == matches[i].paraFrom ? matches[i].indexFrom : 0);
+			*indexTo = (para == matches[i].paraTo ? matches[i].indexTo : 0);
 			return true;
 		}
 	return false;
@@ -440,7 +440,7 @@ void PatchView::button_clicked(int diffType) {
 		return;
 
 	// check for a ref name or an abbreviated form
-	normalizedSha = (sha.length() != 40 && !sha.isEmpty()) ? git->getRefSha(sha) : sha;
+	normalizedSha = (sha.length() != 40 && !sha.isEmpty() ? git->getRefSha(sha) : sha);
 
 	if (normalizedSha != st.diffToSha()) { // avoid looping
 		st.setDiffToSha(normalizedSha); // could be empty

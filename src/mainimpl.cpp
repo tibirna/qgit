@@ -134,7 +134,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 	// MainImpl c'tor is called before to enter event loop,
 	// but some stuff requires event loop to init properly
-	startUpDir = (cd.isEmpty()) ? QDir::current().absolutePath() : cd;
+	startUpDir = (cd.isEmpty() ? QDir::current().absolutePath() : cd);
 	QTimer::singleShot(10, this, SLOT(initWithEventLoopActive()));
 }
 
@@ -191,7 +191,7 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 	QString prevRevSha(rv->st.diffToSha());
 	if (prevRevSha.isEmpty()) { // default to first parent
 		const Rev* r = git->revLookup(rv->st.sha());
-		prevRevSha = (r && r->parentsCount() > 0) ? r->parent(0) : rv->st.sha();
+		prevRevSha = (r && r->parentsCount() > 0 ? r->parent(0) : rv->st.sha());
 	}
 	QFileInfo fi(f);
 	QString fName1(curDir + "/" + rv->st.sha().left(6) + "_" + fi.completeBaseName());
@@ -474,9 +474,9 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 
 			int idx = tabWdg->currentIndex();
 			if (e->delta() < 0)
-				idx = (++idx == tabWdg->count()) ? 0 : idx;
+				idx = (++idx == tabWdg->count() ? 0 : idx);
 			else
-				idx = (--idx < 0) ? tabWdg->count() - 1 : idx;
+				idx = (--idx < 0 ? tabWdg->count() - 1 : idx);
 
 			tabWdg->setCurrentIndex(idx);
 			return true;
@@ -793,7 +793,7 @@ template<class X> X* MainImpl::firstTab(QWidget* startPage) {
 		}
 	}
 	delete l;
-	return first ? first : min;
+	return (first ? first : min);
 }
 
 void MainImpl::tabWdg_currentChanged(QWidget* w) {
@@ -881,8 +881,8 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 		isKey_P = true;
 	case Qt::Key_F:{
 		QWidget* cp = tabWdg->currentWidget();
-		Domain* d = (isKey_P) ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
-		                        static_cast<Domain*>(firstTab<FileView>(cp));
+		Domain* d = isKey_P ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
+		                      static_cast<Domain*>(firstTab<FileView>(cp));
 		if (d)
 			tabWdg->setCurrentWidget(d->tabPage()); }
 		break;

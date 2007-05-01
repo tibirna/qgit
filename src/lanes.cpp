@@ -30,9 +30,9 @@ void Lanes::clear() {
 void Lanes::setBoundary(bool b) {
 // changes the state so must be called as first one
 
-	NODE   = (b) ? BOUNDARY_C : MERGE_FORK;
-	NODE_R = (b) ? BOUNDARY_R : MERGE_FORK_R;
-	NODE_L = (b) ? BOUNDARY_L : MERGE_FORK_L;
+	NODE   = b ? BOUNDARY_C : MERGE_FORK;
+	NODE_R = b ? BOUNDARY_R : MERGE_FORK_R;
+	NODE_L = b ? BOUNDARY_L : MERGE_FORK_L;
 	boundary = b;
 
 	if (boundary)

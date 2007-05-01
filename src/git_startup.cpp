@@ -1053,8 +1053,8 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, 
 		if (add)
 			dst.append(src2[s2]);
 	}
-	QVector<int>& nearRefs = (down) ? p->descRefs : p->ancRefs;
-	int& nearRefsMaster = (down) ? p->descRefsMaster : p->ancRefsMaster;
+	QVector<int>& nearRefs = (down ? p->descRefs : p->ancRefs);
+	int& nearRefsMaster = (down ? p->descRefsMaster : p->ancRefsMaster);
 
 	nearRefs.clear();
 	for (int s2 = 0; s2 < dst.count(); s2++)

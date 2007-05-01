@@ -418,7 +418,7 @@ const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef s
 	if (noNewLine)
 		dbp("WARNING: No newline at the end of %1 patch", sha);
 
-	int end = (noNewLine) ? 0 : patchFile.indexOf("\n:");
+	int end = (noNewLine ? 0 : patchFile.indexOf("\n:"));
 	QString diff;
 	if (end != -1) {
 		diff = patchFile.left(end + 1);
@@ -429,7 +429,7 @@ const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef s
 
 	int start = diff.indexOf('@');
 	// handle a possible file mode only change and remove header
-	diff = (start != -1) ? diff.mid(start) : "";
+	diff = (start != -1 ? diff.mid(start) : "");
 
 	int i = 0;
 	while (diffMap.contains(Key(sha, i)))
@@ -643,7 +643,7 @@ void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
 		int patchStart = newLineId;
 
 		// patch end depends only to lines count so is...
-		int patchEnd = patchStart + ((reverse) ? newLineCnt : oldLineCnt);
+		int patchEnd = patchStart + (reverse ? newLineCnt : oldLineCnt);
 		patchEnd--; // with 1 line patch patchStart == patchEnd
 
 		// case 1: patch range after our range
@@ -652,13 +652,13 @@ void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
 
 		// case 2: patch range before our range
 		if (patchEnd < r->start) {
-			r->start += ((reverse) ? -lineNumDiff : lineNumDiff);
-			r->end += ((reverse) ? -lineNumDiff : lineNumDiff);
+			r->start += (reverse ? -lineNumDiff : lineNumDiff);
+			r->end += (reverse ? -lineNumDiff : lineNumDiff);
 			continue;
 		}
 		// case 3: the patch is whole inside our range
 		if (patchStart >= r->start && patchEnd <= r->end) {
-			r->end += ((reverse) ? -lineNumDiff : lineNumDiff);
+			r->end += (reverse ? -lineNumDiff : lineNumDiff);
 			r->modified = true;
 			continue;
 		}
@@ -666,10 +666,10 @@ void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
 		// add padding so that resulting file is the UNION: selectRange U patchRange
 
 		// reverse independent
-		int beforePadding = (r->start > patchStart) ? 0 : patchStart - r->start;
+		int beforePadding = (r->start > patchStart ? 0 : patchStart - r->start);
 
 		// reverse dependent
-		int afterPadding = (patchEnd > r->end) ? 0 : r->end - patchEnd;
+		int afterPadding = (patchEnd > r->end ? 0 : r->end - patchEnd);
 
 		// file is the faked file on which we will apply the diff,
 		// so it is always the _old_ before the patch one.

@@ -203,7 +203,7 @@ bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles) {
 	QTextCodec* tc = QTextCodec::codecForCStrings();
 	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1
 
-	QString whatToDo = (git->isStGITStack()) ? "create a new patch with" : "commit";
+	QString whatToDo = (git->isStGITStack() ? "create a new patch with" : "commit");
 	QString text("Do you want to " + whatToDo + " the following file(s)?\n\n" +
 	             selFiles.join("\n") + "\n\nwith the message:\n\n");
 	text.append(msg);

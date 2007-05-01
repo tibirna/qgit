@@ -154,7 +154,7 @@ void QGit::setFlag(uint f, bool b, SCRef flagsVariable) {
 
 	QSettings settings;
 	uint flags = settings.value(flagsVariable, FLAGS_DEF).toUInt();
-	flags = (b) ? flags | f : flags & ~f;
+	flags = b ? flags | f : flags & ~f;
 	settings.setValue(flagsVariable, flags);
 }
 
