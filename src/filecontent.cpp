@@ -43,7 +43,17 @@ public:
 			setFormat(0, p.length(), fileFormat);
 
 		fileFormat.setForeground(Qt::lightGray);
-		int headLen = f->isAnnotationAppended ? f->annoLen + MAX_LINE_NUM : MAX_LINE_NUM;
+		int headLen = MAX_LINE_NUM;
+
+		if (f->isAnnotationAppended) {
+			headLen += f->annoLen;
+			int annId = (f->curAnn ? f->curAnn->annId : -1);
+			int curId = p.section('.', 0, 0).toInt();
+			if (curId == annId) {
+				fileFormat.setForeground(Qt::darkGray);
+				fileFormat.setFontWeight(QFont::Bold);
+			}
+		}
 		setFormat(0, headLen, fileFormat);
 
 		if (f->isRangeFilterActive && f->rangeInfo->start != 0)
