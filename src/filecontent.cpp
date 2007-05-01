@@ -21,10 +21,12 @@
 
 #define MAX_LINE_NUM 5
 
-const QString FileContent::HTML_HEAD       = "<font color=\"#C0C0C0\">"; // light gray
-const QString FileContent::HTML_TAIL       = "</font>";
-const QString FileContent::HTML_FILE_START = "<pre><tt>";
-const QString FileContent::HTML_FILE_END   = "</tt></pre>";
+static const QString HTML_HEAD       = "<font color=\"#C0C0C0\">"; // light gray
+static const QString HTML_TAIL       = "</font>";
+static const QString HTML_HEAD_B     = "<b><font color=\"#808080\">"; // bolded dark gray
+static const QString HTML_TAIL_B     = "</font></b>";
+static const QString HTML_FILE_START = "<pre><tt>";
+static const QString HTML_FILE_END   = "</tt></pre>";
 
 class FileHighlighter : public QSyntaxHighlighter {
 public:
@@ -541,6 +543,8 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 	}
 	bool isHtmlHeader = (isHtmlSource && curLine == 1);
 	bool isHtmlFirstContentLine = false;
+	const QString* html_head = NULL;
+	const QString* html_tail = NULL;
 
 	FOREACH_SL (it, sl) {
 
@@ -557,9 +561,24 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 		if (isHtmlFirstContentLine)
 			fileProcessedData.append(HTML_FILE_START);
 
+		// do we have to highlight annotation info line?
+		if (isHtmlSource) {
+			html_head = &HTML_HEAD;
+			html_tail = &HTML_TAIL;
+
+			if (isAnnotationAppended && curAnn &&
+			    curAnnIt != curAnn->lines.constEnd()) {
+
+				int curId = (*curAnnIt).section('.', 0, 0).toInt();
+				if (curId == curAnn->annId) {
+					html_head = &HTML_HEAD_B;
+					html_tail = &HTML_TAIL_B;
+				}
+			}
+		}
 		// add color tag head
 		if (isHtmlSource)
-			fileProcessedData.append(HTML_HEAD);
+			fileProcessedData.append(*html_head);
 
 		// add annotation
 		if (isAnnotationAppended && curAnn) { // curAnn can change while loading
@@ -567,7 +586,7 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 			if (curAnnIt == curAnn->lines.constEnd()) {
 
 				if (isHtmlSource && (*it) == HTML_FILE_END) {
-					fileProcessedData.append(HTML_TAIL).append(*it).append('\n');
+					fileProcessedData.append(*html_tail).append(*it).append('\n');
 					continue;
 				} else {
 					dbs("ASSERT in FileContent::processData: bad annotate");
@@ -583,7 +602,7 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 
 		// add color tag tail
 		if (isHtmlSource)
-			fileProcessedData.append(HTML_TAIL);
+			fileProcessedData.append(*html_tail);
 
 		// finally add content
 		if (isHtmlFirstContentLine) {

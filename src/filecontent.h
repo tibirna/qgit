@@ -99,11 +99,6 @@ private:
 		optFalse,
 		optEmitSignal
 	};
-
-	static const QString HTML_HEAD;
-	static const QString HTML_TAIL;
-	static const QString HTML_FILE_START;
-	static const QString HTML_FILE_END;
 };
 
 #endif
