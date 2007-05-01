@@ -183,8 +183,7 @@ void FileContent::update(bool force) {
 	} else
 		clearText(optEmitSignal);
 
-	if (!force)
-		lookupAnnotation(); // before file loading
+	lookupAnnotation(); // before file loading
 
 	// both calls bound procFinished() and procReadyRead() slots
 	if (isHtmlSource && !isImageFile)

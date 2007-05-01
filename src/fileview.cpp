@@ -224,7 +224,7 @@ void FileView::on_toolButtonPin_toggled(bool b) {
 	fileTab->spinBoxRevision->setDisabled(b);
 
 	if (!b) {
-		updateSpinBoxValue();
+		updateSpinBoxValue(); // UPDATE() call is filtered in this case
 		fileTab->textEditFile->update(true);
 	}
 }
