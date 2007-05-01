@@ -293,7 +293,7 @@ bool QGit::readFromFile(SCRef fileName, QString& data) {
 	return true;
 }
 
-bool QGit::startProcess(QProcess* proc, SCList args, SCRef bufFile, bool* winShell) {
+bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) {
 
 	if (!proc || args.isEmpty())
 		return false;
@@ -304,10 +304,21 @@ bool QGit::startProcess(QProcess* proc, SCList args, SCRef bufFile, bool* winShe
 
 	QString prog(arguments.first());
 	arguments.removeFirst();
-	if (!bufFile.isEmpty())
-		// read from file to avoid pipe buffer size limits
-		proc->setStandardInputFile(bufFile);
-
+	if (!buf.isEmpty()) {
+	/*
+	   On Windows buffer size of QProcess's standard input
+	   pipe is quite limited and a crash can occur in case
+	   a big chunk of data is written to process stdin.
+	   As a workaround we use a temporary file to store data.
+	   Process stdin will be redirected to this file
+	*/
+		QTemporaryFile* bufFile = new QTemporaryFile(proc);
+		bufFile->open();
+		QTextStream stream(bufFile);
+		stream << buf;
+		proc->setStandardInputFile(bufFile->fileName());
+		bufFile->close();
+	}
 	proc->start(prog, arguments); // TODO test QIODevice::Unbuffered
 	return proc->waitForStarted();
 }
