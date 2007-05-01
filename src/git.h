@@ -78,7 +78,8 @@ public:
 		optOnlyLoaded,
 		optDragDrop,
 		optFold,
-		optOnlyInIndex
+		optOnlyInIndex,
+		optCreate
 	};
 
 	enum RefType {
@@ -223,9 +224,7 @@ private:
 	bool allProcessDeleted();
 	const QStringList getArgs(bool askForRange, bool* quit);
 	bool getRefs();
-	bool getStGITPatches();
-	bool addStGitPatch(SCRef pn, SCList files, SCList filesSHA, bool applied);
-	static void dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter = "");
+	void parseStGitPatches(SCList patchNames, SCList patchShas);
 	void clearRevs();
 	void clearFileNames();
 	bool startRevList(SCList args, FileHistory* fh);

@@ -93,10 +93,12 @@ bool Git::getRefs() {
 
 	// check for a StGIT stack
 	QDir d(gitDir);
+	QString stgCurBranch;
 	if (d.exists("patches")) { // early skip
 		errorReportingEnabled = false;
-		isStGIT = run("stg unapplied"); // slow command, check for stg bin
+		isStGIT = run("stg branch", &stgCurBranch); // slow command
 		errorReportingEnabled = true;
+		stgCurBranch = stgCurBranch.trimmed();
 	} else
 		isStGIT = false;
 
@@ -120,6 +122,7 @@ bool Git::getRefs() {
 
 	refsShaMap.clear();
 	QString prevRefSha;
+	QStringList patchNames, patchShas;
 	const QStringList rLst(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, rLst) {
 
@@ -127,13 +130,20 @@ bool Git::getRefs() {
 		SCRef refName = (*it).mid(41);
 
 		if (refName.startsWith("refs/patches/")) {
+
+			// save StGIT patch sha, to be used later
+			SCRef patchesDir("refs/patches/" + stgCurBranch + "/");
+			if (refName.startsWith(patchesDir)) {
+				patchNames.append(refName.mid(patchesDir.length()));
+				patchShas.append(revSha);
+			}
 			// StGIT patches should not be added to refs,
 			// but an applied StGIT patch could be also an head or
 			// a tag in this case will be added in another loop cycle
 			continue;
 		}
-		// one rev could have many tags, called with create flag
-		Reference* cur = lookupReference(revSha, true);
+		// one rev could have many tags
+		Reference* cur = lookupReference(revSha, optCreate);
 
 		if (refName.startsWith("refs/tags/")) {
 
@@ -176,92 +186,41 @@ bool Git::getRefs() {
 		}
 		prevRefSha = revSha;
 	}
+	if (isStGIT && !patchNames.isEmpty())
+		parseStGitPatches(patchNames, patchShas);
+
 	return !refsShaMap.empty();
 }
 
-void Git::dirWalker(SCRef dirPath, SList files, SList filesSHA, SCRef nameFilter) {
-// search through dirPath recursively fetching any possible
-// file whom first 40 chars of content are a possible sha
+void Git::parseStGitPatches(SCList patchNames, SCList patchShas) {
 
-	QDir d(dirPath, "", QDir::Name, QDir::Dirs | QDir::NoDotAndDotDot);
-	for (uint i = 0; i < d.count(); i++)
-		dirWalker(d.absolutePath() + '/' + d[i], files, filesSHA, nameFilter);
-
-	QString sha;
-	QDir f(dirPath, nameFilter, QDir::Name, QDir::Files | QDir::NoDotAndDotDot);
-	f.makeAbsolute();
-	for (uint i = 0; i < f.count(); i++) {
-		SCRef path(f.absolutePath() + '/' + f[i]);
-		readFromFile(path, sha);
-		// we accept also files with a sha + other stuff
-		sha = sha.trimmed().append('\n').section('\n', 0, 0);
-		if (sha.length() == 40) {
-			files.append(path);
-			filesSHA.append(sha);
-		}
-	}
-}
-
-bool Git::addStGitPatch(SCRef patchName, SCList files, SCList filesSHA, bool applied) {
-
-	const QStringList fl(files.filter("/" + patchName + "/top"));
-	if (fl.count() != 1) {
-		qDebug("ASSERT: found %i patches instead of 1 in %s",
-		       (int)fl.count(), patchName.toLatin1().constData());
-		return false;
-	}
-	int pos = files.indexOf(fl.first());
-	Reference* cur = lookupReference(filesSHA[pos], true);
-	cur->stgitPatch = patchName;
-	cur->type |= (applied ? APPLIED : UN_APPLIED);
-	return true;
-}
-
-bool Git::getStGITPatches() {
+	patchesStillToFind = 0;
 
 	// get patch names and status of current branch
 	QString runOutput;
 	if (!run("stg series", &runOutput))
-		return false;
+		return;
 
-	if (runOutput.isEmpty())
-		return false; // false is used by caller as early exit
-
-	// get current branch
-	QString branch;
-	if (!run("stg branch", &branch))
-		return false;
-
-	branch = branch.trimmed();
-
-	QStringList uNames, aNames;
 	const QStringList pl(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, pl) {
 
-		SCRef st = (*it).left(1);
-		SCRef pn = (*it).mid(2);
-		if (st == "+" || st == ">")
-			aNames.append(pn);
-		else
-			uNames.append(pn);
+		SCRef status = (*it).left(1);
+		SCRef patchName = (*it).mid(2);
+
+		bool applied = (status == "+" || status == ">");
+		int pos = patchNames.indexOf(patchName);
+		if (pos == -1) {
+			dbp("ASSERT in Git::parseStGitPatches(), patch %1 "
+			    "not found in references list.", patchName);
+			continue;
+		}
+		Reference* cur = lookupReference(patchShas.at(pos), optCreate);
+		cur->stgitPatch = patchName;
+		cur->type |= (applied ? APPLIED : UN_APPLIED);
+
+		if (applied)
+			patchesStillToFind++;
 	}
-	// get all sha's in "top" files under /<gitDir>/patches/<current branch>
-	QDir d(gitDir + "/patches/" + branch);
-	QStringList files, filesSHA;
-	dirWalker(d.absolutePath(), files, filesSHA, "top");
-
-	// now match names and SHA's for unapplied
-	FOREACH_SL (it, uNames)
-		if (!addStGitPatch(*it, files, filesSHA, false))
-			return false;
-
-	// the same for applied, in this case the order is not important
-	FOREACH_SL (it, aNames)
-		if (!addStGitPatch(*it, files, filesSHA, true))
-			return false;
-
-	patchesStillToFind = aNames.count();
-	return true;
 }
 
 const QStringList Git::getOthersFiles() {
@@ -503,16 +462,17 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 bool Git::startUnappliedList() {
 
+	// TODO truncate sha to avoid overflow in 'git rev-list'
+	// command line arguments
+	const QStringList unAppliedSha(getAllRefSha(UN_APPLIED));
+	if (unAppliedSha.isEmpty())
+		return false;
+
 	// WARNING: with this command git rev-list could send spurious
 	// revs so we need some filter out logic during loading
 	QStringList initCmd(QString("git rev-list --header --parents").split(' '));
-	initCmd << getAllRefSha(UN_APPLIED) << QString::fromLatin1("^HEAD");
-	loadingUnAppliedPatches = true;
-	bool started = startParseProc(initCmd, revData);
-	if (!started)
-		loadingUnAppliedPatches = false;
-
-	return started;
+	initCmd << unAppliedSha << QString::fromLatin1("^HEAD");
+	return startParseProc(initCmd, revData);
 }
 
 bool Git::stop(bool saveCache) {
@@ -602,13 +562,12 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 				setThrowOnStop(false);
 				return false;
 			}
-
 			// load StGit unapplied patches, must be after getRefs()
 			if (isStGIT) {
+				loadingUnAppliedPatches = startUnappliedList();
+				if (loadingUnAppliedPatches) {
 
-				POST_MSG(msg1 + "StGIT unapplied patches...");
-				if (getStGITPatches() && startUnappliedList()) {
-
+					POST_MSG(msg1 + "StGIT unapplied patches...");
 					while (loadingUnAppliedPatches) {
 						// WARNING we are in setRepository() now
 						compat_usleep(20000);
@@ -617,7 +576,6 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 					revData->lns->clear(); // again to reset lanes
 				}
 			}
-
 			// load working dir files
 			if (testFlag(DIFF_INDEX_F)) {
 				POST_MSG(msg1 + "working directory changed files...");
