@@ -41,7 +41,7 @@ void DataLoader::on_cancel() {
 	}
 }
 
-bool DataLoader::start(SCList args, SCRef wd) {
+bool DataLoader::start(SCList args, SCRef wd, SCRef buf) {
 
 	if (!isProcExited) {
 		dbs("ASSERT in DataLoader::start(), called while processing");
@@ -53,7 +53,7 @@ bool DataLoader::start(SCList args, SCRef wd) {
 	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
 	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
 
-	if (!createTemporaryFile() || !QGit::startProcess(this, args)) {
+	if (!createTemporaryFile() || !QGit::startProcess(this, args, buf)) {
 		deleteLater();
 		return false;
 	}

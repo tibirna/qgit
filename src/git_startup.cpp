@@ -423,7 +423,7 @@ void Git::parseDiffFormat(RevFile& rf, SCRef buf) {
 	}
 }
 
-bool Git::startParseProc(SCList initCmd, FileHistory* fh) {
+bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 	DataLoader* dl = new DataLoader(this, fh); // auto-deleted when done
 
@@ -438,41 +438,47 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh) {
 	        SLOT(on_loaded(const FileHistory*, ulong, int,
 	        bool, const QString&, const QString&)));
 
-	return dl->start(initCmd, workDir);
+	return dl->start(initCmd, workDir, buf);
 }
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	const QString baseCmd("git rev-list --header --parents --boundary --default HEAD");
 	QStringList initCmd(baseCmd.split(' '));
+	QString buf;
 	if (!isMainHistory(fh)) {
-		// fetch history from all branches so any revision in
-		// main view that changes the file is always found
-		// NOTE: we don't use '--remove-empty' option because
-		// in case a file is deleted and then a new file with
-		// the same name is created again in the same directory
-		// then, with this option, file history is truncated to
-		// the file deletion revision.
-		initCmd << getAllRefSha(BRANCH | RMT_BRANCH) << "--";
+	/*
+	   fetch history from all branches so any revision in
+	   main view that changes the file is always found
+
+	   NOTE: we don't use '--remove-empty' option because
+	   in case a file is deleted and then a new file with
+	   the same name is created again in the same directory
+	   then, with this option, file history is truncated to
+	   the file deletion revision.
+	*/
+		// Use '--stdin' to avoid command line arguments size limits
+		initCmd << "--stdin" << "--";
+		buf = getAllRefSha(BRANCH | RMT_BRANCH).join("\n");
+		buf.append("\n"); // if empty '--stdin' hangs
 	} else
 		initCmd << "--topo-order";
 
-	return startParseProc(initCmd + args, fh);
+	return startParseProc(initCmd + args, fh, buf);
 }
 
 bool Git::startUnappliedList() {
 
-	// TODO truncate sha to avoid overflow in 'git rev-list'
-	// command line arguments
-	const QStringList unAppliedSha(getAllRefSha(UN_APPLIED));
+	SCRef unAppliedSha(getAllRefSha(UN_APPLIED).join("\n"));
 	if (unAppliedSha.isEmpty())
 		return false;
 
 	// WARNING: with this command git rev-list could send spurious
 	// revs so we need some filter out logic during loading
-	QStringList initCmd(QString("git rev-list --header --parents").split(' '));
-	initCmd << unAppliedSha << QString::fromLatin1("^HEAD");
-	return startParseProc(initCmd, revData);
+	QString initCmd("git rev-list --header --parents --stdin ^HEAD");
+
+	// Use '--stdin' to avoid command line arguments size limits
+	return startParseProc(initCmd.split(' '), revData, unAppliedSha);
 }
 
 bool Git::stop(bool saveCache) {

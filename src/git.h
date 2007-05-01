@@ -229,7 +229,7 @@ private:
 	void clearFileNames();
 	bool startRevList(SCList args, FileHistory* fh);
 	bool startUnappliedList();
-	bool startParseProc(SCList initCmd, FileHistory* fh);
+	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);

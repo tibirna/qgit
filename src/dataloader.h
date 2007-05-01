@@ -24,7 +24,7 @@ class DataLoader : public QProcess {
 Q_OBJECT
 public:
 	DataLoader(Git* g, FileHistory* f);
-	bool start(const QStringList& args, const QString& wd);
+	bool start(const QStringList& args, const QString& wd, const QString& buf);
 
 signals:
 	void newDataReady(const FileHistory*);
