@@ -796,9 +796,9 @@ template<class X> X* MainImpl::firstTab(QWidget* startPage) {
 	return (first ? first : min);
 }
 
-void MainImpl::tabWdg_currentChanged(QWidget* w) {
+void MainImpl::tabWdg_currentChanged(int w) {
 
-	if (w == NULL)
+	if (w == -1)
 		return;
 
 	// set correct focus for keyboard browsing

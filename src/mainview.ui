@@ -709,7 +709,7 @@
  <connections>
   <connection>
    <sender>ActAbout</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActAbout_activated()</slot>
    <hints>
@@ -741,7 +741,7 @@
   </connection>
   <connection>
    <sender>ActClose</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActClose_activated()</slot>
    <hints>
@@ -757,7 +757,7 @@
   </connection>
   <connection>
    <sender>ActCommit</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActCommit_activated()</slot>
    <hints>
@@ -773,7 +773,7 @@
   </connection>
   <connection>
    <sender>ActExit</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActExit_activated()</slot>
    <hints>
@@ -789,7 +789,7 @@
   </connection>
   <connection>
    <sender>ActExternalDiff</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActExternalDiff_activated()</slot>
    <hints>
@@ -821,7 +821,7 @@
   </connection>
   <connection>
    <sender>ActHelp</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActHelp_activated()</slot>
    <hints>
@@ -837,7 +837,7 @@
   </connection>
   <connection>
    <sender>ActMailApplyPatch</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActMailApplyPatch_activated()</slot>
    <hints>
@@ -853,7 +853,7 @@
   </connection>
   <connection>
    <sender>ActMailFormatPatch</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActMailFormatPatch_activated()</slot>
    <hints>
@@ -869,7 +869,7 @@
   </connection>
   <connection>
    <sender>ActOpenRepo</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActOpenRepo_activated()</slot>
    <hints>
@@ -885,7 +885,7 @@
   </connection>
   <connection>
    <sender>ActOpenRepoNewWindow</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActOpenRepoNewWindow_activated()</slot>
    <hints>
@@ -901,7 +901,7 @@
   </connection>
   <connection>
    <sender>ActPop</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActPop_activated()</slot>
    <hints>
@@ -917,7 +917,7 @@
   </connection>
   <connection>
    <sender>ActPush</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActPush_activated()</slot>
    <hints>
@@ -933,7 +933,7 @@
   </connection>
   <connection>
    <sender>ActRefresh</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActRefresh_activated()</slot>
    <hints>
@@ -949,7 +949,7 @@
   </connection>
   <connection>
    <sender>ActSaveFile</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActSaveFile_activated()</slot>
    <hints>
@@ -965,7 +965,7 @@
   </connection>
   <connection>
    <sender>ActSettings</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActSettings_activated()</slot>
    <hints>
@@ -997,7 +997,7 @@
   </connection>
   <connection>
    <sender>ActTag</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActTag_activated()</slot>
    <hints>
@@ -1013,7 +1013,7 @@
   </connection>
   <connection>
    <sender>ActTagDelete</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActTagDelete_activated()</slot>
    <hints>
@@ -1029,7 +1029,7 @@
   </connection>
   <connection>
    <sender>ActViewFile</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActViewFile_activated()</slot>
    <hints>
@@ -1045,7 +1045,7 @@
   </connection>
   <connection>
    <sender>ActViewDiff</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActViewDiff_activated()</slot>
    <hints>
@@ -1061,7 +1061,7 @@
   </connection>
   <connection>
    <sender>ActViewRev</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActViewRev_activated()</slot>
    <hints>
@@ -1077,7 +1077,7 @@
   </connection>
   <connection>
    <sender>ActSplitView</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActSplitView_activated()</slot>
    <hints>
@@ -1093,7 +1093,7 @@
   </connection>
   <connection>
    <sender>ActFind</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActFind_activated()</slot>
    <hints>
@@ -1109,7 +1109,7 @@
   </connection>
   <connection>
    <sender>ActFindNext</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActFindNext_activated()</slot>
    <hints>
@@ -1125,7 +1125,7 @@
   </connection>
   <connection>
    <sender>ActBack</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActBack_activated()</slot>
    <hints>
@@ -1141,7 +1141,7 @@
   </connection>
   <connection>
    <sender>ActForward</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActForward_activated()</slot>
    <hints>
@@ -1157,7 +1157,7 @@
   </connection>
   <connection>
    <sender>ActCustomActionSetup</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActCustomActionSetup_activated()</slot>
    <hints>
@@ -1173,7 +1173,7 @@
   </connection>
   <connection>
    <sender>ActViewFileNewTab</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActViewFileNewTab_activated()</slot>
    <hints>
@@ -1189,7 +1189,7 @@
   </connection>
   <connection>
    <sender>ActViewDiffNewTab</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActViewDiffNewTab_activated()</slot>
    <hints>
@@ -1205,9 +1205,9 @@
   </connection>
   <connection>
    <sender>tabWdg</sender>
-   <signal>currentChanged(QWidget*)</signal>
+   <signal>currentChanged(int)</signal>
    <receiver>MainBase</receiver>
-   <slot>tabWdg_currentChanged(QWidget*)</slot>
+   <slot>tabWdg_currentChanged(int)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>
@@ -1253,7 +1253,7 @@
   </connection>
   <connection>
    <sender>ActShowDescHeader</sender>
-   <signal>activated()</signal>
+   <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActShowDescHeader_activated()</slot>
    <hints>

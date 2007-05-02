@@ -51,7 +51,7 @@ signals:
 	void closeTabButtonEnabled(bool);
 
 public slots:
-	void tabWdg_currentChanged(QWidget*);
+	void tabWdg_currentChanged(int);
 	void newRevsAdded(const FileHistory*, const QVector<QString>&);
 	void revisionsDragged(const QStringList&);
 	void revisionsDropped(const QStringList&);

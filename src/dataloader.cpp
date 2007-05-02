@@ -277,7 +277,7 @@ bool DataLoader::createTemporaryFile() {
 	if (!dataFile->open()) // to read the file name
 		return false;
 
-	setStandardOutputFile(dataFile->fileName(), QIODevice::WriteOnly);
+	setStandardOutputFile(dataFile->fileName());
 	dataFile->close();
 	return true;
 }
