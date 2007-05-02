@@ -40,31 +40,26 @@ public:
 		if (f->isHtmlSource)
 			return;
 
-		QTextCharFormat fileFormat;
-		if (!f->isRangeFilterActive)
-			setFormat(0, p.length(), fileFormat);
+		QTextCharFormat myFormat;
 
-		fileFormat.setForeground(Qt::lightGray);
-		int headLen = MAX_LINE_NUM;
+		if (f->isCurAnnotation(p)) {
+			myFormat.setForeground(Qt::darkGray);
+			myFormat.setFontWeight(QFont::Bold);
+		} else
+			myFormat.setForeground(Qt::lightGray);
 
-		if (f->isAnnotationAppended) {
+		int headLen = MAX_LINE_NUM + f->isAnnotationAppended * f->annoLen;
+		setFormat(0, headLen, myFormat);
 
-			headLen += f->annoLen;
-			if (f->isCurAnnotation(p)) {
-				fileFormat.setForeground(Qt::darkGray);
-				fileFormat.setFontWeight(QFont::Bold);
-			}
+		if (   f->isRangeFilterActive
+		    && f->rangeInfo->start != 0
+		    && f->rangeInfo->start <= currentBlockState()
+		    && f->rangeInfo->end >= currentBlockState()) {
+
+			myFormat.setFontWeight(QFont::Bold);
+			myFormat.setForeground(Qt::blue);
+			setFormat(0, p.length(), myFormat);
 		}
-		setFormat(0, headLen, fileFormat);
-
-		if (f->isRangeFilterActive && f->rangeInfo->start != 0)
-			if (   f->rangeInfo->start <= currentBlockState()
-			    && f->rangeInfo->end >= currentBlockState()) {
-
-				fileFormat.setFontWeight(QFont::Bold);
-				fileFormat.setForeground(Qt::blue);
-				setFormat(0, p.length(), fileFormat);
-			}
 		return;
 	}
 private:
