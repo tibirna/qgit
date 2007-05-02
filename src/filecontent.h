@@ -55,6 +55,7 @@ private:
 	void clear(); // declared as private, to avoid indirect access to QTextEdit::clear()
 	void clearAnnotate();
 	void clearText(bool emitSignal);
+	bool isCurAnnotation(SCRef annLine);
 	void findInFile(SCRef str);
 	void scrollCursorToTop();
 	void scrollLineToTop(int lineNum);

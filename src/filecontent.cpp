@@ -48,10 +48,9 @@ public:
 		int headLen = MAX_LINE_NUM;
 
 		if (f->isAnnotationAppended) {
+
 			headLen += f->annoLen;
-			int annId = (f->curAnn ? f->curAnn->annId : -1);
-			int curId = p.section('.', 0, 0).toInt();
-			if (curId == annId) {
+			if (f->isCurAnnotation(p)) {
 				fileFormat.setForeground(Qt::darkGray);
 				fileFormat.setFontWeight(QFont::Bold);
 			}
@@ -134,6 +133,20 @@ void FileContent::clearAll() {
 
 	clearAnnotate();
 	clearText(optEmitSignal);
+}
+
+bool FileContent::isCurAnnotation(SCRef annLine) {
+
+	if (!isAnnotationAppended || !curAnn)
+		return false;
+
+	int dotPos = annLine.indexOf('.');
+	if (dotPos == -1 || dotPos > (int)annoLen)
+		return false;
+
+	bool ok;
+	int curId = annLine.left(dotPos).toInt(&ok);
+	return (ok && (curId == curAnn->annId));
 }
 
 void FileContent::setShowAnnotate(bool b) {
@@ -542,8 +555,7 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 	}
 	bool isHtmlHeader = (isHtmlSource && curLine == 1);
 	bool isHtmlFirstContentLine = false;
-	const QString* html_head = NULL;
-	const QString* html_tail = NULL;
+	const QString *html_head = NULL, *html_tail = NULL; // segfault if buggy
 
 	FOREACH_SL (it, sl) {
 
@@ -562,18 +574,9 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 
 		// do we have to highlight annotation info line?
 		if (isHtmlSource) {
-			html_head = &HTML_HEAD;
-			html_tail = &HTML_TAIL;
-
-			if (isAnnotationAppended && curAnn &&
-			    curAnnIt != curAnn->lines.constEnd()) {
-
-				int curId = (*curAnnIt).section('.', 0, 0).toInt();
-				if (curId == curAnn->annId) {
-					html_head = &HTML_HEAD_B;
-					html_tail = &HTML_TAIL_B;
-				}
-			}
+			bool h = (curAnnIt != curAnn->lines.constEnd()) && isCurAnnotation(*curAnnIt);
+			html_head = (h ? &HTML_HEAD_B : &HTML_HEAD);
+			html_tail = (h ? &HTML_TAIL_B : &HTML_TAIL);
 		}
 		// add color tag head
 		if (isHtmlSource)
