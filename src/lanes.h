@@ -13,8 +13,8 @@
 
 class Lanes {
 public:
-	Lanes() {}; // init() will setup us later, when data is available
-	bool isEmpty() { return typeVec.empty(); };
+	Lanes() {} // init() will setup us later, when data is available
+	bool isEmpty() { return typeVec.empty(); }
 	void init(const QString& expectedSha);
 	void clear();
 	bool isFork(const QString& sha, bool& isDiscontinuity);
@@ -30,7 +30,7 @@ public:
 	void afterBranch();
 	void afterApplied();
 	void nextParent(const QString& sha);
-	void getLanes(QVector<int> &ln) { ln = typeVec; }; // O(1) vector is implicitly shared
+	void getLanes(QVector<int> &ln) { ln = typeVec; } // O(1) vector is implicitly shared
 
 private:
 	int findNextSha(const QString& next, int pos);

@@ -21,8 +21,8 @@ class MyProcess;
 
 class ReachInfo {
 public:
-	ReachInfo() {};
-	ReachInfo(SCRef s, int i, int t) : sha(s), id(i), type(t) {};
+	ReachInfo() {}
+	ReachInfo(SCRef s, int i, int t) : sha(s), id(i), type(t) {}
 	const QString sha;
 	int id, type;
 	QStringList roots;
@@ -31,9 +31,9 @@ typedef QVector<ReachInfo> ReachList;
 
 class RangeInfo {
 public:
-	RangeInfo() { clear(); };
-	RangeInfo(int s, int e, bool m) : start(s), end(e), modified(m) {};
-	void clear() { start = end = 0; modified = false; };
+	RangeInfo() { clear(); }
+	RangeInfo(int s, int e, bool m) : start(s), end(e), modified(m) {}
+	void clear() { start = end = 0; modified = false; }
 	int start, end; // ranges count file lines from 1 like patches diffs
 	bool modified;
 };
@@ -45,11 +45,11 @@ public:
 	void deleteWhenDone();
 	const FileAnnotation* lookupAnnotation(SCRef sha, SCRef fileName);
 	bool start(const FileHistory* fh);
-	bool isValid() { return valid; };
-	bool isCanceled() { return canceled; };
-	int count() { return ah.count(); };
-	int elapsed() { return processingTime.elapsed(); };
-	const QString file() { return fileName; };
+	bool isValid() { return valid; }
+	bool isCanceled() { return canceled; }
+	int count() { return ah.count(); }
+	int elapsed() { return processingTime.elapsed(); }
+	const QString file() { return fileName; }
 	const QString getAncestor(SCRef sha, SCRef fileName, int* shaIdx);
 	bool getRange(SCRef sha, RangeInfo* r);
 	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);

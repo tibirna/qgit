@@ -30,7 +30,7 @@ static const QString HTML_FILE_END   = "</tt></pre>";
 
 class FileHighlighter : public QSyntaxHighlighter {
 public:
-	FileHighlighter(FileContent* fc) : QSyntaxHighlighter(fc), f(fc) {};
+	FileHighlighter(FileContent* fc) : QSyntaxHighlighter(fc), f(fc) {}
 	virtual void highlightBlock(const QString& p) {
 
 		// state is used to count lines, starting from 0
