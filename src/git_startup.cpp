@@ -926,8 +926,7 @@ void Git::appendFileName(RevFile& rf, SCRef name) {
 void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm,
                         QMap<uint, QVector<int> >& dv) {
 
-	QVector<int> descVec(1, idx);
-
+	QVector<int> descVec;
 	if (r->descRefsMaster != -1) {
 
 		const Rev* tmp = revLookup(revData->revOrder[r->descRefsMaster]);
@@ -940,16 +939,27 @@ void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm
 				return;
 			}
 			const QVector<int>& dvv = dv[nr[i]];
+
+			// copy the whole vector instead of each element
+			// in the first iteration of the loop below
+			descVec = dvv; // quick (shared) copy
+
 			for (int y = 0; y < dvv.count(); y++) {
 
-				QPair<uint, uint> key = qMakePair(idx, (uint)dvv[y]);
-				QPair<uint, uint> keyN = qMakePair((uint)dvv[y], idx);
+				uint v = (uint)dvv[y];
+				QPair<uint, uint> key = qMakePair(idx, v);
+				QPair<uint, uint> keyN = qMakePair(v, idx);
 				dm.insert(key, true);
 				dm.insert(keyN, false);
-				descVec.append(dvv[y]);
+
+				// we don't want duplicated entry, otherwise 'dvv' grows
+				// greatly in repos with many tagged development branches
+				if (i > 0 && !descVec.contains(v)) // i > 0 is rare, no
+					descVec.append(v);         // need to optimize
 			}
 		}
 	}
+	descVec.append(idx);
 	dv.insert(idx, descVec);
 }
 
