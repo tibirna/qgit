@@ -27,8 +27,7 @@ public:
 	~FileContent();
 	void setup(Domain* parent, Git* git);
 	void update(bool force = false);
-	bool annotateAvailable() { return curAnn != NULL; };
-	void clearAll();
+	void clearAll(bool emitSignal = true);
 	void copySelection();
 	void goToAnnotation(int id);
 	bool goToRangeStart();
@@ -38,6 +37,8 @@ public:
 	void setShowAnnotate(bool b);
 	void setHighlightSource(bool b);
 	void setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo);
+	bool isFileAvailable() const { return isFileAvail; }
+	bool isAnnotateAvailable() const { return curAnn != NULL; }
 
 signals:
 	void annotationAvailable(bool);
@@ -53,7 +54,7 @@ private:
 	friend class FileHighlighter;
 
 	void clear(); // declared as private, to avoid indirect access to QTextEdit::clear()
-	void clearAnnotate();
+	void clearAnnotate(bool emitSignal);
 	void clearText(bool emitSignal);
 	bool isCurAnnotation(SCRef annLine);
 	void findInFile(SCRef str);
@@ -73,17 +74,17 @@ private:
 	StateInfo* st;
 	RangeInfo* rangeInfo;
 	FileHighlighter* fileHighlighter;
-	QPointer<Annotate> annotateObj;
 	QPointer<MyProcess> proc;
-	const FileAnnotation* curAnn;
+	QPointer<Annotate> annotateObj; // valid from beginning of annotation loading
+	const FileAnnotation* curAnn; // valid at the end of annotation loading
 	QByteArray fileRowData;
 	QString fileProcessedData;
 	QString halfLine;
 	uint curLine;
 	QLinkedList<QString>::const_iterator curAnnIt;
 	uint annoLen;
-	bool isFileAvailable;
-	bool isAnnotationAvailable;
+	bool isFileAvail;
+	bool isAnnotationLoading;
 	bool isAnnotationAppended;
 	bool isRangeFilterActive;
 	bool isShowAnnotate;

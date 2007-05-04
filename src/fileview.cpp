@@ -86,10 +86,7 @@ void FileView::clear(bool complete) {
 		setTabCaption("File");
 		fileTab->toolButtonCopy->setEnabled(false);
 	}
-	fileTab->textEditFile->clearAll();
-
-	annotateAvailable = fileAvailable = false;
-	updateEnabledButtons();
+	fileTab->textEditFile->clearAll(); // emits file/ann available signals
 
 	fileTab->toolButtonPin->setEnabled(false);
 	fileTab->toolButtonPin->setChecked(false); // TODO signals pressed() and clicked() are not emitted
@@ -175,6 +172,9 @@ void FileView::updateEnabledButtons() {
 	QToolButton* rangeFilter = fileTab->toolButtonRangeFilter;
 	QToolButton* highlight = fileTab->toolButtonHighlightText;
 
+	bool fileAvailable = fileTab->textEditFile->isFileAvailable();
+	bool annotateAvailable = fileTab->textEditFile->isAnnotateAvailable();
+
 	// first enable
 	copy->setEnabled(fileAvailable);
 	showAnnotate->setEnabled(annotateAvailable);
@@ -233,7 +233,7 @@ void FileView::on_toolButtonRangeFilter_toggled(bool b) {
 
 	updateEnabledButtons();
 	if (b) {
-		if (!fileTab->textEditFile->annotateAvailable()) {
+		if (!fileTab->textEditFile->isAnnotateAvailable()) {
 			dbs("ASSERT in on_toolButtonRangeFilter_toggled: annotate not available");
 			return;
 		}
@@ -305,18 +305,14 @@ void FileView::showAnnotation() {
 
 void FileView::on_annotationAvailable(bool b) {
 
-	annotateAvailable = b;
 	updateEnabledButtons();
-
 	if (b)
 		showAnnotation(); // in case annotation got ready after file
 }
 
 void FileView::on_fileAvailable(bool b) {
 
-	fileAvailable = b;
 	updateEnabledButtons();
-
 	if (b) {
 		// code range is independent from annotation
 		if (fileTab->toolButtonRangeFilter->isChecked())

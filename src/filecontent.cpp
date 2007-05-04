@@ -68,7 +68,6 @@ private:
 
 FileContent::FileContent(QWidget* parent) : QTextEdit(parent) {
 
-	// init native types
 	isRangeFilterActive = isHtmlSource = isImageFile = false;
 	isShowAnnotate = true;
 
@@ -78,43 +77,45 @@ FileContent::FileContent(QWidget* parent) : QTextEdit(parent) {
 	setFont(QGit::TYPE_WRITER_FONT);
 }
 
+FileContent::~FileContent() {
+
+	clearAll(!optEmitSignal);
+	delete fileHighlighter;
+	delete rangeInfo;
+}
+
 void FileContent::setup(Domain* dm, Git* g) {
 
 	d = dm;
 	git = g;
 	st = &(d->st);
 
-	clearAnnotate();
-	clearText(!optEmitSignal);
+	clearAll(!optEmitSignal);
 
 	connect(git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
-	        this, SLOT(on_annotateReady(Annotate*,const QString&,bool, const QString&)));
+	        this, SLOT(on_annotateReady(Annotate*, const QString&, bool, const QString&)));
 }
 
-FileContent::~FileContent() {
-
-	clearAll();
-	delete fileHighlighter;
-	delete rangeInfo;
-}
-
-void FileContent::clearAnnotate() {
+void FileContent::clearAnnotate(bool emitSignal) {
 
 	git->cancelAnnotate(annotateObj);
 	annotateObj = NULL;
 	curAnn = NULL;
 	annoLen = 0;
-	isAnnotationAvailable = false;
-	emit annotationAvailable(false);
+	isAnnotationLoading = false;
+
+	if (emitSignal)
+		emit annotationAvailable(false);
 }
 
 void FileContent::clearText(bool emitSignal) {
 
 	git->cancelProcess(proc);
-	QTextEdit::clear(); // explicit call because our clear() is only declared
+	proc = NULL;
 	fileProcessedData = halfLine = "";
 	fileRowData.clear();
-	isFileAvailable = isAnnotationAppended = false;
+	QTextEdit::clear(); // explicit call because our clear() is only declared
+	isFileAvail = isAnnotationAppended = false;
 	curLine = 1;
 
 	if (curAnn)
@@ -124,10 +125,10 @@ void FileContent::clearText(bool emitSignal) {
 		emit fileAvailable(false);
 }
 
-void FileContent::clearAll() {
+void FileContent::clearAll(bool emitSignal) {
 
-	clearAnnotate();
-	clearText(optEmitSignal);
+	clearAnnotate(emitSignal);
+	clearText(emitSignal);
 }
 
 bool FileContent::isCurAnnotation(SCRef annLine) {
@@ -147,11 +148,11 @@ bool FileContent::isCurAnnotation(SCRef annLine) {
 void FileContent::setShowAnnotate(bool b) {
 // add an annotation if is available and still not appended, this
 // can happen if annotation became available while loading the file.
-// If isShowAnnotate is unset try to remove any annotation.
+// If isShowAnnotate is false try to remove any annotation.
 
 	isShowAnnotate = b;
 
-	if (    !isFileAvailable
+	if (    !isFileAvail
 	    || (!curAnn && isShowAnnotate)
 	    || (isAnnotationAppended == isShowAnnotate))
 		return;
@@ -186,7 +187,7 @@ void FileContent::update(bool force) {
 	saveScreenState();
 
 	if (fileNameChanged) {
-		clearAll();
+		clearAll(optEmitSignal);
 		isImageFile = Git::isImageFile(st->fileName());
 	} else
 		clearText(optEmitSignal);
@@ -215,7 +216,8 @@ bool FileContent::startAnnotate(FileHistory* fh) {
 	if (!isImageFile)
 		annotateObj = git->startAnnotate(fh, d); // non blocking
 
-	return (annotateObj != NULL);
+	isAnnotationLoading = (annotateObj != NULL);
+	return isAnnotationLoading;
 }
 
 uint FileContent::annotateLength(const FileAnnotation* annFile) {
@@ -390,7 +392,7 @@ bool FileContent::lookupAnnotation() {
 
 	if (    st->sha().isEmpty()
 	    ||  st->fileName().isEmpty()
-	    || !isAnnotationAvailable
+	    || isAnnotationLoading
 	    || !annotateObj)
 		return false;
 
@@ -408,7 +410,7 @@ bool FileContent::lookupAnnotation() {
 				curAnn = NULL;
 		} else {
 			dbp("ASSERT in lookupAnnotation: no annotation for %1", st->fileName());
-			clearAnnotate();
+			clearAnnotate(optEmitSignal);
 		}
 		d->setThrowOnDelete(false);
 
@@ -489,6 +491,8 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 	if (readyAnn != annotateObj) // Git::annotateReady() is sent to all receivers
 		return;
 
+	isAnnotationLoading = false;
+
 	if (!ok) {
 		d->showStatusBarMessage("Sorry, annotation not available for this file.");
 		return;
@@ -498,7 +502,7 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		return;
 	}
 	d->showStatusBarMessage(msg, 7000);
-	isAnnotationAvailable = true;
+
 	if (lookupAnnotation())
 		emit annotationAvailable(true);
 }
@@ -527,7 +531,7 @@ void FileContent::procFinished(bool emitSignal) {
 		if (ss.isValid)
 			restoreScreenState(); // could be slow for big files
 	}
-	isFileAvailable = true;
+	isFileAvail = true;
 
 	if (emitSignal)
 		emit fileAvailable(true);
@@ -587,7 +591,7 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 					continue;
 				} else {
 					dbs("ASSERT in FileContent::processData: bad annotate");
-					clearAnnotate();
+					clearAnnotate(optEmitSignal);
 					return 0;
 				}
 			}

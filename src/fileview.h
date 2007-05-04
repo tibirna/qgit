@@ -58,8 +58,6 @@ private:
 	void updateEnabledButtons();
 
 	Ui_TabFile* fileTab;
-	bool annotateAvailable;
-	bool fileAvailable;
 };
 
 #endif
