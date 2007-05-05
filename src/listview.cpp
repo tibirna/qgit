@@ -74,12 +74,18 @@ void ListView::setupGeometry() {
 		hideColumn(ANN_ID_COL);
 }
 
+void ListView::scrollToCurrent(ScrollHint hint) {
+
+	if (currentIndex().isValid())
+		scrollTo(currentIndex(), hint);
+}
+
 void ListView::on_repaintListViews(const QFont& f) {
 
  	setFont(f);
  	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());
  	lvd->setLaneHeight(fontMetrics().height());
-	scrollTo(currentIndex());
+	scrollToCurrent();
 }
 
 const QString ListView::currentText(int column) {
@@ -165,6 +171,7 @@ int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, Sh
 	if (highlight)
 		emit matchedRowsChanged(matchedRows);
 
+	scrollToCurrent(QAbstractItemView::PositionAtCenter);
 	setUpdatesEnabled(true);
 	return matchedRows.count();
 }

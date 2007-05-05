@@ -1214,8 +1214,7 @@ void MainImpl::ActSplitView_activated() {
 	case TAB_PATCH: {
 		PatchView* pv = static_cast<PatchView*>(t);
 		hide = pv->tab()->textBrowserDesc->isVisible();
-		pv->tab()->textBrowserDesc->setHidden(hide);
-		}
+		pv->tab()->textBrowserDesc->setHidden(hide); }
 		break;
 	case TAB_FILE: {
 		FileView* fv = static_cast<FileView*>(t);

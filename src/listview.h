@@ -26,6 +26,7 @@ public:
 	void setup(Domain* d, Git* g);
 	const QString getSha(uint id);
 	void showIdValues();
+	void scrollToCurrent(ScrollHint hint = EnsureVisible);
 	void getSelectedItems(QStringList& selectedItems);
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);
