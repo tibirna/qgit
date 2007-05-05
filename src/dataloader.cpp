@@ -69,7 +69,7 @@ void DataLoader::on_finished(int, QProcess::ExitStatus) {
 	if (parsing && guiUpdateTimer.isActive())
 		dbs("ASSERT in DataLoader: timer active while parsing");
 
-	if (parsing == guiUpdateTimer.isActive())
+	if (parsing == guiUpdateTimer.isActive() && !canceling)
 		dbs("ASSERT in DataLoader: inconsistent timer");
 
 	if (guiUpdateTimer.isActive()) // no need to wait anymore
@@ -80,7 +80,7 @@ void DataLoader::on_timeout() {
 
 	if (canceling) {
 		deleteLater();
-		return;
+		return; // we leave with guiUpdateTimer not active
 	}
 	parsing = true;
 
