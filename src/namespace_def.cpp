@@ -21,14 +21,7 @@
 
 #ifdef ON_WINDOWS // *********  platform dependent code ******
 
-#include <windows.h> // used by Sleep(us)
-
 const QString QGit::SCRIPT_EXT = ".bat";
-
-void QGit::compat_usleep(int us) {
-
-	Sleep(us);
-}
 
 static bool addShellWrapper(QStringList& args) {
 /*
@@ -48,16 +41,10 @@ static bool addShellWrapper(QStringList& args) {
 
 #else
 
-#include <unistd.h>    // used by usleep()
 #include <sys/types.h> // used by chmod()
 #include <sys/stat.h>  // used by chmod()
 
 const QString QGit::SCRIPT_EXT = ".sh";
-
-void QGit::compat_usleep(int us) {
-
-	usleep(us);
-}
 
 static bool addShellWrapper(QStringList&) {
 

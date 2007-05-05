@@ -531,8 +531,20 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 // normally called when changing git directory. Must be called after stop()
 
 	*quit = false;
-	bool filteredLoading = (filterList != NULL);
 	clearRevs();
+
+	/*
+	  In _sp we store calling parameters for init2(), because we
+	  could call init2() also outside init() in later time.
+
+	  If loading is canceled before init2() starts, then DataLoader
+	  does not emit loaded() signal, on_loaded() is not called and
+	  init2() does never start, so we don't bother to overwrite any
+	  exsisting previous value here.
+	*/
+	_sp.args.clear();
+	_sp.filteredLoading = (filterList != NULL);
+
 	try {
 		setThrowOnStop(true);
 
@@ -549,8 +561,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			return false;
 		}
 		const QString msg1("Path is '" + workDir + "'    Loading ");
-		QStringList args;
-		if (!filteredLoading) {
+		if (!_sp.filteredLoading) {
 
 			// update text codec according to repo settings
 			bool dummy;
@@ -563,7 +574,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 
 			// startup input range dialog
 			POST_MSG("");
-			args = getArgs(askForRange, quit); // must be called with refs loaded
+			_sp.args = getArgs(askForRange, quit); // must be called with refs loaded
 			if (*quit) {
 				setThrowOnStop(false);
 				return false;
@@ -574,27 +585,17 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 				if (loadingUnAppliedPatches) {
 
 					POST_MSG(msg1 + "StGIT unapplied patches...");
-					while (loadingUnAppliedPatches) {
-						// WARNING we are in setRepository() now
-						compat_usleep(20000);
-						EM_PROCESS_EVENTS;
-					}
-					revData->lns->clear(); // again to reset lanes
+					setThrowOnStop(false);
+
+					// we will continue with init2() at
+					// the end of loading...
+					return true;
 				}
 			}
-			// load working dir files
-			if (testFlag(DIFF_INDEX_F)) {
-				POST_MSG(msg1 + "working directory changed files...");
-				getDiffIndex(); // blocking, we are in setRepository() now
-			}
-
 		} else // filteredLoading
-			args << getAllRefSha(BRANCH | RMT_BRANCH) << "--" << *filterList;
+			_sp.args << getAllRefSha(BRANCH | RMT_BRANCH) << "--" << *filterList;
 
-		POST_MSG(msg1 + "revisions...");
-		if (!startRevList(args, revData))
-			dbs("ERROR: unable to start git-rev-list loading");
-
+		init2();
 		setThrowOnStop(false);
 		return true;
 
@@ -602,12 +603,45 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 
 		setThrowOnStop(false);
 
-		if (isThrowOnStopRaised(i, "initializing")) {
+		if (isThrowOnStopRaised(i, "initializing 1")) {
 			EM_THROW_PENDING;
 			return false;
 		}
 		const QString info("Exception \'" + EM_DESC(i) + "\' "
 		                   "not handled in init...re-throw");
+		dbs(info);
+		throw;
+	}
+}
+
+void Git::init2() {
+
+	const QString msg1("Path is '" + workDir + "'    Loading ");
+
+	try {
+		setThrowOnStop(true);
+
+		// load working dir files
+		if (!_sp.filteredLoading && testFlag(DIFF_INDEX_F)) {
+			POST_MSG(msg1 + "working directory changed files...");
+			getDiffIndex(); // blocking, we could be in setRepository() now
+		}
+		POST_MSG(msg1 + "revisions...");
+		if (!startRevList(_sp.args, revData))
+			dbs("ERROR: unable to start git-rev-list loading");
+
+		setThrowOnStop(false);
+
+	} catch (int i) {
+
+		setThrowOnStop(false);
+
+		if (isThrowOnStopRaised(i, "initializing 2")) {
+			EM_THROW_PENDING;
+			return;
+		}
+		const QString info("Exception \'" + EM_DESC(i) + "\' "
+		                   "not handled in init2...re-throw");
 		dbs(info);
 		throw;
 	}
@@ -647,8 +681,11 @@ void Git::on_loaded(const FileHistory* fh, ulong byteSize, int loadTime,
 				QTimer::singleShot(500, this, SLOT(loadFileNames()));
 		}
 	}
-	if (loadingUnAppliedPatches)
+	if (loadingUnAppliedPatches) {
 		loadingUnAppliedPatches = false;
+		revData->lns->clear(); // again to reset lanes
+		init2(); // continue with loading of remaining revisions
+	}
 }
 
 void Git::populateFileNamesMap() {

@@ -245,17 +245,8 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 		bool archiveChanged;
 		curDir = git->getBaseDir(&archiveChanged, newDir);
 
-		if (!git->stop(archiveChanged)) { // stop all pending processes, non blocking
+		git->stop(archiveChanged); // stop all pending processes, non blocking
 
-			// some process is still running, schedule a deferred
-			// call and return, waiting for end of activity
-			setRepositoryBusy = false;
-			EM_REMOVE(exExiting);
-
-			// this object will delete itself when done
-			new setRepoDelayed(this, newDir, refresh, keepSelection, filterList);
-			return;
-		}
 		if (archiveChanged && refresh)
 			dbs("ASSERT in setRepository: different dir with no range select");
 

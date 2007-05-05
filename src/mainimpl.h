@@ -188,25 +188,4 @@ private:
 	}
 };
 
-class setRepoDelayed : public QObject {
-Q_OBJECT
-public:
-	setRepoDelayed(MainImpl* mi, SCRef nd, bool r, bool ks, QStringList* fl) :
-	QObject(mi), m(mi), newDir(nd), refresh(r), keepSelection(ks), filterList(fl) {
-
-		QTimer::singleShot(100, this, SLOT(on_timeout()));
-	}
-private slots:
-	void on_timeout() {
-
-		m->setRepository(newDir, refresh, keepSelection, filterList);
-		deleteLater();
-	 }
-private:
-	MainImpl* m;
-	const QString newDir;
-	bool refresh, keepSelection;
-	QStringList* filterList;
-};
-
 #endif

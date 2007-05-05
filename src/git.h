@@ -217,6 +217,13 @@ private:
 	};
 	WorkingDirInfo _wd;
 
+	struct StartParmeters { // used to pass arguments to init2()
+		QStringList args;
+		bool filteredLoading;
+	};
+	StartParmeters _sp;
+
+	void init2();
 	bool run(SCRef cmd, QString* out = NULL, QObject* rcv = NULL, SCRef buf = "");
 	bool run(QByteArray* runOutput, SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
 	MyProcess* runAsync(SCRef cmd, QObject* rcv, SCRef buf = "");
