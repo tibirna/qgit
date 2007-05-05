@@ -573,7 +573,10 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 
 		// do we have to highlight annotation info line?
 		if (isHtmlSource) {
-			bool h = (curAnnIt != curAnn->lines.constEnd()) && isCurAnnotation(*curAnnIt);
+			bool h =    curAnn
+			         && curAnnIt != curAnn->lines.constEnd()
+			         && isCurAnnotation(*curAnnIt);
+
 			html_head = (h ? &HTML_HEAD_B : &HTML_HEAD);
 			html_tail = (h ? &HTML_TAIL_B : &HTML_TAIL);
 		}
