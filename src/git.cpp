@@ -1120,26 +1120,27 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, b
 				ts << "</td></tr>\n";
 
 				QStringList sl = getChilds(sha);
-				if (!sl.isEmpty())
+				if (!sl.isEmpty()) {
 					ts << "<tr><td class='h'>Child</td><td>"
-					<< sl.join("</td></tr>\n<tr><td class='h'>Child</td> <td>");
-				ts << "</td></tr>\n";
-
+					<< sl.join("</td></tr>\n<tr><td class='h'>Child</td> <td>")
+					<< "</td></tr>\n";
+				}
 				sl = getDescendantBranches(sha);
-				if (!sl.empty())
+				if (!sl.empty()) {
 					ts << "<tr><td class='h'>Branch</td><td>"
-					<< sl.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>");
-				ts << "</td></tr>\n";
-
+					<< sl.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>")
+					<< "</td></tr>\n";
+				}
 				sl = getNearTags(!optGoDown, sha);
-				if (!sl.isEmpty())
-					ts << "<tr><td class='h'>Follows</td> <td>" << sl.join(", ");
-				ts << "</td></tr>\n";
-
+				if (!sl.isEmpty()) {
+					ts << "<tr><td class='h'>Follows</td> <td>"
+					<< sl.join(", ") << "</td></tr>\n";
+				}
 				sl = getNearTags(optGoDown, sha);
-				if (!sl.isEmpty())
-					ts << "<tr><td class='h'>Precedes</td> <td>" << sl.join(", ");
-				ts << "</td></tr>\n";
+				if (!sl.isEmpty()) {
+					ts << "<tr><td class='h'>Precedes</td> <td>"
+					<< sl.join(", ") << "</td></tr>\n";
+				}
 			}
 		}
 		QString log(colorMatch(c->longLog(), longLogRE));
