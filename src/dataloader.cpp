@@ -27,6 +27,13 @@ DataLoader::DataLoader(Git* g, FileHistory* f) : QProcess(g), git(g), fh(f) {
 	connect(&guiUpdateTimer, SIGNAL(timeout()), this, SLOT(on_timeout()));
 }
 
+DataLoader::~DataLoader() {
+
+	// avoid a Qt warning in case we are
+	// destroyed while still running
+	waitForFinished(1000);
+}
+
 void DataLoader::on_cancel(const FileHistory* f) {
 
 	if (f == fh)
@@ -37,7 +44,7 @@ void DataLoader::on_cancel() {
 
 	if (!canceling) { // just once
 		canceling = true;
-		kill();
+		kill(); // SIGKILL (Unix and Mac), TerminateProcess (Windows)
 	}
 }
 
