@@ -330,20 +330,21 @@ void PatchView::processData(const QByteArray& fileChunk, int* prevLineNum) {
 
 skip_filter:
 
-	if (prevLineNum)
-		// in this case data is passed in one big chunk,
-		// so we can use the faster setPlainText()
+	QTextEdit* te = patchTab->textEditDiff;
+	te->setUpdatesEnabled(false);
+
+	if (prevLineNum || te->document()->isEmpty()) { // use the faster setPlainText()
+
 		patchTab->textEditDiff->setPlainText(newLines);
-	else {
-		QTextEdit* te = patchTab->textEditDiff;
+		te->moveCursor(QTextCursor::Start);
+	} else {
 		QTextCursor tc(te->cursorForPosition(QPoint(1, 1)));
-		te->setUpdatesEnabled(false);
 		te->append(newLines);
 		te->setTextCursor(tc);
-		QScrollBar* vsb = te->verticalScrollBar();
-		vsb->setValue(vsb->value() + te->cursorRect().top());
-		te->setUpdatesEnabled(true);
 	}
+	QScrollBar* vsb = te->verticalScrollBar();
+	vsb->setValue(vsb->value() + te->cursorRect().top());
+	te->setUpdatesEnabled(true);
 }
 
 void PatchView::procFinished() {

@@ -158,6 +158,11 @@ bool RevsView::doUpdate(bool force) {
 		if (st.isChanged(StateInfo::ANY & ~StateInfo::FILE_NAME) || force) {
 
 			tab()->fileList->clear();
+
+			if (linkedPatchView) // give some feedback while waiting
+				linkedPatchView->clear();
+
+			// blocking call, could be slow in case of all merge files
 			files = git->getFiles(st.sha(), st.diffToSha(), st.allMergeFiles());
 			newFiles = true;
 		}
