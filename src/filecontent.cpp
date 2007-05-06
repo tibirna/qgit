@@ -12,6 +12,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QTemporaryFile>
+#include <QTextCharFormat>
 #include "domain.h"
 #include "myprocess.h"
 #include "mainimpl.h"
@@ -27,6 +28,8 @@ static const QString HTML_HEAD_B     = "<b><font color=\"#808080\">"; // bolded 
 static const QString HTML_TAIL_B     = "</font></b>";
 static const QString HTML_FILE_START = "<pre><tt>";
 static const QString HTML_FILE_END   = "</tt></pre>";
+
+static QTextCharFormat defaultCharFormat;
 
 class FileHighlighter : public QSyntaxHighlighter {
 public:
@@ -75,6 +78,7 @@ FileContent::FileContent(QWidget* parent) : QTextEdit(parent) {
 	fileHighlighter = new FileHighlighter(this);
 
 	setFont(QGit::TYPE_WRITER_FONT);
+	defaultCharFormat.setFont(font());
 }
 
 FileContent::~FileContent() {
@@ -523,10 +527,10 @@ void FileContent::procFinished(bool emitSignal) {
 
 		if (isHtmlSource)
 			setHtml(fileProcessedData);
-		else
-			// much faster then append()
-			setPlainText(fileProcessedData);
-
+		else {
+			setCurrentCharFormat(defaultCharFormat);
+			setPlainText(fileProcessedData); // much faster then append()
+		}
 		if (ss.isValid)
 			restoreScreenState(); // could be slow for big files
 	}
