@@ -240,9 +240,8 @@ bool FileContent::getRange(SCRef sha, RangeInfo* r) {
 
 void FileContent::scrollCursorToTop() {
 
-	QRect r = cursorRect();
 	QScrollBar* vsb = verticalScrollBar();
-	vsb->setValue(vsb->value() + r.top());
+	vsb->setValue(vsb->value() + cursorRect().top());
 }
 
 void FileContent::scrollLineToTop(int lineNum) {

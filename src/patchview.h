@@ -57,7 +57,7 @@ private:
 	void centerTarget();
 	void saveRestoreSizes(bool startup = false);
 	int doSearch(const QString& txt, int pos);
-	void computeMatches();
+	bool computeMatches();
 	bool getMatch(int para, int* indexFrom, int* indexTo);
 	void centerMatch(int id = 0);
 	void processData(const QByteArray& data, int* prevLineNum = NULL);

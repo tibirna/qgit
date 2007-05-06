@@ -335,8 +335,14 @@ skip_filter:
 		// so we can use the faster setPlainText()
 		patchTab->textEditDiff->setPlainText(newLines);
 	else {
-		patchTab->textEditDiff->append(newLines);
-		patchTab->textEditDiff->moveCursor(QTextCursor::Start);
+		QTextEdit* te = patchTab->textEditDiff;
+		QTextCursor tc(te->cursorForPosition(QPoint(1, 1)));
+		te->setUpdatesEnabled(false);
+		te->append(newLines);
+		te->setTextCursor(tc);
+		QScrollBar* vsb = te->verticalScrollBar();
+		vsb->setValue(vsb->value() + te->cursorRect().top());
+		te->setUpdatesEnabled(true);
 	}
 }
 
@@ -349,9 +355,10 @@ void PatchView::procFinished() {
 		centerTarget();
 
 	diffLoaded = true;
-	computeMatches();
-	diffHighlighter->rehighlight();
-	centerMatch();
+	if (computeMatches()) {
+		diffHighlighter->rehighlight(); // slow on big data
+		centerMatch();
+	}
 }
 
 int PatchView::doSearch(SCRef txt, int pos) {
@@ -362,11 +369,11 @@ int PatchView::doSearch(SCRef txt, int pos) {
 	return txt.indexOf(pickAxeRE.pattern(), pos, Qt::CaseInsensitive);
 }
 
-void PatchView::computeMatches() {
+bool PatchView::computeMatches() {
 
 	matches.clear();
 	if (pickAxeRE.isEmpty())
-		return;
+		return false;
 
 	SCRef txt = patchTab->textEditDiff->toPlainText();
 	int pos, lastPos = 0, lastPara = 0;
@@ -392,6 +399,7 @@ void PatchView::computeMatches() {
 		lastPos = pos;
 		lastPara = s.paraTo;
 	}
+	return !matches.isEmpty();
 }
 
 bool PatchView::getMatch(int para, int* indexFrom, int* indexTo) {
