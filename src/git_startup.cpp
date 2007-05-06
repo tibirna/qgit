@@ -481,7 +481,7 @@ bool Git::startUnappliedList() {
 	return startParseProc(initCmd.split(' '), revData, unAppliedSha);
 }
 
-bool Git::stop(bool saveCache) {
+void Git::stop(bool saveCache) {
 // normally called when changing directory or closing
 
 	EM_RAISE(exGitStopped);
@@ -504,7 +504,6 @@ bool Git::stop(bool saveCache) {
 				dbs("ERROR unable to save file names cache");
 		}
 	}
-	return allProcessDeleted();
 }
 
 void Git::clearRevs() {

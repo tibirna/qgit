@@ -297,12 +297,6 @@ bool Git::isThrowOnStopRaised(int excpId, SCRef curContext) {
 	return EM_MATCH(excpId, exGitStopped, curContext);
 }
 
-bool Git::allProcessDeleted() {
-
-	QList<QProcess*> l = this->findChildren<QProcess*>();
-	return l.empty();
-}
-
 void Git::setTextCodec(QTextCodec* tc) {
 
 	QTextCodec::setCodecForCStrings(tc); // works also with tc == 0 (Latin1)

@@ -98,7 +98,7 @@ public:
 	void userInfo(SList info);
 	const QString getBaseDir(bool* c, SCRef wd, bool* ok = NULL, QString* gd = NULL);
 	bool init(SCRef workDir, bool askForRange, QStringList* filterList, bool* quit);
-	bool stop(bool saveCache);
+	void stop(bool saveCache);
 	void setThrowOnStop(bool b);
 	bool isThrowOnStopRaised(int excpId, SCRef curContext);
 	void setLane(SCRef sha, FileHistory* fh);
@@ -228,7 +228,6 @@ private:
 	bool run(QByteArray* runOutput, SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
 	MyProcess* runAsync(SCRef cmd, QObject* rcv, SCRef buf = "");
 	MyProcess* runAsScript(SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
-	bool allProcessDeleted();
 	const QStringList getArgs(bool askForRange, bool* quit);
 	bool getRefs();
 	void parseStGitPatches(SCList patchNames, SCList patchShas);

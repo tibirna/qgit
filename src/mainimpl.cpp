@@ -1696,7 +1696,9 @@ void MainImpl::closeEvent(QCloseEvent* ce) {
 
 	EM_RAISE(exExiting);
 
-	if (!git->stop(Git::optSaveCache)) {
+	git->stop(Git::optSaveCache);
+
+	if (!git->findChildren<QProcess*>().isEmpty()) {
 		// if not all processes have been deleted, there is
 		// still some run() call not returned somewhere, it is
 		// not safe to delete run() callers objects now
