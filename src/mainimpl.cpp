@@ -225,9 +225,17 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
                              QStringList* filterList) {
 
-	// Git::stop() and Git::init() are not re-entrant and must not
-	// be active at the same time. Because Git::init calls processEvents()
-	// we need to guard against reentrancy here
+	/*
+	   Because Git::init calls processEvents(), if setRepository() is called in
+	   a tight loop (as example keeping pressed F5 refresh button) then a lot
+	   of pending init() calls would be stacked.
+	   On returning from processEvents() an exception is trown and init is exited,
+	   so we end up with a long list of 'exception thrown' messages.
+	   But the worst thing is that we have to wait for _all_ the init call to exit
+	   and this could take a long time as example in case of working dir refreshing
+	   'git update-index' of a big tree.
+	   So we use a guard flag to guarantee we have only one init() call 'in flight'
+	*/
 	if (setRepositoryBusy)
 		return;
 
