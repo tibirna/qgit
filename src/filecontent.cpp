@@ -385,7 +385,7 @@ bool FileContent::rangeFilter(bool b) {
 	} else {
 		setFontWeight(QFont::Normal); // bold if the first line was highlighted
 		fileHighlighter->rehighlight();
- 		setSelection(rangeInfo->start, 0, rangeInfo->end, 0);
+		setSelection(rangeInfo->start, 0, rangeInfo->end, 0);
 		rangeInfo->clear();
 	}
 	return false;
@@ -626,12 +626,12 @@ uint FileContent::processData(const QByteArray& fileChunk) {
 void FileContent::showFileImage() {
 
 	QTemporaryFile f;
-     	if (f.open()) {
+	if (f.open()) {
 
 		QString header("<p class=Image><img src=\"" +
 		               f.fileName() + "\"></p>");
 
-	     	QGit::writeToFile(f.fileName(), fileRowData);
+		QGit::writeToFile(f.fileName(), fileRowData);
 		setHtml(header);
 	}
 }

@@ -766,7 +766,7 @@ const QString Git::getWorkDirDiff(SCRef fileName) {
 	if (!run(runCmd, &runOutput))
 		return "";
 
-	return 	runOutput;
+	return runOutput;
 }
 
 const QString Git::getFileSha(SCRef file, SCRef revSha) {

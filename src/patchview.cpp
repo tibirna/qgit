@@ -238,7 +238,7 @@ void PatchView::centerTarget() {
 	// target found, remove selection
 	seekTarget = false;
 	QTextCursor tc = te->textCursor();
- 	tc.clearSelection();
+	tc.clearSelection();
 	te->setTextCursor(tc);
 
 	int ps = te->verticalScrollBar()->pageStep();
@@ -253,8 +253,8 @@ void PatchView::centerMatch(int id) {
 	if (matches.count() <= id)
 		return;
 //FIXME
-// 	patchTab->textEditDiff->setSelection(matches[id].paraFrom, matches[id].indexFrom,
-// 	                                     matches[id].paraTo, matches[id].indexTo);
+//	patchTab->textEditDiff->setSelection(matches[id].paraFrom, matches[id].indexFrom,
+//	                                     matches[id].paraTo, matches[id].indexTo);
 }
 
 void PatchView::procReadyRead(const QByteArray& data) {

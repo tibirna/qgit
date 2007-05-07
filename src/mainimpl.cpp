@@ -826,14 +826,14 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 	bool found = true, isKey_P = false;
 	const QKeySequence& key = se->key();
 	switch (key) {
-// 	case Qt::Key_Up:
+//	case Qt::Key_Up:
 	case Qt::Key_I:
 		if (key == QKeySequence(Qt::Key_Up, Qt::SHIFT))
 			goMatch(-1);
 		else
 			selectNextItem(true);
 		break;
-// 	case Qt::Key_Down:
+//	case Qt::Key_Down:
 	case Qt::Key_K:
 	case Qt::Key_N:
 		if (key == QKeySequence(Qt::Key_Down, Qt::SHIFT))
@@ -894,8 +894,8 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 
 void MainImpl::setupAccelerator() {
 
-// 	this->grabShortcut(Qt::Key_Up);
-// 	this->grabShortcut(Qt::Key_Down);
+//	this->grabShortcut(Qt::Key_Up);
+//	this->grabShortcut(Qt::Key_Down);
 	this->grabShortcut(Qt::Key_Left);
 	this->grabShortcut(Qt::Key_Right);
 	this->grabShortcut(Qt::Key_Delete);
@@ -912,37 +912,37 @@ void MainImpl::setupAccelerator() {
 	this->grabShortcut(Qt::Key_R);
 	this->grabShortcut(Qt::Key_U);
 
-// 	this->grabShortcut(QKeySequence(Qt::Key_Up, Qt::SHIFT));
-// 	this->grabShortcut(QKeySequence(Qt::Key_Down, Qt::SHIFT));
+//	this->grabShortcut(QKeySequence(Qt::Key_Up, Qt::SHIFT));
+//	this->grabShortcut(QKeySequence(Qt::Key_Down, Qt::SHIFT));
 	this->grabShortcut(QKeySequence(Qt::Key_Plus, Qt::CTRL));
 	this->grabShortcut(QKeySequence(Qt::Key_Minus, Qt::CTRL));
 }
 
 void MainImpl::goMatch(int delta) {
 
-// 	if (!ActSearchAndHighlight->isChecked()) FIXME
-// 		return;
+//	if (!ActSearchAndHighlight->isChecked()) FIXME
+//		return;
 //
-// 	Q3ListViewItemIterator it(rv->tab()->listViewLog->currentItem());
-// 	if (delta > 0)
-// 		++it;
-// 	else
-// 		--it;
+//	Q3ListViewItemIterator it(rv->tab()->listViewLog->currentItem());
+//	if (delta > 0)
+//		++it;
+//	else
+//		--it;
 //
-// 	while (it.current()) {
-// 		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-// 		if (item->highlighted()) {
-// 			Q3ListView* lv = rv->tab()->listViewLog;
-// 			lv->clearSelection();
-// 			lv->setCurrentItem(item);
-// 			lv->ensureItemVisible(lv->currentItem());
-// 			return;
-// 		}
-// 		if (delta > 0)
-// 			++it;
-// 		else
-// 			--it;
-// 	}
+//	while (it.current()) {
+//		ListViewItem* item = static_cast<ListViewItem*>(it.current());
+//		if (item->highlighted()) {
+//			Q3ListView* lv = rv->tab()->listViewLog;
+//			lv->clearSelection();
+//			lv->setCurrentItem(item);
+//			lv->ensureItemVisible(lv->currentItem());
+//			return;
+//		}
+//		if (delta > 0)
+//			++it;
+//		else
+//			--it;
+//	}
 }
 
 QTextEdit* MainImpl::getCurrentTextEdit() {
@@ -954,10 +954,10 @@ QTextEdit* MainImpl::getCurrentTextEdit() {
 		te = static_cast<RevsView*>(t)->tab()->textBrowserDesc;
 		break;
 	case TAB_PATCH:
- 		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
+		te = static_cast<PatchView*>(t)->tab()->textEditDiff;
 		break;
 	case TAB_FILE:
- 		te = static_cast<FileView*>(t)->tab()->textEditFile;
+		te = static_cast<FileView*>(t)->tab()->textEditFile;
 		break;
 	default:
 		break;
@@ -1639,7 +1639,7 @@ void MainImpl::ActFindNext_activated() {
 			return;
 
 		endOfDocument = true;
- 		te->moveCursor(QTextCursor::Start);
+		te->moveCursor(QTextCursor::Start);
 	}
 }
 

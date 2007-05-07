@@ -80,8 +80,8 @@ void RevsView::clear(bool complete) {
 void RevsView::setEnabled(bool b) {
 
 	container->setEnabled(b);
- 	if (linkedPatchView)
- 		linkedPatchView->tabPage()->setEnabled(b);
+	if (linkedPatchView)
+		linkedPatchView->tabPage()->setEnabled(b);
 }
 
 void RevsView::viewPatch(bool newTab) {

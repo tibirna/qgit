@@ -82,9 +82,9 @@ void ListView::scrollToCurrent(ScrollHint hint) {
 
 void ListView::on_repaintListViews(const QFont& f) {
 
- 	setFont(f);
- 	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());
- 	lvd->setLaneHeight(fontMetrics().height());
+	setFont(f);
+	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());
+	lvd->setLaneHeight(fontMetrics().height());
 	scrollToCurrent();
 }
 
