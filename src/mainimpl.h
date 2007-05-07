@@ -50,11 +50,12 @@ signals:
 	void repaintListViews(const QFont&);
 	void closeTabButtonEnabled(bool);
 
-public slots:
+private slots:
 	void tabWdg_currentChanged(int);
 	void newRevsAdded(const FileHistory*, const QVector<QString>&);
 	void revisionsDragged(const QStringList&);
 	void revisionsDropped(const QStringList&);
+	void shortCutActivated();
 
 protected:
 	virtual bool event(QEvent* e);
@@ -116,7 +117,7 @@ private:
 
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
-	void setupAccelerator();
+	void setupShortcuts();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
 	bool isMatch(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
@@ -133,7 +134,6 @@ private:
 	void adjustFontSize(int delta);
 	void scrollTextEdit(int delta);
 	void goMatch(int delta);
-	bool accelActivated(QShortcutEvent* se);
 	bool askApplyPatchParameters(bool* commit, bool* fold);
 	QTextEdit* getCurrentTextEdit();
 	template<class X> QList<X*>* getTabs(QWidget* tabPage = NULL);

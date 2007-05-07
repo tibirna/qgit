@@ -16,7 +16,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QDrag>
-#include <QShortcutEvent>
+#include <QShortcut>
 #include <QMenu>
 #include <QScrollBar>
 #include "config.h" // defines PACKAGE_VERSION
@@ -64,7 +64,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	EVEN_LINE_COL = ODD_LINE_COL.dark(103);
 
 	git = new Git(this);
-	setupAccelerator();
+	setupShortcuts();
 	qApp->installEventFilter(this);
 
 	// init native types
@@ -685,10 +685,6 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 
 bool MainImpl::event(QEvent* e) {
 
-	QShortcutEvent* se = dynamic_cast<QShortcutEvent*>(e);
-	if (se && accelActivated(se))
-		return true;
-
 	BaseEvent* de = dynamic_cast<BaseEvent*>(e);
 	if (!de)
 		return QWidget::event(e);
@@ -821,30 +817,34 @@ void MainImpl::tabWdg_currentChanged(int w) {
 	}
 }
 
-void MainImpl::setupAccelerator() {
+void MainImpl::setupShortcuts() {
 
-	grabShortcut(Qt::Key_Left);
-	grabShortcut(Qt::Key_Right);
-	grabShortcut(Qt::Key_Delete);
-	grabShortcut(Qt::Key_Backspace);
-	grabShortcut(Qt::Key_Space);
+	new QShortcut(Qt::Key_Left,      this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_Right,     this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_Delete,    this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_Backspace, this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_Space,     this, SLOT(shortCutActivated()));
 
-	grabShortcut(Qt::Key_B);
-	grabShortcut(Qt::Key_D);
-	grabShortcut(Qt::Key_F);
-	grabShortcut(Qt::Key_P);
-	grabShortcut(Qt::Key_R);
-	grabShortcut(Qt::Key_U);
+	new QShortcut(Qt::Key_B, this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_D, this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_F, this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_P, this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_R, this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_U, this, SLOT(shortCutActivated()));
 
-	grabShortcut(Qt::SHIFT | Qt::Key_Up);
-	grabShortcut(Qt::SHIFT | Qt::Key_Down);
-	grabShortcut(Qt::CTRL  | Qt::Key_Plus);
-	grabShortcut(Qt::CTRL  | Qt::Key_Minus);
+	new QShortcut(Qt::SHIFT | Qt::Key_Up,    this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::SHIFT | Qt::Key_Down,  this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::CTRL  | Qt::Key_Plus,  this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::CTRL  | Qt::Key_Minus, this, SLOT(shortCutActivated()));
 }
 
-bool MainImpl::accelActivated(QShortcutEvent* se) {
+void MainImpl::shortCutActivated() {
 
-	bool found = true, isKey_P = false;
+	QShortcut* se = dynamic_cast<QShortcut*>(sender());
+	if (!se)
+		return;
+
+	bool isKey_P = false;
 
 	switch (se->key()) {
 
@@ -892,11 +892,7 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 		if (d)
 			tabWdg->setCurrentWidget(d->tabPage()); }
 		break;
-	default:
-		found = false;
-		break;
 	}
-	return found;
 }
 
 void MainImpl::goMatch(int delta) {
