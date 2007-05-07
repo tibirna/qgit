@@ -821,25 +821,38 @@ void MainImpl::tabWdg_currentChanged(int w) {
 	}
 }
 
+void MainImpl::setupAccelerator() {
+
+	grabShortcut(Qt::Key_Left);
+	grabShortcut(Qt::Key_Right);
+	grabShortcut(Qt::Key_Delete);
+	grabShortcut(Qt::Key_Backspace);
+	grabShortcut(Qt::Key_Space);
+
+	grabShortcut(Qt::Key_B);
+	grabShortcut(Qt::Key_D);
+	grabShortcut(Qt::Key_F);
+	grabShortcut(Qt::Key_P);
+	grabShortcut(Qt::Key_R);
+	grabShortcut(Qt::Key_U);
+
+	grabShortcut(Qt::SHIFT | Qt::Key_Up);
+	grabShortcut(Qt::SHIFT | Qt::Key_Down);
+	grabShortcut(Qt::CTRL  | Qt::Key_Plus);
+	grabShortcut(Qt::CTRL  | Qt::Key_Minus);
+}
+
 bool MainImpl::accelActivated(QShortcutEvent* se) {
 
 	bool found = true, isKey_P = false;
-	const QKeySequence& key = se->key();
-	switch (key) {
-//	case Qt::Key_Up:
-	case Qt::Key_I:
-		if (key == QKeySequence(Qt::Key_Up, Qt::SHIFT))
-			goMatch(-1);
-		else
-			selectNextItem(true);
+
+	switch (se->key()) {
+
+	case Qt::SHIFT | Qt::Key_Up:
+		goMatch(-1);
 		break;
-//	case Qt::Key_Down:
-	case Qt::Key_K:
-	case Qt::Key_N:
-		if (key == QKeySequence(Qt::Key_Down, Qt::SHIFT))
-			goMatch(1);
-		else
-			selectNextItem(false);
+	case Qt::SHIFT | Qt::Key_Down:
+		goMatch(1);
 		break;
 	case Qt::Key_Left:
 		ActBack_activated();
@@ -847,17 +860,11 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 	case Qt::Key_Right:
 		ActForward_activated();
 		break;
-	case Qt::Key_Plus:
-		if (key == QKeySequence(Qt::Key_Plus, Qt::CTRL))
-			adjustFontSize(1);
-		else
-			found = false;
+	case Qt::CTRL | Qt::Key_Plus:
+		adjustFontSize(1);
 		break;
-	case Qt::Key_Minus:
-		if (key == QKeySequence(Qt::Key_Minus, Qt::CTRL))
-			adjustFontSize(-1);
-		else
-			found = false;
+	case Qt::CTRL | Qt::Key_Minus:
+		adjustFontSize(-1);
 		break;
 	case Qt::Key_U:
 		scrollTextEdit(-18);
@@ -878,7 +885,7 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 		break;
 	case Qt::Key_P:
 		isKey_P = true;
-	case Qt::Key_F:{
+	case Qt::Key_F: {
 		QWidget* cp = tabWdg->currentWidget();
 		Domain* d = isKey_P ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
 		                      static_cast<Domain*>(firstTab<FileView>(cp));
@@ -890,32 +897,6 @@ bool MainImpl::accelActivated(QShortcutEvent* se) {
 		break;
 	}
 	return found;
-}
-
-void MainImpl::setupAccelerator() {
-
-//	this->grabShortcut(Qt::Key_Up);
-//	this->grabShortcut(Qt::Key_Down);
-	this->grabShortcut(Qt::Key_Left);
-	this->grabShortcut(Qt::Key_Right);
-	this->grabShortcut(Qt::Key_Delete);
-	this->grabShortcut(Qt::Key_Backspace);
-	this->grabShortcut(Qt::Key_Space);
-
-	this->grabShortcut(Qt::Key_B);
-	this->grabShortcut(Qt::Key_D);
-	this->grabShortcut(Qt::Key_F);
-	this->grabShortcut(Qt::Key_K);
-	this->grabShortcut(Qt::Key_I);
-	this->grabShortcut(Qt::Key_N);
-	this->grabShortcut(Qt::Key_P);
-	this->grabShortcut(Qt::Key_R);
-	this->grabShortcut(Qt::Key_U);
-
-//	this->grabShortcut(QKeySequence(Qt::Key_Up, Qt::SHIFT));
-//	this->grabShortcut(QKeySequence(Qt::Key_Down, Qt::SHIFT));
-	this->grabShortcut(QKeySequence(Qt::Key_Plus, Qt::CTRL));
-	this->grabShortcut(QKeySequence(Qt::Key_Minus, Qt::CTRL));
 }
 
 void MainImpl::goMatch(int delta) {
@@ -976,31 +957,6 @@ void MainImpl::scrollTextEdit(int delta) {
 		vs->setValue(vs->value() + delta * (vs->pageStep() - vs->singleStep()));
 	else
 		vs->setValue(vs->value() + delta * vs->singleStep());
-}
-
-void MainImpl::selectNextItem(bool itemAbove) {
-
-	QWidget* lv = NULL;
-	Domain* t;
-	switch (currentTabType(&t)) {
-	case TAB_REV:
-		lv = static_cast<RevsView*>(t)->tab()->listViewLog;
-		break;
-	case TAB_FILE:
-		lv = static_cast<FileView*>(t)->tab()->histListView;
-		break;
-	default:
-		lv = qApp->focusWidget();
-		break;
-	}
-	if (!lv)
-		return;
-
-	int key = (itemAbove ? Qt::Key_Up : Qt::Key_Down);
-	QKeyEvent p(QEvent::KeyPress, key, 0, 0);
-	QKeyEvent r(QEvent::KeyRelease, key, 0, 0);
-	QApplication::sendEvent(lv, &p);
-	QApplication::sendEvent(lv, &r);
 }
 
 void MainImpl::adjustFontSize(int delta) {

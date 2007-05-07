@@ -132,7 +132,6 @@ private:
 	void doFileContexPopup(SCRef fileName, int type);
 	void adjustFontSize(int delta);
 	void scrollTextEdit(int delta);
-	void selectNextItem(bool itemAbove);
 	void goMatch(int delta);
 	bool accelActivated(QShortcutEvent* se);
 	bool askApplyPatchParameters(bool* commit, bool* fold);

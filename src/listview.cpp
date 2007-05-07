@@ -6,11 +6,12 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <QPainter>
-#include <QHeaderView>
 #include <QApplication>
+#include <QHeaderView>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QPixmap>
+#include <QShortcut>
 #include "common.h"
 #include "domain.h"
 #include "git.h"
@@ -33,6 +34,13 @@ void ListView::setup(Domain* dm, Git* g) {
 	setItemDelegate(lvd);
 	setModel(fh);
 	setupGeometry(); // after setting delegate
+
+	// shortcuts are activated only if widget is visible, this is good
+	new QShortcut(Qt::Key_Up,   this, SLOT(on_keyUp()));
+	new QShortcut(Qt::Key_I,    this, SLOT(on_keyUp()));
+	new QShortcut(Qt::Key_Down, this, SLOT(on_keyDown()));
+	new QShortcut(Qt::Key_K,    this, SLOT(on_keyDown()));
+	new QShortcut(Qt::Key_N,    this, SLOT(on_keyDown()));
 
 	connect(lvd, SIGNAL(updateView()), viewport(), SLOT(update()));
 
@@ -78,6 +86,20 @@ void ListView::scrollToCurrent(ScrollHint hint) {
 
 	if (currentIndex().isValid())
 		scrollTo(currentIndex(), hint);
+}
+
+void ListView::on_keyUp() {
+
+	QModelIndex idx = indexAbove(currentIndex());
+	if (idx.isValid())
+		setCurrentIndex(idx);
+}
+
+void ListView::on_keyDown() {
+
+	QModelIndex idx = indexBelow(currentIndex());
+	if (idx.isValid())
+		setCurrentIndex(idx);
 }
 
 void ListView::on_repaintListViews(const QFont& f) {

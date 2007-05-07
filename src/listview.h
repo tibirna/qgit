@@ -55,6 +55,8 @@ protected:
 private slots:
 	void on_customContextMenuRequested(const QPoint&);
 	void on_currentChanged(const QModelIndex&, const QModelIndex&);
+	void on_keyUp();
+	void on_keyDown();
 
 private:
 	void setupGeometry();
