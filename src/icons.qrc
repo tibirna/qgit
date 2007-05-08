@@ -26,7 +26,7 @@
         <file>resources/plusminus.png</file>
         <file>resources/plusonly.png</file>
         <file>resources/previous.png</file>
-        <file>resources/qgit.png</file>
+        <file>resources/../../qgit.png</file>
         <file>resources/reload.png</file>
         <file>resources/remove.png</file>
         <file>resources/shellscript.png</file>
