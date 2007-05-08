@@ -122,6 +122,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
 	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
+	connect(this, SIGNAL(typeWriterFontChanged()), this, SIGNAL(updateRevDesc()));
+
 	// connect cross-domain update signals
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
 	        this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
@@ -1341,6 +1343,9 @@ void MainImpl::ActCheckWorkDir_toggled(bool b) {
 void MainImpl::ActSettings_activated() {
 
 	SettingsImpl setView(this, git);
+	connect(&setView, SIGNAL(typeWriterFontChanged()),
+	        this, SIGNAL(typeWriterFontChanged()));
+
 	setView.exec();
 
 	// update ActCheckWorkDir if necessary
@@ -1410,6 +1415,9 @@ void MainImpl::customAction_triggered(QAction* act) {
 		return;
 
 	ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WA_DeleteOnClose attribute
+
+	connect(this, SIGNAL(typeWriterFontChanged()),
+	        c, SLOT(typeWriterFontChanged()));
 
 	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
 	connect(c, SIGNAL(customAction_exited(const QString&)),

@@ -26,6 +26,7 @@ signals:
 	void customAction_exited(const QString& name);
 
 public slots:
+	void typeWriterFontChanged();
 	void procReadyRead(const QByteArray& data);
 	void procFinished();
 

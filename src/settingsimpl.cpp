@@ -167,11 +167,14 @@ void SettingsImpl::pushButtonFont_clicked() {
 
 	bool ok;
 	QFont fnt = QFontDialog::getFont(&ok, TYPE_WRITER_FONT, this);
-	if (ok) {
+	if (ok && TYPE_WRITER_FONT != fnt) {
+
 		TYPE_WRITER_FONT = fnt;
 		lineEditTypeWriterFont->setText(fnt.toString());
 		lineEditTypeWriterFont->setCursorPosition(0);
 		writeSetting(TYPWRT_FNT_KEY, fnt.toString());
+
+		emit typeWriterFontChanged();
 	}
 }
 

@@ -12,7 +12,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QTemporaryFile>
-#include <QTextCharFormat>
 #include "domain.h"
 #include "myprocess.h"
 #include "mainimpl.h"
@@ -28,8 +27,6 @@ static const QString HTML_HEAD_B     = "<b><font color=\"#808080\">"; // bolded 
 static const QString HTML_TAIL_B     = "</font></b>";
 static const QString HTML_FILE_START = "<pre><tt>";
 static const QString HTML_FILE_END   = "</tt></pre>";
-
-static QTextCharFormat defaultCharFormat;
 
 class FileHighlighter : public QSyntaxHighlighter {
 public:
@@ -78,7 +75,6 @@ FileContent::FileContent(QWidget* parent) : QTextEdit(parent) {
 	fileHighlighter = new FileHighlighter(this);
 
 	setFont(QGit::TYPE_WRITER_FONT);
-	defaultCharFormat.setFont(font());
 }
 
 FileContent::~FileContent() {
@@ -95,6 +91,9 @@ void FileContent::setup(Domain* dm, Git* g) {
 	st = &(d->st);
 
 	clearAll(!optEmitSignal);
+
+	connect(d->m(), SIGNAL(typeWriterFontChanged()),
+	        this, SLOT(typeWriterFontChanged()));
 
 	connect(git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
 	        this, SLOT(on_annotateReady(Annotate*, const QString&, bool, const QString&)));
@@ -517,6 +516,14 @@ void FileContent::procReadyRead(const QByteArray& fileChunk) {
 		processData(fileChunk);
 }
 
+void FileContent::typeWriterFontChanged() {
+
+	setFont(QGit::TYPE_WRITER_FONT);
+
+	if (!isHtmlSource && !isImageFile && isFileAvail)
+		setPlainText(toPlainText());
+}
+
 void FileContent::procFinished(bool emitSignal) {
 
 	if (isImageFile)
@@ -528,7 +535,9 @@ void FileContent::procFinished(bool emitSignal) {
 		if (isHtmlSource)
 			setHtml(fileProcessedData);
 		else {
-			setCurrentCharFormat(defaultCharFormat);
+			QTextCharFormat cf; // to restore also default color
+			cf.setFont(font());
+			setCurrentCharFormat(cf);
 			setPlainText(fileProcessedData); // much faster then append()
 		}
 		if (ss.isValid)

@@ -30,14 +30,14 @@ signals:
 	void diffViewerDocked();
 
 public slots:
-
+	void on_highlightPatch(const QString&, bool);
+	void on_updateRevDesc();
 	void lineEditDiff_returnPressed();
 	void button_clicked(int);
 	void buttonFilterPatch_clicked();
 	void procReadyRead(const QByteArray& data);
 	void procFinished();
-	void on_highlightPatch(const QString&, bool);
-	void on_updateRevDesc();
+	void typeWriterFontChanged();
 
 protected slots:
 	virtual void on_contextMenu(const QString&, int);

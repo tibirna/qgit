@@ -17,13 +17,21 @@ ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) : git(g), actionName(nm) {
 
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
-	textEditOutput->setCurrentFont(QGit::TYPE_WRITER_FONT);
+	textEditOutput->setFont(QGit::TYPE_WRITER_FONT);
 	QFont f = textLabelCmd->font();
 	f.setBold(true);
 	textLabelCmd->setFont(f);
 	setWindowTitle("\'" + actionName + "\' output window - QGit");
 	QSettings settings;
 	restoreGeometry(settings.value(QGit::CON_GEOM_KEY).toByteArray());
+}
+
+void ConsoleImpl::typeWriterFontChanged() {
+
+	QTextEdit* te = textEditOutput;
+	te->setFont(QGit::TYPE_WRITER_FONT);
+	te->setPlainText(te->toPlainText());
+	te->moveCursor(QTextCursor::End);
 }
 
 void ConsoleImpl::pushButtonOk_clicked() {

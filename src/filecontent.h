@@ -49,6 +49,7 @@ public slots:
 	void on_annotateReady(Annotate*, const QString&, bool, const QString&);
 	void procReadyRead(const QByteArray&);
 	void procFinished(bool emitSignal = true);
+	void typeWriterFontChanged();
 
 private:
 	friend class FileHighlighter;

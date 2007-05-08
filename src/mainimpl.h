@@ -49,6 +49,7 @@ signals:
 	void closeAllTabs();
 	void repaintListViews(const QFont&);
 	void closeTabButtonEnabled(bool);
+	void typeWriterFontChanged();
 
 private slots:
 	void tabWdg_currentChanged(int);

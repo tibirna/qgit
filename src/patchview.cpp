@@ -8,6 +8,7 @@
 */
 #include <QSyntaxHighlighter>
 #include <QScrollBar>
+#include <QTextCharFormat>
 #include "common.h"
 #include "git.h"
 #include "myprocess.h"
@@ -112,6 +113,9 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	patchTab->fileList->setup(this, git);
 
 	diffHighlighter = new DiffHighlighter(this, patchTab->textEditDiff);
+
+	connect(m(), SIGNAL(typeWriterFontChanged()),
+	        this, SLOT(typeWriterFontChanged()));
 
 	connect(patchTab->lineEditDiff, SIGNAL(returnPressed()),
 	        this, SLOT(lineEditDiff_returnPressed()));
@@ -263,6 +267,13 @@ void PatchView::procReadyRead(const QByteArray& data) {
 	processData(data);
 }
 
+void PatchView::typeWriterFontChanged() {
+
+	QTextEdit* te = patchTab->textEditDiff;
+	te->setFont(QGit::TYPE_WRITER_FONT);
+	te->setPlainText(te->toPlainText());
+}
+
 void PatchView::processData(const QByteArray& fileChunk, int* prevLineNum) {
 
 	QString newLines;
@@ -335,7 +346,7 @@ skip_filter:
 
 	if (prevLineNum || te->document()->isEmpty()) { // use the faster setPlainText()
 
-		patchTab->textEditDiff->setPlainText(newLines);
+		te->setPlainText(newLines);
 		te->moveCursor(QTextCursor::Start);
 	} else {
 		QTextCursor tc(te->cursorForPosition(QPoint(1, 1)));

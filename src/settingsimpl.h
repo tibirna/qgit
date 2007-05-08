@@ -17,6 +17,9 @@ Q_OBJECT
 public:
 	SettingsImpl(QWidget* parent, Git* git, int defTab = 0);
 
+signals:
+	void typeWriterFontChanged();
+
 protected slots:
 	void checkBoxNumbers_toggled(bool b);
 	void checkBoxSign_toggled(bool b);
