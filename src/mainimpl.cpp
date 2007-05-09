@@ -47,6 +47,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 	setAttribute(Qt::WA_DeleteOnClose);
 	setupUi(this);
+
 	// manual setup widgets not buildable with Qt designer
 	lineEditSHA = new QLineEdit(NULL);
 	lineEditFilter = new QLineEdit(NULL);
