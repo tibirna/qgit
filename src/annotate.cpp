@@ -23,8 +23,6 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 	valid = canceled = false;
 
 	patchProcBuf.reserve(1000000); // avoid repeated reallocation, will be big!
-
-	processingTime.start();
 }
 
 const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
@@ -50,7 +48,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
 void Annotate::procReadyRead(const QByteArray& ba) {
 
 	patchProcBuf.append(ba);
-	annFilesNum += QString(ba).count("diff --git ");
+	annFilesNum += ba.count("diff --git ");
 	if (annFilesNum > (int)histRevOrder.count())
 		annFilesNum = histRevOrder.count();
 }
@@ -129,12 +127,17 @@ bool Annotate::start(const FileHistory* _fh) {
 
 void Annotate::procFinished() {
 
-	// start computing diffs only on return from event handler
-	QTimer::singleShot(1, this, SLOT(slotComputeDiffs()));
 	progressTimer.stop();
+	annFilesNum = -1;
+	on_progressTimer_timeout(); // change description
+
+	// start computing diffs only on return from event handler
+	QTimer::singleShot(10, this, SLOT(slotComputeDiffs()));
 }
 
 void Annotate::slotComputeDiffs() {
+
+	processingTime.start(); // track only annotation time
 
 	// when all the patches are loaded we compute the annotation.
 	// this part is normally faster then getting the patches.

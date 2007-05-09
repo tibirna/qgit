@@ -345,9 +345,14 @@ void FileView::updateProgressBar(int annotatedNum) {
 	if (tot == 0)
 		return;
 
+	QString desc("Loading patches applied against '"	);
+	if (annotatedNum == -1) {
+		annotatedNum = tot;
+		desc = "Annotating '";
+	}
 	int cc = (annotatedNum * 100) / tot;
 	int idx = (annotatedNum * 40) / tot;
-	QString head("Annotating '" + st.fileName() + "' [");
+	QString head(desc + st.fileName() + "' [");
 	QString tail("] " + QString::number(cc) + " %");
 	QString done, toDo;
 	done.fill('.', idx);
