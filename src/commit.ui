@@ -13,7 +13,7 @@
    <string>Commit changes</string>
   </property>
   <property name="windowIcon" >
-   <iconset/>
+   <iconset resource="icons.qrc" >:/icons/resources/vcs_commit.png</iconset>
   </property>
   <layout class="QHBoxLayout" >
    <property name="margin" >
@@ -268,7 +268,9 @@
   <tabstop>pushButtonUpdateCache</tabstop>
   <tabstop>pushButtonOk</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="icons.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>pushButtonOk</sender>

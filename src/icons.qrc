@@ -39,6 +39,7 @@
         <file>resources/tab_remove.png</file>
         <file>resources/tar.png</file>
         <file>resources/txt.png</file>
+        <file>resources/vcs_commit.png</file>
         <file>resources/view_choose.png</file>
         <file>resources/view_top_bottom.png</file>
         <file>resources/view_tree.png</file>
