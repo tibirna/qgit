@@ -154,11 +154,11 @@ void QGit::initMimePix() {
 		return;
 
 	QPixmap* pm = new QPixmap(QString::fromUtf8(":/icons/resources/folder.png"));
-	mimePixMap.insert("#FOLDER_CLOSED", pm);
+	mimePixMap.insert("#folder_closed", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/folder_open.png"));
-	mimePixMap.insert("#FOLDER_OPEN", pm);
+	mimePixMap.insert("#folder_open", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/misc.png"));
-	mimePixMap.insert("#DEFAULT", pm);
+	mimePixMap.insert("#default", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_c.png"));
 	mimePixMap.insert("c", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_cpp.png"));
@@ -195,6 +195,30 @@ void QGit::initMimePix() {
 	mimePixMap.insert("html", pm);
 	pm = new QPixmap(*pm);
 	mimePixMap.insert("xml", pm);
+	pm = new QPixmap(QString::fromUtf8(":/icons/resources/image.png"));
+	mimePixMap.insert("bmp", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("gif", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("jpg", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("jpeg", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("png", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("pbm", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("pgm", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("ppm", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("svg", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("tiff", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("xbm", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("xpm", pm);
 }
 
 void QGit::freeMimePix() {
@@ -204,11 +228,11 @@ void QGit::freeMimePix() {
 
 const QPixmap* QGit::mimePix(SCRef fileName) {
 
-	SCRef ext = fileName.section('.', -1, -1);
+	SCRef ext = fileName.section('.', -1, -1).toLower();
 	if (mimePixMap.contains(ext))
 		return mimePixMap.value(ext);
 
-	return mimePixMap.value("#DEFAULT");
+	return mimePixMap.value("#default");
 }
 
 bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {

@@ -46,9 +46,9 @@ void TreeView::setup(Domain* dm, Git* g) {
 	isWorkingDir = false;
 
 	// set built-in pixmaps
-	folderClosed = QGit::mimePix(".#FOLDER_CLOSED");
-	folderOpen   = QGit::mimePix(".#FOLDER_OPEN");
-	fileDefault  = QGit::mimePix(".#DEFAULT");
+	folderClosed = QGit::mimePix(".#folder_closed");
+	folderOpen   = QGit::mimePix(".#folder_open");
+	fileDefault  = QGit::mimePix(".#default");
 
 	connect(this, SIGNAL(itemExpanded(QTreeWidgetItem*)),
 	        this, SLOT(on_itemExpanded(QTreeWidgetItem*)));
