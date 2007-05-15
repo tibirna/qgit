@@ -68,7 +68,7 @@ private:
 
 FileContent::FileContent(QWidget* parent) : QTextEdit(parent) {
 
-	isRangeFilterActive = isHtmlSource = isImageFile = false;
+	isRangeFilterActive = isHtmlSource = isImageFile = isAnnotationAppended = false;
 	isShowAnnotate = true;
 
 	rangeInfo = new RangeInfo();

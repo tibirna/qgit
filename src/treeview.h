@@ -41,7 +41,7 @@ protected:
 class TreeView : public QTreeWidget {
 Q_OBJECT
 public:
-	TreeView(QWidget* par) : QTreeWidget(par), d(NULL), git(NULL) {}
+	TreeView(QWidget* par) : QTreeWidget(par), d(NULL), git(NULL), treeIsValid(false) {}
 	void setup(Domain* d, Git* g);
 	void setTreeName(SCRef treeName) { rootName = treeName; }
 	void updateTree();
