@@ -67,13 +67,8 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	treeWidgetFiles->resizeColumnToContents(0);
 	treeWidgetFiles->resizeColumnToContents(1);
 
-	// setup textEditMsg with default value
-	QString status(git->getDefCommitMsg());
-	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
-	msg.append(status.trimmed());
-	textEditMsg->setPlainText(msg);
-
 	// compute cursor offsets. Take advantage of fixed width font
+	textEditMsg->setPlainText("\nx\nx"); // cursor doesn't move on empty text
 	textEditMsg->moveCursor(QTextCursor::Start);
 	textEditMsg->verticalScrollBar()->setValue(0);
 	textEditMsg->horizontalScrollBar()->setValue(0);
@@ -88,6 +83,12 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	_ofsY = y1 - y0;
 	textEditMsg->moveCursor(QTextCursor::Start);
 	textEditMsg_cursorPositionChanged();
+
+	// setup textEditMsg with default value
+	QString status(git->getDefCommitMsg());
+	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	msg.append(status.trimmed());
+	textEditMsg->setPlainText(msg);
 
 	// if message is not changed we avoid calling refresh
 	// to change patch name in stgCommit()
