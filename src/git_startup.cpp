@@ -325,7 +325,7 @@ void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
 
 		// TODO rename/copy is not supported for combined merges
 		appendFileName(rf, line.section('\t', -1));
-		setStatus(rf, line.section(' ', 6, 6).left(1));
+		setStatus(rf, line.section('\t', 0, 0).section(' ', -1, -1).left(1));
 		rf.mergeParent.append(parNum);
 	} else { // faster parsing in normal case
 
