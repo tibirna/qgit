@@ -1156,24 +1156,23 @@ void MainImpl::goRef_triggered(QAction* act) {
 
 void MainImpl::ActSplitView_activated() {
 
-	bool hide;
 	Domain* t;
 	switch (currentTabType(&t)) {
 	case TAB_REV: {
 		RevsView* rv = static_cast<RevsView*>(t);
-		hide = rv->tab()->textBrowserDesc->isVisible();
-		rv->tab()->textBrowserDesc->setHidden(hide);
-		rv->tab()->fileList->setHidden(hide); }
+		QWidget* w = rv->tab()->textBrowserDesc;
+		QSplitter* sp = static_cast<QSplitter*>(w->parent());
+		sp->setHidden(w->isVisible()); }
 		break;
 	case TAB_PATCH: {
 		PatchView* pv = static_cast<PatchView*>(t);
-		hide = pv->tab()->textBrowserDesc->isVisible();
-		pv->tab()->textBrowserDesc->setHidden(hide); }
+		QWidget* w = pv->tab()->textBrowserDesc;
+		w->setHidden(w->isVisible()); }
 		break;
 	case TAB_FILE: {
 		FileView* fv = static_cast<FileView*>(t);
-		hide = fv->tab()->histListView->isVisible();
-		fv->tab()->histListView->setHidden(hide); }
+		QWidget* w = fv->tab()->histListView;
+		w->setHidden(w->isVisible()); }
 		break;
 	default:
 		dbs("ASSERT in ActSplitView_activated: unknown current page");
