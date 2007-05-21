@@ -44,10 +44,15 @@ void FileList::focusInEvent(QFocusEvent*) {
 	// When an item is clicked and FileList still doesn't have the
 	// focus we could have a double currentItemChanged() signal,
 	// the first with current set to first item, the second with
-	// current correctly set to the clicked one. Unluckily in case
-	// the clicked one is the first in list we have only one event.
+	// current correctly set to the clicked one.
 	// Oddly enough overriding this virtual function we remove
 	// the spurious first signal if any.
+	//
+	// Unluckily in case the clicked one is the first in list we
+	// have only one event and we could miss an update in that case,
+	// so try to handle that
+	if (!st->isMerge() && row(currentItem()) == 0)
+		on_currentItemChanged(currentItem(), currentItem());
 }
 
 void FileList::on_currentItemChanged(QListWidgetItem* current, QListWidgetItem*) {
