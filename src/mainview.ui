@@ -119,12 +119,6 @@
     <addaction name="ActHelp" />
     <addaction name="ActAbout" />
    </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
-     <string>&amp;Actions</string>
-    </property>
-    <addaction name="ActCustomActionSetup" />
-   </widget>
    <widget class="QMenu" name="View" >
     <property name="title" >
      <string>&amp;View</string>
@@ -159,6 +153,12 @@
     <addaction name="ActFindNext" />
     <addaction name="separator" />
     <addaction name="ActSettings" />
+   </widget>
+   <widget class="QMenu" name="Actions" >
+    <property name="title" >
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="ActCustomActionSetup" />
    </widget>
    <widget class="QMenu" name="File" >
     <property name="title" >
@@ -229,13 +229,13 @@
     <iconset resource="icons.qrc" >:/icons/resources/mail_send.png</iconset>
    </property>
    <property name="text" >
-    <string>&amp;Format patch...</string>
+    <string>&amp;Save patch...</string>
    </property>
    <property name="iconText" >
-    <string>Format patch</string>
+    <string>Save patch</string>
    </property>
    <property name="toolTip" >
-    <string>Format a patch series to be sent by e-mail</string>
+    <string>Save a patch series to be sent by e-mail</string>
    </property>
   </action>
   <action name="ActHelp" >

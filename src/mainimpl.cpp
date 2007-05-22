@@ -1267,13 +1267,13 @@ void MainImpl::ActMailFormatPatch_activated() {
 		return;
 	}
 	if (selectedItems.contains(ZERO_SHA)) {
-		statusBar()->showMessage("Unable to format patch for not committed content");
+		statusBar()->showMessage("Unable to save a patch for not committed content");
 		return;
 	}
 	QSettings settings;
 	QString outDir(settings.value(PATCH_DIR_KEY, curDir).toString());
 	QString dirPath(QFileDialog::getExistingDirectory(this,
-	                "Choose destination directory - Format Patch", outDir));
+	                "Choose destination directory - Save Patch", outDir));
 	if (dirPath.isEmpty())
 		return;
 
