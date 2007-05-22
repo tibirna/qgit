@@ -11,7 +11,7 @@ Main features
 
  - Commit changes visually cherry picking modified files.
 
- - Apply or format patch series from selected commits, drag and
+ - Apply or save patch series from selected commits, drag and
    drop commits between two instances of qgit.
 
  - Associate commands sequences, scripts and anything else executable
@@ -19,7 +19,7 @@ Main features
    output is grabbed by a terminal window.
 
  - qgit implements a GUI for the most common StGIT commands like push/pop
-   and apply/format patches. You can also create new patches or refresh
+   and apply/save patches. You can also create new patches or refresh
    current top one using the same semantics of git commit, i.e. cherry
    picking single modified files.
 
@@ -178,16 +178,16 @@ TIP: Very useful to quick retrieve a sha writing only first 3-4
 digits and filtering on revision sha. The sha value can then be
 copied from SHA field.
 
-*Format patch series*::
+*Save patch series*::
 After mouse selecting the chosen revisions (use standard CTRL+left click)
-for single select or SHIFT+left click for range select), press 'format
-patch' button or use file menu and a dialog will let you choose patches
+for single select or SHIFT+left click for range select), press 'Save
+Patch' button or use file menu and a dialog will let you choose patches
 destination directory. Then 'git format-patch-script' will be called and
 patches created. It is possible to specify additional options with
 Edit->Settings menu.
 
 *Apply patch*::
-This menu entry is complementary to format patch and it's an interface
+This menu entry is complementary to save patch and it's an interface
 to 'git am'.
 
 *Drag and drop*::
