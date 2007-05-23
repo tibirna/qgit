@@ -37,10 +37,7 @@ void ListView::setup(Domain* dm, Git* g) {
 
 	// shortcuts are activated only if widget is visible, this is good
 	new QShortcut(Qt::Key_Up,   this, SLOT(on_keyUp()));
-	new QShortcut(Qt::Key_I,    this, SLOT(on_keyUp()));
 	new QShortcut(Qt::Key_Down, this, SLOT(on_keyDown()));
-	new QShortcut(Qt::Key_K,    this, SLOT(on_keyDown()));
-	new QShortcut(Qt::Key_N,    this, SLOT(on_keyDown()));
 
 	connect(lvd, SIGNAL(updateView()), viewport(), SLOT(update()));
 

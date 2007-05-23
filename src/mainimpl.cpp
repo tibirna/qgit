@@ -822,8 +822,12 @@ void MainImpl::tabWdg_currentChanged(int w) {
 
 void MainImpl::setupShortcuts() {
 
-	new QShortcut(Qt::Key_Left,      this, SLOT(shortCutActivated()));
-	new QShortcut(Qt::Key_Right,     this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_I,     this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_K,     this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_N,     this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_Left,  this, SLOT(shortCutActivated()));
+	new QShortcut(Qt::Key_Right, this, SLOT(shortCutActivated()));
+
 	new QShortcut(Qt::Key_Delete,    this, SLOT(shortCutActivated()));
 	new QShortcut(Qt::Key_Backspace, this, SLOT(shortCutActivated()));
 	new QShortcut(Qt::Key_Space,     this, SLOT(shortCutActivated()));
@@ -851,6 +855,13 @@ void MainImpl::shortCutActivated() {
 
 	switch (se->key()) {
 
+	case Qt::Key_I:
+		rv->tab()->listViewLog->on_keyUp();
+		break;
+	case Qt::Key_K:
+	case Qt::Key_N:
+		rv->tab()->listViewLog->on_keyDown();
+		break;
 	case Qt::SHIFT | Qt::Key_Up:
 		goMatch(-1);
 		break;

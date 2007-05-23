@@ -43,6 +43,8 @@ signals:
 
 public slots:
 	void on_repaintListViews(const QFont& f);
+	void on_keyUp();
+	void on_keyDown();
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* e);
@@ -55,8 +57,6 @@ protected:
 private slots:
 	void on_customContextMenuRequested(const QPoint&);
 	void on_currentChanged(const QModelIndex&, const QModelIndex&);
-	void on_keyUp();
-	void on_keyDown();
 
 private:
 	void setupGeometry();

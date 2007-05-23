@@ -118,8 +118,8 @@ s             Toggle view of secondary panes
 h             Toggle view of revision header
 <Home>        Move to first revision
 <End>         Move to last revision
-<Up>, i       Move up one revision
-<Down>, n, k  Move down one revision
+i             Move up one revision in main view (global scope)
+n, k          Move down one revision in main view (global scope)
 <Shift-Up>    Move to previous highlighted line
 <Shift-Down>  Move to next highlighted line
 <Left>	      Go back in history list
