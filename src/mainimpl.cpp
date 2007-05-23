@@ -1310,7 +1310,8 @@ void MainImpl::ActMailApplyPatch_activated() {
 	QSettings settings;
 	QString outDir(settings.value(PATCH_DIR_KEY, curDir).toString());
 	QString patchName(QFileDialog::getOpenFileName(this,
-	                  "Choose the patch file - Apply Patch", outDir));
+	                  "Choose the patch file - Apply Patch", outDir,
+	                  "Patches (*.patch *.diff)\nAll Files (*.*)"));
 	if (patchName.isEmpty())
 		return;
 
