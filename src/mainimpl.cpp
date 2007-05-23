@@ -977,13 +977,13 @@ void MainImpl::updateCommitMenu(bool isStGITStack) {
 	QList<QAction*> al(Edit->actions());
 	FOREACH (QList<QAction*>, it, al) {
 		SCRef txt = (*it)->text();
-		if (txt == "&Commit..." || txt == "St&GIT patch...") {
+		if (txt == "&Commit..." || txt == "Commit St&GIT patch...") {
 			act = *it;
 			break;
 		}
 	}
 	if (act)
-		act->setText(isStGITStack ? "St&GIT patch..." : "&Commit...");
+		act->setText(isStGITStack ? "Commit St&GIT patch..." : "&Commit...");
 }
 
 void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
