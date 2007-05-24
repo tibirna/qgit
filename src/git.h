@@ -261,6 +261,7 @@ private:
 	static const QString colorMatch(SCRef txt, QRegExp& regExp);
 	void appendFileName(RevFile& rf, SCRef name);
 	void populateFileNamesMap();
+	const QString formatList(SCList sl, SCRef name, bool inOneLine = true);
 	static const QString quote(SCRef nm);
 	static const QString quote(SCList sl);
 	static const QStringList noSpaceSepHack(SCRef cmd);

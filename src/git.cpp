@@ -1072,6 +1072,18 @@ const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 	return text;
 }
 
+const QString Git::formatList(SCList sl, SCRef name, bool inOneLine) {
+
+	if (sl.isEmpty())
+		return QString();
+
+	QString ls = "<tr><td class='h'>" + name + "</td><td>";
+	const QString joinStr = inOneLine ? ", " : "</td></tr>\n" + ls;
+	ls += sl.join(joinStr);
+	ls += "</td></tr>\n";
+	return ls;
+}
+
 const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, bool showHeader) {
 
 	if (sha.isEmpty())
@@ -1103,38 +1115,20 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, b
 				<< colorMatch(c->shortLog(), shortLogRE)
 				<< "</span></th></tr>";
 
-			ts << "<tr> <td class='h'>Author</td><td>"
-				<< Qt::escape(c->author()) << "</td>"
-				"</tr><tr> <td class='h'>Date</td><td>"
-				<< getLocalDate(c->authorDate()) << "</td></tr>";
+			ts << formatList(QStringList(Qt::escape(c->author())), "Author");
+			ts << formatList(QStringList(getLocalDate(c->authorDate())), "Date");
 
-			if (!c->isUnApplied && !c->isApplied) {
-				ts << "<tr><td class='h'>Parent</td><td>"
-				<< c->parents().join("</td></tr>\n<tr><td class='h'>Parent</td> <td>");
-				ts << "</td></tr>\n";
+			if (c->isUnApplied || c->isApplied) {
 
-				QStringList sl = getChilds(sha);
-				if (!sl.isEmpty()) {
-					ts << "<tr><td class='h'>Child</td><td>"
-					<< sl.join("</td></tr>\n<tr><td class='h'>Child</td> <td>")
-					<< "</td></tr>\n";
-				}
-				sl = getDescendantBranches(sha);
-				if (!sl.empty()) {
-					ts << "<tr><td class='h'>Branch</td><td>"
-					<< sl.join("</td> </tr>\n<tr><td class='h'>Branch</td> <td>")
-					<< "</td></tr>\n";
-				}
-				sl = getNearTags(!optGoDown, sha);
-				if (!sl.isEmpty()) {
-					ts << "<tr><td class='h'>Follows</td> <td>"
-					<< sl.join(", ") << "</td></tr>\n";
-				}
-				sl = getNearTags(optGoDown, sha);
-				if (!sl.isEmpty()) {
-					ts << "<tr><td class='h'>Precedes</td> <td>"
-					<< sl.join(", ") << "</td></tr>\n";
-				}
+				QStringList patches(getRefName(sha, APPLIED));
+				patches += getRefName(sha, UN_APPLIED);
+				ts << formatList(patches, "Patch");
+			} else {
+				ts << formatList(c->parents(), "Parent", false);
+				ts << formatList(getChilds(sha), "Child", false);
+				ts << formatList(getDescendantBranches(sha), "Branch", false);
+				ts << formatList(getNearTags(!optGoDown, sha), "Follows");
+				ts << formatList(getNearTags(optGoDown, sha), "Precedes");
 			}
 		}
 		QString log(colorMatch(c->longLog(), longLogRE));
