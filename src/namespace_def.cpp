@@ -238,9 +238,12 @@ const QPixmap* QGit::mimePix(SCRef fileName) {
 bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
 
 	if (ba.endsWith('\n')) { // optimize common case
-		prev->clear();
 		*dst = ba;
 		dst->truncate(dst->size() - 1); // strip trailing '\n'
+		if (!prev->isEmpty()) {
+			dst->prepend(*prev);
+			prev->clear();
+		}
 		return true;
 	}
 	const QString src(ba);
