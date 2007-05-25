@@ -1109,12 +1109,11 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, b
 		        "</style></head><body><div class='t'>\n"
 		        "<table border=0 cellspacing=0 cellpadding=2>";
 
+		ts << "<tr class='head'> <th></th> <th><span class='h'>"
+			<< colorMatch(c->shortLog(), shortLogRE)
+			<< "</span></th></tr>";
+
 		if (showHeader) {
-
-			ts << "<tr class='head'> <th></th> <th><span class='h'>"
-				<< colorMatch(c->shortLog(), shortLogRE)
-				<< "</span></th></tr>";
-
 			ts << formatList(QStringList(Qt::escape(c->author())), "Author");
 			ts << formatList(QStringList(getLocalDate(c->authorDate())), "Date");
 
