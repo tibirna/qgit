@@ -8,6 +8,7 @@
 #define REVSVIEW_H
 
 #include <QPointer>
+#include <QLabel>
 #include "ui_revsview.h" // needed by moc_* file to understand tab() function
 #include "common.h"
 #include "domain.h"
@@ -45,6 +46,18 @@ private:
 
 	Ui_TabRev* revTab;
 	QPointer<PatchView> linkedPatchView;
+};
+
+class JumpLabel : public QLabel {
+Q_OBJECT
+public:
+	JumpLabel(const QString& text, QTextEdit* par);
+
+public slots:
+	void parentResized();
+
+protected:
+	bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif

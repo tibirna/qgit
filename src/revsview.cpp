@@ -6,6 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QScrollBar>
 #include <QMenu>
 #include "common.h"
 #include "git.h"
@@ -18,6 +19,30 @@
 #include "mainimpl.h"
 #include "revsview.h"
 
+JumpLabel::JumpLabel(const QString& text, QTextEdit* par) : QLabel("", par) {
+
+	setTextFormat(Qt::RichText);
+	QString link("<a href=\"" + text + "\">" + text + "</a>");
+	setText(link);
+	par->installEventFilter(this);
+}
+
+bool JumpLabel::eventFilter(QObject *obj, QEvent *event) {
+
+	if (event->type() == QEvent::Paint && obj == parent())
+		parentResized();
+
+	return QObject::eventFilter(obj, event);
+}
+
+void JumpLabel::parentResized() {
+
+	QTextEdit* te = static_cast<QTextEdit*>(parent());
+	int w = te->width() - te->verticalScrollBar()->width() - width();
+// 	int h = te->height() - te->horizontalScrollBar()->height() - height();
+	move(w - 10, 10);
+}
+
 RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
 	revTab = new Ui_TabRev();
@@ -29,6 +54,15 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	tab()->textEditDiff->setup(this, git);
 	tab()->fileList->setup(this, git);
 	m()->treeView->setup(this, git);
+
+	JumpLabel* jl1 = new JumpLabel("Log->", tab()->textEditDiff);
+	JumpLabel* jl2 = new JumpLabel("Diff->", tab()->textBrowserDesc);
+
+	connect(jl1, SIGNAL(linkActivated (const QString&)),
+	        m(), SLOT(ActToggleLogsDiff_activated()));
+
+	connect(jl2, SIGNAL(linkActivated (const QString&)),
+	        m(), SLOT(ActToggleLogsDiff_activated()));
 
 	connect(m(), SIGNAL(typeWriterFontChanged()),
 	        tab()->textEditDiff, SLOT(typeWriterFontChanged()));
