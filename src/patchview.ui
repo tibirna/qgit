@@ -158,7 +158,7 @@
           <enum>QTextEdit::NoWrap</enum>
          </property>
         </widget>
-        <widget class="QTextEdit" name="textEditDiff" >
+        <widget class="PatchContent" name="textEditDiff" >
          <property name="undoRedoEnabled" >
           <bool>false</bool>
          </property>
@@ -203,6 +203,11 @@
    <class>RevDesc</class>
    <extends>QTextBrowser</extends>
    <header>revdesc.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PatchContent</class>
+   <extends>QTextEdit</extends>
+   <header>patchcontent.h</header>
   </customwidget>
  </customwidgets>
  <includes>
