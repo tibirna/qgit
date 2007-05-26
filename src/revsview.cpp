@@ -23,10 +23,15 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	revTab = new Ui_TabRev();
 	revTab->setupUi(container);
 
+	tab()->textEditDiff->hide();
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
+	tab()->textEditDiff->setup(this, git);
 	tab()->fileList->setup(this, git);
 	m()->treeView->setup(this, git);
+
+	connect(m(), SIGNAL(typeWriterFontChanged()),
+	        tab()->textEditDiff, SLOT(typeWriterFontChanged()));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -84,6 +89,13 @@ void RevsView::setEnabled(bool b) {
 		linkedPatchView->tabPage()->setEnabled(b);
 }
 
+void RevsView::toggleDiffView() {
+
+	bool v = tab()->textEditDiff->isVisible();
+	tab()->textEditDiff->setVisible(!v);
+	tab()->textBrowserDesc->setVisible(v);
+}
+
 void RevsView::viewPatch(bool newTab) {
 
 	if (!newTab && linkedPatchView) {
@@ -99,9 +111,9 @@ void RevsView::viewPatch(bool newTab) {
 		linkDomain(linkedPatchView);
 
 		connect(m(), SIGNAL(highlightPatch(const QString&, bool)),
-			linkedPatchView, SLOT(on_highlightPatch(const QString&, bool)));
+			pv->tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));
 
-		connect(linkedPatchView->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+		connect(pv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 			m(), SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 	}
 	connect(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
@@ -165,6 +177,8 @@ bool RevsView::doUpdate(bool force) {
 			// blocking call, could be slow in case of all merge files
 			files = git->getFiles(st.sha(), st.diffToSha(), st.allMergeFiles());
 			newFiles = true;
+
+			tab()->textEditDiff->update(st);
 		}
 		// call always to allow a simple refresh
 		tab()->fileList->update(files, newFiles);
@@ -177,6 +191,9 @@ bool RevsView::doUpdate(bool force) {
 			bool isDir = m()->treeView->isDir(st.fileName());
 			m()->updateContextActions(st.sha(), st.fileName(), isDir, found);
 		}
+		if (st.isChanged() || force)
+			tab()->textEditDiff->centerOnFileHeader(st);
+
 		// at the end update diffs that is the slowest and must be
 		// run after update of file list for 'diff to sha' to work
 		if (linkedPatchView) {

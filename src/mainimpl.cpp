@@ -1171,7 +1171,7 @@ void MainImpl::ActSplitView_activated() {
 	switch (currentTabType(&t)) {
 	case TAB_REV: {
 		RevsView* rv = static_cast<RevsView*>(t);
-		QWidget* w = rv->tab()->textBrowserDesc;
+		QWidget* w = rv->tab()->fileList;
 		QSplitter* sp = static_cast<QSplitter*>(w->parent());
 		sp->setHidden(w->isVisible()); }
 		break;
@@ -1188,6 +1188,15 @@ void MainImpl::ActSplitView_activated() {
 	default:
 		dbs("ASSERT in ActSplitView_activated: unknown current page");
 		break;
+	}
+}
+
+void MainImpl::ActToggleLogsDiff_activated() {
+
+	Domain* t;
+	if (currentTabType(&t) == TAB_REV) {
+		RevsView* rv = static_cast<RevsView*>(t);
+		rv->toggleDiffView();
 	}
 }
 

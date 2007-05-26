@@ -88,6 +88,7 @@ protected slots:
 	void ActViewDiffNewTab_activated();
 	void ActExternalDiff_activated();
 	void ActSplitView_activated();
+	void ActToggleLogsDiff_activated();
 	void ActShowDescHeader_activated();
 	void ActOpenRepo_activated();
 	void ActOpenRepoNewWindow_activated();

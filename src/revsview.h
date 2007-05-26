@@ -27,6 +27,9 @@ public:
 	void setEnabled(bool b);
 	Ui_TabRev* tab() { return revTab; }
 
+public slots:
+	void toggleDiffView();
+
 private slots:
 	void on_loadCompleted(const FileHistory*, const QString& stats);
 	void on_lanesContextMenuRequested(const QStringList&, const QStringList&);

@@ -40,13 +40,10 @@ protected:
 
 private:
 	void updatePatch();
-	void centerOnFileHeader(const QString& fileName);
 	void saveRestoreSizes(bool startup = false);
 
 	Ui_TabPatch* patchTab;
 	QString normalizedSha;
-	QString target;
-	bool seekTarget;
 
 	enum ButtonId {
 		DIFF_TO_PARENT = 0,

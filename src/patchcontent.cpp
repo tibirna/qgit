@@ -1,6 +1,4 @@
 /*
-	Description: patch viewer window
-
 	Author: Marco Costalba (C) 2005-2006
 
 	Copyright: See COPYING file that comes with this distribution
@@ -84,12 +82,13 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 
 PatchContent::PatchContent(QWidget* parent) : QTextEdit(parent) {
 
-	diffLoaded = false;
+	diffLoaded = seekTarget = false;
 	curFilter = prevFilter = VIEW_ALL;
 
 	pickAxeRE.setMinimal(true);
 	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
 
+	setFont(QGit::TYPE_WRITER_FONT);
 	diffHighlighter = new DiffHighlighter(this);
 }
 
@@ -106,6 +105,19 @@ void PatchContent::clear() {
 	halfLine = "";
 	matches.clear();
 	diffLoaded = false;
+	seekTarget = !target.isEmpty();
+}
+
+void PatchContent::refresh() {
+
+	int topPara = topToLineNum();
+	setUpdatesEnabled(false);
+	QByteArray tmp(patchRowData);
+	clear();
+	patchRowData = tmp;
+	processData(patchRowData, &topPara);
+	scrollLineToTop(topPara);
+	setUpdatesEnabled(true);
 }
 
 void PatchContent::scrollCursorToTop() {
@@ -157,6 +169,19 @@ bool PatchContent::centerTarget(SCRef target) {
 	return true;
 }
 
+void PatchContent::centerOnFileHeader(StateInfo& st) {
+
+	if (st.fileName().isEmpty())
+		return;
+
+	target = st.fileName();
+	bool combined = (st.isMerge() && !st.allMergeFiles());
+	git->formatPatchFileHeader(&target, st.sha(), st.diffToSha(), combined, st.allMergeFiles());
+	seekTarget = !target.isEmpty();
+	if (seekTarget)
+		seekTarget = !centerTarget(target);
+}
+
 void PatchContent::centerMatch(int id) {
 
 	if (matches.count() <= id)
@@ -176,17 +201,6 @@ void PatchContent::typeWriterFontChanged() {
 
 	setFont(QGit::TYPE_WRITER_FONT);
 	setPlainText(toPlainText());
-}
-
-void PatchContent::refresh() {
-
-	QByteArray tmp(patchRowData);
-	int topPara = topToLineNum();
-	setUpdatesEnabled(false);
-	clear();
-	processData(tmp, &topPara);
-	scrollLineToTop(topPara);
-	setUpdatesEnabled(true);
 }
 
 void PatchContent::processData(const QByteArray& fileChunk, int* prevLineNum) {
@@ -358,5 +372,6 @@ void PatchContent::update(StateInfo& st) {
 	} else
 		diffHighlighter->setCombinedLength(0);
 
+	clear();
 	proc = git->getDiff(st.sha(), this, st.diffToSha(), combined); // non blocking
 }

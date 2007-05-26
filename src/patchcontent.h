@@ -32,7 +32,7 @@ public:
 	PatchContent(QWidget* parent);
 	void setup(Domain* parent, Git* git);
 	void clear();
-	bool centerTarget(SCRef target);
+	void centerOnFileHeader(StateInfo& st);
 	void refresh();
 	void update(StateInfo& st);
 
@@ -61,6 +61,7 @@ private:
 	bool computeMatches();
 	bool getMatch(int para, int* indexFrom, int* indexTo);
 	void centerMatch(int id = 0);
+	bool centerTarget(SCRef target);
 	void processData(const QByteArray& data, int* prevLineNum = NULL);
 
 	Git* git;
@@ -71,6 +72,8 @@ private:
 	QString halfLine;
 	bool isRegExp;
 	QRegExp pickAxeRE;
+	QString target;
+	bool seekTarget;
 
 	struct MatchSelection {
 		int paraFrom;

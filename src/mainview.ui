@@ -109,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>19</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="Help" >
@@ -118,47 +118,6 @@
     </property>
     <addaction name="ActHelp" />
     <addaction name="ActAbout" />
-   </widget>
-   <widget class="QMenu" name="View" >
-    <property name="title" >
-     <string>&amp;View</string>
-    </property>
-    <addaction name="ActBack" />
-    <addaction name="ActForward" />
-    <addaction name="separator" />
-    <addaction name="ActCheckWorkDir" />
-    <addaction name="separator" />
-    <addaction name="ActViewRev" />
-    <addaction name="ActViewDiff" />
-    <addaction name="ActViewDiffNewTab" />
-    <addaction name="ActViewFile" />
-    <addaction name="ActViewFileNewTab" />
-    <addaction name="ActExternalDiff" />
-    <addaction name="ActShowTree" />
-    <addaction name="ActSplitView" />
-    <addaction name="ActShowDescHeader" />
-    <addaction name="ActFilterTree" />
-   </widget>
-   <widget class="QMenu" name="Edit" >
-    <property name="title" >
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="ActCommit" />
-    <addaction name="ActTag" />
-    <addaction name="ActTagDelete" />
-    <addaction name="ActPush" />
-    <addaction name="ActPop" />
-    <addaction name="separator" />
-    <addaction name="ActFind" />
-    <addaction name="ActFindNext" />
-    <addaction name="separator" />
-    <addaction name="ActSettings" />
-   </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
-     <string>&amp;Actions</string>
-    </property>
-    <addaction name="ActCustomActionSetup" />
    </widget>
    <widget class="QMenu" name="File" >
     <property name="title" >
@@ -177,6 +136,48 @@
     <addaction name="ActClose" />
     <addaction name="ActExit" />
     <addaction name="separator" />
+   </widget>
+   <widget class="QMenu" name="Actions" >
+    <property name="title" >
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="ActCustomActionSetup" />
+   </widget>
+   <widget class="QMenu" name="Edit" >
+    <property name="title" >
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="ActCommit" />
+    <addaction name="ActTag" />
+    <addaction name="ActTagDelete" />
+    <addaction name="ActPush" />
+    <addaction name="ActPop" />
+    <addaction name="separator" />
+    <addaction name="ActFind" />
+    <addaction name="ActFindNext" />
+    <addaction name="separator" />
+    <addaction name="ActSettings" />
+   </widget>
+   <widget class="QMenu" name="View" >
+    <property name="title" >
+     <string>&amp;View</string>
+    </property>
+    <addaction name="ActBack" />
+    <addaction name="ActForward" />
+    <addaction name="separator" />
+    <addaction name="ActCheckWorkDir" />
+    <addaction name="separator" />
+    <addaction name="ActViewRev" />
+    <addaction name="ActViewDiff" />
+    <addaction name="ActViewDiffNewTab" />
+    <addaction name="ActViewFile" />
+    <addaction name="ActViewFileNewTab" />
+    <addaction name="ActExternalDiff" />
+    <addaction name="ActShowTree" />
+    <addaction name="ActSplitView" />
+    <addaction name="ActToggleLogsDiff" />
+    <addaction name="ActShowDescHeader" />
+    <addaction name="ActFilterTree" />
    </widget>
    <addaction name="File" />
    <addaction name="Edit" />
@@ -532,9 +533,6 @@
    </property>
   </action>
   <action name="ActSplitView" >
-   <property name="checkable" >
-    <bool>false</bool>
-   </property>
    <property name="icon" >
     <iconset resource="icons.qrc" >:/icons/resources/view_top_bottom.png</iconset>
    </property>
@@ -696,8 +694,19 @@
    <property name="shortcut" >
     <string>H</string>
    </property>
-   <property name="menuRole" >
-    <enum>QAction::TextHeuristicRole</enum>
+  </action>
+  <action name="ActToggleLogsDiff" >
+   <property name="text" >
+    <string>Toggle message/diff</string>
+   </property>
+   <property name="iconText" >
+    <string>Toggle message/diff</string>
+   </property>
+   <property name="toolTip" >
+    <string>Toggle between messages and patch content\n in revision description pane</string>
+   </property>
+   <property name="shortcut" >
+    <string>M</string>
    </property>
   </action>
  </widget>
@@ -1269,6 +1278,22 @@
     </hint>
     <hint type="destinationlabel" >
      <x>487</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActToggleLogsDiff</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActToggleLogsDiff_activated()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>452</x>
      <y>238</y>
     </hint>
    </hints>

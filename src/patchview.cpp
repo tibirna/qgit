@@ -15,7 +15,6 @@
 
 PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
-	seekTarget = false;
 	patchTab = new Ui_TabPatch();
 	patchTab->setupUi(container);
 	SCRef ic(QString::fromUtf8(":/icons/resources/plusminus.png"));
@@ -27,7 +26,6 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	bg->addButton(patchTab->radioButtonSha, DIFF_TO_SHA);
 	connect(bg, SIGNAL(buttonClicked(int)), this, SLOT(button_clicked(int)));
 
-	patchTab->textEditDiff->setFont(QGit::TYPE_WRITER_FONT);
 	patchTab->textBrowserDesc->setup(this);
 	patchTab->textEditDiff->setup(this, git);
 	patchTab->fileList->setup(this, git);
@@ -62,7 +60,6 @@ void PatchView::clear(bool complete) {
 		patchTab->fileList->clear();
 	}
 	patchTab->textEditDiff->clear();
-	seekTarget = !target.isEmpty();
 }
 
 void PatchView::buttonFilterPatch_clicked() {
@@ -90,19 +87,6 @@ void PatchView::on_contextMenu(const QString& data, int type) {
 
 	if (isLinked()) // skip if not linked to main view
 		Domain::on_contextMenu(data, type);
-}
-
-void PatchView::centerOnFileHeader(const QString& fileName) {
-
-	if (st.fileName().isEmpty())
-		return;
-
-	target = fileName;
-	bool combined = (st.isMerge() && !st.allMergeFiles());
-	git->formatPatchFileHeader(&target, st.sha(), st.diffToSha(), combined, st.allMergeFiles());
-	seekTarget = !target.isEmpty();
-	if (seekTarget)
-		seekTarget = !patchTab->textEditDiff->centerTarget(target);
 }
 
 void PatchView::lineEditDiff_returnPressed() {
@@ -194,7 +178,7 @@ bool PatchView::doUpdate(bool force) {
 	patchTab->fileList->update(files, newFiles);
 
 	if (st.isChanged() || force)
-		centerOnFileHeader(st.fileName());
+		patchTab->textEditDiff->centerOnFileHeader(st);
 
 	return true;
 }

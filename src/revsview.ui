@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>693</width>
-    <height>480</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -54,25 +54,61 @@
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="RevDesc" name="textBrowserDesc" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>5</hsizetype>
-         <vsizetype>13</vsizetype>
-         <horstretch>3</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="lineWrapMode" >
-        <enum>QTextEdit::NoWrap</enum>
-       </property>
+      <widget class="QWidget" name="" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="RevDesc" name="textBrowserDesc" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>7</hsizetype>
+            <vsizetype>7</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="lineWrapMode" >
+           <enum>QTextEdit::NoWrap</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="PatchContent" name="textEditDiff" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>7</hsizetype>
+            <vsizetype>7</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="documentTitle" >
+           <string comment="testing with diff view" >test</string>
+          </property>
+          <property name="undoRedoEnabled" >
+           <bool>false</bool>
+          </property>
+          <property name="lineWrapMode" >
+           <enum>QTextEdit::NoWrap</enum>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="FileList" name="fileList" >
        <property name="sizePolicy" >
         <sizepolicy>
-         <hsizetype>5</hsizetype>
-         <vsizetype>13</vsizetype>
-         <horstretch>1</horstretch>
+         <hsizetype>7</hsizetype>
+         <vsizetype>7</vsizetype>
+         <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -88,6 +124,11 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>RevDesc</class>
+   <extends>QTextBrowser</extends>
+   <header>revdesc.h</header>
+  </customwidget>
+  <customwidget>
    <class>FileList</class>
    <extends>QListWidget</extends>
    <header>filelist.h</header>
@@ -98,9 +139,9 @@
    <header>listview.h</header>
   </customwidget>
   <customwidget>
-   <class>RevDesc</class>
-   <extends>QTextBrowser</extends>
-   <header>revdesc.h</header>
+   <class>PatchContent</class>
+   <extends>QTextEdit</extends>
+   <header>patchcontent.h</header>
   </customwidget>
  </customwidgets>
  <includes>
