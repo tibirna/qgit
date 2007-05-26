@@ -51,10 +51,18 @@
       </property>
      </widget>
      <widget class="QSplitter" name="splitter" >
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>7</hsizetype>
+        <vsizetype>5</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="" >
+      <widget class="QWidget" name="layoutWidget" >
        <layout class="QVBoxLayout" >
         <property name="margin" >
          <number>0</number>

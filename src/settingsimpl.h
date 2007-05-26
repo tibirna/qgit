@@ -25,6 +25,7 @@ protected slots:
 	void checkBoxSign_toggled(bool b);
 	void checkBoxRangeSelectDialog_toggled(bool b);
 	void checkBoxRelativeDate_toggled(bool b);
+	void checkBoxMsgOnNewSHA_toggled(bool b);
 	void checkBoxDiffCache_toggled(bool b);
 	void checkBoxCommitSign_toggled(bool b);
 	void checkBoxCommitVerify_toggled(bool b);

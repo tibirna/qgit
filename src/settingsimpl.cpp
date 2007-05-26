@@ -49,6 +49,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxCommitVerify->setChecked(f & VERIFY_CMT_F);
 	checkBoxRangeSelectDialog->setChecked(f & RANGE_SELECT_F);
 	checkBoxRelativeDate->setChecked(f & REL_DATE_F);
+	checkBoxMsgOnNewSHA->setChecked(f & MSG_ON_NEW_F);
 
 	QSettings set;
 	SCRef FPArgs(set.value(PATCH_ARGS_KEY).toString());
@@ -203,6 +204,11 @@ void SettingsImpl::checkBoxRangeSelectDialog_toggled(bool b) {
 void SettingsImpl::checkBoxRelativeDate_toggled(bool b) {
 
 	setFlag(REL_DATE_F, b);
+}
+
+void SettingsImpl::checkBoxMsgOnNewSHA_toggled(bool b) {
+
+	setFlag(MSG_ON_NEW_F, b);
 }
 
 void SettingsImpl::checkBoxCommitSign_toggled(bool b) {

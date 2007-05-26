@@ -75,6 +75,7 @@ void RevsView::clear(bool complete) {
 	Domain::clear(complete);
 
 	tab()->textBrowserDesc->clear();
+	tab()->textEditDiff->clear();
 	tab()->fileList->clear();
 	m()->treeView->clear();
 	updateLineEditSHA(true);
@@ -163,6 +164,10 @@ bool RevsView::doUpdate(bool force) {
 			updateLineEditSHA();
 			on_updateRevDesc();
 			showStatusBarMessage(git->getRevInfo(st.sha()));
+
+			if (   testFlag(QGit::MSG_ON_NEW_F)
+			    && tab()->textEditDiff->isVisible())
+				toggleDiffView();
 		}
 		const RevFile* files = NULL;
 		bool newFiles = false;

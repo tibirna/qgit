@@ -214,7 +214,7 @@ namespace QGit {
 
 	// settings booleans
 	enum FlagType {
-		// removed obsolete option
+		MSG_ON_NEW_F    = 1,
 		ACT_REFRESH_F   = 2,
 		NUMBERS_F       = 4,
 		// removed obsolete option
@@ -229,7 +229,7 @@ namespace QGit {
 		WHOLE_HISTORY_F = 4096,
 		RANGE_SELECT_F  = 8192
 	};
-	const int FLAGS_DEF = 8512;
+	const int FLAGS_DEF = 8513;
 
 	// settings helpers
 	uint flags(SCRef flagsVariable);
