@@ -53,6 +53,8 @@ typedef const QLinkedList<QString>& SCLList;
 typedef QVector<QString>            StrVect;
 
 class QProcess;
+class QSplitter;
+class QWidget;
 
 namespace QGit {
 
@@ -240,6 +242,10 @@ namespace QGit {
 	void initMimePix();
 	void freeMimePix();
 	const QPixmap* mimePix(SCRef fileName);
+
+	// geometry settings helers
+	void saveGeometrySetting(SCRef name, QWidget* w = NULL, QVector<QSplitter*>* svPtr = NULL);
+	void restoreGeometrySetting(SCRef name, QWidget* w = NULL, QVector<QSplitter*>* svPtr = NULL);
 
 	// misc helpers
 	bool stripPartialParaghraps(const QByteArray& src, QString* dst, QString* prev);

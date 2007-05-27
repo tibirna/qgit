@@ -11,12 +11,14 @@
  data in each file where QGit namespace is included.
 
 */
-#include <QProcess>
-#include <QSettings>
-#include <QTemporaryFile>
-#include <QTextStream>
 #include <QHash>
 #include <QPixmap>
+#include <QProcess>
+#include <QSettings>
+#include <QSplitter>
+#include <QTemporaryFile>
+#include <QTextStream>
+#include <QWidget>
 #include "common.h"
 
 #ifdef ON_WINDOWS // *********  platform dependent code ******
@@ -235,6 +237,57 @@ const QPixmap* QGit::mimePix(SCRef fileName) {
 	return mimePixMap.value("#default");
 }
 
+// geometry settings helers
+void QGit::saveGeometrySetting(SCRef name, QWidget* w, QVector<QSplitter*>* svPtr) {
+
+	QSettings settings;
+	if (w)
+		settings.setValue(name + "_geometry", w->saveGeometry());
+
+	if (!svPtr)
+		return;
+
+	QList<int> szList;
+	int cnt = 1;
+	FOREACH (QVector<QSplitter*>, it, *svPtr) {
+		szList = (*it)->sizes();
+		QString nm(name + "_splitter_" + QString::number(cnt++));
+		settings.setValue(nm, QSize(szList[0], szList[1]));
+	}
+}
+
+void QGit::restoreGeometrySetting(SCRef name, QWidget* w, QVector<QSplitter*>* svPtr) {
+
+	QSettings settings;
+	QString nm;
+	if (w) {
+		nm = name + "_geometry";
+		QVariant v = settings.value(nm);
+		if (v.isValid())
+			w->restoreGeometry(v.toByteArray());
+		else
+			dbp("ERROR in restoreGeometrySetting(), %1 not found", nm);
+	}
+	if (!svPtr)
+		return;
+
+	QList<int> szList;
+	int cnt = 1;
+	FOREACH (QVector<QSplitter*>, it, *svPtr) {
+
+		nm = name + "_splitter_" + QString::number(cnt++);
+		QSize sz(settings.value(nm).toSize());
+		if (!sz.isValid()) {
+			dbp("ERROR in restoreGeometrySetting(), %1 not found", nm);
+			continue;
+		}
+		szList.clear();
+		szList << sz.width() << sz.height();
+		(*it)->setSizes(szList);
+	}
+}
+
+// misc helpers
 bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
 
 	if (ba.endsWith('\n')) { // optimize common case

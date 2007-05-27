@@ -29,16 +29,10 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	setupUi(this);
 	textEditMsg->setFont(TYPE_WRITER_FONT);
 
-	// read settings
+	QVector<QSplitter*> v(1, splitter);
+	QGit::restoreGeometrySetting(CMT_GEOM_KEY, this, &v);
+
 	QSettings settings;
-	restoreGeometry(settings.value(CMT_GEOM_KEY).toByteArray());
-	QSize sz(settings.value(CMT_SPLIT_KEY).toSize());
-	if (sz.isValid()) {
-		QList<int> szList;
-		szList.append(sz.width());
-		szList.append(sz.height());
-		splitter->setSizes(szList);
-	}
 	QString templ(settings.value(CMT_TEMPL_KEY, CMT_TEMPL_DEF).toString());
 	QString msg;
 	QDir d;
@@ -111,10 +105,8 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 
 void CommitImpl::closeEvent(QCloseEvent*) {
 
-	QSettings settings;
-	settings.setValue(CMT_GEOM_KEY, saveGeometry());
-	QList<int> sz = splitter->sizes();
-	settings.setValue(CMT_SPLIT_KEY, QSize(sz[0], sz[1]));
+	QVector<QSplitter*> v(1, splitter);
+	QGit::saveGeometrySetting(CMT_GEOM_KEY, this, &v);
 }
 
 void CommitImpl::contextMenuPopup(const QPoint& pos)  {
