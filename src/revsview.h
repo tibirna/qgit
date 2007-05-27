@@ -9,6 +9,7 @@
 
 #include <QPointer>
 #include <QLabel>
+#include <QTime>
 #include "ui_revsview.h" // needed by moc_* file to understand tab() function
 #include "common.h"
 #include "domain.h"
@@ -56,6 +57,10 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 private:
 	void parentResized();
+	void wheelRolled();
+
+	QTime wheelTimer;
+	int wheelCnt;
 };
 
 #endif

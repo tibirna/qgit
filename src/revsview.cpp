@@ -21,6 +21,7 @@
 
 JumpLabel::JumpLabel(const QString& text, QTextEdit* par) : QLabel("", par) {
 
+	wheelCnt = 0;
 	setTextFormat(Qt::RichText);
 	QString link("<a href=\"" + text + "\">" + text + "</a>");
 	setText(link);
@@ -38,6 +39,9 @@ bool JumpLabel::eventFilter(QObject *obj, QEvent *event) {
 		QTextEdit* te = static_cast<QTextEdit*>(parent());
 		setVisible(te->isEnabled());
 	}
+	if (t == QEvent::Wheel && obj == parent())
+		wheelRolled();
+
 	return QObject::eventFilter(obj, event);
 }
 
@@ -46,6 +50,29 @@ void JumpLabel::parentResized() {
 	QTextEdit* te = static_cast<QTextEdit*>(parent());
 	int w = te->width() - te->verticalScrollBar()->width() - width();
 	move(w - 10, 10);
+	wheelTimer.restart();
+	wheelCnt = 0;
+}
+
+void JumpLabel::wheelRolled() {
+// event is received only when rejected by QTextEdit, i.e. when
+// at the top or bottom of the view.
+
+	// count time from last switch event to
+	// avoid spurious switches
+	if (wheelTimer.isNull() || wheelTimer.elapsed() < 600) {
+		wheelTimer.restart();
+		return;
+	}
+	// ok, we have a good wheel event, but
+	// before the switch force the user to
+	// keep rolling a bit on his wheel
+	if (++wheelCnt < 5)
+		return;
+
+	wheelCnt = 0;
+	wheelTimer.restart();
+	emit linkActivated(text());
 }
 
 RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
