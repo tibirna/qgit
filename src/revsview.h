@@ -52,12 +52,10 @@ class JumpLabel : public QLabel {
 Q_OBJECT
 public:
 	JumpLabel(const QString& text, QTextEdit* par);
-
-public slots:
-	void parentResized();
-
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
+private:
+	void parentResized();
 };
 
 #endif

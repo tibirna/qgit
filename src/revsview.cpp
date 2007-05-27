@@ -24,16 +24,17 @@ JumpLabel::JumpLabel(const QString& text, QTextEdit* par) : QLabel("", par) {
 	setTextFormat(Qt::RichText);
 	QString link("<a href=\"" + text + "\">" + text + "</a>");
 	setText(link);
-	par->installEventFilter(this);
 	hide();
+	par->installEventFilter(this);
 }
 
 bool JumpLabel::eventFilter(QObject *obj, QEvent *event) {
 
-	if (event->type() == QEvent::Paint && obj == parent())
+	QEvent::Type t = event->type();
+	if (t == QEvent::Resize && obj == parent())
 		parentResized();
 
-	if (event->type() == QEvent::EnabledChange && obj == parent()) {
+	if (t == QEvent::EnabledChange && obj == parent()) {
 		QTextEdit* te = static_cast<QTextEdit*>(parent());
 		setVisible(te->isEnabled());
 	}
@@ -44,7 +45,6 @@ void JumpLabel::parentResized() {
 
 	QTextEdit* te = static_cast<QTextEdit*>(parent());
 	int w = te->width() - te->verticalScrollBar()->width() - width();
-// 	int h = te->height() - te->horizontalScrollBar()->height() - height();
 	move(w - 10, 10);
 }
 
