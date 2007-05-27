@@ -102,7 +102,8 @@ const QString QGit::EX_KEY          = "Working_dir/exclude_file_path";
 const QString QGit::EX_PER_DIR_KEY  = "Working_dir/exclude_per_directory_file_name";
 const QString QGit::CON_GEOM_KEY    = "Console/geometry";
 const QString QGit::CMT_GEOM_KEY    = "Commit/geometry";
-const QString QGit::CMT_SPLIT_KEY   = "Commit/splitter_sizes";
+const QString QGit::MAIN_GEOM_KEY   = "Top_window/geometry";
+const QString QGit::REV_GEOM_KEY    = "Rev_List_view/geometry";
 const QString QGit::CMT_TEMPL_KEY   = "Commit/template_file_path";
 const QString QGit::CMT_ARGS_KEY    = "Commit/args";
 const QString QGit::ACT_GEOM_KEY    = "Custom_actions/geometry";
@@ -238,52 +239,55 @@ const QPixmap* QGit::mimePix(SCRef fileName) {
 }
 
 // geometry settings helers
-void QGit::saveGeometrySetting(SCRef name, QWidget* w, QVector<QSplitter*>* svPtr) {
+void QGit::saveGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 
 	QSettings settings;
-	if (w)
-		settings.setValue(name + "_geometry", w->saveGeometry());
-
+	if (w && w->isVisible()) {
+		bool max = w->windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen);
+		if (!max) // workaround a X11 issue
+			settings.setValue(name + "_window", w->saveGeometry());
+	}
 	if (!svPtr)
 		return;
 
-	QList<int> szList;
-	int cnt = 1;
-	FOREACH (QVector<QSplitter*>, it, *svPtr) {
-		szList = (*it)->sizes();
-		QString nm(name + "_splitter_" + QString::number(cnt++));
-		settings.setValue(nm, QSize(szList[0], szList[1]));
+	int cnt = 0;
+	FOREACH (splitVect, it, *svPtr) {
+
+		cnt++;
+		if ((*it)->sizes().contains(0))
+			continue;
+
+		QString nm(name + "_splitter_" + QString::number(cnt));
+		settings.setValue(nm, (*it)->saveState());
 	}
 }
 
-void QGit::restoreGeometrySetting(SCRef name, QWidget* w, QVector<QSplitter*>* svPtr) {
+void QGit::restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 
 	QSettings settings;
 	QString nm;
 	if (w) {
-		nm = name + "_geometry";
+		nm = name + "_window";
 		QVariant v = settings.value(nm);
 		if (v.isValid())
 			w->restoreGeometry(v.toByteArray());
 		else
-			dbp("ERROR in restoreGeometrySetting(), %1 not found", nm);
+			dbp("WARNING in restoreGeometrySetting(), %1 not found", nm);
 	}
 	if (!svPtr)
 		return;
 
-	QList<int> szList;
-	int cnt = 1;
-	FOREACH (QVector<QSplitter*>, it, *svPtr) {
+	int cnt = 0;
+	FOREACH (splitVect, it, *svPtr) {
 
-		nm = name + "_splitter_" + QString::number(cnt++);
-		QSize sz(settings.value(nm).toSize());
-		if (!sz.isValid()) {
-			dbp("ERROR in restoreGeometrySetting(), %1 not found", nm);
+		cnt++;
+		nm = name + "_splitter_" + QString::number(cnt);
+		QVariant v = settings.value(nm);
+		if (!v.isValid()) {
+			dbp("WARNING in restoreGeometrySetting(), %1 not found", nm);
 			continue;
 		}
-		szList.clear();
-		szList << sz.width() << sz.height();
-		(*it)->setSizes(szList);
+		(*it)->restoreState(v.toByteArray());
 	}
 }
 

@@ -103,7 +103,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	connect(ct, SIGNAL(clicked()), this, SLOT(pushButtonCloseTab_clicked()));
 	connect(this, SIGNAL(closeTabButtonEnabled(bool)), ct, SLOT(setEnabled(bool)));
 
-	// set-up tree view
+	QVector<QSplitter*> v(1, treeSplitter);
+	QGit::restoreGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
 	treeView->hide();
 
 	// set-up menu for recent visited repositories
@@ -146,6 +147,12 @@ void MainImpl::initWithEventLoopActive() {
 	git->checkEnvironment();
 	setRepository(startUpDir, false, false);
 	startUpDir = ""; // one shot
+}
+
+void MainImpl::saveCurrentGeometry() {
+
+	QVector<QSplitter*> v(1, treeSplitter);
+	QGit::saveGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
 }
 
 void MainImpl::lineEditSHA_returnPressed() {
@@ -1220,8 +1227,10 @@ void MainImpl::ActShowTree_toggled(bool b) {
 	if (b) {
 		treeView->show();
 		UPDATE_DOMAIN(rv);
-	} else
+	} else {
+		saveCurrentGeometry();
 		treeView->hide();
+	}
 }
 
 void MainImpl::ActSaveFile_activated() {
@@ -1671,6 +1680,8 @@ void MainImpl::ActAbout_activated() {
 }
 
 void MainImpl::closeEvent(QCloseEvent* ce) {
+
+	saveCurrentGeometry();
 
 	// lastWindowClosed() signal is emitted by close(), after sending
 	// closeEvent(), so we need to close _here_ all secondary windows before

@@ -60,6 +60,11 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	tab()->fileList->setup(this, git);
 	m()->treeView->setup(this, git);
 
+	// restore geometry
+	QVector<QSplitter*> v;
+	v << tab()->horizontalSplitter << tab()->verticalSplitter;
+	QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
+
 	JumpLabel* jl1 = new JumpLabel("Log->", tab()->textEditDiff);
 	JumpLabel* jl2 = new JumpLabel("Diff->", tab()->textBrowserDesc);
 
@@ -104,6 +109,10 @@ RevsView::~RevsView() {
 
 	if (!parent())
 		return;
+
+	QVector<QSplitter*> v;
+	v << tab()->horizontalSplitter << tab()->verticalSplitter;
+	QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
 	delete linkedPatchView;
 	delete revTab;

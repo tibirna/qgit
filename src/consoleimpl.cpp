@@ -22,8 +22,7 @@ ConsoleImpl::ConsoleImpl(const QString& nm, Git* g) : git(g), actionName(nm) {
 	f.setBold(true);
 	textLabelCmd->setFont(f);
 	setWindowTitle("\'" + actionName + "\' output window - QGit");
-	QSettings settings;
-	restoreGeometry(settings.value(QGit::CON_GEOM_KEY).toByteArray());
+	QGit::restoreGeometrySetting(QGit::CON_GEOM_KEY, this);
 }
 
 void ConsoleImpl::typeWriterFontChanged() {
@@ -58,8 +57,7 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 	if (QApplication::overrideCursor())
 		QApplication::restoreOverrideCursor();
 
-	QSettings settings;
-	settings.setValue(QGit::CON_GEOM_KEY, saveGeometry());
+	QGit::saveGeometrySetting(QGit::CON_GEOM_KEY, this);
 	QMainWindow::closeEvent(ce);
 }
 

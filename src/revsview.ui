@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>693</width>
-    <height>420</height>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -20,7 +20,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QSplitter" name="splitter_2" >
+    <widget class="QSplitter" name="horizontalSplitter" >
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
@@ -50,15 +50,7 @@
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QSplitter" name="splitter" >
-      <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>7</hsizetype>
-        <vsizetype>5</vsizetype>
-        <horstretch>0</horstretch>
-        <verstretch>1</verstretch>
-       </sizepolicy>
-      </property>
+     <widget class="QSplitter" name="verticalSplitter" >
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
@@ -72,14 +64,6 @@
         </property>
         <item>
          <widget class="RevDesc" name="textBrowserDesc" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>7</hsizetype>
-            <vsizetype>7</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="lineWrapMode" >
            <enum>QTextEdit::NoWrap</enum>
           </property>
@@ -87,14 +71,6 @@
         </item>
         <item>
          <widget class="PatchContent" name="textEditDiff" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>7</hsizetype>
-            <vsizetype>7</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="documentTitle" >
            <string comment="testing with diff view" >test</string>
           </property>
@@ -112,14 +88,6 @@
        </layout>
       </widget>
       <widget class="FileList" name="fileList" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>7</hsizetype>
-         <vsizetype>7</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="contextMenuPolicy" >
         <enum>Qt::CustomContextMenu</enum>
        </property>
@@ -132,6 +100,16 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
+   <class>PatchContent</class>
+   <extends>QTextEdit</extends>
+   <header>patchcontent.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ListView</class>
+   <extends>QTreeView</extends>
+   <header>listview.h</header>
+  </customwidget>
+  <customwidget>
    <class>RevDesc</class>
    <extends>QTextBrowser</extends>
    <header>revdesc.h</header>
@@ -140,16 +118,6 @@
    <class>FileList</class>
    <extends>QListWidget</extends>
    <header>filelist.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ListView</class>
-   <extends>QTreeView</extends>
-   <header>listview.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PatchContent</class>
-   <extends>QTextEdit</extends>
-   <header>patchcontent.h</header>
   </customwidget>
  </customwidgets>
  <includes>

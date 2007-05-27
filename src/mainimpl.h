@@ -137,6 +137,7 @@ private:
 	void scrollTextEdit(int delta);
 	void goMatch(int delta);
 	bool askApplyPatchParameters(bool* commit, bool* fold);
+	void saveCurrentGeometry();
 	QTextEdit* getCurrentTextEdit();
 	template<class X> QList<X*>* getTabs(QWidget* tabPage = NULL);
 	template<class X> X* firstTab(QWidget* startPage = NULL);

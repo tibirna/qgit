@@ -195,7 +195,8 @@ namespace QGit {
 	extern const QString FLAGS_KEY;
 	extern const QString CON_GEOM_KEY;
 	extern const QString CMT_GEOM_KEY;
-	extern const QString CMT_SPLIT_KEY;
+	extern const QString MAIN_GEOM_KEY;
+	extern const QString REV_GEOM_KEY;
 	extern const QString CMT_TEMPL_KEY;
 	extern const QString CMT_ARGS_KEY;
 	extern const QString EX_KEY;
@@ -244,8 +245,9 @@ namespace QGit {
 	const QPixmap* mimePix(SCRef fileName);
 
 	// geometry settings helers
-	void saveGeometrySetting(SCRef name, QWidget* w = NULL, QVector<QSplitter*>* svPtr = NULL);
-	void restoreGeometrySetting(SCRef name, QWidget* w = NULL, QVector<QSplitter*>* svPtr = NULL);
+	typedef QVector<QSplitter*> splitVect;
+	void saveGeometrySetting(SCRef name, QWidget* w = NULL, splitVect* svPtr = NULL);
+	void restoreGeometrySetting(SCRef name, QWidget* w = NULL, splitVect* svPtr = NULL);
 
 	// misc helpers
 	bool stripPartialParaghraps(const QByteArray& src, QString* dst, QString* prev);
