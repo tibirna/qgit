@@ -19,17 +19,17 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 	if (text.isEmpty())
 		return;
 
-	QColor myColor;
+	QTextCharFormat myFormat;
 	const char firstChar = text.at(0).toLatin1();
 	switch (firstChar) {
 	case '@':
-		myColor = Qt::darkMagenta;
+		myFormat.setForeground(Qt::darkMagenta);
 		break;
 	case '+':
-		myColor = Qt::darkGreen;
+		myFormat.setForeground(Qt::darkGreen);
 		break;
 	case '-':
-		myColor = Qt::red;
+		myFormat.setForeground(Qt::red);
 		break;
 	case 'c':
 	case 'd':
@@ -45,22 +45,22 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 			|| text.startsWith("old ")
 			|| text.startsWith("rename ")
 			|| text.startsWith("similarity "))
-			myColor = Qt::darkBlue;
+			myFormat.setForeground(Qt::darkBlue);
 
 		else if (cl > 0 && text.startsWith("diff --combined"))
-			myColor = Qt::darkBlue;
+			myFormat.setForeground(Qt::darkBlue);
 		break;
 	case ' ':
 		if (cl > 0) {
 			if (text.left(cl).contains('+'))
-				myColor = Qt::darkGreen;
+				myFormat.setForeground(Qt::darkGreen);
 			else if (text.left(cl).contains('-'))
-				myColor = Qt::red;
+				myFormat.setForeground(Qt::red);
 		}
 		break;
 	}
-	if (myColor.isValid())
-		setFormat(0, text.length(), myColor);
+	if( myFormat.isValid() )
+		setFormat(0, text.length(), myFormat);
 
 	PatchContent* pc = static_cast<PatchContent*>(parent());
 	if (pc->matches.count() > 0) {
