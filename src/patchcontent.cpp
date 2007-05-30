@@ -38,8 +38,10 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 	case 'o':
 	case 'r':
 	case 's':
-		if (   text.startsWith("diff --git a/")
-			|| text.startsWith("copy ")
+		if (text.startsWith("diff --git a/")) {
+			myFormat.setForeground( Qt::darkBlue );
+			myFormat.setBackground( QColor(0xe0,0xe0,0xf0) );
+		} else if ( text.startsWith("copy ")
 			|| text.startsWith("index ")
 			|| text.startsWith("new ")
 			|| text.startsWith("old ")
@@ -47,8 +49,10 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 			|| text.startsWith("similarity "))
 			myFormat.setForeground(Qt::darkBlue);
 
-		else if (cl > 0 && text.startsWith("diff --combined"))
+		else if (cl > 0 && text.startsWith("diff --combined")) {
 			myFormat.setForeground(Qt::darkBlue);
+			myFormat.setBackground( QColor(0xe0,0xe0,0xf0) );
+		}
 		break;
 	case ' ':
 		if (cl > 0) {
