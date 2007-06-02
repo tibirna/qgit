@@ -19,61 +19,147 @@
 #include "mainimpl.h"
 #include "revsview.h"
 
-JumpLabel::JumpLabel(const QString& text, QTextEdit* par) : QLabel("", par) {
+#define GO_UP   1
+#define GO_DOWN 2
+#define GO_LOG  3
+#define GO_DIFF 4
+
+SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObject(par) {
 
 	wheelCnt = 0;
-	setTextFormat(Qt::RichText);
-	QString link("<a href=\"" + text + "\">" + text + "</a>");
-	setText(link);
-	hide();
-	par->installEventFilter(this);
+
+	textBrowserDesc = log;
+	textEditDiff = diff;
+
+	QString txt("<p><img src=\":/icons/resources/%1\"> %2 <small>%3</small></p>");
+	QString link("<a href=\"%1\">%2</a>");
+	QString linkUp(link.arg(QString::number(GO_UP), "Up"));
+	QString linkDown(link.arg(QString::number(GO_DOWN), "Down"));
+	QString linkLog(link.arg(QString::number(GO_LOG), "Log"));
+	QString linkDiff(link.arg(QString::number(GO_DIFF), "Diff"));
+
+	logTopLbl = new QLabel(txt.arg("1uparrow.png", linkUp, ""), log);
+	logBottomLbl = new QLabel(txt.arg("1downarrow.png", linkDiff, linkDown), log);
+	diffTopLbl = new QLabel(txt.arg("1uparrow.png", linkLog, linkUp), diff);
+	diffBottomLbl = new QLabel(txt.arg("1downarrow.png", linkUp, linkDown), diff);
+
+	logTopLbl->hide();
+	logBottomLbl->hide();
+	diffTopLbl->hide();
+	diffBottomLbl->hide();
+
+	log->installEventFilter(this);
+	diff->installEventFilter(this);
+
+	connect(logTopLbl, SIGNAL(linkActivated(const QString&)),
+	        this, SLOT(linkActivated(const QString&)));
+
+	connect(logBottomLbl, SIGNAL(linkActivated(const QString&)),
+	        this, SLOT(linkActivated(const QString&)));
+
+	connect(diffTopLbl, SIGNAL(linkActivated(const QString&)),
+	        this, SLOT(linkActivated(const QString&)));
+
+	connect(diffBottomLbl, SIGNAL(linkActivated(const QString&)),
+	        this, SLOT(linkActivated(const QString&)));
 }
 
-bool JumpLabel::eventFilter(QObject *obj, QEvent *event) {
+void SmartBrowse::linkActivated(const QString& text) {
+
+	int key = text.toInt();
+	RevsView* rv = static_cast<RevsView*>(parent());
+
+	switch (key) {
+	case GO_LOG:
+	case GO_DIFF:
+		rv->m()->ActToggleLogsDiff->trigger();
+		break;
+	case GO_UP:
+		rv->tab()->listViewLog->on_keyUp();
+		break;
+	case GO_DOWN:
+		rv->tab()->listViewLog->on_keyDown();
+		break;
+	default:
+		dbp("ASSERT in SmartBrowse::linkActivated, key %1 not known", text);
+	}
+}
+
+bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 
 	QEvent::Type t = event->type();
-	if (t == QEvent::Resize && obj == parent())
+	if (t == QEvent::Resize)
 		parentResized();
 
-	if (t == QEvent::EnabledChange && obj == parent()) {
-		QTextEdit* te = static_cast<QTextEdit*>(parent());
-		setVisible(te->isEnabled());
+	if (t == QEvent::EnabledChange) {
+		QTextEdit* te = static_cast<QTextEdit*>(obj);
+		logTopLbl->setVisible(te->isEnabled());
+		logBottomLbl->setVisible(te->isEnabled());
+		diffTopLbl->setVisible(te->isEnabled());
+		diffBottomLbl->setVisible(te->isEnabled());
 	}
-	if (t == QEvent::Wheel && obj == parent())
-		wheelRolled();
-
+	if (t == QEvent::Wheel) {
+		QWheelEvent* we = static_cast<QWheelEvent*>(event);
+		wheelRolled(we->delta());
+	}
 	return QObject::eventFilter(obj, event);
 }
 
-void JumpLabel::parentResized() {
+void SmartBrowse::parentResized() {
 
-	QTextEdit* te = static_cast<QTextEdit*>(parent());
-	int w = te->width() - te->verticalScrollBar()->width() - width();
-	move(w - 10, 10);
+	bool b = textEditDiff->isVisible();
+	QTextEdit* te = b ? static_cast<QTextEdit*>(textEditDiff)
+	                  : static_cast<QTextEdit*>(textBrowserDesc);
+
+	int w = te->width() - te->verticalScrollBar()->width();
+	int h = te->height() - te->horizontalScrollBar()->height();
+
+	logTopLbl->move(w - logTopLbl->width() - 10, 10);
+	diffTopLbl->move(w - diffTopLbl->width() - 10, 10);
+	logBottomLbl->move(w - logBottomLbl->width() - 10, h - logBottomLbl->height() - 10);
+	diffBottomLbl->move(w - diffBottomLbl->width() - 10, h - diffBottomLbl->height() - 10);
+
+	// we are called also when user toggle view manually,
+	// so reset wheel counters to be sure we don't have alias
 	wheelTimer.restart();
 	wheelCnt = 0;
 }
 
-void JumpLabel::wheelRolled() {
+void SmartBrowse::wheelRolled(int delta) {
 // event is received only when rejected by QTextEdit, i.e. when
-// at the top or bottom of the view.
+// at the top or bottom of the view. For each wheel step we could
+// have multiple events, so filter any consecutive event.
 
-	// count time from last switch event to
-	// avoid spurious switches
-	if (wheelTimer.isNull() || wheelTimer.elapsed() < 600) {
+	// filter a stream of consecutive events
+	if (wheelTimer.isNull() || wheelTimer.elapsed() < 300) {
+		wheelTimer.restart();
+		return;
+	}
+	delta = delta > 0 ? 1 : -1;
+
+	if (wheelCnt * delta <= 0) { // wheel roll direction changed
+		wheelCnt = delta;
 		wheelTimer.restart();
 		return;
 	}
 	// ok, we have a good wheel event, but
 	// before the switch force the user to
 	// keep rolling a bit on his wheel
-	if (++wheelCnt < 5)
-		return;
+// 	if (wheelCnt < 5 && wheelCnt > -5)
+// 		return;
+
+	QLabel* l;
+	if (wheelCnt > 0)
+		l = logTopLbl->isVisible() ? logTopLbl : diffTopLbl;
+	else
+		l = logBottomLbl->isVisible() ? logBottomLbl : diffBottomLbl;
 
 	wheelCnt = 0;
 	wheelTimer.restart();
-	emit linkActivated(text());
+	linkActivated(l->text().section("href=", 1).section("\"", 1, 1));
 }
+
+// ***************************  RevsView  ********************************
 
 RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
@@ -92,14 +178,7 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	v << tab()->horizontalSplitter << tab()->verticalSplitter;
 	QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
-	JumpLabel* jl1 = new JumpLabel("Log->", tab()->textEditDiff);
-	JumpLabel* jl2 = new JumpLabel("Diff->", tab()->textBrowserDesc);
-
-	connect(jl1, SIGNAL(linkActivated (const QString&)),
-	        m(), SLOT(ActToggleLogsDiff_activated()));
-
-	connect(jl2, SIGNAL(linkActivated (const QString&)),
-	        m(), SLOT(ActToggleLogsDiff_activated()));
+	new SmartBrowse(this, tab()->textBrowserDesc, tab()->textEditDiff);
 
 	connect(m(), SIGNAL(typeWriterFontChanged()),
 	        tab()->textEditDiff, SLOT(typeWriterFontChanged()));
