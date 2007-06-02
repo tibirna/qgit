@@ -167,7 +167,9 @@ bool SmartBrowse::wheelRolled(int delta, bool outOfRange) {
 	bool scrolling = (scrollTimer.isValid() && scrollTimer.elapsed() < 400);
 	bool directionChanged = (wheelCnt * delta < 0);
 
-	if (!outOfRange) // a scroll action have to start when in range
+	// a scroll action have to start when in range
+	// but can continue also when goes out of range
+	if (!outOfRange || scrolling)
 		scrollTimer.restart();
 
 	if (!outOfRange || justSwitched)
