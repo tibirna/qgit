@@ -84,7 +84,7 @@ private:
 	SmartLabel* logBottomLbl;
 	SmartLabel* diffTopLbl;
 	SmartLabel* diffBottomLbl;
-	QTime filterTimer, switchTimer;
+	QTime scrollTimer, switchTimer, timeoutTimer;
 	int wheelCnt;
 };
 

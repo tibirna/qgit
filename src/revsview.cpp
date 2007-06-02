@@ -102,7 +102,7 @@ void SmartBrowse::linkActivated(const QString& text) {
 	switch (key) {
 	case GO_LOG:
 	case GO_DIFF:
-		rv->m()->ActToggleLogsDiff->trigger();
+		rv->toggleDiffView();
 		break;
 	case GO_UP:
 		rv->tab()->listViewLog->on_keyUp();
@@ -154,35 +154,39 @@ void SmartBrowse::parentResized() {
 
 	// we are called also when user toggle view manually,
 	// so reset wheel counters to be sure we don't have alias
-	filterTimer.restart();
+	scrollTimer.restart();
 	wheelCnt = 0;
 }
 
 bool SmartBrowse::wheelRolled(int delta, bool outOfRange) {
 
-	if (!outOfRange) {
-		bool justSwitched = (switchTimer.isValid() && switchTimer.elapsed() < 400);
-		if (justSwitched)
-			switchTimer.restart();
+	bool justSwitched = (switchTimer.isValid() && switchTimer.elapsed() < 400);
+	if (justSwitched)
+		switchTimer.restart();
 
-		return justSwitched;
-	}
-	bool lastWasVeryOld = (!filterTimer.isNull() && filterTimer.elapsed() > 3000);
-	if (lastWasVeryOld)
+	bool scrolling = (scrollTimer.isValid() && scrollTimer.elapsed() < 400);
+	bool directionChanged = (wheelCnt * delta < 0);
+
+	if (!outOfRange) // a scroll action have to start when in range
+		scrollTimer.restart();
+
+	if (!outOfRange || justSwitched)
+		return justSwitched; // filter wheels events just after a switch
+
+	// we want a quick rolling action to be considered valid
+	bool tooSlow = (timeoutTimer.isValid() && timeoutTimer.elapsed() > 300);
+	timeoutTimer.restart();
+
+	if (directionChanged || scrolling || tooSlow)
 		wheelCnt = 0;
 
-	bool eventStream = filterTimer.isNull() || filterTimer.elapsed() < 300;
-	bool directionChanged = (wheelCnt * delta < 0);
-	bool overScroll = (wheelCnt == 0 && curTextEdit()->verticalScrollBar()->isVisible());
-	QLabel* l = NULL;
+	// ok, we would be ready to switch, but we want to add some inertia
+	wheelCnt += (delta > 0 ? 1 : -1);
+	if (wheelCnt * wheelCnt < 9)
+		return false;
 
-	if (eventStream || directionChanged || overScroll) {
-		if (!eventStream)
-			wheelCnt = delta;
-
-		goto exit;
-	}
-	if (delta > 0)
+	QLabel* l;
+	if (wheelCnt > 0)
 		l = logTopLbl->isVisible() ? logTopLbl : diffTopLbl;
 	else
 		l = logBottomLbl->isVisible() ? logBottomLbl : diffBottomLbl;
@@ -190,8 +194,6 @@ bool SmartBrowse::wheelRolled(int delta, bool outOfRange) {
 	wheelCnt = 0;
 	switchTimer.restart();
 	linkActivated(l->text().section("href=", 1).section("\"", 1, 1));
-exit:
-	filterTimer.restart();
 	return false;
 }
 
