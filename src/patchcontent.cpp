@@ -295,8 +295,8 @@ void PatchContent::procFinished() {
 	if (!patchRowData.endsWith("\n"))
 		processData("\n"); // flush pending half lines
 
-// 	if (seekTarget) FIXME
-// 		seekTarget = !centerTarget();
+	if (seekTarget)
+		seekTarget = !centerTarget(target);
 
 	diffLoaded = true;
 	if (computeMatches()) {

@@ -64,6 +64,9 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	diffTopLbl = new SmartLabel(txt.arg("1uparrow.png", linkLog, linkUp), diff);
 	diffBottomLbl = new SmartLabel(txt.arg("1downarrow.png", linkUp, linkDown), diff);
 
+	diffTopLbl->setFont(qApp->font());    // override parent's font to
+	diffBottomLbl->setFont(qApp->font()); // avoid QGit::TYPE_WRITER_FONT
+
 	logTopLbl->hide();
 	logBottomLbl->hide();
 	diffTopLbl->hide();
@@ -144,8 +147,11 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 void SmartBrowse::parentResized() {
 
 	QTextEdit* te = curTextEdit();
-	int w = te->width() - te->verticalScrollBar()->width();
-	int h = te->height() - te->horizontalScrollBar()->height();
+	QScrollBar* vb = te->verticalScrollBar();
+	QScrollBar* hb = te->horizontalScrollBar();
+
+	int w = te->width() - vb->width() * vb->isVisible();
+	int h = te->height() - hb->height() * hb->isVisible();
 
 	logTopLbl->move(w - logTopLbl->width() - 10, 10);
 	diffTopLbl->move(w - diffTopLbl->width() - 10, 10);
