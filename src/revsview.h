@@ -73,6 +73,7 @@ private slots:
 	void linkActivated(const QString&);
 
 private:
+	QTextEdit* curTextEdit();
 	void parentResized();
 	void wheelRolled(int delta);
 

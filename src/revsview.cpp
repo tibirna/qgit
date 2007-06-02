@@ -85,6 +85,13 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	        this, SLOT(linkActivated(const QString&)));
 }
 
+QTextEdit* SmartBrowse::curTextEdit() {
+
+	bool b = textEditDiff->isVisible();
+	return (b ? static_cast<QTextEdit*>(textEditDiff)
+	          : static_cast<QTextEdit*>(textBrowserDesc));
+}
+
 void SmartBrowse::linkActivated(const QString& text) {
 
 	int key = text.toInt();
@@ -128,10 +135,7 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 
 void SmartBrowse::parentResized() {
 
-	bool b = textEditDiff->isVisible();
-	QTextEdit* te = b ? static_cast<QTextEdit*>(textEditDiff)
-	                  : static_cast<QTextEdit*>(textBrowserDesc);
-
+	QTextEdit* te = curTextEdit();
 	int w = te->width() - te->verticalScrollBar()->width();
 	int h = te->height() - te->horizontalScrollBar()->height();
 
@@ -151,33 +155,26 @@ void SmartBrowse::wheelRolled(int delta) {
 // at the top or bottom of the view. For each wheel step we could
 // have multiple events, so filter any consecutive event.
 
-	// filter a stream of consecutive events
-	if (wheelTimer.isNull() || wheelTimer.elapsed() < 300) {
+	bool eventStream = wheelTimer.isNull() || wheelTimer.elapsed() < 500;
+	bool directionChanged = (wheelCnt * delta < 0);
+	bool overScroll = (wheelCnt == 0 && curTextEdit()->verticalScrollBar()->isVisible());
+
+	if (eventStream || directionChanged || overScroll) {
+		if (!eventStream)
+			wheelCnt = delta;
+
 		wheelTimer.restart();
 		return;
 	}
-	delta = delta > 0 ? 1 : -1;
-
-	if (wheelCnt * delta <= 0) { // wheel roll direction changed
-		wheelCnt = delta;
-		wheelTimer.restart();
-		return;
-	}
-	// ok, we have a good wheel event, but
-	// before the switch force the user to
-	// keep rolling a bit on his wheel
-// 	if (wheelCnt < 5 && wheelCnt > -5)
-// 		return;
-
 	QLabel* l;
-	if (wheelCnt > 0)
+	if (delta > 0)
 		l = logTopLbl->isVisible() ? logTopLbl : diffTopLbl;
 	else
 		l = logBottomLbl->isVisible() ? logBottomLbl : diffBottomLbl;
 
+	linkActivated(l->text().section("href=", 1).section("\"", 1, 1));
 	wheelCnt = 0;
 	wheelTimer.restart();
-	linkActivated(l->text().section("href=", 1).section("\"", 1, 1));
 }
 
 // ***************************  RevsView  ********************************
