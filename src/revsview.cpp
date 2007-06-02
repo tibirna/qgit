@@ -24,6 +24,27 @@
 #define GO_LOG  3
 #define GO_DIFF 4
 
+void SmartLabel::contextMenuEvent(QContextMenuEvent* e) {
+
+	if (text().count("href=") != 2)
+		return;
+
+	QMenu* menu = new QMenu(this);
+	menu->addAction("Switch links", this, SLOT(switchLinks()));
+	menu->exec(e->globalPos());
+	delete menu;
+}
+
+void SmartLabel::switchLinks() {
+
+	QString t(text());
+	QString link1(t.section("<a href=", 1). section("</a>", 0, 0));
+	QString link2(t.section("<a href=", 2). section("</a>", 0, 0));
+	t.replace(link1, "%1").replace(link2, "%2");
+	setText(t.arg(link2, link1));
+	adjustSize();
+}
+
 SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObject(par) {
 
 	wheelCnt = 0;
@@ -38,10 +59,10 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	QString linkLog(link.arg(QString::number(GO_LOG), "Log"));
 	QString linkDiff(link.arg(QString::number(GO_DIFF), "Diff"));
 
-	logTopLbl = new QLabel(txt.arg("1uparrow.png", linkUp, ""), log);
-	logBottomLbl = new QLabel(txt.arg("1downarrow.png", linkDiff, linkDown), log);
-	diffTopLbl = new QLabel(txt.arg("1uparrow.png", linkLog, linkUp), diff);
-	diffBottomLbl = new QLabel(txt.arg("1downarrow.png", linkUp, linkDown), diff);
+	logTopLbl = new SmartLabel(txt.arg("1uparrow.png", linkUp, ""), log);
+	logBottomLbl = new SmartLabel(txt.arg("1downarrow.png", linkDiff, linkDown), log);
+	diffTopLbl = new SmartLabel(txt.arg("1uparrow.png", linkLog, linkUp), diff);
+	diffBottomLbl = new SmartLabel(txt.arg("1downarrow.png", linkUp, linkDown), diff);
 
 	logTopLbl->hide();
 	logBottomLbl->hide();

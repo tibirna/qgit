@@ -49,6 +49,18 @@ private:
 	QPointer<PatchView> linkedPatchView;
 };
 
+class SmartLabel : public QLabel {
+Q_OBJECT
+public:
+	SmartLabel(const QString& text, QWidget* par) : QLabel(text, par) {}
+
+protected:
+	virtual void contextMenuEvent(QContextMenuEvent* e);
+
+private slots:
+	void switchLinks();
+};
+
 class SmartBrowse : public QObject {
 Q_OBJECT
 public:
@@ -67,10 +79,10 @@ private:
 	RevDesc* textBrowserDesc;
 	PatchContent* textEditDiff;
 
-	QLabel* logTopLbl;
-	QLabel* logBottomLbl;
-	QLabel* diffTopLbl;
-	QLabel* diffBottomLbl;
+	SmartLabel* logTopLbl;
+	SmartLabel* logBottomLbl;
+	SmartLabel* diffTopLbl;
+	SmartLabel* diffBottomLbl;
 	QTime wheelTimer;
 	int wheelCnt;
 };
