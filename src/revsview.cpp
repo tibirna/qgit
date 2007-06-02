@@ -155,6 +155,10 @@ void SmartBrowse::wheelRolled(int delta) {
 // at the top or bottom of the view. For each wheel step we could
 // have multiple events, so filter any consecutive event.
 
+	bool lastWasVeryOld = (!wheelTimer.isNull() && wheelTimer.elapsed() > 3000);
+	if (lastWasVeryOld)
+		wheelCnt = 0;
+
 	bool eventStream = wheelTimer.isNull() || wheelTimer.elapsed() < 500;
 	bool directionChanged = (wheelCnt * delta < 0);
 	bool overScroll = (wheelCnt == 0 && curTextEdit()->verticalScrollBar()->isVisible());
