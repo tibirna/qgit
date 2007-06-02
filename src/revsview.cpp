@@ -71,6 +71,8 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 
 	log->installEventFilter(this);
 	diff->installEventFilter(this);
+	log->verticalScrollBar()->installEventFilter(this);
+	diff->verticalScrollBar()->installEventFilter(this);
 
 	connect(logTopLbl, SIGNAL(linkActivated(const QString&)),
 	        this, SLOT(linkActivated(const QString&)));
@@ -115,20 +117,26 @@ void SmartBrowse::linkActivated(const QString& text) {
 
 bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 
+	QTextEdit* te = dynamic_cast<QTextEdit*>(obj);
+	QScrollBar* vsb = dynamic_cast<QScrollBar*>(obj);
+
 	QEvent::Type t = event->type();
-	if (t == QEvent::Resize)
+	if (te && t == QEvent::Resize)
 		parentResized();
 
-	if (t == QEvent::EnabledChange) {
-		QTextEdit* te = static_cast<QTextEdit*>(obj);
+	if (te && t == QEvent::EnabledChange) {
 		logTopLbl->setVisible(te->isEnabled());
 		logBottomLbl->setVisible(te->isEnabled());
 		diffTopLbl->setVisible(te->isEnabled());
 		diffBottomLbl->setVisible(te->isEnabled());
 	}
-	if (t == QEvent::Wheel) {
+	if (vsb && t == QEvent::Wheel) {
+		bool outOfRange = (   vsb->value() == vsb->minimum()
+		                   || vsb->value() == vsb->maximum());
+
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
-		wheelRolled(we->delta());
+		if (wheelRolled(we->delta(), outOfRange))
+			return true; // filter event out
 	}
 	return QObject::eventFilter(obj, event);
 }
@@ -146,39 +154,45 @@ void SmartBrowse::parentResized() {
 
 	// we are called also when user toggle view manually,
 	// so reset wheel counters to be sure we don't have alias
-	wheelTimer.restart();
+	filterTimer.restart();
 	wheelCnt = 0;
 }
 
-void SmartBrowse::wheelRolled(int delta) {
-// event is received only when rejected by QTextEdit, i.e. when
-// at the top or bottom of the view. For each wheel step we could
-// have multiple events, so filter any consecutive event.
+bool SmartBrowse::wheelRolled(int delta, bool outOfRange) {
 
-	bool lastWasVeryOld = (!wheelTimer.isNull() && wheelTimer.elapsed() > 3000);
+	if (!outOfRange) {
+		bool justSwitched = (switchTimer.isValid() && switchTimer.elapsed() < 400);
+		if (justSwitched)
+			switchTimer.restart();
+
+		return justSwitched;
+	}
+	bool lastWasVeryOld = (!filterTimer.isNull() && filterTimer.elapsed() > 3000);
 	if (lastWasVeryOld)
 		wheelCnt = 0;
 
-	bool eventStream = wheelTimer.isNull() || wheelTimer.elapsed() < 500;
+	bool eventStream = filterTimer.isNull() || filterTimer.elapsed() < 300;
 	bool directionChanged = (wheelCnt * delta < 0);
 	bool overScroll = (wheelCnt == 0 && curTextEdit()->verticalScrollBar()->isVisible());
+	QLabel* l = NULL;
 
 	if (eventStream || directionChanged || overScroll) {
 		if (!eventStream)
 			wheelCnt = delta;
 
-		wheelTimer.restart();
-		return;
+		goto exit;
 	}
-	QLabel* l;
 	if (delta > 0)
 		l = logTopLbl->isVisible() ? logTopLbl : diffTopLbl;
 	else
 		l = logBottomLbl->isVisible() ? logBottomLbl : diffBottomLbl;
 
-	linkActivated(l->text().section("href=", 1).section("\"", 1, 1));
 	wheelCnt = 0;
-	wheelTimer.restart();
+	switchTimer.restart();
+	linkActivated(l->text().section("href=", 1).section("\"", 1, 1));
+exit:
+	filterTimer.restart();
+	return false;
 }
 
 // ***************************  RevsView  ********************************

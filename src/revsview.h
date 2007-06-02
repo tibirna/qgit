@@ -75,7 +75,7 @@ private slots:
 private:
 	QTextEdit* curTextEdit();
 	void parentResized();
-	void wheelRolled(int delta);
+	bool wheelRolled(int delta, bool outOfRange);
 
 	RevDesc* textBrowserDesc;
 	PatchContent* textEditDiff;
@@ -84,7 +84,7 @@ private:
 	SmartLabel* logBottomLbl;
 	SmartLabel* diffTopLbl;
 	SmartLabel* diffBottomLbl;
-	QTime wheelTimer;
+	QTime filterTimer, switchTimer;
 	int wheelCnt;
 };
 
