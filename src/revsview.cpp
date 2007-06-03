@@ -127,6 +127,9 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 	if (te && t == QEvent::Resize)
 		parentResized();
 
+	if (vsb && (t == QEvent::Show || t == QEvent::Hide))
+		parentResized();
+
 	if (te && t == QEvent::EnabledChange) {
 		logTopLbl->setVisible(te->isEnabled());
 		logBottomLbl->setVisible(te->isEnabled());
