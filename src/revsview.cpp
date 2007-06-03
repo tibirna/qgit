@@ -135,13 +135,16 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 		logBottomLbl->setVisible(te->isEnabled());
 		diffTopLbl->setVisible(te->isEnabled());
 		diffBottomLbl->setVisible(te->isEnabled());
+		parentResized();
 	}
 	if (vsb && t == QEvent::Wheel) {
-		bool outOfRange = (   vsb->value() == vsb->minimum()
-		                   || vsb->value() == vsb->maximum());
-
+		int MIN = 5;
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
-		if (wheelRolled(we->delta(), outOfRange))
+
+		bool upRun = (vsb->value() - vsb->minimum() < MIN && we->delta() > 0);
+		bool dwRun = (vsb->maximum() - vsb->value() < MIN && we->delta() < 0);
+
+		if (wheelRolled(we->delta(), upRun || dwRun))
 			return true; // filter event out
 	}
 	return QObject::eventFilter(obj, event);
