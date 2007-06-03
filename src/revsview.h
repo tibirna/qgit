@@ -7,9 +7,7 @@
 #ifndef REVSVIEW_H
 #define REVSVIEW_H
 
-#include <QLabel>
 #include <QPointer>
-#include <QTime>
 #include "ui_revsview.h" // needed by moc_* file to understand tab() function
 #include "common.h"
 #include "domain.h"
@@ -47,45 +45,6 @@ private:
 
 	Ui_TabRev* revTab;
 	QPointer<PatchView> linkedPatchView;
-};
-
-class SmartLabel : public QLabel {
-Q_OBJECT
-public:
-	SmartLabel(const QString& text, QWidget* par) : QLabel(text, par) {}
-
-protected:
-	virtual void contextMenuEvent(QContextMenuEvent* e);
-
-private slots:
-	void switchLinks();
-};
-
-class SmartBrowse : public QObject {
-Q_OBJECT
-public:
-	SmartBrowse(RevsView* par, RevDesc* msg, PatchContent* diff);
-
-protected:
-	bool eventFilter(QObject *obj, QEvent *event);
-
-private slots:
-	void linkActivated(const QString&);
-
-private:
-	QTextEdit* curTextEdit();
-	void parentResized();
-	bool wheelRolled(int delta, bool outOfRange);
-
-	RevDesc* textBrowserDesc;
-	PatchContent* textEditDiff;
-
-	SmartLabel* logTopLbl;
-	SmartLabel* logBottomLbl;
-	SmartLabel* diffTopLbl;
-	SmartLabel* diffBottomLbl;
-	QTime scrollTimer, switchTimer, timeoutTimer;
-	int wheelCnt;
 };
 
 #endif
