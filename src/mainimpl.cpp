@@ -517,8 +517,8 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 		statusBar()->showMessage(tmp);
 		return;
 	}
-	bool commit, fold;
-	if (!askApplyPatchParameters(&commit, &fold))
+	bool workDirOnly, fold;
+	if (!askApplyPatchParameters(&workDirOnly, &fold))
 		return;
 
 	// ok, let's go
@@ -553,7 +553,7 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 			break;
 		}
 		SCRef fn(dr.absoluteFilePath(dr[0]));
-		if (!git->applyPatchFile(fn, commit, fold, Git::optDragDrop))
+		if (!git->applyPatchFile(fn, fold, Git::optDragDrop))
 			break;
 
 		dr.remove(fn);
@@ -565,7 +565,7 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 	else
 		statusBar()->showMessage("Failed to import revision " + QString::number(revNum--));
 
-	if (!commit && (revNum > 0))
+	if (workDirOnly && (revNum > 0))
 		git->resetCommits(revNum);
 
 	dr.rmdir(dr.absolutePath()); // 'dr' must be already empty
@@ -1315,25 +1315,22 @@ void MainImpl::ActMailFormatPatch_activated() {
 	QApplication::restoreOverrideCursor();
 }
 
-bool MainImpl::askApplyPatchParameters(bool* commit, bool* fold) {
+bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 
-	int ret = QMessageBox::question(this, "Apply Patch",
-	          "Do you want to commit or just to apply changes to "
-	          "working directory?", "&Cancel", "&Working dir", "&Commit", 0, 0);
-	if (ret == 0)
-		return false;
-
-	*commit = (ret == 2);
-	*fold = false;
-	if (*commit && git->isStGITStack()) {
+	int ret = 0;
+	if (!git->isStGITStack()) {
+		ret = QMessageBox::question(this, "Apply Patch",
+		      "Do you want to commit or just to apply changes to "
+		      "working directory?", "&Cancel", "&Working dir", "&Commit", 0, 0);
+		*workDirOnly = (ret == 1);
+		*fold = false;
+	} else {
 		ret = QMessageBox::question(this, "Apply Patch", "Do you want to "
 		      "import or fold the patch?", "&Cancel", "&Fold", "&Import", 0, 0);
-		if (ret == 0)
-			return false;
-
+		*workDirOnly = false;
 		*fold = (ret == 1);
 	}
-	return true;
+	return (ret != 0);
 }
 
 void MainImpl::ActMailApplyPatch_activated() {
@@ -1349,13 +1346,14 @@ void MainImpl::ActMailApplyPatch_activated() {
 	QFileInfo f(patchName);
 	settings.setValue(PATCH_DIR_KEY, f.absolutePath());
 
-	bool commit, fold;
-	if (!askApplyPatchParameters(&commit, &fold))
+	bool workDirOnly, fold;
+	if (!askApplyPatchParameters(&workDirOnly, &fold))
 		return;
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	if (git->applyPatchFile(f.absoluteFilePath(), commit, fold, !Git::optDragDrop) && !commit)
+	bool ok = git->applyPatchFile(f.absoluteFilePath(), fold, !Git::optDragDrop);
+	if (workDirOnly && ok)
 		git->resetCommits(1);
 
 	QApplication::restoreOverrideCursor();

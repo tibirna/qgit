@@ -153,7 +153,7 @@ public:
 	bool commitFiles(SCList files, SCRef msg);
 	bool makeTag(SCRef sha, SCRef tag, SCRef msg);
 	bool deleteTag(SCRef sha);
-	bool applyPatchFile(SCRef patchPath, bool commit, bool fold, bool sign);
+	bool applyPatchFile(SCRef patchPath, bool fold, bool sign);
 	bool resetCommits(int parentDepth);
 	bool stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold);
 	bool stgPush(SCRef sha);

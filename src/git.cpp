@@ -1289,13 +1289,16 @@ bool Git::resetCommits(int parentDepth) {
 	return run(runCmd);
 }
 
-bool Git::applyPatchFile(SCRef patchPath, bool commit, bool fold, bool isDragDrop) {
+bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 
-	if (commit && isStGIT) {
-		if (fold)
-			return run("stg fold " + quote(patchPath));
-
-		return run("stg import --mail " + quote(patchPath));
+	if (isStGIT) {
+		if (fold) {
+			bool ok = run("stg fold " + quote(patchPath)); // merge in working dir
+			if (ok)
+				ok = run("stg refresh"); // update top patch
+			return ok;
+		} else
+			return run("stg import --mail " + quote(patchPath));
 	}
 	QString runCmd("git am --utf8 --3way ");
 	if (isDragDrop)
