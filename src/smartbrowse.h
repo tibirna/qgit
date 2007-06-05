@@ -41,7 +41,7 @@ private:
 	void setVisible(bool b);
 	void updatePosition();
 	int visibilityFlags(bool* isDiff = NULL);
-	bool wheelRolled(int delta, bool outOfRange);
+	bool wheelRolled(int delta, int flags);
 
 	RevsView* rv;
 	SmartLabel* logTopLbl;

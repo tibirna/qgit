@@ -221,7 +221,7 @@ void SmartBrowse::updatePosition() {
 	wheelCnt = 0;
 }
 
-bool SmartBrowse::wheelRolled(int delta, bool atBoundary) {
+bool SmartBrowse::wheelRolled(int delta, int flags) {
 
 	bool justSwitched = (switchTimer.isValid() && switchTimer.elapsed() < 400);
 	if (justSwitched)
@@ -230,12 +230,17 @@ bool SmartBrowse::wheelRolled(int delta, bool atBoundary) {
 	bool scrolling = (scrollTimer.isValid() && scrollTimer.elapsed() < 400);
 	bool directionChanged = (wheelCnt * delta < 0);
 
+	// we are called before the scroll bar is updated, so we need
+	// to take in account roll direction to avoid false positives
+	bool scrollingOut = (  ((flags & AT_TOP) && (delta > 0))
+	                     ||((flags & AT_BTM) && (delta < 0)));
+
 	// a scroll action have to start when in range
 	// but can continue also when goes out of range
-	if (!atBoundary || scrolling)
+	if (!scrollingOut || scrolling)
 		scrollTimer.restart();
 
-	if (!atBoundary || justSwitched)
+	if (!scrollingOut || justSwitched)
 		return justSwitched; // filter wheels events just after a switch
 
 	// we want a quick rolling action to be considered valid
