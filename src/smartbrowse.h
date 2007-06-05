@@ -31,11 +31,13 @@ public:
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 
-private slots:
+public slots:
 	void linkActivated(const QString&);
+	void flagChanged(uint);
 
 private:
 	QTextEdit* curTextEdit(bool* isDiff = NULL);
+	void setVisible(bool b);
 	int updateVisibility(int delta = 0);
 	void updatePosition();
 	bool wheelRolled(int delta, bool outOfRange);
@@ -49,6 +51,7 @@ private:
 	SmartLabel* diffBottomLbl;
 	QTime scrollTimer, switchTimer, timeoutTimer;
 	int wheelCnt;
+	bool lablesEnabled;
 };
 
 #endif

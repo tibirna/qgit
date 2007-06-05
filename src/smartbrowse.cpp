@@ -43,6 +43,7 @@ void SmartLabel::switchLinks() {
 SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObject(par) {
 
 	wheelCnt = 0;
+	lablesEnabled = QGit::testFlag(QGit::SMART_LBL_F);
 
 	textBrowserDesc = log;
 	textEditDiff = diff;
@@ -62,10 +63,7 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	diffTopLbl->setFont(qApp->font());    // override parent's font to
 	diffBottomLbl->setFont(qApp->font()); // avoid QGit::TYPE_WRITER_FONT
 
-	logTopLbl->hide();
-	logBottomLbl->hide();
-	diffTopLbl->hide();
-	diffBottomLbl->hide();
+	setVisible(false);
 
 	log->installEventFilter(this);
 	diff->installEventFilter(this);
@@ -85,6 +83,15 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	        this, SLOT(linkActivated(const QString&)));
 }
 
+void SmartBrowse::flagChanged(uint flag) {
+
+	if (flag == QGit::SMART_LBL_F) {
+		lablesEnabled = QGit::testFlag(QGit::SMART_LBL_F);
+		setVisible(curTextEdit()->isEnabled());
+		updatePosition();
+	}
+}
+
 QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
 
 	bool b = textEditDiff->isVisible();
@@ -93,6 +100,15 @@ QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
 
 	return (b ? static_cast<QTextEdit*>(textEditDiff)
 	          : static_cast<QTextEdit*>(textBrowserDesc));
+}
+
+void SmartBrowse::setVisible(bool b) {
+
+	b = b && lablesEnabled;
+	logTopLbl->setVisible(b);
+	logBottomLbl->setVisible(b);
+	diffTopLbl->setVisible(b);
+	diffBottomLbl->setVisible(b);
 }
 
 void SmartBrowse::linkActivated(const QString& text) {
@@ -118,6 +134,9 @@ void SmartBrowse::linkActivated(const QString& text) {
 
 bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 
+	if (!lablesEnabled)
+		return QObject::eventFilter(obj, event);
+
 	QTextEdit* te = dynamic_cast<QTextEdit*>(obj);
 	QScrollBar* vsb = dynamic_cast<QScrollBar*>(obj);
 
@@ -129,10 +148,7 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 		updatePosition();
 
 	if (te && t == QEvent::EnabledChange) {
-		logTopLbl->setVisible(te->isEnabled());
-		logBottomLbl->setVisible(te->isEnabled());
-		diffTopLbl->setVisible(te->isEnabled());
-		diffBottomLbl->setVisible(te->isEnabled());
+		setVisible(te->isEnabled());
 		updatePosition();
 	}
 	if (vsb && t == QEvent::Wheel) {
@@ -154,8 +170,9 @@ int SmartBrowse::updateVisibility(int delta) {
 	QTextEdit* te = curTextEdit(&isDiff);
 	QScrollBar* vsb = te->verticalScrollBar();
 
-	bool top = !vsb->isVisible() || (vsb->value() - vsb->minimum() < MIN);
-	bool btm = !vsb->isVisible() || (vsb->maximum() - vsb->value() < MIN);
+	bool v = lablesEnabled && te->isEnabled();
+	bool top = v && (!vsb->isVisible() || (vsb->value() - vsb->minimum() < MIN));
+	bool btm = v && (!vsb->isVisible() || (vsb->maximum() - vsb->value() < MIN));
 
 	if (delta) {
 		top = top && delta > 0;

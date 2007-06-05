@@ -121,6 +121,9 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	int wd = lineEditSHA->fontMetrics().boundingRect(tmp).width();
 	lineEditSHA->setMinimumWidth(wd);
 
+	// disable all actions
+	updateGlobalActions(false);
+
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
 	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<QString>&)));
 
@@ -1375,6 +1378,9 @@ void MainImpl::ActSettings_activated() {
 	SettingsImpl setView(this, git);
 	connect(&setView, SIGNAL(typeWriterFontChanged()),
 	        this, SIGNAL(typeWriterFontChanged()));
+
+	connect(&setView, SIGNAL(flagChanged(uint)),
+	        this, SIGNAL(flagChanged(uint)));
 
 	setView.exec();
 

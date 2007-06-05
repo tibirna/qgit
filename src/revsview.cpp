@@ -36,10 +36,13 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	v << tab()->horizontalSplitter << tab()->verticalSplitter;
 	QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
-	new SmartBrowse(this, tab()->textBrowserDesc, tab()->textEditDiff);
+	SmartBrowse* sb = new SmartBrowse(this, tab()->textBrowserDesc, tab()->textEditDiff);
 
 	connect(m(), SIGNAL(typeWriterFontChanged()),
 	        tab()->textEditDiff, SLOT(typeWriterFontChanged()));
+
+	connect(m(), SIGNAL(flagChanged(uint)),
+	        sb, SLOT(flagChanged(uint)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
