@@ -174,16 +174,11 @@ int SmartBrowse::updateVisibility(int delta) {
 	QTextEdit* te = curTextEdit(&isDiff);
 	QScrollBar* vsb = te->verticalScrollBar();
 
+	// here we compute visibility before the scroll bar update, so we use delta
 	bool v = lablesEnabled && te->isEnabled();
-	bool top = v && (!vsb->isVisible() || (vsb->value() - vsb->minimum() < MIN));
-	bool btm = v && (!vsb->isVisible() || (vsb->maximum() - vsb->value() < MIN));
+	bool top = v && (!vsb->isVisible() || (vsb->value() - vsb->minimum() - delta / 2 < MIN));
+	bool btm = v && (!vsb->isVisible() || (vsb->maximum() - vsb->value() + delta / 2 < MIN));
 
-	if (vsb->isVisible()) {
-		// we have to compute visibility
-		// before the scroll bar update
-		top = top && delta >= 0;
-		btm = btm && delta <= 0;
-	}
 	if (isDiff) {
 		diffTopLbl->setVisible(top);
 		diffBottomLbl->setVisible(btm);
