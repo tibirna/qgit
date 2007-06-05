@@ -49,6 +49,8 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxCommitVerify->setChecked(f & VERIFY_CMT_F);
 	checkBoxRangeSelectDialog->setChecked(f & RANGE_SELECT_F);
 	checkBoxRelativeDate->setChecked(f & REL_DATE_F);
+	checkBoxLogDiffTab->setChecked(f & LOG_DIFF_TAB_F);
+	checkBoxSmartLabels->setChecked(f & SMART_LBL_F);
 	checkBoxMsgOnNewSHA->setChecked(f & MSG_ON_NEW_F);
 
 	QSettings set;
@@ -179,46 +181,62 @@ void SettingsImpl::pushButtonFont_clicked() {
 	}
 }
 
+void SettingsImpl::changeFlag(uint f, bool b) {
+
+	setFlag(f, b);
+	emit flagChanged(f);
+}
+
 void SettingsImpl::checkBoxDiffCache_toggled(bool b) {
 
 	lineEditExcludeFile->setEnabled(b);
 	lineEditExcludePerDir->setEnabled(b);
-	setFlag(DIFF_INDEX_F, b);
+	changeFlag(DIFF_INDEX_F, b);
 }
 
 void SettingsImpl::checkBoxNumbers_toggled(bool b) {
 
-	setFlag(NUMBERS_F, b);
+	changeFlag(NUMBERS_F, b);
 }
 
 void SettingsImpl::checkBoxSign_toggled(bool b) {
 
-	setFlag(SIGN_PATCH_F, b);
+	changeFlag(SIGN_PATCH_F, b);
 }
 
 void SettingsImpl::checkBoxRangeSelectDialog_toggled(bool b) {
 
-	setFlag(RANGE_SELECT_F, b);
+	changeFlag(RANGE_SELECT_F, b);
 }
 
 void SettingsImpl::checkBoxRelativeDate_toggled(bool b) {
 
-	setFlag(REL_DATE_F, b);
+	changeFlag(REL_DATE_F, b);
+}
+
+void SettingsImpl::checkBoxLogDiffTab_toggled(bool b) {
+
+	changeFlag(LOG_DIFF_TAB_F, b);
+}
+
+void SettingsImpl::checkBoxSmartLabels_toggled(bool b) {
+
+	changeFlag(SMART_LBL_F, b);
 }
 
 void SettingsImpl::checkBoxMsgOnNewSHA_toggled(bool b) {
 
-	setFlag(MSG_ON_NEW_F, b);
+	changeFlag(MSG_ON_NEW_F, b);
 }
 
 void SettingsImpl::checkBoxCommitSign_toggled(bool b) {
 
-	setFlag(SIGN_CMT_F, b);
+	changeFlag(SIGN_CMT_F, b);
 }
 
 void SettingsImpl::checkBoxCommitVerify_toggled(bool b) {
 
-	setFlag(VERIFY_CMT_F, b);
+	changeFlag(VERIFY_CMT_F, b);
 }
 
 void SettingsImpl::lineEditExternalDiffViewer_textChanged(const QString& s) {

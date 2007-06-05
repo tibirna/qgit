@@ -19,12 +19,15 @@ public:
 
 signals:
 	void typeWriterFontChanged();
+	void flagChanged(uint);
 
 protected slots:
 	void checkBoxNumbers_toggled(bool b);
 	void checkBoxSign_toggled(bool b);
 	void checkBoxRangeSelectDialog_toggled(bool b);
 	void checkBoxRelativeDate_toggled(bool b);
+	void checkBoxLogDiffTab_toggled(bool b);
+	void checkBoxSmartLabels_toggled(bool b);
 	void checkBoxMsgOnNewSHA_toggled(bool b);
 	void checkBoxDiffCache_toggled(bool b);
 	void checkBoxCommitSign_toggled(bool b);
@@ -45,6 +48,7 @@ private:
 	void setupCodecList(QStringList& list);
 	void setupCodecsCombo();
 	void userInfo();
+	void changeFlag(uint f, bool b);
 
 	Git* git;
 	static const char* en[];

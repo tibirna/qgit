@@ -31,10 +31,10 @@
   </property>
   <layout class="QHBoxLayout" >
    <property name="margin" >
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
-    <number>0</number>
+    <number>6</number>
    </property>
    <item>
     <layout class="QVBoxLayout" >
@@ -47,7 +47,7 @@
      <item>
       <widget class="QTabWidget" name="tabDialog" >
        <property name="currentIndex" >
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="General" >
         <attribute name="title" >
@@ -101,19 +101,6 @@
                   </property>
                   <property name="shortcut" >
                    <string>Alt+V</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxMsgOnNewSHA" >
-                  <property name="toolTip" >
-                   <string>Check to see always the revision description in main view when browsing the repo. Patch content will be visible after request.</string>
-                  </property>
-                  <property name="text" >
-                   <string>Show always revision message as first </string>
-                  </property>
-                  <property name="shortcut" >
-                   <string>Alt+Y</string>
                   </property>
                  </widget>
                 </item>
@@ -292,6 +279,103 @@
               </widget>
              </item>
             </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="Browse" >
+        <attribute name="title" >
+         <string>&amp;Browse</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>9</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QFrame" name="frame_5" >
+             <property name="frameShape" >
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow" >
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>2</number>
+              </property>
+              <property name="spacing" >
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>4</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxLogDiffTab" >
+                  <property name="toolTip" >
+                   <string>Check to see tabbed revision log / diff pane</string>
+                  </property>
+                  <property name="text" >
+                   <string>Show tabbed revision msg / diff pane</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxSmartLabels" >
+                  <property name="toolTip" >
+                   <string>Check to show smart jump labels on revision description pane</string>
+                  </property>
+                  <property name="text" >
+                   <string>Show smart labels</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxMsgOnNewSHA" >
+                  <property name="toolTip" >
+                   <string>Check to see always the revision description in main view when browsing the repo. Patch content will be visible after request.</string>
+                  </property>
+                  <property name="text" >
+                   <string>Show always revision message as first </string>
+                  </property>
+                  <property name="shortcut" >
+                   <string>Alt+Y</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>71</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
@@ -1090,12 +1174,44 @@
    <slot>checkBoxMsgOnNewSHA_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>221</x>
-     <y>91</y>
+     <x>225</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>221</x>
-     <y>171</y>
+     <x>225</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxLogDiffTab</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxLogDiffTab_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>225</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>225</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxSmartLabels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxSmartLabels_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>225</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>225</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>

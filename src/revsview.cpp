@@ -104,9 +104,11 @@ void RevsView::setEnabled(bool b) {
 
 void RevsView::toggleDiffView() {
 
+	container->setUpdatesEnabled(false);
 	bool v = tab()->textEditDiff->isVisible();
 	tab()->textEditDiff->setVisible(!v);
 	tab()->textBrowserDesc->setVisible(v);
+	container->setUpdatesEnabled(true);
 }
 
 void RevsView::viewPatch(bool newTab) {

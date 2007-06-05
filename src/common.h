@@ -220,19 +220,19 @@ namespace QGit {
 		MSG_ON_NEW_F    = 1,
 		ACT_REFRESH_F   = 2,
 		NUMBERS_F       = 4,
-		// removed obsolete option
+		LOG_DIFF_TAB_F  = 8,
 		ACT_CMD_LINE_F  = 16,
 		DIFF_INDEX_F    = 32,
 		SIGN_PATCH_F    = 64,
 		SIGN_CMT_F      = 128,
 		VERIFY_CMT_F    = 256,
-		// removed obsolete option
+		SMART_LBL_F     = 512,
 		REL_DATE_F      = 1024,
 		ALL_BRANCHES_F  = 2048,
 		WHOLE_HISTORY_F = 4096,
 		RANGE_SELECT_F  = 8192
 	};
-	const int FLAGS_DEF = 8513;
+	const int FLAGS_DEF = 9033;
 
 	// settings helpers
 	uint flags(SCRef flagsVariable);
