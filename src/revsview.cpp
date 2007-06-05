@@ -87,6 +87,8 @@ RevsView::~RevsView() {
 	QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
 	delete linkedPatchView;
+	delete tab()->textBrowserDesc;
+	delete tab()->textEditDiff;
 	delete revTab;
 }
 

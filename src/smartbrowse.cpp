@@ -154,8 +154,11 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 	}
 	if (vsb && t == QEvent::Wheel) {
 
+		bool justSwitched = (   switchTimer.isValid()
+		                     && switchTimer.elapsed() < 400);
+
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
-		int v = updateVisibility(we->delta());
+		int v = updateVisibility(justSwitched ? 0 : we->delta());
 
 		if (wheelRolled(we->delta(), v != 0))
 			return true; // filter event out
@@ -175,9 +178,11 @@ int SmartBrowse::updateVisibility(int delta) {
 	bool top = v && (!vsb->isVisible() || (vsb->value() - vsb->minimum() < MIN));
 	bool btm = v && (!vsb->isVisible() || (vsb->maximum() - vsb->value() < MIN));
 
-	if (delta) {
-		top = top && delta > 0;
-		btm = btm && delta < 0;
+	if (vsb->isVisible()) {
+		// we have to compute visibility
+		// before the scroll bar update
+		top = top && delta >= 0;
+		btm = btm && delta <= 0;
 	}
 	if (isDiff) {
 		diffTopLbl->setVisible(top);
