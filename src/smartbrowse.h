@@ -32,14 +32,15 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 
 public slots:
+	void updateVisibility();
 	void linkActivated(const QString&);
 	void flagChanged(uint);
 
 private:
 	QTextEdit* curTextEdit(bool* isDiff = NULL);
 	void setVisible(bool b);
-	int updateVisibility(int delta = 0);
 	void updatePosition();
+	int visibilityFlags(bool* isDiff = NULL);
 	bool wheelRolled(int delta, bool outOfRange);
 
 	RevsView* rv;

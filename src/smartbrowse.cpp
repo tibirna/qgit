@@ -68,8 +68,18 @@ SmartBrowse::SmartBrowse(RevsView* par) : QObject(par) {
 
 	log->installEventFilter(this);
 	diff->installEventFilter(this);
-	log->verticalScrollBar()->installEventFilter(this);
-	diff->verticalScrollBar()->installEventFilter(this);
+
+	QScrollBar* vsbLog = log->verticalScrollBar();
+	QScrollBar* vsbDiff = diff->verticalScrollBar();
+
+	vsbLog->installEventFilter(this);
+	vsbDiff->installEventFilter(this);
+
+	connect(vsbLog, SIGNAL(valueChanged(int)),
+	        this, SLOT(updateVisibility()));
+
+	connect(vsbDiff, SIGNAL(valueChanged(int)),
+	        this, SLOT(updateVisibility()));
 
 	connect(logTopLbl, SIGNAL(linkActivated(const QString&)),
 	        this, SLOT(linkActivated(const QString&)));
@@ -84,15 +94,13 @@ SmartBrowse::SmartBrowse(RevsView* par) : QObject(par) {
 	        this, SLOT(linkActivated(const QString&)));
 }
 
-void SmartBrowse::flagChanged(uint flag) {
+void SmartBrowse::setVisible(bool b) {
 
-	if (flag == QGit::SMART_LBL_F) {
-		lablesEnabled = QGit::testFlag(QGit::SMART_LBL_F);
-		setVisible(curTextEdit()->isEnabled());
-		updatePosition();
-	}
-	if (flag == QGit::LOG_DIFF_TAB_F)
-		rv->setTabLogDiffVisible(QGit::testFlag(QGit::LOG_DIFF_TAB_F));
+	b = b && lablesEnabled;
+	logTopLbl->setVisible(b);
+	logBottomLbl->setVisible(b);
+	diffTopLbl->setVisible(b);
+	diffBottomLbl->setVisible(b);
 }
 
 QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
@@ -105,13 +113,43 @@ QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
 	          : static_cast<QTextEdit*>(rv->tab()->textBrowserDesc));
 }
 
-void SmartBrowse::setVisible(bool b) {
+int SmartBrowse::visibilityFlags(bool* isDiff) {
 
-	b = b && lablesEnabled;
-	logTopLbl->setVisible(b);
-	logBottomLbl->setVisible(b);
-	diffTopLbl->setVisible(b);
-	diffBottomLbl->setVisible(b);
+	static int MIN = 5;
+
+	QTextEdit* te = curTextEdit(isDiff);
+	QScrollBar* vsb = te->verticalScrollBar();
+
+	bool v = lablesEnabled && te->isEnabled();
+	bool top = v && (!vsb->isVisible() || (vsb->value() - vsb->minimum() < MIN));
+	bool btm = v && (!vsb->isVisible() || (vsb->maximum() - vsb->value() < MIN));
+
+	return AT_TOP * top + AT_BTM * btm;
+}
+
+void SmartBrowse::updateVisibility() {
+
+	bool isDiff;
+	int flags = visibilityFlags(&isDiff);
+
+	if (isDiff) {
+		diffTopLbl->setVisible(flags & AT_TOP);
+		diffBottomLbl->setVisible(flags & AT_BTM);
+	} else {
+		logTopLbl->setVisible(flags & AT_TOP);
+		logBottomLbl->setVisible(flags & AT_BTM);
+	}
+}
+
+void SmartBrowse::flagChanged(uint flag) {
+
+	if (flag == QGit::SMART_LBL_F) {
+		lablesEnabled = QGit::testFlag(QGit::SMART_LBL_F);
+		setVisible(curTextEdit()->isEnabled());
+		updatePosition();
+	}
+	if (flag == QGit::LOG_DIFF_TAB_F)
+		rv->setTabLogDiffVisible(QGit::testFlag(QGit::LOG_DIFF_TAB_F));
 }
 
 void SmartBrowse::linkActivated(const QString& text) {
@@ -154,39 +192,11 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 	}
 	if (vsb && t == QEvent::Wheel) {
 
-		bool justSwitched = (   switchTimer.isValid()
-		                     && switchTimer.elapsed() < 400);
-
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
-		int v = updateVisibility(justSwitched ? 0 : we->delta());
-
-		if (wheelRolled(we->delta(), v != 0))
+		if (wheelRolled(we->delta(), visibilityFlags()))
 			return true; // filter event out
 	}
 	return QObject::eventFilter(obj, event);
-}
-
-int SmartBrowse::updateVisibility(int delta) {
-
-	static int MIN = 5;
-
-	bool isDiff;
-	QTextEdit* te = curTextEdit(&isDiff);
-	QScrollBar* vsb = te->verticalScrollBar();
-
-	// here we compute visibility before the scroll bar update, so we use delta
-	bool v = lablesEnabled && te->isEnabled();
-	bool top = v && (!vsb->isVisible() || (vsb->value() - vsb->minimum() - delta / 2 < MIN));
-	bool btm = v && (!vsb->isVisible() || (vsb->maximum() - vsb->value() + delta / 2 < MIN));
-
-	if (isDiff) {
-		diffTopLbl->setVisible(top);
-		diffBottomLbl->setVisible(btm);
-	} else {
-		logTopLbl->setVisible(top);
-		logBottomLbl->setVisible(btm);
-	}
-	return AT_TOP * top + AT_BTM * btm;
 }
 
 void SmartBrowse::updatePosition() {
@@ -211,7 +221,7 @@ void SmartBrowse::updatePosition() {
 	wheelCnt = 0;
 }
 
-bool SmartBrowse::wheelRolled(int delta, bool outOfRange) {
+bool SmartBrowse::wheelRolled(int delta, bool atBoundary) {
 
 	bool justSwitched = (switchTimer.isValid() && switchTimer.elapsed() < 400);
 	if (justSwitched)
@@ -222,10 +232,10 @@ bool SmartBrowse::wheelRolled(int delta, bool outOfRange) {
 
 	// a scroll action have to start when in range
 	// but can continue also when goes out of range
-	if (!outOfRange || scrolling)
+	if (!atBoundary || scrolling)
 		scrollTimer.restart();
 
-	if (!outOfRange || justSwitched)
+	if (!atBoundary || justSwitched)
 		return justSwitched; // filter wheels events just after a switch
 
 	// we want a quick rolling action to be considered valid
