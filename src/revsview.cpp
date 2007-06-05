@@ -7,6 +7,7 @@
 
 */
 #include <QMenu>
+#include <QStackedWidget>
 #include "common.h"
 #include "git.h"
 #include "domain.h"
@@ -24,13 +25,16 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	revTab = new Ui_TabRev();
 	revTab->setupUi(container);
 
-	tab()->LogDiffTab->hide();
-	tab()->textEditDiff->hide();
+	// not possible to remove from Qt Designer
+	tab()->frameLogDiff->removeWidget(tab()->frameLogDiff->widget(0));
+
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
 	tab()->textEditDiff->setup(this, git);
 	tab()->fileList->setup(this, git);
 	m()->treeView->setup(this, git);
+
+	setTabLogDiffVisible(QGit::testFlag(QGit::LOG_DIFF_TAB_F));
 
 	SmartBrowse* sb = new SmartBrowse(this);
 
@@ -108,10 +112,57 @@ void RevsView::setEnabled(bool b) {
 
 void RevsView::toggleDiffView() {
 
+	QTabWidget* t = tab()->tabLogDiff;
+	QStackedWidget* s = tab()->frameLogDiff;
+
+	bool old = container->updatesEnabled();
 	container->setUpdatesEnabled(false);
-	bool v = tab()->textEditDiff->isVisible();
-	tab()->textEditDiff->setVisible(!v);
-	tab()->textBrowserDesc->setVisible(v);
+
+	if (s->isVisible()) {
+
+		int idx = s->currentIndex() == 0 ? 1 : 0;
+		s->setCurrentIndex(idx);
+	} else {
+		int idx = t->currentIndex() == 0 ? 1 : 0;
+		t->setCurrentIndex(idx);
+	}
+	container->setUpdatesEnabled(old);
+}
+
+void RevsView::setTabLogDiffVisible(bool b) {
+
+	bool toggle = false;
+	QTabWidget* t = tab()->tabLogDiff;
+	QStackedWidget* s = tab()->frameLogDiff;
+
+	container->setUpdatesEnabled(false);
+
+	if (b && t->count() == 0) {
+
+		toggle = (s->currentIndex() == 1);
+
+		s->removeWidget(tab()->textBrowserDesc);
+		s->removeWidget(tab()->textEditDiff);
+
+		t->addTab(tab()->textBrowserDesc, "Log");
+		t->addTab(tab()->textEditDiff, "Diff");
+	}
+	if (!b && s->count() == 0) {
+
+		toggle = (t->currentIndex() == 1);
+
+		t->removeTab(0);
+		t->removeTab(0);
+
+		s->addWidget(tab()->textBrowserDesc);
+		s->addWidget(tab()->textEditDiff);
+	}
+	t->setVisible(b);
+	s->setVisible(!b);
+
+	if (toggle)
+		toggleDiffView();
+
 	container->setUpdatesEnabled(true);
 }
 

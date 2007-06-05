@@ -25,6 +25,7 @@ public:
 	void clear(bool complete);
 	void viewPatch(bool newTab);
 	void setEnabled(bool b);
+	void setTabLogDiffVisible(bool);
 	Ui_TabRev* tab() { return revTab; }
 
 public slots:

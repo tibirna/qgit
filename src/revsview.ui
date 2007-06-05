@@ -14,10 +14,10 @@
   </property>
   <layout class="QHBoxLayout" >
    <property name="margin" >
-    <number>0</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
-    <number>0</number>
+    <number>6</number>
    </property>
    <item>
     <widget class="QSplitter" name="horizontalSplitter" >
@@ -63,7 +63,7 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QTabWidget" name="LogDiffTab" >
+         <widget class="QTabWidget" name="tabLogDiff" >
           <property name="tabPosition" >
            <enum>QTabWidget::East</enum>
           </property>
@@ -77,63 +77,56 @@
            <attribute name="title" >
             <string>Log</string>
            </attribute>
+           <layout class="QVBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="RevDesc" name="textBrowserDesc" >
+              <property name="lineWrapMode" >
+               <enum>QTextEdit::NoWrap</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
           <widget class="QWidget" name="Diff" >
            <attribute name="title" >
             <string>Diff</string>
            </attribute>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="PatchContent" name="textEditDiff" >
+              <property name="documentTitle" >
+               <string comment="testing with diff view" >test</string>
+              </property>
+              <property name="undoRedoEnabled" >
+               <bool>false</bool>
+              </property>
+              <property name="lineWrapMode" >
+               <enum>QTextEdit::NoWrap</enum>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="LogDiffFrame" >
-          <property name="frameShape" >
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Plain</enum>
-          </property>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>0</number>
-           </property>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="RevDesc" name="textBrowserDesc" >
-               <property name="lineWrapMode" >
-                <enum>QTextEdit::NoWrap</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="PatchContent" name="textEditDiff" >
-               <property name="documentTitle" >
-                <string comment="testing with diff view" >test</string>
-               </property>
-               <property name="undoRedoEnabled" >
-                <bool>false</bool>
-               </property>
-               <property name="lineWrapMode" >
-                <enum>QTextEdit::NoWrap</enum>
-               </property>
-               <property name="readOnly" >
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+         <widget class="QStackedWidget" name="frameLogDiff" >
+          <widget class="QWidget" name="page" />
          </widget>
         </item>
        </layout>
@@ -151,11 +144,6 @@
  <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
-   <class>PatchContent</class>
-   <extends>QTextEdit</extends>
-   <header>patchcontent.h</header>
-  </customwidget>
-  <customwidget>
    <class>ListView</class>
    <extends>QTreeView</extends>
    <header>listview.h</header>
@@ -169,6 +157,11 @@
    <class>FileList</class>
    <extends>QListWidget</extends>
    <header>filelist.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PatchContent</class>
+   <extends>QTextEdit</extends>
+   <header>patchcontent.h</header>
   </customwidget>
  </customwidgets>
  <includes>

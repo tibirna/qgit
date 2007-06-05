@@ -91,6 +91,8 @@ void SmartBrowse::flagChanged(uint flag) {
 		setVisible(curTextEdit()->isEnabled());
 		updatePosition();
 	}
+	if (flag == QGit::LOG_DIFF_TAB_F)
+		rv->setTabLogDiffVisible(QGit::testFlag(QGit::LOG_DIFF_TAB_F));
 }
 
 QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
