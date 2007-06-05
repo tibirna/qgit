@@ -16,6 +16,9 @@
 #define GO_LOG  3
 #define GO_DIFF 4
 
+#define AT_TOP 1
+#define AT_BTM 2
+
 void SmartLabel::contextMenuEvent(QContextMenuEvent* e) {
 
 	if (text().count("href=") != 2)
@@ -44,7 +47,7 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	textBrowserDesc = log;
 	textEditDiff = diff;
 
-	QString txt("<p><img src=\":/icons/resources/%1\"> %2 <small>%3</small></p>");
+	QString txt("<p><img src=\":/icons/resources/%1\"> %2 %3</p>");
 	QString link("<a href=\"%1\">%2</a>");
 	QString linkUp(link.arg(QString::number(GO_UP), "Up"));
 	QString linkDown(link.arg(QString::number(GO_DOWN), "Down"));
@@ -82,9 +85,12 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	        this, SLOT(linkActivated(const QString&)));
 }
 
-QTextEdit* SmartBrowse::curTextEdit() {
+QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
 
 	bool b = textEditDiff->isVisible();
+	if (isDiff)
+		*isDiff = b;
+
 	return (b ? static_cast<QTextEdit*>(textEditDiff)
 	          : static_cast<QTextEdit*>(textBrowserDesc));
 }
@@ -130,16 +136,39 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 		updatePosition();
 	}
 	if (vsb && t == QEvent::Wheel) {
-		int MIN = 5;
+
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
+		int v = updateVisibility(we->delta());
 
-		bool upRun = (vsb->value() - vsb->minimum() < MIN && we->delta() > 0);
-		bool dwRun = (vsb->maximum() - vsb->value() < MIN && we->delta() < 0);
-
-		if (wheelRolled(we->delta(), upRun || dwRun))
+		if (wheelRolled(we->delta(), v != 0))
 			return true; // filter event out
 	}
 	return QObject::eventFilter(obj, event);
+}
+
+int SmartBrowse::updateVisibility(int delta) {
+
+	static int MIN = 5;
+
+	bool isDiff;
+	QTextEdit* te = curTextEdit(&isDiff);
+	QScrollBar* vsb = te->verticalScrollBar();
+
+	bool top = !vsb->isVisible() || (vsb->value() - vsb->minimum() < MIN);
+	bool btm = !vsb->isVisible() || (vsb->maximum() - vsb->value() < MIN);
+
+	if (delta) {
+		top = top && delta > 0;
+		btm = btm && delta < 0;
+	}
+	if (isDiff) {
+		diffTopLbl->setVisible(top);
+		diffBottomLbl->setVisible(btm);
+	} else {
+		logTopLbl->setVisible(top);
+		logBottomLbl->setVisible(btm);
+	}
+	return AT_TOP * top + AT_BTM * btm;
 }
 
 void SmartBrowse::updatePosition() {
@@ -155,6 +184,8 @@ void SmartBrowse::updatePosition() {
 	diffTopLbl->move(w - diffTopLbl->width() - 10, 10);
 	logBottomLbl->move(w - logBottomLbl->width() - 10, h - logBottomLbl->height() - 10);
 	diffBottomLbl->move(w - diffBottomLbl->width() - 10, h - diffBottomLbl->height() - 10);
+
+	updateVisibility();
 
 	// we are called also when user toggle view manually,
 	// so reset wheel counters to be sure we don't have alias

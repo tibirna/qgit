@@ -35,7 +35,8 @@ private slots:
 	void linkActivated(const QString&);
 
 private:
-	QTextEdit* curTextEdit();
+	QTextEdit* curTextEdit(bool* isDiff = NULL);
+	int updateVisibility(int delta = 0);
 	void updatePosition();
 	bool wheelRolled(int delta, bool outOfRange);
 
