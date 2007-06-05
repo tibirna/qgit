@@ -40,13 +40,11 @@ void SmartLabel::switchLinks() {
 	adjustSize();
 }
 
-SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObject(par) {
+SmartBrowse::SmartBrowse(RevsView* par) : QObject(par) {
 
+	rv = par;
 	wheelCnt = 0;
 	lablesEnabled = QGit::testFlag(QGit::SMART_LBL_F);
-
-	textBrowserDesc = log;
-	textEditDiff = diff;
 
 	QString txt("<p><img src=\":/icons/resources/%1\"> %2 %3</p>");
 	QString link("<a href=\"%1\">%2</a>");
@@ -54,6 +52,9 @@ SmartBrowse::SmartBrowse(RevsView* par, RevDesc* log, PatchContent* diff) : QObj
 	QString linkDown(link.arg(QString::number(GO_DOWN), "Down"));
 	QString linkLog(link.arg(QString::number(GO_LOG), "Log"));
 	QString linkDiff(link.arg(QString::number(GO_DIFF), "Diff"));
+
+	QTextEdit* log = static_cast<QTextEdit*>(rv->tab()->textBrowserDesc);
+	QTextEdit* diff = static_cast<QTextEdit*>(rv->tab()->textEditDiff);
 
 	logTopLbl = new SmartLabel(txt.arg("1uparrow.png", linkUp, ""), log);
 	logBottomLbl = new SmartLabel(txt.arg("1downarrow.png", linkDiff, linkDown), log);
@@ -94,12 +95,12 @@ void SmartBrowse::flagChanged(uint flag) {
 
 QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
 
-	bool b = textEditDiff->isVisible();
+	bool b = rv->tab()->textEditDiff->isVisible();
 	if (isDiff)
 		*isDiff = b;
 
-	return (b ? static_cast<QTextEdit*>(textEditDiff)
-	          : static_cast<QTextEdit*>(textBrowserDesc));
+	return (b ? static_cast<QTextEdit*>(rv->tab()->textEditDiff)
+	          : static_cast<QTextEdit*>(rv->tab()->textBrowserDesc));
 }
 
 void SmartBrowse::setVisible(bool b) {
@@ -114,8 +115,6 @@ void SmartBrowse::setVisible(bool b) {
 void SmartBrowse::linkActivated(const QString& text) {
 
 	int key = text.toInt();
-	RevsView* rv = static_cast<RevsView*>(parent());
-
 	switch (key) {
 	case GO_LOG:
 	case GO_DIFF:

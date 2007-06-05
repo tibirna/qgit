@@ -24,6 +24,7 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	revTab = new Ui_TabRev();
 	revTab->setupUi(container);
 
+	tab()->LogDiffTab->hide();
 	tab()->textEditDiff->hide();
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
@@ -31,12 +32,12 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	tab()->fileList->setup(this, git);
 	m()->treeView->setup(this, git);
 
+	SmartBrowse* sb = new SmartBrowse(this);
+
 	// restore geometry
 	QVector<QSplitter*> v;
 	v << tab()->horizontalSplitter << tab()->verticalSplitter;
 	QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
-
-	SmartBrowse* sb = new SmartBrowse(this, tab()->textBrowserDesc, tab()->textEditDiff);
 
 	connect(m(), SIGNAL(typeWriterFontChanged()),
 	        tab()->textEditDiff, SLOT(typeWriterFontChanged()));

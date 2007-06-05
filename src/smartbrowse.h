@@ -26,7 +26,7 @@ private slots:
 class SmartBrowse : public QObject {
 Q_OBJECT
 public:
-	SmartBrowse(RevsView* par, RevDesc* msg, PatchContent* diff);
+	SmartBrowse(RevsView* par);
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
@@ -42,9 +42,7 @@ private:
 	void updatePosition();
 	bool wheelRolled(int delta, bool outOfRange);
 
-	RevDesc* textBrowserDesc;
-	PatchContent* textEditDiff;
-
+	RevsView* rv;
 	SmartLabel* logTopLbl;
 	SmartLabel* logBottomLbl;
 	SmartLabel* diffTopLbl;
