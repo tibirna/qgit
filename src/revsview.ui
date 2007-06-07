@@ -54,82 +54,70 @@
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="layoutWidget" >
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
+      <widget class="QStackedWidget" name="stackedPanes" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QTabWidget" name="tabLogDiff" >
+        <property name="tabPosition" >
+         <enum>QTabWidget::East</enum>
+        </property>
+        <property name="tabShape" >
+         <enum>QTabWidget::Triangular</enum>
+        </property>
+        <property name="currentIndex" >
          <number>0</number>
         </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QTabWidget" name="tabLogDiff" >
-          <property name="tabPosition" >
-           <enum>QTabWidget::East</enum>
-          </property>
-          <property name="tabShape" >
-           <enum>QTabWidget::Triangular</enum>
-          </property>
-          <property name="currentIndex" >
+        <widget class="QWidget" name="Log" >
+         <attribute name="title" >
+          <string>Log</string>
+         </attribute>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
            <number>0</number>
           </property>
-          <widget class="QWidget" name="Log" >
-           <attribute name="title" >
-            <string>Log</string>
-           </attribute>
-           <layout class="QVBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
+          <property name="spacing" >
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="RevDesc" name="textBrowserDesc" >
+            <property name="lineWrapMode" >
+             <enum>QTextEdit::NoWrap</enum>
             </property>
-            <property name="spacing" >
-             <number>0</number>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="Diff" >
+         <attribute name="title" >
+          <string>Diff</string>
+         </attribute>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="PatchContent" name="textEditDiff" >
+            <property name="documentTitle" >
+             <string comment="testing with diff view" >test</string>
             </property>
-            <item>
-             <widget class="RevDesc" name="textBrowserDesc" >
-              <property name="lineWrapMode" >
-               <enum>QTextEdit::NoWrap</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="Diff" >
-           <attribute name="title" >
-            <string>Diff</string>
-           </attribute>
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
+            <property name="undoRedoEnabled" >
+             <bool>false</bool>
             </property>
-            <property name="spacing" >
-             <number>0</number>
+            <property name="lineWrapMode" >
+             <enum>QTextEdit::NoWrap</enum>
             </property>
-            <item>
-             <widget class="PatchContent" name="textEditDiff" >
-              <property name="documentTitle" >
-               <string comment="testing with diff view" >test</string>
-              </property>
-              <property name="undoRedoEnabled" >
-               <bool>false</bool>
-              </property>
-              <property name="lineWrapMode" >
-               <enum>QTextEdit::NoWrap</enum>
-              </property>
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QStackedWidget" name="frameLogDiff" >
-          <widget class="QWidget" name="page" />
-         </widget>
-        </item>
-       </layout>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </widget>
       <widget class="FileList" name="fileList" >
        <property name="contextMenuPolicy" >

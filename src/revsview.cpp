@@ -25,9 +25,6 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	revTab = new Ui_TabRev();
 	revTab->setupUi(container);
 
-	// not possible to remove from Qt Designer
-	tab()->frameLogDiff->removeWidget(tab()->frameLogDiff->widget(0));
-
 	tab()->listViewLog->setup(this, g);
 	tab()->textBrowserDesc->setup(this);
 	tab()->textEditDiff->setup(this, git);
@@ -86,9 +83,10 @@ RevsView::~RevsView() {
 	v << tab()->horizontalSplitter << tab()->verticalSplitter;
 	QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
+	QTabWidget* t = tab()->tabLogDiff;
+	t->removeTab(0); t->removeTab(0);
+	
 	delete linkedPatchView;
-	delete tab()->textBrowserDesc;
-	delete tab()->textEditDiff;
 	delete revTab;
 }
 
@@ -114,57 +112,51 @@ void RevsView::setEnabled(bool b) {
 
 void RevsView::toggleDiffView() {
 
+	QStackedWidget* s = tab()->stackedPanes;
 	QTabWidget* t = tab()->tabLogDiff;
-	QStackedWidget* s = tab()->frameLogDiff;
+
+	bool isTabPage = (s->currentIndex() == 0);
+	int idx = (isTabPage ? t->currentIndex() : s->currentIndex());
 
 	bool old = container->updatesEnabled();
 	container->setUpdatesEnabled(false);
 
-	if (s->isVisible()) {
+	if (isTabPage)
+		t->setCurrentIndex(1 - idx);
+	else
+		s->setCurrentIndex(3 - idx);
 
-		int idx = s->currentIndex() == 0 ? 1 : 0;
-		s->setCurrentIndex(idx);
-	} else {
-		int idx = t->currentIndex() == 0 ? 1 : 0;
-		t->setCurrentIndex(idx);
-	}
 	container->setUpdatesEnabled(old);
 }
 
 void RevsView::setTabLogDiffVisible(bool b) {
 
-	bool toggle = false;
+	QStackedWidget* s = tab()->stackedPanes;
 	QTabWidget* t = tab()->tabLogDiff;
-	QStackedWidget* s = tab()->frameLogDiff;
+
+	bool isTabPage = (s->currentIndex() == 0);
+	int idx = (isTabPage ? t->currentIndex() : s->currentIndex());
 
 	container->setUpdatesEnabled(false);
 
-	if (b && t->count() == 0) {
-
-		toggle = (s->currentIndex() == 1);
-
-		s->removeWidget(tab()->textBrowserDesc);
-		s->removeWidget(tab()->textEditDiff);
+	if (b && !isTabPage) {
 
 		t->addTab(tab()->textBrowserDesc, "Log");
 		t->addTab(tab()->textEditDiff, "Diff");
+
+		t->setCurrentIndex(idx - 1);
+		s->setCurrentIndex(0);
 	}
-	if (!b && s->count() == 0) {
-
-		toggle = (t->currentIndex() == 1);
-
-		t->removeTab(0);
-		t->removeTab(0);
+	if (!b && isTabPage) {
 
 		s->addWidget(tab()->textBrowserDesc);
 		s->addWidget(tab()->textEditDiff);
+
+		// manually remove the two remaining empty pages
+		t->removeTab(0); t->removeTab(0);
+
+		s->setCurrentIndex(idx + 1);
 	}
-	t->setVisible(b);
-	s->setVisible(!b);
-
-	if (toggle)
-		toggleDiffView();
-
 	container->setUpdatesEnabled(true);
 }
 
