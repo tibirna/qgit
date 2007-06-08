@@ -75,6 +75,9 @@ SmartBrowse::SmartBrowse(RevsView* par) : QObject(par) {
 	vsbLog->installEventFilter(this);
 	vsbDiff->installEventFilter(this);
 
+	log->horizontalScrollBar()->installEventFilter(this);
+	diff->horizontalScrollBar()->installEventFilter(this);
+
 	connect(vsbLog, SIGNAL(valueChanged(int)),
 	        this, SLOT(updateVisibility()));
 
@@ -177,20 +180,20 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 		return QObject::eventFilter(obj, event);
 
 	QTextEdit* te = dynamic_cast<QTextEdit*>(obj);
-	QScrollBar* vsb = dynamic_cast<QScrollBar*>(obj);
+	QScrollBar* sb = dynamic_cast<QScrollBar*>(obj);
 
 	QEvent::Type t = event->type();
 	if (te && t == QEvent::Resize)
 		updatePosition();
 
-	if (vsb && (t == QEvent::Show || t == QEvent::Hide))
+	if (sb && (t == QEvent::Show || t == QEvent::Hide))
 		updatePosition();
 
 	if (te && t == QEvent::EnabledChange) {
 		setVisible(te->isEnabled());
 		updatePosition();
 	}
-	if (vsb && t == QEvent::Wheel) {
+	if (sb && t == QEvent::Wheel && sb->orientation() == Qt::Vertical) {
 
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
 		if (wheelRolled(we->delta(), visibilityFlags()))
