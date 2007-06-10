@@ -83,9 +83,12 @@ RevsView::~RevsView() {
 	v << tab()->horizontalSplitter << tab()->verticalSplitter;
 	QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
-	QTabWidget* t = tab()->tabLogDiff;
-	t->removeTab(0); t->removeTab(0);
-	
+	// manually delete before container is removed in Domain
+	// d'tor to avoid a crash due to spurious events in
+	// SmartBrowse::eventFilter()
+	delete tab()->textBrowserDesc;
+	delete tab()->textEditDiff;
+
 	delete linkedPatchView;
 	delete revTab;
 }

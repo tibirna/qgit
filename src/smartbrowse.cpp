@@ -108,12 +108,16 @@ void SmartBrowse::setVisible(bool b) {
 
 QTextEdit* SmartBrowse::curTextEdit(bool* isDiff) {
 
-	bool b = rv->tab()->textEditDiff->isVisible();
-	if (isDiff)
-		*isDiff = b;
+	QTextEdit* log = static_cast<QTextEdit*>(rv->tab()->textBrowserDesc);
+	QTextEdit* diff = static_cast<QTextEdit*>(rv->tab()->textEditDiff);
 
-	return (b ? static_cast<QTextEdit*>(rv->tab()->textEditDiff)
-	          : static_cast<QTextEdit*>(rv->tab()->textBrowserDesc));
+	if (isDiff)
+		*isDiff = diff->isVisible();
+
+	if (!diff->isVisible() && !log->isVisible())
+		return NULL;
+
+	return (diff->isVisible() ? diff : log);
 }
 
 int SmartBrowse::visibilityFlags(bool* isDiff) {
@@ -121,6 +125,9 @@ int SmartBrowse::visibilityFlags(bool* isDiff) {
 	static int MIN = 5;
 
 	QTextEdit* te = curTextEdit(isDiff);
+	if (!te)
+		return 0;
+
 	QScrollBar* vsb = te->verticalScrollBar();
 
 	bool v = lablesEnabled && te->isEnabled();
@@ -146,7 +153,7 @@ void SmartBrowse::updateVisibility() {
 
 void SmartBrowse::flagChanged(uint flag) {
 
-	if (flag == QGit::SMART_LBL_F) {
+	if (flag == QGit::SMART_LBL_F && curTextEdit()) {
 		lablesEnabled = QGit::testFlag(QGit::SMART_LBL_F);
 		setVisible(curTextEdit()->isEnabled());
 		updatePosition();
@@ -205,6 +212,9 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 void SmartBrowse::updatePosition() {
 
 	QTextEdit* te = curTextEdit();
+	if (!te)
+		return;
+
 	QScrollBar* vb = te->verticalScrollBar();
 	QScrollBar* hb = te->horizontalScrollBar();
 
