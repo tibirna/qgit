@@ -276,13 +276,12 @@ void TreeView::updateTree() {
 			++item;
 		}
 	}
+	// check if st->fileName() has been deleted by a patch older than this tree
 	if (*item && treeIsValid) {
 		clearSelection();
 		setCurrentItem(*item); // calls on_currentChanged()
 		scrollToItem(*item);
-	} else
-		; // st->fileName() has been deleted by a patch older than this tree
-
+	}
 	setUpdatesEnabled(true);
 	QTreeWidget::update();
 	restoreStuff();

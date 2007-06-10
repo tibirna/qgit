@@ -380,8 +380,8 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 			// message is locale dependent, so just test the space after '\'
 			if (line[1] == ' ')
 				break;
-			else
-				; // fall through
+
+			// fall through
 		default:
 			++cur;
 			break;
