@@ -37,7 +37,7 @@ private slots:
 private:
 	void setupSignals();
 	bool launchMe(SCRef runCmd, SCRef buf);
-	void sendErrorMsg(bool notStarted = false);
+	void sendErrorMsg(bool notStarted = false, SCRef errDesc = "");
 	static void restoreSpaces(QString& newCmd, const QChar& sepChar);
 
 	QObject* guiObject;

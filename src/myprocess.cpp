@@ -99,12 +99,14 @@ void MyProcess::setupSignals() {
 		connect(d, SIGNAL(cancelDomainProcesses()), this, SLOT(on_cancel()));
 }
 
-void MyProcess::sendErrorMsg(bool notStarted) {
+void MyProcess::sendErrorMsg(bool notStarted, SCRef err) {
 
 	if (!errorReportingEnabled)
 		return;
 
 	QString errorDesc(readAllStandardError());
+	errorDesc.prepend(err);
+
 	if (notStarted)
 		errorDesc = QString::fromAscii("Unable to start the process!");
 
@@ -152,15 +154,24 @@ void MyProcess::on_readyReadStandardError() {
 
 void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 
-	// On Windows, if the process was terminated with TerminateProcess()
-	// from another application exitStatus is still NormalExit unless
-	// the exit code is less than 0. But test the exit code is unreliable
-	// in general case, as example 'git status' returns -1 also without
-	// errors. Luckily exit code seems valid in case of a command wrapped
+	// Checking exingStatus is not reliable under Windows where if the
+	// process was terminated with TerminateProcess() from another
+	// application its value is still NormalExit
+	//
+	// Checking exit code for a failing command is unreliable too, as
+	// exmple 'git status' returns -1 also without errors, and
+	// 'git repo-config' returns 1 in normal case.
+	//
+	// On Windows exit code seems reliable in case of a command wrapped
 	// in Window shell interpreter.
+	//
+	// So to detect a failing command we check also if stderr is not empty.
+	QString errorDesc(readAllStandardError());
 
-	isErrorExit =  (exitStatus != QProcess::NormalExit)
-	             ||(exitCode != 0 && isWinShell); // TODO check stdErr
+	isErrorExit =   (exitStatus != QProcess::NormalExit)
+	             || (exitCode != 0 && isWinShell)
+	             || !errorDesc.isEmpty()
+	             ||  canceling;
 
 	if (!canceling) { // no more noise after cancel
 
@@ -168,7 +179,7 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 			emit eof();
 
 		if (isErrorExit)
-			sendErrorMsg();
+			sendErrorMsg(false, errorDesc);
 	}
 	busy = false;
 	if (async)
