@@ -37,7 +37,7 @@ OBJECTS_DIR = $$BUILD_DIR
 FORMS += commit.ui console.ui customaction.ui fileview.ui help.ui \
          mainview.ui patchview.ui rangeselect.ui revsview.ui settings.ui
 
-HEADERS += annotate.h cache.h commitimpl.h common.h consoleimpl.h \
+HEADERS += annotate.h cache.h commitimpl.h common.h config.h consoleimpl.h \
            customactionimpl.h dataloader.h domain.h exceptionmanager.h \
            filecontent.h filelist.h fileview.h git.h help.h lanes.h \
            listview.h mainimpl.h myprocess.h patchcontent.h patchview.h \
@@ -50,6 +50,9 @@ SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
            lanes.cpp listview.cpp mainimpl.cpp myprocess.cpp namespace_def.cpp \
            patchcontent.cpp patchview.cpp qgit.cpp rangeselectimpl.cpp \
            revdesc.cpp revsview.cpp settingsimpl.cpp smartbrowse.cpp treeview.cpp
+
+DISTFILES += helpgen.sh resources/* todo.txt
+DISTFILES += ../exception_manager.txt ../qgit.png ../README
 
 # Here we generate a batch called start_qgit.bat used, under Windows only,
 # to start qgit with proper PATH set.

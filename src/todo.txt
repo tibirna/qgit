@@ -5,5 +5,3 @@ and stop highlight when closing.(?)
 
 RFC822-valid Subject lines
 which wrap across multiple text lines.
-
-Crash when closing while loading file names

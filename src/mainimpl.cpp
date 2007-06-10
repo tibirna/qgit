@@ -1678,8 +1678,8 @@ void MainImpl::ActAbout_activated() {
 	static const char* aboutMsg =
 	"<center><p><b>QGit version " PACKAGE_VERSION "</b></p><br>"
 	"<p>Copyright (c) 2005, 2006 Marco Costalba</p>"
-	"<p>Use and redistribute under the "
-	"terms of the GNU General Public License</p></center>";
+	"<p>Use and redistribute under the terms of the "
+	"GNU General Public License</p></center>";
 	QMessageBox::about(this, "About QGit", QString::fromLatin1(aboutMsg));
 }
 
