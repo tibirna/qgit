@@ -21,7 +21,7 @@ CONFIG += qt console warn_on exceptions debug_and_release
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
-QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -frepo -Wno-long-long -pedantic -Wconversion
+QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 INSTALLS += target
 
