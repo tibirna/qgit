@@ -95,6 +95,7 @@ public:
 
 	struct TreeEntry {
 		TreeEntry(SCRef n, SCRef s, SCRef t) : name(n), sha(s), type(t) {}
+		bool operator<(const TreeEntry&) const;
 		QString name;
 		QString sha;
 		QString type;

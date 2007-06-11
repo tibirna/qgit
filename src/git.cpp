@@ -187,6 +187,22 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 
 // ****************************************************************************
 
+bool Git::TreeEntry::operator<(const TreeEntry& te) const {
+
+	if (this->type == te.type)
+		return (this->name < te.name);
+
+	// directories are smaller then files
+	// to appear as first when sorted
+	if (this->type == "tree")
+		return true;
+
+	if (te.type == "tree")
+		return false;
+
+	return (this->name < te.name);
+}
+
 Git::Git(QObject* p) : QObject(p) {
 
 	EM_INIT(exGitStopped, "Stopping connection with git");
@@ -904,6 +920,7 @@ bool Git::getTree(SCRef sha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 		ti.append(te);
 		newFiles.pop_front();
 	}
+	qSort(ti); // list directories before files
 	return true;
 }
 
