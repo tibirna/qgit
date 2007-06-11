@@ -93,6 +93,14 @@ public:
 		ANY_REF    = 127
 	};
 
+	struct TreeEntry {
+		TreeEntry(SCRef n, SCRef s, SCRef t) : name(n), sha(s), type(t) {}
+		QString name;
+		QString sha;
+		QString type;
+	};
+	typedef QList<TreeEntry> TreeInfo;
+
 	void setDefaultModel(FileHistory* fh) { revData = fh; }
 	void checkEnvironment();
 	void userInfo(SList info);
@@ -129,7 +137,7 @@ public:
 	void getFileFilter(SCRef path, QMap<QString, bool>& shaMap);
 	bool getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap);
 	const RevFile* getFiles(SCRef sha, SCRef sha2 = "", bool all = false, SCRef path = "");
-	bool getTree(SCRef ts, SList nm, SList sha, SList type, bool wd, SCRef treePath);
+	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
 	static const QString getLocalDate(SCRef gitDate);
 	const QString getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, bool showHeader);
 	const QString getDefCommitMsg();

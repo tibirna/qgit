@@ -140,11 +140,10 @@ void TreeView::setTree(SCRef treeSha) {
 	}
 }
 
-bool TreeView::getTree(SCRef treeSha, SList names, SList shas,
-                       SList types, bool wd, SCRef treePath) {
+bool TreeView::getTree(SCRef treeSha, Git::TreeInfo& ti, bool wd, SCRef treePath) {
 
 	// calls qApp->processEvents()
-	treeIsValid = git->getTree(treeSha, names, shas, types, wd, treePath);
+	treeIsValid = git->getTree(treeSha, ti, wd, treePath);
 	return treeIsValid;
 }
 
@@ -174,29 +173,28 @@ void TreeView::on_itemExpanded(QTreeWidgetItem* itm) {
 		if (dummy && dummy->text(0).isEmpty())
 			delete dummy; // remove dummy child
 
-		QStringList names, types, shas;
-		if (!getTree(item->treeSha, names, shas, types, isWorkingDir, item->fullName()))
+		Git::TreeInfo ti;
+		if (!getTree(item->treeSha, ti, isWorkingDir, item->fullName()))
 			return;
 
-		if (!names.empty()) {
-			QStringList::const_iterator it(names.constBegin());
-			QStringList::const_iterator itSha(shas.constBegin());
-			QStringList::const_iterator itTypes(types.constBegin());
-			while (it != names.constEnd()) {
+		if (!ti.empty()) {
 
-				if (*itTypes == "tree") {
-					DirItem* dir = new DirItem(item, *itSha, *it);
+			Git::TreeInfo::const_iterator it(ti.constBegin());
+			while (it != ti.constEnd()) {
+
+				const Git::TreeEntry& te = *it;
+
+				if (te.type == "tree") {
+					DirItem* dir = new DirItem(item, te.sha, te.name);
 					dir->setData(0, Qt::DecorationRole, *folderClosed);
 					dir->setBold(isModified(dir->fullName(), true));
 					new DirItem(dir, "", ""); // dummy child to show expand sign
 				} else {
-					FileItem* file = new FileItem(item, *it);
-					file->setData(0, Qt::DecorationRole, *QGit::mimePix(*it));
+					FileItem* file = new FileItem(item, te.name);
+					file->setData(0, Qt::DecorationRole, *QGit::mimePix(te.name));
 					file->setBold(isModified(file->fullName()));
 				}
 				++it;
-				++itSha;
-				++itTypes;
 			}
 		}
 	}

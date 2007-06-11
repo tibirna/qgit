@@ -11,6 +11,7 @@
 
 #include <QTreeWidget>
 #include "common.h"
+#include "git.h"
 
 class DirItem;
 class TreeView;
@@ -50,7 +51,7 @@ public:
 	bool isModified(SCRef path, bool isDir = false);
 	void clear();
 	void getTreeSelectedItems(QStringList& selectedItems);
-	bool getTree(SCRef tSha, SList nm, SList shas, SList types, bool wd, SCRef tPath);
+	bool getTree(SCRef tSha, Git::TreeInfo& ti, bool wd, SCRef tPath);
 
 	const QPixmap* folderClosed;
 	const QPixmap* folderOpen;

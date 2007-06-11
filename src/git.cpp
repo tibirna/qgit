@@ -859,23 +859,22 @@ bool Git::saveFile(SCRef file, SCRef sha, SCRef path) {
 	return writeToFile(path, QString(fileData));
 }
 
-bool Git::getTree(SCRef treeSha, SList names, SList shas,
-                  SList types, bool isWorkingDir, SCRef treePath) {
+bool Git::getTree(SCRef sha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 
 	QStringList newFiles, unfiles, delFiles, dummy;
-	if (isWorkingDir) { // retrieve unknown and deleted files under treePath
+	if (isWorkingDir) { // retrieve unknown and deleted files under path
 
 		getWorkDirFiles(unfiles, dummy, RevFile::UNKNOWN);
 		FOREACH_SL (it, unfiles) { // don't add unknown files under other directories
 			QFileInfo f(*it);
 			SCRef d(f.dir().path());
-			if (d == treePath || (treePath.isEmpty() && d == "."))
+			if (d == path || (path.isEmpty() && d == "."))
 				newFiles.append(f.fileName());
 		}
 		getWorkDirFiles(delFiles, dummy, RevFile::DELETED);
 	}
 	// if needed fake a working directory tree starting from HEAD tree
-	const QString tree(treeSha == ZERO_SHA ? "HEAD" : treeSha);
+	const QString tree(sha == ZERO_SHA ? "HEAD" : sha);
 	QString runOutput;
 	if (!run("git ls-tree " + tree, &runOutput))
 		return false;
@@ -886,23 +885,23 @@ bool Git::getTree(SCRef treeSha, SList names, SList shas,
 		// newFiles must be already sorted
 		SCRef fn((*it).section('\t', 1, 1));
 		while (!newFiles.empty() && newFiles.first() < fn) {
-			names.append(newFiles.first());
-			shas.append("");
-			types.append("?"); // FIXME test
+
+			TreeEntry te(newFiles.first(), "", "?");
+			ti.append(te);
 			newFiles.pop_front();
 		}
 		// append any not deleted file
-		SCRef fp(treePath.isEmpty() ? fn : treePath + '/' + fn);
+		SCRef fp(path.isEmpty() ? fn : path + '/' + fn);
 		if (delFiles.empty() || (delFiles.indexOf(fp) == -1)) {
-			names.append(fn);
-			shas.append((*it).mid(12, 40));
-			types.append((*it).mid(7, 4));
+
+			TreeEntry te(fn, (*it).mid(12, 40), (*it).mid(7, 4));
+			ti.append(te);
 		}
 	}
 	while (!newFiles.empty()) { // append any remaining unknown file
-		names.append(newFiles.first());
-		shas.append("");
-		types.append("?"); // FIXME test
+
+		TreeEntry te(newFiles.first(), "", "?");
+		ti.append(te);
 		newFiles.pop_front();
 	}
 	return true;
