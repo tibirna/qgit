@@ -875,50 +875,45 @@ bool Git::saveFile(SCRef file, SCRef sha, SCRef path) {
 	return writeToFile(path, QString(fileData));
 }
 
-bool Git::getTree(SCRef sha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
+bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 
-	QStringList newFiles, unfiles, delFiles, dummy;
-	if (isWorkingDir) { // retrieve unknown and deleted files under path
+	QStringList deleted;
+	if (isWorkingDir) {
 
-		getWorkDirFiles(unfiles, dummy, RevFile::UNKNOWN);
-		FOREACH_SL (it, unfiles) { // don't add unknown files under other directories
+		// retrieve unknown and deleted files under path
+		QStringList unknowns, dummy;
+		getWorkDirFiles(unknowns, dummy, RevFile::UNKNOWN);
+
+		FOREACH_SL (it, unknowns) {
+
+			// don't add files under other directories
 			QFileInfo f(*it);
 			SCRef d(f.dir().path());
-			if (d == path || (path.isEmpty() && d == "."))
-				newFiles.append(f.fileName());
+
+			if (d == path || (path.isEmpty() && d == ".")) {
+				TreeEntry te(f.fileName(), "", "?");
+				ti.append(te);
+			}
 		}
-		getWorkDirFiles(delFiles, dummy, RevFile::DELETED);
+		getWorkDirFiles(deleted, dummy, RevFile::DELETED);
 	}
 	// if needed fake a working directory tree starting from HEAD tree
-	const QString tree(sha == ZERO_SHA ? "HEAD" : sha);
+	const QString tree(treeSha == ZERO_SHA ? "HEAD" : treeSha);
 	QString runOutput;
 	if (!run("git ls-tree " + tree, &runOutput))
 		return false;
 
 	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, sl) {
-		// insert in order any good unknown file to the list,
-		// newFiles must be already sorted
-		SCRef fn((*it).section('\t', 1, 1));
-		while (!newFiles.empty() && newFiles.first() < fn) {
 
-			TreeEntry te(newFiles.first(), "", "?");
-			ti.append(te);
-			newFiles.pop_front();
-		}
 		// append any not deleted file
+		SCRef fn((*it).section('\t', 1, 1));
 		SCRef fp(path.isEmpty() ? fn : path + '/' + fn);
-		if (delFiles.empty() || (delFiles.indexOf(fp) == -1)) {
 
+		if (deleted.empty() || (deleted.indexOf(fp) == -1)) {
 			TreeEntry te(fn, (*it).mid(12, 40), (*it).mid(7, 4));
 			ti.append(te);
 		}
-	}
-	while (!newFiles.empty()) { // append any remaining unknown file
-
-		TreeEntry te(newFiles.first(), "", "?");
-		ti.append(te);
-		newFiles.pop_front();
 	}
 	qSort(ti); // list directories before files
 	return true;
