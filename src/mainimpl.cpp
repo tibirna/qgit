@@ -175,7 +175,10 @@ void MainImpl::ActBack_activated() {
 
 void MainImpl::ActForward_activated() {
 
-	lineEditSHA->redo(); // redo skips empty fields so one is enough
+	lineEditSHA->redo();
+	if (lineEditSHA->text().isEmpty())
+		lineEditSHA->redo();
+
 	lineEditSHA_returnPressed();
 }
 
