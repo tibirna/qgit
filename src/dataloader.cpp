@@ -169,7 +169,7 @@ void DataLoader::baAppend(QByteArray** baPtr, const char* ascii, int len) {
 
 #ifdef USE_QPROCESS
 
-ulong DataLoader::readNewData(bool) {
+ulong DataLoader::readNewData(bool lastBuffer) {
 
 	/*
 	   QByteArray copy c'tor uses shallow copy, but there is a deep copy in
@@ -191,6 +191,9 @@ ulong DataLoader::readNewData(bool) {
 		return buf->readAll(); // memcpy() here
 	*/
 	QByteArray* ba = new QByteArray(readAllStandardOutput());
+	if (lastBuffer)
+		ba->append('\0'); // be sure stream is null terminated
+
 	if (ba->size() == 0) {
 		delete ba;
 		return 0;
@@ -219,13 +222,17 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// QFile::read() calls standard C read() function when
 		// file is open with Unbuffered flag, or fread() otherwise
 		QByteArray* ba = new QByteArray();
-		ba->resize(READ_BLOCK_SIZE);
+		ba->resize(READ_BLOCK_SIZE + lastBuffer);
 		uint len = dataFile->read(ba->data(), READ_BLOCK_SIZE);
+		if (lastBuffer) {
+			ba->append('\0'); // be sure stream is null terminated
+			len++;
+		}
 		if (len <= 0) {
 			delete ba;
 			break;
 
-		} else if (len < READ_BLOCK_SIZE) // unlikely
+		} else if (len < READ_BLOCK_SIZE + lastBuffer) // unlikely
 			ba->resize(len);
 
 		// current read position must be updated manually, it's

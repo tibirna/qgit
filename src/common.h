@@ -278,7 +278,7 @@ class Rev {
 	Rev& operator=(const Rev&);
 public:
 	Rev(const QByteArray& b, uint s, int idx, int* next)
-	    : orderIdx(idx), ba(b), start(s) {
+	    : orderIdx(idx), ba(b), start(s + 7) {
 
 		isDiffCache = isApplied = isUnApplied = false;
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
@@ -309,7 +309,7 @@ private:
 	const QString mid(int start, int len) const;
 
 	const QByteArray& ba; // reference here!
-	const uint start;
+	const int start;
 	uint parentsCnt, boundaryOfs;
 	int autStart, autLen, autDateStart, autDateLen;
 	int sLogStart, sLogLen, lLogStart, lLogLen;

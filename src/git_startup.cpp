@@ -246,7 +246,7 @@ const QStringList Git::getOthersFiles() {
 const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh) {
 
 	QString date(QString::number(QDateTime::currentDateTime().toTime_t()) + " +0200");
-	QString data(ZERO_SHA + ' ' + parent + "\ntree ");
+	QString data("commit " + ZERO_SHA + ' ' + parent + "\ntree ");
 	data.append(ZERO_SHA);
 	data.append("\nparent " + parent);
 	data.append("\nauthor Working Dir " + date);
@@ -443,7 +443,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git rev-list --header --parents --boundary --default HEAD");
+	const QString baseCmd("git log --parents --boundary --pretty=raw -z --default HEAD");
 	QStringList initCmd(baseCmd.split(' '));
 	QString buf;
 	if (!isMainHistory(fh)) {
@@ -457,10 +457,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   then, with this option, file history is truncated to
 	   the file deletion revision.
 	*/
-		// Use '--stdin' to avoid command line arguments size limits
-		initCmd << "--stdin" << "--";
-		buf = getAllRefSha(BRANCH | RMT_BRANCH).join("\n");
-		buf.append("\n"); // if empty '--stdin' hangs
+		initCmd << getAllRefSha(CUR_BRANCH);
 	} else
 		initCmd << "--topo-order";
 
@@ -1189,6 +1186,9 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 	- a terminating '\0'
 */
 	int last = ba.size() - 1;
+	if (start > last)
+		return -1;
+
 	boundaryOfs = uint(ba.at(start) == '-');
 
 	parentsCnt = 0;
