@@ -21,7 +21,7 @@
 #include <QWidget>
 #include "common.h"
 
-#ifdef ON_WINDOWS // *********  platform dependent code ******
+#ifdef Q_OS_WIN32 // *********  platform dependent code ******
 
 const QString QGit::SCRIPT_EXT = ".bat";
 
@@ -325,13 +325,13 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 	QString data2(data);
 	QTextStream stream(&file);
 
-#ifdef ON_WINDOWS
+#ifdef Q_OS_WIN32
 	data2.replace("\n", "\r\n");
 #endif
 	stream << data2;
 	file.close();
 
-#ifndef ON_WINDOWS
+#ifndef Q_OS_WIN32
 	if (setExecutable)
 		chmod(fileName.toLatin1().constData(), 0755);
 #endif
@@ -349,7 +349,7 @@ bool QGit::writeToFile(SCRef fileName, const QByteArray& data, bool setExecutabl
 	stream.writeRawData(data.constData(), data.size());
 	file.close();
 
-#ifndef ON_WINDOWS
+#ifndef Q_OS_WIN32
 	if (setExecutable)
 		chmod(fileName.toLatin1().constData(), 0755);
 #endif

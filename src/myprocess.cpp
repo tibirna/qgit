@@ -190,7 +190,7 @@ void MyProcess::on_cancel() {
 
 	canceling = true;
 
-#ifdef ON_WINDOWS
+#ifdef Q_OS_WIN32
 	kill(); // uses TerminateProcess
 #else
 	terminate(); // uses SIGTERM signal

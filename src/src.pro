@@ -5,7 +5,6 @@
 
 # Platform dependent stuff
 win32{
-    DEFINES += ON_WINDOWS
     TARGET = qgit
     target.path = $$GIT_EXEC_DIR
 }

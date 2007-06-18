@@ -250,7 +250,7 @@ bool DataLoader::createTemporaryFile() {
 	// redirect 'git rev-list' output to a temporary file
 	dataFile = new QTemporaryFile(this);
 
-#ifndef ON_WINDOWS
+#ifndef Q_OS_WIN32
 	/*
 	   For performance reasons we would like to use a tmpfs filesystem
 	   if available, this is normally mounted under '/tmp' in Linux.
