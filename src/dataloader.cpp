@@ -222,17 +222,14 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// QFile::read() calls standard C read() function when
 		// file is open with Unbuffered flag, or fread() otherwise
 		QByteArray* ba = new QByteArray();
-		ba->resize(READ_BLOCK_SIZE + lastBuffer);
-		uint len = dataFile->read(ba->data(), READ_BLOCK_SIZE);
-		if (lastBuffer) {
-			ba->append('\0'); // be sure stream is null terminated
-			len++;
-		}
+		ba->resize(READ_BLOCK_SIZE);
+		int len = dataFile->read(ba->data(), READ_BLOCK_SIZE);
+
 		if (len <= 0) {
 			delete ba;
 			break;
 
-		} else if (len < READ_BLOCK_SIZE + lastBuffer) // unlikely
+		} else if (len < ba->size()) // unlikely
 			ba->resize(len);
 
 		// current read position must be updated manually, it's
@@ -248,6 +245,11 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// avoid reading small chunks if data producer is still running
 		if (len < READ_BLOCK_SIZE && !lastBuffer)
 			break;
+	}
+	if (lastBuffer) { // be sure stream is null terminated
+		QByteArray* zb = new QByteArray(1, '\0');
+		fh->rowData.append(zb);
+		parseSingleBuffer(*zb);
 	}
 	return cnt;
 }
