@@ -45,15 +45,14 @@ public:
 	void deleteWhenDone();
 	const FileAnnotation* lookupAnnotation(SCRef sha, SCRef fileName);
 	bool start(const FileHistory* fh);
-	bool isValid() { return valid; }
 	bool isCanceled() { return canceled; }
-	int count() { return ah.count(); }
-	int elapsed() { return processingTime.elapsed(); }
-	const QString file() { return fileName; }
 	const QString getAncestor(SCRef sha, SCRef fileName, int* shaIdx);
 	bool getRange(SCRef sha, RangeInfo* r);
 	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);
 	const QString computeRanges(SCRef sha, int rStart, int rEnd, SCRef target = "");
+
+signals:
+	void annotateReady(Annotate*, const QString&, bool, const QString&);
 
 private slots:
 	void on_deleteWhenDone();

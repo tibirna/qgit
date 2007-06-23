@@ -115,7 +115,6 @@ public:
 	MyProcess* startPatchLoading(SCList shaList, SCRef fileName, QObject* receiver);
 	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
-	void annotateFinished(Annotate* ann);
 	bool startFileHistory(FileHistory* fh);
 	void cancelDataLoading(const FileHistory* fh);
 	void cancelProcess(MyProcess* p);

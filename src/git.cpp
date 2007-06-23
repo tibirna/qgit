@@ -609,14 +609,6 @@ void Git::cancelAnnotate(Annotate* ann) {
 		ann->deleteWhenDone();
 }
 
-void Git::annotateFinished(Annotate* ann) {
-
-	SCRef msg = QString("Annotated %1 files in %2 ms")
-	            .arg(ann->count()).arg(ann->elapsed());
-
-	emit annotateReady(ann, ann->file(), ann->isValid(), msg);
-}
-
 const FileAnnotation* Git::lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha) {
 
 	return (ann ? ann->lookupAnnotation(sha, fileName) : NULL);

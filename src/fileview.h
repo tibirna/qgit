@@ -42,7 +42,6 @@ public slots:
 	void on_revIdSelected(int);
 
 protected:
-	virtual bool event(QEvent* e);
 	virtual bool doUpdate(bool force);
 	virtual bool isMatch(SCRef sha);
 
@@ -52,7 +51,6 @@ private:
 
 	void showAnnotation();
 	bool goToCurrentAnnotation();
-	void updateProgressBar(int annotatedNum);
 	void filterOnRange(bool b);
 	void updateSpinBoxValue();
 	void updateEnabledButtons();

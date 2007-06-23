@@ -21,6 +21,9 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 	gui = guiObj;
 	cancelingAnnotate = annotateRunning = annotateActivity = false;
 	valid = canceled = isError = false;
+
+	connect(this, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
+	        git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)));
 }
 
 const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
@@ -102,13 +105,11 @@ void Annotate::slotComputeDiffs() {
 	cancelingAnnotate = annotateRunning = false;
 	if (canceled)
 		deleteWhenDone();
-	else
-		git->annotateFinished(this);
-
-//	StrVect::const_iterator it(histRevOrder.constBegin());
-//	do {
-//		dbg(*it); dbg(ah[*it].fileSha);
-//	} while (++it != histRevOrder.constEnd());
+	else {
+		QString msg("Annotated %1 files in %2 ms");
+		msg = msg.arg(ah.count()).arg(processingTime.elapsed());
+		emit annotateReady(this, fileName, valid, msg);
+	}
 }
 
 void Annotate::annotateFileHistory(SCRef fileName) {

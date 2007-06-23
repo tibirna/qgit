@@ -285,7 +285,7 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 	UPDATE();
 
 	if (fileTab->textEditFile->startAnnotate(model()))
-		updateProgressBar(0);
+		showStatusBarMessage("Annotating revisions of '" + st.fileName() + "'...");
 }
 
 void FileView::showAnnotation() {
@@ -326,36 +326,4 @@ void FileView::on_revIdSelected(int id) {
 
 	if (id != 0 && fileTab->spinBoxRevision->isEnabled())
 		fileTab->spinBoxRevision->setValue(id);
-}
-
-// ******************************* data events ****************************
-
-bool FileView::event(QEvent* e) {
-
-	if (e->type() == (int)QGit::ANN_PRG_EV) {
-		updateProgressBar(((AnnotateProgressEvent*)e)->myData().toInt());
-		return true;
-	}
-	return Domain::event(e);
-}
-
-void FileView::updateProgressBar(int annotatedNum) {
-
-	uint tot = model()->rowCount();
-	if (tot == 0)
-		return;
-
-	QString desc("Loading patches applied against '"	);
-	if (annotatedNum == -1) {
-		annotatedNum = tot;
-		desc = "Annotating '";
-	}
-	int cc = (annotatedNum * 100) / tot;
-	int idx = (annotatedNum * 40) / tot;
-	QString head(desc + st.fileName() + "' [");
-	QString tail("] " + QString::number(cc) + " %");
-	QString done, toDo;
-	done.fill('.', idx);
-	toDo.fill(' ', 40 - idx);
-	showStatusBarMessage(head + done + toDo + tail);
 }
