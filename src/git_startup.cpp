@@ -254,11 +254,14 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
 
+	if (!isMainHistory(fh))
+		data.append(getWorkDirDiff(fh->fileName()));
+
 	QByteArray* ba = new QByteArray(data.toAscii());
 	ba->append('\0');
 	fh->rowData.append(ba);
 	int dummy;
-	Rev* c = new Rev(*ba, 0, idx, &dummy, false); // FIXME
+	Rev* c = new Rev(*ba, 0, idx, &dummy, !isMainHistory(fh));
 	c->isDiffCache = true;
 	c->lanes.append(EMPTY);
 	return c;
@@ -827,7 +830,7 @@ bool Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
 		return false;
 
 	// insert a custom ZERO_SHA rev with proper parent
-	const Rev* rf = fakeWorkDirRev(parent, "Working dir changes", "dummy", 0, fh);
+	const Rev* rf = fakeWorkDirRev(parent, "Working dir changes", "long log\n", 0, fh);
 	fh->revs.insert(ZERO_SHA, rf);
 	fh->revOrder.append(ZERO_SHA);
 	return true;
