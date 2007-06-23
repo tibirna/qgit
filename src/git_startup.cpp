@@ -258,7 +258,7 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 	ba->append('\0');
 	fh->rowData.append(ba);
 	int dummy;
-	Rev* c = new Rev(*ba, 0, idx, &dummy);
+	Rev* c = new Rev(*ba, 0, idx, &dummy, false); // FIXME
 	c->isDiffCache = true;
 	c->lanes.append(EMPTY);
 	return c;
@@ -457,7 +457,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   then, with this option, file history is truncated to
 	   the file deletion revision.
 	*/
-		initCmd << getAllRefSha(CUR_BRANCH);
+		initCmd << "-p" << getAllRefSha(CUR_BRANCH);
 	} else
 		initCmd << "--topo-order";
 
@@ -732,7 +732,9 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 
 	RevMap& r = fh->revs;
 	int nextStart;
-	Rev* rev = new Rev(ba, start, r.count(), &nextStart); // only here we create a new rev
+
+	// only here we create a new rev
+	Rev* rev = new Rev(ba, start, r.count(), &nextStart, !isMainHistory(fh));
 
 	if (nextStart == -1) { // half chunk detected
 		delete rev;
@@ -1170,7 +1172,7 @@ const QStringList Rev::parents() const {
 	return mid(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
-int Rev::indexData() { // fast path here, less then 4% of load time
+int Rev::indexData(bool withDiff) { // fast path here, less then 4% of load time
 /*
 	When git-rev-list is called with --header option, after the first
 	line with the commit sha, the following information is produced
@@ -1233,10 +1235,11 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 		idx = ba.indexOf('\n', idx);
 
 	sLogStart = idx + 5;
-	if (end < sLogStart) { // no shortlog and no longLog
+	if (end < sLogStart) { // no shortlog no longLog and no diff
 
 		sLogStart = sLogLen = 0;
 		lLogStart = lLogLen = 0;
+		diffStart = diffLen = 0;
 		return ++end;
 	}
 	lLogStart = ba.indexOf('\n', sLogStart);
@@ -1248,6 +1251,22 @@ int Rev::indexData() { // fast path here, less then 4% of load time
 	} else { // no longLog and no new line at the end of shortlog
 		sLogLen = end - sLogStart;
 		lLogStart = lLogLen = 0;
+	}
+	diffStart = diffLen = 0;
+	if (withDiff) {
+
+		diffStart = ba.indexOf("\ndiff ", lineEnd);
+		if (diffStart != -1 && diffStart < end) {
+
+			lLogLen = diffStart++ - lLogStart;
+			diffLen = end - diffStart;
+
+			// chatch patological cases
+			if (sLogStart >= diffStart)
+				sLogStart = sLogLen = 0;
+			if (lLogStart >= diffStart)
+				lLogStart = lLogLen = 0;
+		}
 	}
 	return ++end;
 }

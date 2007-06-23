@@ -277,12 +277,12 @@ class Rev {
 	Rev(const Rev&);
 	Rev& operator=(const Rev&);
 public:
-	Rev(const QByteArray& b, uint s, int idx, int* next)
+	Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff)
 	    : orderIdx(idx), ba(b), start(s + 7) {
 
 		isDiffCache = isApplied = isUnApplied = false;
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
-		*next = indexData();
+		*next = indexData(withDiff);
 	}
 	bool isBoundary() const { return (boundaryOfs == 1); }
 	uint parentsCount() const { return parentsCnt; }
@@ -293,6 +293,7 @@ public:
 	const QString authorDate() const { return mid(autDateStart, autDateLen); }
 	const QString shortLog() const { return mid(sLogStart, sLogLen); }
 	const QString longLog() const { return mid(lLogStart, lLogLen); }
+	const QString diff() const { return mid(diffStart, diffLen); }
 
 	QVector<int> lanes, childs;
 	bool isDiffCache, isApplied, isUnApplied;
@@ -305,14 +306,14 @@ public:
 	int descBrnMaster;  // by corresponding index xxxMaster
 
 private:
-	int indexData();
+	int indexData(bool withDiff);
 	const QString mid(int start, int len) const;
 
 	const QByteArray& ba; // reference here!
 	const int start;
 	uint parentsCnt, boundaryOfs;
 	int autStart, autLen, autDateStart, autDateLen;
-	int sLogStart, sLogLen, lLogStart, lLogLen;
+	int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 };
 typedef QHash<QString, const Rev*> RevMap;  // faster then a map
 
