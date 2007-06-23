@@ -738,7 +738,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 	int nextStart;
 
 	// only here we create a new rev
-	Rev* rev = new Rev(ba, start, r.count(), &nextStart, !isMainHistory(fh));
+	Rev* rev = new Rev(ba, start, fh->revOrder.count(), &nextStart, !isMainHistory(fh));
 
 	if (nextStart == -1) { // half chunk detected
 		delete rev;
@@ -778,7 +778,9 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 				delete rev;
 				return nextStart;
 			}
-			dbp("ASSERT: addChunk sha <%1> already received", sha);
+			// could be a side effect of 'git log -m', see below
+			if (isMainHistory(fh) || rev->parentsCount() < 2)
+				dbp("ASSERT: addChunk sha <%1> already received", sha);
 		}
 	}
 	if (r.isEmpty() && !isMainHistory(fh)) {
