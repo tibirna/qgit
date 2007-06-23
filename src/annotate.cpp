@@ -332,13 +332,12 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 
 	QString diff(r->diff());
 
-	// FIXME fileSha is empty with file mode only changes
-	if (ah[sha].fileSha.isEmpty() && !parentNum)
-		ah[sha].fileSha = diff.section('\n', 1, 1).section("..", 1).section(' ', 0, 0);
-
-	// handle a possible file mode only change and remove header
-	int start = diff.indexOf('@');
-	return (start != -1 ? diff.mid(start) : "");
+	if (ah[sha].fileSha.isEmpty() && !parentNum) {
+		int idx = diff.indexOf(".."); // FIXME file mode change only
+		if (idx != -1)
+			ah[sha].fileSha = diff.mid(idx + 2, 40);
+	}
+	return diff;
 }
 
 bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
