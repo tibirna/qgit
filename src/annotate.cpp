@@ -327,22 +327,18 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 		mergeSha = QString::number(parentNum) + " m " + sha;
 
 	const Rev* r = git->revLookup(parentNum ? mergeSha : sha, fh);
+	if (!r)
+		return QString();
+
 	QString diff(r->diff());
 
 	// FIXME fileSha is empty with file mode only changes
-	if (!parentNum)
+	if (ah[sha].fileSha.isEmpty() && !parentNum)
 		ah[sha].fileSha = diff.section('\n', 1, 1).section("..", 1).section(' ', 0, 0);
 
-	int start = diff.indexOf('@');
 	// handle a possible file mode only change and remove header
-	diff = (start != -1 ? diff.mid(start) : "");
-
-	int i = 0;
-	while (diffMap.contains(Key(sha, i)))
-		i++;
-
-	diffMap.insert(Key(sha, i), diff);
-	return diff;
+	int start = diff.indexOf('@');
+	return (start != -1 ? diff.mid(start) : "");
 }
 
 bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
@@ -703,7 +699,8 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 	QString curRevSha(curRev->sha());
 	while (curRevSha != oldest && !isDirectDescendant) {
 
-		if (!diffMap.contains(Key(curRevSha, 0))) {
+		QString diff(getPatch(curRevSha));
+		if (diff.isEmpty()) {
 			if (curRev->parentsCount() == 0)  // is initial
 				break;
 
@@ -711,7 +708,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 			return "";
 		}
 		RangeInfo r(rangeMap[curRevSha]);
-		updateRange(&r, diffMap[Key(curRevSha, 0)], true);
+		updateRange(&r, diff, true);
 
 		// special case for modified flag. Mark always the 'after patch' revision
 		// with modified flag, not the before patch. So we have to stick the flag
@@ -759,7 +756,8 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 				rangeMap.insert(sha, RangeInfo());
 				continue;
 			}
-			if (!diffMap.contains(Key(sha, 0))) {
+			QString diff(getPatch(sha));
+			if (diff.isEmpty()) {
 				dbp("ASSERT in rangeFilter 2: diff for %1 not found", sha);
 				return "";
 			}
@@ -774,7 +772,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 				return "";
 			}
 			RangeInfo r(rangeMap[parSha]);
-			updateRange(&r, diffMap[Key(sha, 0)], false);
+			updateRange(&r, diff, false);
 			rangeMap.insert(sha, r);
 
 			if (sha == target) // stop now, no need to continue

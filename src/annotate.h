@@ -94,9 +94,6 @@ private:
 	bool valid;
 	bool canceled;
 	QTime processingTime;
-
-	typedef QPair<QString, uint> Key; // FIXME remove useless now
-	QMap<Key, QString> diffMap; // QPair(sha, parentNr)
 	QMap<QString, RangeInfo> rangeMap;
 };
 
