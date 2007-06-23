@@ -460,7 +460,8 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   then, with this option, file history is truncated to
 	   the file deletion revision.
 	*/
-		initCmd << "-p" << getAllRefSha(CUR_BRANCH);
+		QStringList diffCmd(QString("-r -m -p --full-index").split(' '));
+		initCmd << diffCmd << getAllRefSha(CUR_BRANCH);
 	} else
 		initCmd << "--topo-order";
 
@@ -784,9 +785,23 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		bool added = copyDiffIndex(fh, sha);
 		rev->orderIdx = added ? 1 : 0;
 	}
-	r.insert(sha, rev);
-	fh->revOrder.append(sha);
-
+	if (!isMainHistory(fh) && rev->parentsCount() > 1 && r.contains(sha)) {
+	/* In this case git log is called with -m option and merges are splitted
+	   in one commit per parent but all them have the same sha.
+	   So we add only the first to fh->revOrder to display history correctly,
+	   but we nevertheless add all the commits to 'r' so that annotation code
+	   can get the patches.
+	*/
+		QString newSha;
+		int i = 0;
+		do
+			newSha = QString::number(++i) + " m " + sha;
+		while (r.contains(newSha));
+		r.insert(newSha, rev);
+	} else {
+		r.insert(sha, rev);
+		fh->revOrder.append(sha);
+	}
 	if (isStGIT) {
 		// updateLanes() is called too late, after loadingUnAppliedPatches
 		// has been reset so update the lanes now.
