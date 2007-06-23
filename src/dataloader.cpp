@@ -256,7 +256,7 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 
 bool DataLoader::createTemporaryFile() {
 
-	// redirect 'git rev-list' output to a temporary file
+	// redirect 'git log' output to a temporary file
 	dataFile = new QTemporaryFile(this);
 
 #ifndef Q_OS_WIN32

@@ -250,7 +250,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip" >
-          <string>Extra options to feed git-rev-list</string>
+          <string>Extra options to feed 'git log'</string>
          </property>
         </widget>
        </item>

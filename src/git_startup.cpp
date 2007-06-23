@@ -476,7 +476,7 @@ bool Git::startUnappliedList() {
 
 	// WARNING: with this command git rev-list could send spurious
 	// revs so we need some filter out logic during loading
-	QString initCmd("git rev-list --header --parents --stdin ^HEAD");
+	QString initCmd("git rev-list --header --parents --stdin ^HEAD"); // FIXME
 
 	// Use '--stdin' to avoid command line arguments size limits
 	return startParseProc(initCmd.split(' '), revData, unAppliedSha);
@@ -628,7 +628,7 @@ void Git::init2() {
 		}
 		POST_MSG(msg1 + "revisions...");
 		if (!startRevList(_sp.args, revData))
-			dbs("ERROR: unable to start git-rev-list loading");
+			dbs("ERROR: unable to start 'git log'");
 
 		setThrowOnStop(false);
 
@@ -773,7 +773,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		}
 		if (r.contains(sha)) {
 			// StGIT unapplied patches could be sent again by
-			// git rev-list as example if called with --all option.
+			// 'git log' as example if called with --all option.
 			if (r[sha]->isUnApplied) {
 				delete rev;
 				return nextStart;
@@ -1194,9 +1194,10 @@ const QStringList Rev::parents() const {
 
 int Rev::indexData(bool withDiff) { // fast path here, less then 4% of load time
 /*
-	When git-rev-list is called with --header option, after the first
-	line with the commit sha, the following information is produced
+  This is what 'git log' produces:
 
+	- one line with "commit" + sha + an arbitrary amount of parent's sha, in case
+	  of a merge in file history the line terminates with "(from <sha of parent>)"
 	- one line with "tree"
 	- an arbitrary amount of "parent" lines
 	- one line with "author"
@@ -1205,6 +1206,7 @@ int Rev::indexData(bool withDiff) { // fast path here, less then 4% of load time
 	- one blank line
 	- zero or one line with log title
 	- zero or more lines with log message
+	- zero or more lines with diff content (only for file history)
 	- a terminating '\0'
 */
 	int last = ba.size() - 1;

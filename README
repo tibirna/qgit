@@ -67,7 +67,7 @@ start 'qmake qgit.pro'.
 Performance tweaks
 ------------------
 
-A 'git rev-list' command is used to load the repository at startup or when
+A 'git log' command is used to load the repository at startup or when
 refreshing. This is an highly performance critical task. Default method is
 based on a temporary file as data exchange facility. This is the fastest
 on Linux with a tmpfs filesystem mounted under /tmp, as is common with most
@@ -79,17 +79,17 @@ define in 'src/dataloader.h' before to compile.
 Command line arguments
 ----------------------
 Run qgit from a git working directory, command line arguments
-are filtered by 'git rev-list'. Some examples:
+are filtered by 'git log'. Some examples:
 
-	qgit v2.6.12-rc5..v2.6.12-rc6
-	qgit v2.6.12-rc6
-	qgit --all
-	qgit --after="Aug 10" --before="Aug 15"
+	qgit --no-merges
+	qgit v2.6.18.. include/scsi drivers/scsi
+	qgit --since="2 weeks ago" -- kernel/
+	qgit -r --name-status release..test
 
 If qgit is launched without arguments or if you change archive with
 'open' menu, a dialog for range select is shown.
 You can select top and bottom rev tags from the list or paste a
-specific revision. Values are passed to 'git rev-list' to narrow
+specific revision. Values are passed to 'git log' to narrow
 data loading to chosen revisions.
 
 

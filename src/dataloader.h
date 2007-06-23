@@ -16,7 +16,7 @@ class QTemporaryFile;
 class Git;
 class FileHistory;
 
-// data exchange facility with git-rev-list could be based on QProcess or on
+// data exchange facility with 'git log' could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
 // #define USE_QPROCESS
 
