@@ -250,7 +250,6 @@ namespace QGit {
 	void restoreGeometrySetting(SCRef name, QWidget* w = NULL, splitVect* svPtr = NULL);
 
 	// misc helpers
-	const QStringList abbrevSha(SCList shaList);
 	bool stripPartialParaghraps(const QByteArray& src, QString* dst, QString* prev);
 	bool writeToFile(SCRef fileName, SCRef data, bool setExecutable = false);
 	bool writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable = false);

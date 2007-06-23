@@ -460,7 +460,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   the file deletion revision.
 	*/
 		QStringList diffCmd(QString("-r -m -p --full-index").split(' '));
-		initCmd << diffCmd << QGit::abbrevSha(getAllRefSha(CUR_BRANCH));
+		initCmd << diffCmd << getAllRefSha(CUR_BRANCH);
 	} else
 		initCmd << "--topo-order";
 
@@ -469,7 +469,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 bool Git::startUnappliedList() {
 
-	QStringList unAppliedShaList(QGit::abbrevSha(getAllRefSha(UN_APPLIED)));
+	QStringList unAppliedShaList(getAllRefSha(UN_APPLIED));
 	if (unAppliedShaList.isEmpty())
 		return false;
 
