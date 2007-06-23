@@ -20,9 +20,7 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 	git = parent;
 	gui = guiObj;
 	cancelingAnnotate = annotateRunning = annotateActivity = false;
-	valid = canceled = false;
-
-	patchProcBuf.reserve(1000000); // avoid repeated reallocation, will be big!
+	valid = canceled = isError = false;
 }
 
 const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
@@ -45,14 +43,6 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
 	return NULL;
 }
 
-void Annotate::procReadyRead(const QByteArray& ba) {
-
-	patchProcBuf.append(ba);
-	annFilesNum += ba.count("diff --git ");
-	if (annFilesNum > (int)histRevOrder.count())
-		annFilesNum = histRevOrder.count();
-}
-
 void Annotate::deleteWhenDone() {
 
 	if (!EM_IS_PENDING(exAnnCanceled))
@@ -61,7 +51,6 @@ void Annotate::deleteWhenDone() {
 	if (annotateRunning)
 		cancelingAnnotate = true;
 
-	git->cancelProcess(patchProc);
 	on_deleteWhenDone();
 }
 
@@ -71,14 +60,6 @@ void Annotate::on_deleteWhenDone() {
 		deleteLater();
 	else
 		QTimer::singleShot(20, this, SLOT(on_deleteWhenDone()));
-}
-
-void Annotate::on_progressTimer_timeout() {
-
-	if (!cancelingAnnotate && !isError) {
-		const QString n(QString::number(annFilesNum));
-		QApplication::postEvent(gui, new AnnotateProgressEvent(n));
-	}
 }
 
 bool Annotate::start(const FileHistory* _fh) {
@@ -103,60 +84,19 @@ bool Annotate::start(const FileHistory* _fh) {
 		ah.insert(*it, FileAnnotation(annId--));
 	while (++it != histRevOrder.constEnd());
 
-	// annotation is split in two parts.
-	// first we get the list of sha's to feed git diff-tree.
-	// This is very fast.
-	isError = false;
-	annotateFileHistory(fileName, true);
-	cancelingAnnotate = cancelingAnnotate || shaList.isEmpty(); // only one (initial) rev
-
-	// start an async call to get the patches. This is the slowest part.
-	if (!isError && !cancelingAnnotate)
-		patchProc = git->startPatchLoading(shaList, fileName, this);
-
-	if (isError || cancelingAnnotate || !patchProc) {
-		slotComputeDiffs(); // clean-up if something went wrong
-		return false;
-	}
-	connect(&progressTimer, SIGNAL(timeout()),
-	        this, SLOT(on_progressTimer_timeout()));
-
-	progressTimer.start(500);
-	return true;
-}
-
-void Annotate::procFinished() {
-
-	progressTimer.stop();
-	annFilesNum = -1;
-	on_progressTimer_timeout(); // change description
-
-	// start computing diffs only on return from event handler
+	// annotating the file history could be time consuming,
+	// so return now a use a timer to start annotation
 	QTimer::singleShot(10, this, SLOT(slotComputeDiffs()));
+	return true;
 }
 
 void Annotate::slotComputeDiffs() {
 
-	processingTime.start(); // track only annotation time
+	processingTime.start();
 
-	// when all the patches are loaded we compute the annotation.
-	// this part is normally faster then getting the patches.
-	if (!cancelingAnnotate) {
+	if (!cancelingAnnotate)
+		annotateFileHistory(fileName); // now could call Qt event loop
 
-		diffMap.clear();
-		AnnotateHistory::iterator it(ah.begin());
-		do
-			(*it).isValid = false; // reset flags
-		while (++it != ah.end());
-
-		// remove first 'next patch' marker
-		int first = patchProcBuf.indexOf(':');
-		if (first != -1) {
-			nextFileSha = patchProcBuf.mid(first + 56, 40);
-			patchProcBuf.remove(0, first + 100);
-		}
-		annotateFileHistory(fileName, false); // now could call Qt event loop
-	}
 	valid = !(isError || cancelingAnnotate);
 	canceled = cancelingAnnotate;
 	cancelingAnnotate = annotateRunning = false;
@@ -171,18 +111,18 @@ void Annotate::slotComputeDiffs() {
 //	} while (++it != histRevOrder.constEnd());
 }
 
-void Annotate::annotateFileHistory(SCRef fileName, bool buildShaList) {
+void Annotate::annotateFileHistory(SCRef fileName) {
 
 	// sweep from the oldest to newest so that parent
 	// annotations are calculated before children
 	StrVect::const_iterator it(histRevOrder.constEnd());
 	do {
 		--it;
-		doAnnotate(fileName, *it, buildShaList);
+		doAnnotate(fileName, *it);
 	} while (it != histRevOrder.constBegin() && !isError && !cancelingAnnotate);
 }
 
-void Annotate::doAnnotate(SCRef fileName, SCRef sha, bool buildShaList) {
+void Annotate::doAnnotate(SCRef fileName, SCRef sha) {
 // all the parents annotations must be valid here
 
 	FileAnnotation* fa = getFileAnnotation(sha);
@@ -196,8 +136,7 @@ void Annotate::doAnnotate(SCRef fileName, SCRef sha, bool buildShaList) {
 		return;
 	}
 	if (r->parentsCount() == 0) { // initial revision
-		if (!buildShaList)
-			setInitialAnnotation(fileName, sha, fa); // calls Qt event loop
+		setInitialAnnotation(fileName, sha, fa); // calls Qt event loop
 		fa->isValid = true;
 		return;
 	}
@@ -211,26 +150,18 @@ void Annotate::doAnnotate(SCRef fileName, SCRef sha, bool buildShaList) {
 		isError = true;
 		return;
 	}
-	if (buildShaList) // just prepare patch script
-		updateShaList(sha, parSha);
-	else {
-		const QString diff(getNextPatch(patchProcBuf, fileName, sha));
-		const QString author(setupAuthor(r->author(), fa->annId));
-		setAnnotation(diff, author, pa->lines, fa->lines);
-	}
+	const QString diff(getPatch(sha));
+	const QString author(setupAuthor(r->author(), fa->annId));
+	setAnnotation(diff, author, pa->lines, fa->lines);
+
 	// then add other parents diff if any
 	QStringList::const_iterator it(parents.constBegin());
 	++it;
+	int parentNum = 1;
 	while (it != parents.constEnd()) {
 
 		FileAnnotation* pa = getFileAnnotation(*it);
-
-		if (buildShaList) { // just prepare patch script
-			updateShaList(sha, *it);
-			++it;
-			continue;
-		}
-		const QString diff(getNextPatch(patchProcBuf, fileName, sha));
+		const QString diff(getPatch(sha, parentNum++));
 		QLinkedList<QString> tmpAnn;
 		setAnnotation(diff, "Merge", pa->lines, tmpAnn);
 
@@ -389,46 +320,18 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 	}
 }
 
-void Annotate::updateShaList(SCRef sha, SCRef par) {
+const QString Annotate::getPatch(SCRef sha, int parentNum) {
 
-	if (sha == QGit::ZERO_SHA) // shaList works only with real sha values
-		return;
+	QString mergeSha(sha);
+	if (parentNum)
+		mergeSha = QString::number(parentNum) + " m " + sha;
 
-	shaList.append(QString(sha + " " + par));
-}
+	const Rev* r = git->revLookup(parentNum ? mergeSha : sha, fh);
+	QString diff(r->diff());
 
-const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef sha) {
-
-	if (sha == QGit::ZERO_SHA) {
-		// standard patch loading Git::startPatchLoading() does not
-		// work with working dir content, so we need to read directly
-		QString wdDiff(git->getWorkDirDiff(fileName));
-		if (cancelingAnnotate)
-			return "";
-
-		// restore removed head line of next patch
-		const QString nextHeader("\n:100644 100644 " + QGit::ZERO_SHA + ' '
-		                         + nextFileSha + " M\t" + fileName + '\n');
-		wdDiff.append(nextHeader);
-		patchFile.prepend(wdDiff);
-		nextFileSha = QGit::ZERO_SHA;
-	}
-	// use patchProcBuf to get proper diff. Patches in patchProcBuf are
-	// correctly ordered, so take the first patch
-	ah[sha].fileSha = nextFileSha;
-
-	bool noNewLine = (patchFile[0] == ':');
-	if (noNewLine)
-		dbp("WARNING: No newline at the end of %1 patch", sha);
-
-	int end = (noNewLine ? 0 : patchFile.indexOf("\n:"));
-	QString diff;
-	if (end != -1) {
-		diff = patchFile.left(end + 1);
-		nextFileSha = patchFile.mid(end + 57 - (int)noNewLine, 40);
-		patchFile.remove(0, end + 100); // the whole line until file name
-	} else
-		diff = patchFile;
+	// FIXME fileSha is empty with file mode only changes
+	if (!parentNum)
+		ah[sha].fileSha = diff.section('\n', 1, 1).section("..", 1).section(' ', 0, 0);
 
 	int start = diff.indexOf('@');
 	// handle a possible file mode only change and remove header
@@ -437,6 +340,7 @@ const QString Annotate::getNextPatch(QString& patchFile, SCRef fileName, SCRef s
 	int i = 0;
 	while (diffMap.contains(Key(sha, i)))
 		i++;
+
 	diffMap.insert(Key(sha, i), diff);
 	return diff;
 }

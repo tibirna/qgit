@@ -792,12 +792,12 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 	   but we nevertheless add all the commits to 'r' so that annotation code
 	   can get the patches.
 	*/
-		QString newSha;
+		QString mergeSha;
 		int i = 0;
 		do
-			newSha = QString::number(++i) + " m " + sha;
-		while (r.contains(newSha));
-		r.insert(newSha, rev);
+			mergeSha = QString::number(++i) + " m " + sha;
+		while (r.contains(mergeSha));
+		r.insert(mergeSha, rev);
 	} else {
 		r.insert(sha, rev);
 		fh->revOrder.append(sha);
@@ -1216,6 +1216,14 @@ int Rev::indexData(bool withDiff) { // fast path here, less then 4% of load time
 	while (idx < last && ba.at(idx) == ' ') {
 		idx += 41;
 		parentsCnt++;
+	}
+	if (withDiff && parentsCnt > 1) {
+	/* In this case the at end of the line is appended
+	   the following info "(from <sha of parent>)" that we
+	   have to skip.
+	*/
+		parentsCnt--;
+		idx += 7;
 	}
 	idx += 47; // idx points to first line '\n', so skip tree line
 	while (idx < last && ba.at(idx) == 'p') //skip parents

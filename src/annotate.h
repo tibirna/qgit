@@ -55,28 +55,22 @@ public:
 	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);
 	const QString computeRanges(SCRef sha, int rStart, int rEnd, SCRef target = "");
 
-public slots:
-	void procReadyRead(const QByteArray&);
-	void procFinished();
-
 private slots:
-	void on_progressTimer_timeout();
 	void on_deleteWhenDone();
 	void slotComputeDiffs();
 
 private:
 	typedef QMap<QString, FileAnnotation> AnnotateHistory;
 
-	void annotateFileHistory(SCRef fileName, bool buildShaList);
-	void doAnnotate(SCRef fileName, SCRef sha, bool buildShaList);
+	void annotateFileHistory(SCRef fileName);
+	void doAnnotate(SCRef fileName, SCRef sha);
 	FileAnnotation* getFileAnnotation(SCRef sha);
 	void setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* fa);
 	const QString setupAuthor(SCRef origAuthor, int annId);
 	void setAnnotation(SCRef diff, SCRef aut, SCLList pAnn, SLList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);
 	static void unify(SLList dst, SCLList src);
-	void updateShaList(SCRef sha, SCRef par);
-	const QString getNextPatch(QString& patchFile, SCRef fileName, SCRef sha);
+	const QString getPatch(SCRef sha, int parentNum = 0);
 	bool getNextSection(SCRef d, int& idx, QString& sec, SCRef target);
 	void updateRange(RangeInfo* r, SCRef diff, bool reverse);
 	void updateCrossRanges(SCRef cnk, bool rev, int oStart, int oLineCnt, RangeInfo* r);
@@ -95,18 +89,13 @@ private:
 	int annNumLen;
 	int annId;
 	int annFilesNum;
-	QStringList shaList;
 	QString fileName;
 	StrVect histRevOrder; // TODO use reference
-	QString patchProcBuf;
-	QPointer<MyProcess> patchProc;
-	QString nextFileSha;
 	bool valid;
 	bool canceled;
 	QTime processingTime;
-	QTimer progressTimer;
 
-	typedef QPair<QString, uint> Key;
+	typedef QPair<QString, uint> Key; // FIXME remove useless now
 	QMap<Key, QString> diffMap; // QPair(sha, parentNr)
 	QMap<QString, RangeInfo> rangeMap;
 };

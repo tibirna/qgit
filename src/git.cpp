@@ -775,7 +775,7 @@ MyProcess* Git::getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool comb
 
 const QString Git::getWorkDirDiff(SCRef fileName) {
 
-	QString runCmd("git diff-index -r -m -p HEAD"), runOutput;
+	QString runCmd("git diff-index -r -z -m -p --full-index --no-commit-id HEAD"), runOutput;
 	if (!fileName.isEmpty())
 		runCmd.append(" -- " + quote(fileName));
 
