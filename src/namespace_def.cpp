@@ -292,6 +292,17 @@ void QGit::restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 }
 
 // misc helpers
+const QStringList QGit::abbrevSha(SCList shaList) {
+// An hack to fit long list of sha in command line, the solution
+// will be a '--stdin' option for 'git log', but for now we use this trick.
+
+	QStringList abbrevList;
+	FOREACH_SL (it, shaList)
+		abbrevList.append((*it).right(7));
+
+	return abbrevList;
+}
+
 bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
 
 	if (ba.endsWith('\n')) { // optimize common case

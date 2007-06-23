@@ -448,7 +448,6 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	const QString baseCmd("git log --parents --boundary --pretty=raw -z --default HEAD");
 	QStringList initCmd(baseCmd.split(' '));
-	QString buf;
 	if (!isMainHistory(fh)) {
 	/*
 	   fetch history from all branches so any revision in
@@ -461,25 +460,24 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   the file deletion revision.
 	*/
 		QStringList diffCmd(QString("-r -m -p --full-index").split(' '));
-		initCmd << diffCmd << getAllRefSha(CUR_BRANCH);
+		initCmd << diffCmd << QGit::abbrevSha(getAllRefSha(CUR_BRANCH));
 	} else
 		initCmd << "--topo-order";
 
-	return startParseProc(initCmd + args, fh, buf);
+	return startParseProc(initCmd + args, fh, QString());
 }
 
 bool Git::startUnappliedList() {
 
-	SCRef unAppliedSha(getAllRefSha(UN_APPLIED).join("\n"));
-	if (unAppliedSha.isEmpty())
+	QStringList unAppliedShaList(QGit::abbrevSha(getAllRefSha(UN_APPLIED)));
+	if (unAppliedShaList.isEmpty())
 		return false;
 
-	// WARNING: with this command git rev-list could send spurious
+	// WARNING: with this command 'git log' could send spurious
 	// revs so we need some filter out logic during loading
-	QString initCmd("git rev-list --header --parents --stdin ^HEAD"); // FIXME
-
-	// Use '--stdin' to avoid command line arguments size limits
-	return startParseProc(initCmd.split(' '), revData, unAppliedSha);
+	QStringList cmd(QString("git log --parents --pretty=raw -z ^HEAD").split(' '));
+	cmd << unAppliedShaList;
+	return startParseProc(cmd, revData, QString());
 }
 
 void Git::stop(bool saveCache) {
