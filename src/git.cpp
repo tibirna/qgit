@@ -587,13 +587,6 @@ void Git::formatPatchFileHeader(QString* rowName, SCRef sha, SCRef diffToSha,
 		*rowName = "diff --git a/" + *rowName + " b/" + *rowName;
 }
 
-MyProcess* Git::startPatchLoading(SCList shaList, SCRef fileName, QObject* receiver) {
-
-	QString runCmd("git diff-tree -r -m --patch-with-raw --no-commit-id --stdin -- ");
-	runCmd.append(quote(fileName));
-	return runAsync(runCmd, receiver, shaList.join("\n").append('\n'));
-}
-
 Annotate* Git::startAnnotate(FileHistory* fh, QObject* guiObj) { // non blocking
 
 	Annotate* ann = new Annotate(this, guiObj);

@@ -112,7 +112,6 @@ public:
 	bool isThrowOnStopRaised(int excpId, SCRef curContext);
 	void setLane(SCRef sha, FileHistory* fh);
 	Annotate* startAnnotate(FileHistory* fh, QObject* guiObj);
-	MyProcess* startPatchLoading(SCList shaList, SCRef fileName, QObject* receiver);
 	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
 	bool startFileHistory(FileHistory* fh);
