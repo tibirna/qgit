@@ -214,11 +214,12 @@ void FileContent::update(bool force) {
 	}
 }
 
-bool FileContent::startAnnotate(FileHistory* fh) {
+bool FileContent::startAnnotate(FileHistory* fh, SCRef ht) {
 
 	if (!isImageFile)
 		annotateObj = git->startAnnotate(fh, d); // non blocking
 
+	histTime = ht;
 	isAnnotationLoading = (annotateObj != NULL);
 	return isAnnotationLoading;
 }
@@ -503,7 +504,10 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		dbp("ASSERT arrived annotation of wrong file <%1>", fileName);
 		return;
 	}
-	d->showStatusBarMessage(msg, 7000);
+	QString fileNum = msg.section(' ', 0, 0);
+	QString annTime = msg.section(' ', 1, 1);
+	QString stats("File '%1': revisions %2, history loaded in %3 ms, files annotated in %4 ms");
+	d->showStatusBarMessage(stats.arg(fileName, fileNum, histTime, annTime), 12000);
 
 	if (lookupAnnotation())
 		emit annotationAvailable(true);

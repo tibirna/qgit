@@ -106,7 +106,7 @@ void Annotate::slotComputeDiffs() {
 	if (canceled)
 		deleteWhenDone();
 	else {
-		QString msg("Annotated %1 files in %2 ms");
+		QString msg("%1 %2");
 		msg = msg.arg(ah.count()).arg(processingTime.elapsed());
 		emit annotateReady(this, fileName, valid, msg);
 	}

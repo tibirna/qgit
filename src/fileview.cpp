@@ -265,7 +265,7 @@ void FileView::on_spinBoxRevision_valueChanged(int id) {
 	}
 }
 
-void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
+void FileView::on_loadCompleted(const FileHistory* f, const QString& msg) {
 
 	QApplication::restoreOverrideCursor();
 
@@ -284,7 +284,8 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString&) {
 
 	UPDATE();
 
-	if (fileTab->textEditFile->startAnnotate(model()))
+	QString histTime = msg.section(" ms", 0, 0).section(" ", -1);
+	if (fileTab->textEditFile->startAnnotate(model(), histTime))
 		showStatusBarMessage("Annotating revisions of '" + st.fileName() + "'...");
 }
 

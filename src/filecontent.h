@@ -33,7 +33,7 @@ public:
 	bool goToRangeStart();
 	bool rangeFilter(bool b);
 	bool getRange(SCRef sha, RangeInfo* r);
-	bool startAnnotate(FileHistory* fh);
+	bool startAnnotate(FileHistory* fh, SCRef histTime);
 	void setShowAnnotate(bool b);
 	void setHighlightSource(bool b);
 	void setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo);
@@ -81,6 +81,7 @@ private:
 	QByteArray fileRowData;
 	QString fileProcessedData;
 	QString halfLine;
+	QString histTime;
 	uint curLine;
 	QLinkedList<QString>::const_iterator curAnnIt;
 	uint annoLen;
