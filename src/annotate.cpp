@@ -252,8 +252,19 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 	QLinkedList<QString>::iterator cur(newAnn.begin());
 	QString line;
 	int idx = 0, num, lineNumStart, lineNumEnd;
+	bool inHeader= true;
+
 	while (getNextSection(diff, idx, line, "\n")) {
 		char firstChar = line.at(0).toLatin1();
+
+		if (inHeader) {
+			if (firstChar == '@')
+				inHeader = false;
+			else {
+				++cur;
+				continue;
+			}
+		}
 		switch (firstChar) {
 		case '@':
 			// an unified diff fragment header has form '@@ -a,b +c,d @@'
