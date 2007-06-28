@@ -145,7 +145,7 @@ bool FileView::doUpdate(bool force) {
 		model()->setFileName(st.fileName());
 		setTabCaption(st.fileName());
 
-		if (git->startFileHistory(model())) {
+		if (git->startFileHistory(st.sha(), model())) {
 			QApplication::restoreOverrideCursor();
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			showStatusBarMessage("Retrieving history of '" +

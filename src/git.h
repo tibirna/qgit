@@ -114,7 +114,7 @@ public:
 	Annotate* startAnnotate(FileHistory* fh, QObject* guiObj);
 	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
-	bool startFileHistory(FileHistory* fh);
+	bool startFileHistory(SCRef sha, FileHistory* fh);
 	void cancelDataLoading(const FileHistory* fh);
 	void cancelProcess(MyProcess* p);
 	bool isCommittingMerge() const { return isMergeHead; }
@@ -143,7 +143,7 @@ public:
 	const QString getLaneParent(SCRef fromSHA, int laneNum);
 	const QStringList getChilds(SCRef parent);
 	const QStringList getNearTags(bool goDown, SCRef sha);
-	const QStringList getDescendantBranches(SCRef sha);
+	const QStringList getDescendantBranches(SCRef sha, bool shaOnly = false);
 	const QString getShortLog(SCRef sha);
 	const QString getTagMsg(SCRef sha);
 	const Rev* revLookup(SCRef sha, const FileHistory* fh = NULL) const;

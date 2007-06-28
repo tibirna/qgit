@@ -976,7 +976,7 @@ bool Git::isSameFiles(SCRef tree1Sha, SCRef tree2Sha) {
 	return !isChanged;
 }
 
-const QStringList Git::getDescendantBranches(SCRef sha) {
+const QStringList Git::getDescendantBranches(SCRef sha, bool shaOnly) {
 
 	QStringList tl;
 	const Rev* r = revLookup(sha);
@@ -988,16 +988,20 @@ const QStringList Git::getDescendantBranches(SCRef sha) {
 	for (int i = 0; i < nr.count(); i++) {
 
 		SCRef sha = revData->revOrder[nr[i]];
+		if (shaOnly) {
+			tl.append(sha);
+			continue;
+		}
 		SCRef cap = " (" + sha + ") ";
 		RefMap::const_iterator it(refsShaMap.find(sha));
 		if (it == refsShaMap.constEnd())
 			continue;
 
 		if (!(*it).branches.empty())
-			tl.append((*it).branches.join(cap).append(cap));
+			tl.append((*it).branches.join(" ").append(cap));
 
 		if (!(*it).remoteBranches.empty())
-			tl.append((*it).remoteBranches.join(cap).append(cap));
+			tl.append((*it).remoteBranches.join(" ").append(cap));
 	}
 	return tl;
 }
@@ -1228,9 +1232,11 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	return insertNewFiles(sha, runOutput);
 }
 
-bool Git::startFileHistory(FileHistory* fh) {
+bool Git::startFileHistory(SCRef sha, FileHistory* fh) {
 
-	return startRevList(QStringList(fh->fileName()), fh);
+	QStringList args(getDescendantBranches(sha, true));
+	args << "--" << fh->fileName();
+	return startRevList(args, fh);
 }
 
 void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {

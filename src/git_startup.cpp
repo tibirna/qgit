@@ -448,7 +448,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	const QString baseCmd("git log --parents --boundary --pretty=raw -z --default HEAD");
 	QStringList initCmd(baseCmd.split(' '));
-	if (!isMainHistory(fh)) {
+	if (!isMainHistory(fh))
 	/*
 	   fetch history from all branches so any revision in
 	   main view that changes the file is always found
@@ -459,9 +459,8 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   then, with this option, file history is truncated to
 	   the file deletion revision.
 	*/
-		QStringList diffCmd(QString("-r -m -p --full-index").split(' '));
-		initCmd << diffCmd << getAllRefSha(CUR_BRANCH);
-	} else
+		initCmd << QString("-r -m -p --full-index").split(' ');
+	else
 		initCmd << "--topo-order";
 
 	return startParseProc(initCmd + args, fh, QString());
