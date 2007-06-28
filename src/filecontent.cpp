@@ -577,3 +577,10 @@ void FileContent::setAnnListWidth(int width) {
 	listWidgetAnn->setGeometry(r);
 	setViewportMargins(width, 0, 0, 0);
 }
+
+void FileContent::resizeEvent(QResizeEvent* e) {
+
+	int width = listWidgetAnn->geometry().width();
+	setAnnListWidth(width); // update list height
+	QWidget::resizeEvent(e);
+}

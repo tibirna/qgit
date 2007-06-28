@@ -88,7 +88,7 @@ bool FileView::eventFilter(QObject* obj, QEvent* e) {
 		QHelpEvent* h = static_cast<QHelpEvent*>(e);
 		int id = fileTab->textEditFile->itemAnnId(lw->itemAt(h->pos()));
 		QRegExp re;
-		SCRef d(git->getDesc(fileTab->histListView->getSha(id), re, re, false));
+		SCRef d(git->getDesc(fileTab->histListView->getSha(id), re, re, false, model()));
 		lw->setToolTip(d);
 	}
 	return QObject::eventFilter(obj, e);

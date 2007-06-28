@@ -55,6 +55,9 @@ public slots:
 	void procFinished(bool emitSignal = true);
 	void typeWriterFontChanged();
 
+protected:
+	virtual void resizeEvent(QResizeEvent* e);
+
 private slots:
 	void on_list_doubleClicked(QListWidgetItem*);
 	void on_scrollBar_valueChanged(int);

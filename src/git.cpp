@@ -1084,12 +1084,13 @@ const QString Git::formatList(SCList sl, SCRef name, bool inOneLine) {
 	return ls;
 }
 
-const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE, bool showHeader) {
+const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
+                           bool showHeader, FileHistory* fh) {
 
 	if (sha.isEmpty())
 		return "";
 
-	const Rev* c = revLookup(sha);
+	const Rev* c = revLookup(sha, fh);
 	if (!c)            // sha of a not loaded revision, as
 		return ""; // example asked from file history
 
