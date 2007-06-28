@@ -20,7 +20,7 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	fileTab = new Ui_TabFile();
 	fileTab->setupUi(container);
 	fileTab->histListView->setup(this, git);
-	fileTab->textEditFile->setup(this, git);
+	fileTab->textEditFile->setup(this, git, fileTab->listWidgetAnn);
 
 	// an empty string turn off the special-value text display
 	fileTab->spinBoxRevision->setSpecialValueText(" ");

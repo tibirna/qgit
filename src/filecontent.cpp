@@ -4,6 +4,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QListWidget>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QTextCursor>
@@ -19,15 +20,6 @@
 #include "annotate.h"
 #include "filecontent.h"
 
-#define MAX_LINE_NUM 5
-
-static const QString HTML_HEAD       = "<font color=\"#C0C0C0\">"; // light gray
-static const QString HTML_TAIL       = "</font>";
-static const QString HTML_HEAD_B     = "<b><font color=\"#808080\">"; // bolded dark gray
-static const QString HTML_TAIL_B     = "</font></b>";
-static const QString HTML_FILE_START = "<pre><tt>";
-static const QString HTML_FILE_END   = "</tt></pre>";
-
 class FileHighlighter : public QSyntaxHighlighter {
 public:
 	FileHighlighter(FileContent* fc) : QSyntaxHighlighter(fc), f(fc) {}
@@ -40,22 +32,12 @@ public:
 		if (f->isHtmlSource)
 			return;
 
-		QTextCharFormat myFormat;
-
-		if (f->isCurAnnotation(p)) {
-			myFormat.setForeground(Qt::darkGray);
-			myFormat.setFontWeight(QFont::Bold);
-		} else
-			myFormat.setForeground(Qt::lightGray);
-
-		int headLen = MAX_LINE_NUM + f->isAnnotationAppended * f->annoLen;
-		setFormat(0, headLen, myFormat);
-
 		if (   f->isRangeFilterActive
 		    && f->rangeInfo->start != 0
 		    && f->rangeInfo->start <= currentBlockState()
 		    && f->rangeInfo->end >= currentBlockState()) {
 
+			QTextCharFormat myFormat;
 			myFormat.setFontWeight(QFont::Bold);
 			myFormat.setForeground(Qt::blue);
 			setFormat(0, p.length(), myFormat);
@@ -84,11 +66,18 @@ FileContent::~FileContent() {
 	delete rangeInfo;
 }
 
-void FileContent::setup(Domain* dm, Git* g) {
+void FileContent::setup(Domain* dm, Git* g, QListWidget* lw) {
 
 	d = dm;
 	git = g;
 	st = &(d->st);
+
+	listWidgetAnn = lw;
+	lw->setParent(this);
+	lw->setSelectionMode(QAbstractItemView::NoSelection);
+	QPalette pl = lw->palette();
+	pl.setColor(QPalette::Text, Qt::lightGray);
+	lw->setPalette(pl);
 
 	clearAll(!optEmitSignal);
 
@@ -97,6 +86,36 @@ void FileContent::setup(Domain* dm, Git* g) {
 
 	connect(git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
 	        this, SLOT(on_annotateReady(Annotate*, const QString&, bool, const QString&)));
+
+	connect(listWidgetAnn, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+	        this, SLOT(on_list_doubleClicked(QListWidgetItem*)));
+
+	QScrollBar* vsb = verticalScrollBar();
+	connect(vsb, SIGNAL(valueChanged(int)),
+	        this, SLOT(on_scrollBar_valueChanged(int)));
+
+	vsb = listWidgetAnn->verticalScrollBar();
+	connect(vsb, SIGNAL(valueChanged(int)),
+	        this, SLOT(on_listScrollBar_valueChanged(int)));
+}
+
+void FileContent::on_scrollBar_valueChanged(int value) {
+
+	listWidgetAnn->verticalScrollBar()->setValue(value);
+}
+
+void FileContent::on_listScrollBar_valueChanged(int value) {
+
+	verticalScrollBar()->setValue(value);
+}
+
+void FileContent::on_list_doubleClicked(QListWidgetItem* item) {
+
+	QString id(item->text());
+	if (!id.contains('.'))
+		return;
+
+	emit revIdSelected(id.section('.', 0, 0).toInt());
 }
 
 void FileContent::clearAnnotate(bool emitSignal) {
@@ -104,7 +123,6 @@ void FileContent::clearAnnotate(bool emitSignal) {
 	git->cancelAnnotate(annotateObj);
 	annotateObj = NULL;
 	curAnn = NULL;
-	annoLen = 0;
 	isAnnotationLoading = false;
 
 	if (emitSignal)
@@ -115,14 +133,10 @@ void FileContent::clearText(bool emitSignal) {
 
 	git->cancelProcess(proc);
 	proc = NULL;
-	fileProcessedData = halfLine = "";
 	fileRowData.clear();
 	QTextEdit::clear(); // explicit call because our clear() is only declared
+	listWidgetAnn->clear();
 	isFileAvail = isAnnotationAppended = false;
-	curLine = 1;
-
-	if (curAnn)
-		curAnnIt = curAnn->lines.constBegin();
 
 	if (emitSignal)
 		emit fileAvailable(false);
@@ -132,20 +146,6 @@ void FileContent::clearAll(bool emitSignal) {
 
 	clearAnnotate(emitSignal);
 	clearText(emitSignal);
-}
-
-bool FileContent::isCurAnnotation(SCRef annLine) {
-
-	if (!isAnnotationAppended || !curAnn)
-		return false;
-
-	int dotPos = annLine.indexOf('.');
-	if (dotPos == -1 || dotPos > (int)annoLen)
-		return false;
-
-	bool ok;
-	int curId = annLine.left(dotPos).toInt(&ok);
-	return (ok && (curId == curAnn->annId));
 }
 
 void FileContent::setShowAnnotate(bool b) {
@@ -160,13 +160,7 @@ void FileContent::setShowAnnotate(bool b) {
 	    || (isAnnotationAppended == isShowAnnotate))
 		return;
 
-	// re-feed with file content processData()
-	saveScreenState();
-	const QByteArray tmp(fileRowData);
-	clearText(!optEmitSignal);
-	fileRowData = tmp;
-	processData(fileRowData);
-	procFinished(!optEmitSignal); // print and call restoreScreenState()
+	setAnnList();
 }
 
 void FileContent::setHighlightSource(bool b) {
@@ -260,7 +254,9 @@ void FileContent::scrollLineToTop(int lineNum) {
 int FileContent::positionToLineNum(int pos) {
 
 	QTextCursor tc = textCursor();
-	tc.setPosition(pos);
+	if (pos != -1)
+		tc.setPosition(pos);
+
 	return tc.blockNumber();
 }
 
@@ -276,19 +272,47 @@ void FileContent::setSelection(int paraFrom, int indexFrom, int paraTo, int inde
 	setTextCursor(tc);
 }
 
+void FileContent::saveScreenState() {
+
+	ss.isValid = true;
+	QTextCursor tc = textCursor();
+	ss.hasSelectedText = tc.hasSelection();
+	if (ss.hasSelectedText) {
+		int endPos = tc.selectionEnd();
+		ss.paraFrom = positionToLineNum(tc.selectionStart());
+		ss.paraTo = positionToLineNum(tc.selectionEnd());
+		tc.setPosition(tc.selectionStart());
+		ss.indexFrom = tc.columnNumber();
+		tc.setPosition(endPos);
+		ss.indexTo = tc.columnNumber();
+	} else
+		ss.topPara = cursorForPosition(QPoint(1, 1)).blockNumber();
+}
+
+void FileContent::restoreScreenState() {
+
+	if (!ss.isValid)
+		return;
+
+	if (ss.hasSelectedText)
+		setSelection(ss.paraFrom, ss.indexFrom, ss.paraTo, ss.indexTo);
+	else
+		scrollLineToTop(ss.topPara);
+}
+
 void FileContent::goToAnnotation(int revId) {
 
 	if (!isAnnotationAppended || !curAnn || (revId == 0))
 		return;
 
 	const QString firstLine(QString::number(revId) + ".");
-	FOREACH (QLinkedList<QString>, it, curAnn->lines) {
+	int lineNum = 0;
+	FOREACH (QLinkedList<QString>, it, curAnn->lines) { // annotation could be hidden
 		if ((*it).trimmed().startsWith(firstLine)) {
-			moveCursor(QTextCursor::Start);
-			if (find(*it))
-				scrollCursorToTop();
+			scrollLineToTop(lineNum);
 			break;
 		}
+		lineNum++;
 	}
 }
 
@@ -305,24 +329,8 @@ bool FileContent::goToRangeStart() {
 
 void FileContent::copySelection() {
 
-	QTextCursor tc = textCursor();
-	if (!tc.hasSelection())
-		return;
-
-	int headLen = isAnnotationAppended ? annoLen + MAX_LINE_NUM : MAX_LINE_NUM;
-	headLen++; // to count the space after line number
-
 	QClipboard* cb = QApplication::clipboard();
-	QString sel(tc.selectedText());
-	tc.setPosition(tc.selectionStart());
-	int colNum = tc.columnNumber();
-	if (colNum < headLen) {
-		sel.remove(0, headLen - colNum);
-		if (sel.isEmpty()) { // an header part, like the author name, was selected
-			cb->setText(textCursor().selectedText(), QClipboard::Clipboard);
-			return;
-		}
-	}
+	QString sel(textCursor().selectedText());
 	/*
 	   Workaround a Qt issue, QTextCursor::selectedText()
 	   substitutes '\n' with '\0'. Restore proper content.
@@ -333,9 +341,6 @@ void FileContent::copySelection() {
 		if (c == 0)
 			sel[i] = '\n';
 	}
-	// remove annotate info if any
-	QRegExp re("\n.{0," + QString::number(headLen) + "}");
-	sel.replace(re, "\n");
 	cb->setText(sel, QClipboard::Clipboard);
 }
 
@@ -405,16 +410,13 @@ bool FileContent::lookupAnnotation() {
 		// could call qApp->processEvents()
 		curAnn = git->lookupAnnotation(annotateObj, st->fileName(), st->sha());
 
-		if (curAnn) {
-			if (!curAnn->lines.empty()) {
-				annoLen = annotateLength(curAnn);
-				curAnnIt = curAnn->lines.constBegin();
-			} else
-				curAnn = NULL;
-		} else {
+		if (!curAnn) {
 			dbp("ASSERT in lookupAnnotation: no annotation for %1", st->fileName());
 			clearAnnotate(optEmitSignal);
-		}
+
+		} else if (curAnn->lines.empty())
+			curAnn = NULL;
+
 		d->setThrowOnDelete(false);
 
 	} catch (int i) {
@@ -431,61 +433,6 @@ bool FileContent::lookupAnnotation() {
 		throw;
 	}
 	return (curAnn != NULL);
-}
-
-void FileContent::saveScreenState() {
-
-	ss.isValid = true;
-	QTextCursor tc = textCursor();
-	ss.hasSelectedText = tc.hasSelection();
-	if (ss.hasSelectedText) {
-		int endPos = tc.selectionEnd();
-		ss.paraFrom = positionToLineNum(tc.selectionStart());
-		ss.paraTo = positionToLineNum(tc.selectionEnd());
-		tc.setPosition(tc.selectionStart());
-		ss.indexFrom = tc.columnNumber();
-		tc.setPosition(endPos);
-		ss.indexTo = tc.columnNumber();
-		ss.annoLen = annoLen;
-		ss.isAnnotationAppended = isAnnotationAppended;
-	} else
-		ss.topPara = cursorForPosition(QPoint(1, 1)).blockNumber();
-}
-
-void FileContent::restoreScreenState() {
-
-	if (!ss.isValid)
-		return;
-
-	if (ss.hasSelectedText) {
-		// index without previous annotation
-		ss.indexFrom -= (ss.isAnnotationAppended ? ss.annoLen : 0);
-		ss.indexTo -= (ss.isAnnotationAppended ? ss.annoLen : 0);
-
-		// index with current annotation
-		ss.indexFrom += (isAnnotationAppended ? annoLen : 0);
-		ss.indexTo += (isAnnotationAppended ? annoLen : 0);
-		ss.indexFrom = qMax(ss.indexFrom, 0);
-		ss.indexTo = qMax(ss.indexTo, 0);
-
-		setSelection(ss.paraFrom, ss.indexFrom, ss.paraTo, ss.indexTo);
-	} else
-		scrollLineToTop(ss.topPara);
-
-	// leave ss in a consistent state with current screen settings
-	ss.isAnnotationAppended = isAnnotationAppended;
-	ss.annoLen = annoLen;
-}
-
-// ************************************ SLOTS ********************************
-
-void FileContent::mouseDoubleClickEvent(QMouseEvent* e) {
-
-	QTextCursor tc = cursorForPosition(e->pos());
-	tc.select(QTextCursor::LineUnderCursor);
-	QString id(tc.selectedText().section('.', 0, 0, QString::SectionSkipEmpty));
-	tc.clearSelection();
-	emit revIdSelected(id.toInt());
 }
 
 void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
@@ -513,19 +460,20 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		emit annotationAvailable(true);
 }
 
-void FileContent::procReadyRead(const QByteArray& fileChunk) {
-
-	fileRowData.append(fileChunk);
-	if (!isImageFile)
-		processData(fileChunk);
-}
-
 void FileContent::typeWriterFontChanged() {
 
 	setFont(QGit::TYPE_WRITER_FONT);
 
-	if (!isHtmlSource && !isImageFile && isFileAvail)
+	if (!isHtmlSource && !isImageFile && isFileAvail) {
 		setPlainText(toPlainText());
+		setAnnList();
+	}
+}
+
+void FileContent::procReadyRead(const QByteArray& fileChunk) {
+
+	fileRowData.append(fileChunk);
+	// set text at the end of loading, much faster
 }
 
 void FileContent::procFinished(bool emitSignal) {
@@ -534,106 +482,24 @@ void FileContent::procFinished(bool emitSignal) {
 		showFileImage();
 	else {
 		if (!fileRowData.endsWith("\n"))
-			processData("\n"); // fake a trailing new line
+			fileRowData.append('\n'); // fake a trailing new line
 
 		if (isHtmlSource)
-			setHtml(fileProcessedData);
+			setHtml(fileRowData);
 		else {
 			QTextCharFormat cf; // to restore also default color
 			cf.setFont(font());
 			setCurrentCharFormat(cf);
-			setPlainText(fileProcessedData); // much faster then append()
+			setPlainText(fileRowData); // much faster then append()
 		}
-		if (ss.isValid)
-			restoreScreenState(); // could be slow for big files
 	}
+	setAnnList();
 	isFileAvail = true;
+	if (ss.isValid)
+		restoreScreenState(); // could be slow for big files
 
 	if (emitSignal)
 		emit fileAvailable(true);
-}
-
-uint FileContent::processData(const QByteArray& fileChunk) {
-
-	QString newLines;
-	if (!QGit::stripPartialParaghraps(fileChunk, &newLines, &halfLine))
-		return 0;
-
-	const QStringList sl(newLines.split('\n', QString::KeepEmptyParts));
-
-	if (fileProcessedData.isEmpty() && isShowAnnotate) { // one shot at the beginning
-
-		// check if it is possible to add annotation while appending data
-		// if annotation is not available we will defer this in a separated
-		// step, calling setShowAnnotate() at proper time
-		isAnnotationAppended = (curAnn != NULL);
-	}
-	bool isHtmlHeader = (isHtmlSource && curLine == 1);
-	bool isHtmlFirstContentLine = false;
-	const QString *html_head = NULL, *html_tail = NULL; // segfault if buggy
-
-	FOREACH_SL (it, sl) {
-
-		if (isHtmlHeader) {
-			if ((*it).startsWith(HTML_FILE_START)) {
-				isHtmlHeader = false;
-				isHtmlFirstContentLine = true;
-			} else {
-				fileProcessedData.append(*it).append('\n');
-				continue;
-			}
-		}
-		// add HTML page header
-		if (isHtmlFirstContentLine)
-			fileProcessedData.append(HTML_FILE_START);
-
-		// do we have to highlight annotation info line?
-		if (isHtmlSource) {
-			bool h =    curAnn
-			         && curAnnIt != curAnn->lines.constEnd()
-			         && isCurAnnotation(*curAnnIt);
-
-			html_head = (h ? &HTML_HEAD_B : &HTML_HEAD);
-			html_tail = (h ? &HTML_TAIL_B : &HTML_TAIL);
-		}
-		// add color tag head
-		if (isHtmlSource)
-			fileProcessedData.append(*html_head);
-
-		// add annotation
-		if (isAnnotationAppended && curAnn) { // curAnn can change while loading
-
-			if (curAnnIt == curAnn->lines.constEnd()) {
-
-				if (isHtmlSource && (*it) == HTML_FILE_END) {
-					fileProcessedData.append(*html_tail).append(*it).append('\n');
-					continue;
-				} else {
-					dbs("ASSERT in FileContent::processData: bad annotate");
-					clearAnnotate(optEmitSignal);
-					return 0;
-				}
-			}
-			fileProcessedData.append((*curAnnIt).leftJustified(annoLen));
-			++curAnnIt;
-		}
-		// add line number
-		fileProcessedData.append(QString("%1 ").arg(curLine++, MAX_LINE_NUM));
-
-		// add color tag tail
-		if (isHtmlSource)
-			fileProcessedData.append(*html_tail);
-
-		// finally add content
-		if (isHtmlFirstContentLine) {
-			isHtmlFirstContentLine = false;
-			fileProcessedData.append((*it).section(HTML_FILE_START, 1));
-		} else
-			fileProcessedData.append(*it);
-
-		fileProcessedData.append('\n'); // removed by QString::split()
-	}
-	return sl.count();
 }
 
 void FileContent::showFileImage() {
@@ -647,4 +513,59 @@ void FileContent::showFileImage() {
 		QGit::writeToFile(f.fileName(), fileRowData);
 		setHtml(header);
 	}
+}
+
+void FileContent::setAnnList() {
+
+	int linesNum = document()->blockCount();
+	int linesNumDigits = QString::number(linesNum).length();
+	int annoMaxLen = 0;
+	QLinkedList<QString>::const_iterator it, endIt;
+
+	isAnnotationAppended = isShowAnnotate && curAnn;
+
+	if (isAnnotationAppended) {
+		annoMaxLen = annotateLength(curAnn);
+		it = curAnn->lines.constBegin();
+		endIt = curAnn->lines.constEnd();
+	}
+
+	QString tmp;
+	tmp.fill('8', annoMaxLen + 1 + linesNumDigits + 2);
+	int width = listWidgetAnn->fontMetrics().boundingRect(tmp).width();
+
+	QStringList sl;
+	for (int i = 0; i < linesNum; i++) {
+
+		if (isAnnotationAppended && it != endIt) {
+			tmp = (*it).leftJustified(annoMaxLen);
+			++it;
+		} else
+			tmp.clear();
+
+		tmp.append(QString(" %1 ").arg(i + 1, linesNumDigits));
+		sl.append(tmp);
+	}
+	listWidgetAnn->setUpdatesEnabled(false);
+	listWidgetAnn->clear();
+	listWidgetAnn->addItems(sl);
+
+	/* When listWidgetAnn get focus for the fisrt time the current
+	   item, if not already present, is set to the first row and
+	   scrolling starts from there, so set a proper current item here
+	*/
+	int topRow = cursorForPosition(QPoint(1, 1)).blockNumber() + 1;
+	listWidgetAnn->setCurrentRow(topRow);
+
+	listWidgetAnn->adjustSize(); // update scrollbar state
+	setAnnListWidth(width);
+	listWidgetAnn->setUpdatesEnabled(true);
+}
+
+void FileContent::setAnnListWidth(int width) {
+
+	QRect r = listWidgetAnn->geometry();
+	r.setWidth(width);
+	listWidgetAnn->setGeometry(r);
+	setViewportMargins(width, 0, 0, 0);
 }

@@ -20,12 +20,15 @@ class MyProcess;
 class RangeInfo;
 class FileHistory;
 
+class QListWidget;
+class QListWidgetItem;
+
 class FileContent: public QTextEdit {
 Q_OBJECT
 public:
 	FileContent(QWidget* parent);
 	~FileContent();
-	void setup(Domain* parent, Git* git);
+	void setup(Domain* parent, Git* git, QListWidget* lwa);
 	void update(bool force = false);
 	void clearAll(bool emitSignal = true);
 	void copySelection();
@@ -51,27 +54,32 @@ public slots:
 	void procFinished(bool emitSignal = true);
 	void typeWriterFontChanged();
 
+private slots:
+	void on_list_doubleClicked(QListWidgetItem*);
+	void on_scrollBar_valueChanged(int);
+	void on_listScrollBar_valueChanged(int);
+
 private:
 	friend class FileHighlighter;
 
 	void clear(); // declared as private, to avoid indirect access to QTextEdit::clear()
 	void clearAnnotate(bool emitSignal);
 	void clearText(bool emitSignal);
-	bool isCurAnnotation(SCRef annLine);
 	void findInFile(SCRef str);
 	void scrollCursorToTop();
 	void scrollLineToTop(int lineNum);
-	int positionToLineNum(int pos);
+	int positionToLineNum(int pos = -1);
 	bool lookupAnnotation();
 	uint annotateLength(const FileAnnotation* curAnn);
 	void saveScreenState();
 	void restoreScreenState();
-	uint processData(const QByteArray& fileChunk);
 	void showFileImage();
-	virtual void mouseDoubleClickEvent(QMouseEvent*);
+	void setAnnListWidth(int width);
+	void setAnnList();
 
 	Domain* d;
 	Git* git;
+	QListWidget* listWidgetAnn;
 	StateInfo* st;
 	RangeInfo* rangeInfo;
 	FileHighlighter* fileHighlighter;
@@ -79,12 +87,7 @@ private:
 	QPointer<Annotate> annotateObj; // valid from beginning of annotation loading
 	const FileAnnotation* curAnn; // valid at the end of annotation loading
 	QByteArray fileRowData;
-	QString fileProcessedData;
-	QString halfLine;
 	QString histTime;
-	uint curLine;
-	QLinkedList<QString>::const_iterator curAnnIt;
-	uint annoLen;
 	bool isFileAvail;
 	bool isAnnotationLoading;
 	bool isAnnotationAppended;
@@ -94,8 +97,8 @@ private:
 	bool isImageFile;
 
 	struct ScreenState {
-		bool isValid, hasSelectedText, isAnnotationAppended;
-		int topPara, paraFrom, indexFrom, paraTo, indexTo, annoLen;
+		bool isValid, hasSelectedText;
+		int topPara, paraFrom, indexFrom, paraTo, indexTo;
 	};
 	ScreenState ss;
 

@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>599</width>
     <height>480</height>
    </rect>
   </property>
@@ -272,19 +272,72 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="FileContent" name="textEditFile" >
-        <property name="undoRedoEnabled" >
-         <bool>false</bool>
+       <widget class="QFrame" name="frame_2" >
+        <property name="frameShape" >
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="lineWrapMode" >
-         <enum>QTextEdit::NoWrap</enum>
+        <property name="frameShadow" >
+         <enum>QFrame::Sunken</enum>
         </property>
-        <property name="readOnly" >
-         <bool>true</bool>
-        </property>
-        <property name="acceptRichText" >
-         <bool>false</bool>
-        </property>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="QListWidget" name="listWidgetAnn" >
+             <property name="frameShape" >
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="verticalScrollBarPolicy" >
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy" >
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="verticalScrollMode" >
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="horizontalScrollMode" >
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="uniformItemSizes" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="FileContent" name="textEditFile" >
+             <property name="frameShape" >
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="undoRedoEnabled" >
+              <bool>false</bool>
+             </property>
+             <property name="lineWrapMode" >
+              <enum>QTextEdit::NoWrap</enum>
+             </property>
+             <property name="readOnly" >
+              <bool>true</bool>
+             </property>
+             <property name="acceptRichText" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>
