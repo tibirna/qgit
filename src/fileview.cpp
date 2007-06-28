@@ -6,6 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QHelpEvent>
 #include "mainimpl.h"
 #include "git.h"
 #include "annotate.h"
@@ -26,6 +27,8 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	fileTab->spinBoxRevision->setSpecialValueText(" ");
 
 	clear(true); // init some stuff
+
+	fileTab->listWidgetAnn->installEventFilter(this);
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -76,6 +79,19 @@ FileView::~FileView() {
 	delete fileTab;
 	showStatusBarMessage(""); // cleanup any pending progress info
 	QApplication::restoreOverrideCursor();
+}
+
+bool FileView::eventFilter(QObject* obj, QEvent* e) {
+
+	QListWidget* lw = fileTab->listWidgetAnn;
+	if (e->type() == QEvent::ToolTip && obj == lw) {
+		QHelpEvent* h = static_cast<QHelpEvent*>(e);
+		int id = fileTab->textEditFile->itemAnnId(lw->itemAt(h->pos()));
+		QRegExp re;
+		SCRef d(git->getDesc(fileTab->histListView->getSha(id), re, re, false));
+		lw->setToolTip(d);
+	}
+	return QObject::eventFilter(obj, e);
 }
 
 void FileView::clear(bool complete) {

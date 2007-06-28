@@ -40,6 +40,7 @@ public:
 	void setShowAnnotate(bool b);
 	void setHighlightSource(bool b);
 	void setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo);
+	int itemAnnId(QListWidgetItem* item);
 	bool isFileAvailable() const { return isFileAvail; }
 	bool isAnnotateAvailable() const { return curAnn != NULL; }
 

@@ -109,13 +109,20 @@ void FileContent::on_listScrollBar_valueChanged(int value) {
 	verticalScrollBar()->setValue(value);
 }
 
-void FileContent::on_list_doubleClicked(QListWidgetItem* item) {
+int FileContent::itemAnnId(QListWidgetItem* item) {
 
 	QString id(item->text());
 	if (!id.contains('.'))
-		return;
+		return 0;
 
-	emit revIdSelected(id.section('.', 0, 0).toInt());
+	return id.section('.', 0, 0).toInt();
+}
+
+void FileContent::on_list_doubleClicked(QListWidgetItem* item) {
+
+	int id = itemAnnId(item);
+	if (id)
+		emit revIdSelected(id);
 }
 
 void FileContent::clearAnnotate(bool emitSignal) {
@@ -566,6 +573,7 @@ void FileContent::setAnnListWidth(int width) {
 
 	QRect r = listWidgetAnn->geometry();
 	r.setWidth(width);
+	r.setHeight(geometry().height());
 	listWidgetAnn->setGeometry(r);
 	setViewportMargins(width, 0, 0, 0);
 }
