@@ -341,6 +341,15 @@ void FileView::on_fileAvailable(bool b) {
 
 void FileView::on_revIdSelected(int id) {
 
-	if (id != 0 && fileTab->spinBoxRevision->isEnabled())
+	if (id == 0)
+		return;
+
+	if (fileTab->spinBoxRevision->isEnabled())
 		fileTab->spinBoxRevision->setValue(id);
+	else {
+		ListView* h = fileTab->histListView;
+		int row = h->model()->rowCount() - id;
+		QModelIndex idx = h->model()->index(row, 0);
+		h->setCurrentIndex(idx);
+	}
 }
