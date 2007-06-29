@@ -559,6 +559,7 @@ void FileContent::setAnnList() {
 	}
 	listWidgetAnn->setUpdatesEnabled(false);
 	listWidgetAnn->clear();
+	listWidgetAnn->setFont(currentFont());
 	listWidgetAnn->addItems(sl);
 
 	QBrush b(Qt::darkGray);
@@ -575,13 +576,12 @@ void FileContent::setAnnList() {
 	*/
 	int topRow = cursorForPosition(QPoint(1, 1)).blockNumber() + 1;
 	listWidgetAnn->setCurrentRow(topRow);
-
 	listWidgetAnn->adjustSize(); // update scrollbar state
-	setAnnListWidth(width);
+	adjustAnnListSize(width);
 	listWidgetAnn->setUpdatesEnabled(true);
 }
 
-void FileContent::setAnnListWidth(int width) {
+void FileContent::adjustAnnListSize(int width) {
 
 	QRect r = listWidgetAnn->geometry();
 	r.setWidth(width);
@@ -593,6 +593,6 @@ void FileContent::setAnnListWidth(int width) {
 void FileContent::resizeEvent(QResizeEvent* e) {
 
 	int width = listWidgetAnn->geometry().width();
-	setAnnListWidth(width); // update list height
+	adjustAnnListSize(width); // update list height
 	QWidget::resizeEvent(e);
 }

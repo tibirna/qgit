@@ -78,7 +78,7 @@ private:
 	void saveScreenState();
 	void restoreScreenState();
 	void showFileImage();
-	void setAnnListWidth(int width);
+	void adjustAnnListSize(int width);
 	void setAnnList();
 
 	Domain* d;
