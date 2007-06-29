@@ -736,8 +736,11 @@ bool ListViewProxy::isMatch(SCRef sha) const {
 
 bool ListViewProxy::isMatch(int row) const {
 
-	bool extFilter = (colNum == -1);
 	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
+	if (fh->rowCount() <= row) // FIXME this seems required to avoid an ASSERT in d->isMatch()
+		return false;
+
+	bool extFilter = (colNum == -1);
 	return ((!extFilter && isMatch(fh->sha(row)))
 	      ||( extFilter && d->isMatch(fh->sha(row))));
 }
