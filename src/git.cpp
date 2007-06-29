@@ -1240,9 +1240,9 @@ bool Git::startFileHistory(SCRef sha, FileHistory* fh) {
 	return startRevList(args, fh);
 }
 
-void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
+void Git::getFileFilter(SCRef path, ShaSet& shaSet) {
 
-	shaMap.clear();
+	shaSet.clear();
 	QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);
 	FOREACH (StrVect, it, revData->revOrder) {
 
@@ -1253,15 +1253,15 @@ void Git::getFileFilter(SCRef path, QMap<QString, bool>& shaMap) {
 		const RevFile* rf = revsFiles[*it];
 		for (int i = 0; i < rf->count(); ++i)
 			if (filePath(*rf, i).indexOf(rx) != -1) {
-				shaMap.insert(*it, true);
+				shaSet.insert(*it);
 				break;
 			}
 	}
 }
 
-bool Git::getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap) {
+bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 
-	shaMap.clear();
+	shaSet.clear();
 	QString buf;
 	FOREACH (StrVect, it, revData->revOrder)
 		if (*it != ZERO_SHA)
@@ -1280,7 +1280,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap) 
 
 	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
 	FOREACH_SL (it, sl)
-		shaMap.insert(*it, true);
+		shaSet.insert(*it);
 
 	return true;
 }

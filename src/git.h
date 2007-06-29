@@ -133,8 +133,8 @@ public:
 	MyProcess* getHighlightedFile(SCRef file, SCRef revSha, QObject* rcv, QString* ro = NULL);
 	const QString getFileSha(SCRef file, SCRef revSha);
 	bool saveFile(SCRef fileName, SCRef sha, SCRef path);
-	void getFileFilter(SCRef path, QMap<QString, bool>& shaMap);
-	bool getPatchFilter(SCRef exp, bool isRegExp, QMap<QString, bool>& shaMap);
+	void getFileFilter(SCRef path, ShaSet& shaSet);
+	bool getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet);
 	const RevFile* getFiles(SCRef sha, SCRef sha2 = "", bool all = false, SCRef path = "");
 	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
 	static const QString getLocalDate(SCRef gitDate);

@@ -630,7 +630,7 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	if (filter.isEmpty())
 		return;
 
-	QMap<QString, bool> shaMap;
+	ShaSet shaSet;
 	bool patchNeedsUpdate, isRegExp;
 	patchNeedsUpdate = isRegExp = false;
 	int idx = cmbSearch->currentIndex(), colNum = 0;
@@ -657,15 +657,15 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			EM_PROCESS_EVENTS; // to paint wait cursor
 			if (idx == 4)
-				git->getFileFilter(filter, shaMap);
+				git->getFileFilter(filter, shaSet);
 			else {
 				isRegExp = (idx == 6);
-				if (!git->getPatchFilter(filter, isRegExp, shaMap)) {
+				if (!git->getPatchFilter(filter, isRegExp, shaSet)) {
 					QApplication::restoreOverrideCursor();
 					ActSearchAndFilter->toggle();
 					return;
 				}
-				patchNeedsUpdate = (shaMap.count() > 0);
+				patchNeedsUpdate = (shaSet.count() > 0);
 			}
 			QApplication::restoreOverrideCursor();
 			break;
@@ -676,7 +676,8 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 		longLogRE.setPattern("");
 	}
 	ListView* lv = rv->tab()->listViewLog;
-	int matchedCnt = lv->filterRows(isOn, onlyHighlight, filter, colNum, shaMap);
+	int matchedCnt = lv->filterRows(isOn, onlyHighlight, filter, colNum, &shaSet);
+
 	emit updateRevDesc(); // could be highlighted
 	if (patchNeedsUpdate)
 		emit highlightPatch(isOn ? filter : "", isRegExp);
@@ -693,7 +694,7 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 		}
 	}
 	QString msg;
-	if (isOn)
+	if (isOn && !onlyHighlight)
 		msg = QString("Found %1 matches. Toggle filter/highlight "
 		              "button to remove the filter").arg(matchedCnt);
 	QApplication::postEvent(rv, new MessageEvent(msg)); // deferred message, after update

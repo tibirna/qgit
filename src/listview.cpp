@@ -12,14 +12,13 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QShortcut>
-#include "common.h"
 #include "domain.h"
 #include "git.h"
 #include "listview.h"
 
 using namespace QGit;
 
-ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL) {}
+ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL), lp(NULL) {}
 
 void ListView::setup(Domain* dm, Git* g) {
 
@@ -29,10 +28,14 @@ void ListView::setup(Domain* dm, Git* g) {
 	st = &(d->st);
 	filterNextContextMenuRequest = false;
 
-	ListViewDelegate* lvd = new ListViewDelegate(git, fh, this);
+	lp = new ListViewProxy(this, d, git);
+	lp->setSourceModel(fh);
+	setModel(lp);
+
+	ListViewDelegate* lvd = new ListViewDelegate(git, lp, this);
 	lvd->setLaneHeight(fontMetrics().height());
 	setItemDelegate(lvd);
-	setModel(fh);
+
 	setupGeometry(); // after setting delegate
 
 	// shortcuts are activated only if widget is visible, this is good
@@ -42,9 +45,6 @@ void ListView::setup(Domain* dm, Git* g) {
 	connect(lvd, SIGNAL(updateView()), viewport(), SLOT(update()));
 
 	connect(this, SIGNAL(diffTargetChanged(int)), lvd, SLOT(diffTargetChanged(int)));
-
-	connect(this, SIGNAL(matchedRowsChanged(const QSet<int>&)),
-	        lvd, SLOT(matchedRowsChanged(const QSet<int>&)));
 
 	connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 	        this, SLOT(on_currentChanged(const QModelIndex&, const QModelIndex&)));
@@ -130,7 +130,7 @@ void ListView::getSelectedItems(QStringList& selectedItems) {
 	selectedItems.clear();
 	QModelIndexList ml = selectionModel()->selectedRows();
 	FOREACH (QModelIndexList, it, ml)
-		selectedItems.append(fh->sha((*it).row()));
+		selectedItems.append(lp->sha((*it).row()));
 }
 
 const QString ListView::getSha(uint id) {
@@ -138,66 +138,19 @@ const QString ListView::getSha(uint id) {
 	if (git->isMainHistory(fh))
 		return "";
 
-	return fh->sha(fh->rowCount() - id);
+	return lp->sha(model()->rowCount() - id);
 }
 
-bool ListView::isMatch(SCRef sha, SCRef filter, int colNum, ShaMap& shaMap) {
+int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, ShaSet* set) {
 
-	if (colNum == SHA_MAP_COL)
-		// in this case shaMap contains all good sha to search for
-		return shaMap.contains(sha);
-
-	const Rev* r = git->revLookup(sha);
-	if (!r) {
-		dbp("ASSERT in Domain::isMatch, sha <%1> not found", sha);
-		return false;
-	}
-	QString target;
-	if (colNum == LOG_COL)
-		target = r->shortLog();
-	else if (colNum == AUTH_COL)
-		target = r->author();
-	else if (colNum == LOG_MSG_COL)
-		target = r->longLog();
-	else if (colNum == COMMIT_COL)
-		target = sha;
-
-	// wildcard search, case insensitive
-	return target.contains(QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard));
-}
-
-int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, ShaMap& sm) {
-
-	setUpdatesEnabled(false);
-	QSet<int> matchedRows;
-	QModelIndex parent;
-	int row = 0, rowCnt = model()->rowCount();
-	bool matched,  extFilter = (colNum == -1);
-	for ( ; row < rowCnt; row++) {
-		if (isOn) {
-			matched =   (!extFilter && isMatch(fh->sha(row), filter, colNum, sm))
-			          ||( extFilter && d->isMatch(fh->sha(row)));
-
-			if (!matched && !highlight)
-				setRowHidden(row, parent, true);
-
-			else if (matched)
-				matchedRows.insert(row);
-
-		} else if (isRowHidden(row, parent))
-			setRowHidden(row, parent, false);
-	}
-	if (highlight)
-		emit matchedRowsChanged(matchedRows);
-
-	scrollToCurrent(QAbstractItemView::PositionAtCenter);
-	setUpdatesEnabled(true);
-	return matchedRows.count();
+	lp->setFilter(isOn, highlight, filter, colNum, *set);
+	viewport()->update();
+	return lp->matchesNum();
 }
 
 bool ListView::update() {
 
-	int stRow = fh->row(st->sha());
+	int stRow = lp->row(st->sha());
 	if (stRow == -1)
 		return false; // main/tree view asked us a sha not in history
 
@@ -226,14 +179,14 @@ bool ListView::update() {
 		}
 	}
 	if (git->isMainHistory(fh))
-		emit diffTargetChanged(fh->row(st->diffToSha()));
+		emit diffTargetChanged(lp->row(st->diffToSha()));
 
 	return currentIndex().isValid();
 }
 
 void ListView::on_currentChanged(const QModelIndex& index, const QModelIndex&) {
 
-	SCRef selRev = fh->sha(index.row());
+	SCRef selRev = lp->sha(index.row());
 	if (st->sha() != selRev) { // to avoid looping
 		st->setSha(selRev);
 		st->setSelectItem(true);
@@ -244,7 +197,7 @@ void ListView::on_currentChanged(const QModelIndex& index, const QModelIndex&) {
 bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 	QModelIndex index = indexAt(e->pos());
-	SCRef sha = fh->sha(index.row());
+	SCRef sha = lp->sha(index.row());
 	if (sha.isEmpty())
 		return false;
 
@@ -348,7 +301,7 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 		filterNextContextMenuRequest = false;
 		return;
 	}
-	emit contextMenu(fh->sha(index.row()), POPUP_LIST_EV);
+	emit contextMenu(lp->sha(index.row()), POPUP_LIST_EV);
 }
 
 bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
@@ -381,10 +334,10 @@ bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
 
 // *****************************************************************************
 
-ListViewDelegate::ListViewDelegate(Git* g, FileHistory* f, QObject* p) : QItemDelegate(p) {
+ListViewDelegate::ListViewDelegate(Git* g, ListViewProxy* px, QObject* p) : QItemDelegate(p) {
 
 	git = g;
-	fh = f;
+	lp = px;
 	_laneHeight = 0;
 	_diffTargetRow = -1;
 }
@@ -400,13 +353,6 @@ void ListViewDelegate::diffTargetChanged(int row) {
 		_diffTargetRow = row;
 		emit updateView();
 	}
-}
-
-void ListViewDelegate::matchedRowsChanged(const QSet<int>& rows) {
-
-	_matchedRows.clear();
-	_matchedRows.unite(rows);
-	emit updateView();
 }
 
 void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
@@ -549,7 +495,8 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		p->fillRect(opt.rect, opt.palette.base());
 
 	int row = i.row();
-	const Rev* r = git->revLookup(fh->sha(row), fh);
+	FileHistory* fh = static_cast<FileHistory*>(lp->sourceModel());
+	const Rev* r = git->revLookup(lp->sha(row), fh);
 	if (!r)
 		return;
 
@@ -598,7 +545,8 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
                                 const QModelIndex& index) const {
 
 	int row = index.row();
-	const Rev* r = git->revLookup(fh->sha(row), fh);
+	FileHistory* fh = static_cast<FileHistory*>(lp->sourceModel());
+	const Rev* r = git->revLookup(lp->sha(row), fh);
 	if (!r)
 		return;
 
@@ -608,7 +556,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 	if (_diffTargetRow == row)
 		p->fillRect(opt.rect, LIGHT_BLUE);
 
-	bool isHighlighted = (!_matchedRows.isEmpty() && _matchedRows.contains(row));
+	bool isHighlighted = lp->isHighlighted(row);
 	QPixmap* pm = getTagMarks(r->sha(), opt);
 
 	if (!pm && !isHighlighted) { // fast path in common case
@@ -724,4 +672,88 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 
 	delete pm;
 	*pp = newPm;
+}
+
+ListViewProxy::ListViewProxy(QObject* p, Domain * dm, Git * g) : QSortFilterProxyModel(p) {
+
+	d = dm;
+	git = g;
+	isOn = false;
+}
+
+const QString ListViewProxy::sha(int row) const {
+
+	QModelIndex idx = mapToSource(index(row, 0));
+	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
+	return fh->sha(idx.row());
+}
+
+int ListViewProxy::row(SCRef sha) const {
+
+	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
+	int row = fh->row(sha);
+	QModelIndex idx = fh->index(row, 0);
+	return mapFromSource(idx).row();
+}
+
+bool ListViewProxy::isMatch(SCRef sha) const {
+
+	if (colNum == SHA_MAP_COL)
+		// in this case shaMap contains all good sha to search for
+		return ss.contains(sha);
+
+	const Rev* r = git->revLookup(sha);
+	if (!r) {
+		dbp("ASSERT in ListViewFilter::isMatch, sha <%1> not found", sha);
+		return false;
+	}
+	QString target;
+	if (colNum == LOG_COL)
+		target = r->shortLog();
+	else if (colNum == AUTH_COL)
+		target = r->author();
+	else if (colNum == LOG_MSG_COL)
+		target = r->longLog();
+	else if (colNum == COMMIT_COL)
+		target = sha;
+
+	// wildcard search, case insensitive
+	return target.contains(QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard));
+}
+
+bool ListViewProxy::isMatch(int row) const {
+
+	bool extFilter = (colNum == -1);
+	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
+	if (fh->rowCount() <= row)
+		return false;
+
+	return ((!extFilter && isMatch(fh->sha(row)))
+	      ||( extFilter && d->isMatch(fh->sha(row))));
+}
+
+bool ListViewProxy::isHighlighted(int row) const {
+
+	return (isOn && isHighLight && isMatch(row));
+}
+
+bool ListViewProxy::filterAcceptsRow(int row, const QModelIndex&) const {
+
+	return (!isOn || isHighLight || isMatch(row));
+}
+
+void ListViewProxy::setFilter(bool on, bool isH, SCRef fl, int cn, const ShaSet& s) {
+
+	isOn = on; isHighLight = isH;
+	filter = fl; colNum = cn;
+	ss = s;
+	invalidateFilter();
+}
+
+int ListViewProxy::rowCount(const QModelIndex& parent) const {
+
+	if (isOn && !isHighLight)
+		return QSortFilterProxyModel::rowCount(parent);
+
+	return sourceModel()->rowCount(parent);
 }

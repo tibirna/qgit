@@ -526,7 +526,7 @@ void FileContent::setAnnList() {
 
 	int linesNum = document()->blockCount();
 	int linesNumDigits = QString::number(linesNum).length();
-	int curId, annoMaxLen = 0;
+	int curId = 0, annoMaxLen = 0;
 	QLinkedList<QString>::const_iterator it, endIt;
 
 	isAnnotationAppended = isShowAnnotate && curAnn;

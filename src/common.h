@@ -10,6 +10,7 @@
 #include <QLinkedList>
 #include <QHash>
 #include <QVector>
+#include <QSet>
 #include <QEvent>
 #include <QColor>
 #include <QFont>
@@ -51,6 +52,7 @@ typedef const QStringList&          SCList;
 typedef QLinkedList<QString>&       SLList;
 typedef const QLinkedList<QString>& SCLList;
 typedef QVector<QString>            StrVect;
+typedef QSet<QString>               ShaSet;
 
 class QProcess;
 class QSplitter;

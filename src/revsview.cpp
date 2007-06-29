@@ -196,8 +196,10 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
 	if (st.sha().isEmpty()) { // point to first one in list
 
-		if (fh->rowCount() > 0) {
-			st.setSha(fh->sha(0));
+		ListView* lv = tab()->listViewLog;
+		if (lv->model()->rowCount() > 0) {
+			ListViewProxy* lp = static_cast<ListViewProxy*>(lv->model());
+			st.setSha(lp->sha(0));
 			st.setSelectItem(true);
 		}
 	}

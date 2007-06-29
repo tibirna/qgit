@@ -8,19 +8,18 @@
 
 #include <QTreeView>
 #include <QItemDelegate>
-#include <QSet>
+#include <QSortFilterProxyModel>
 #include "common.h"
 
 class Git;
 class StateInfo;
 class Domain;
 class FileHistory;
+class ListViewProxy;
 
 class ListView: public QTreeView {
 Q_OBJECT
 public:
-	typedef const QMap<QString, bool> ShaMap;
-
 	ListView(QWidget* parent);
 	~ListView();
 	void setup(Domain* d, Git* g);
@@ -31,7 +30,7 @@ public:
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);
 	const QString currentText(int col);
-	int filterRows(bool, bool, SCRef = QString(), int = -1, ShaMap& = ShaMap());
+	int filterRows(bool, bool, SCRef = QString(), int = -1, ShaSet* = NULL);
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
@@ -39,7 +38,6 @@ signals:
 	void revisionsDropped(const QStringList&);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
-	void matchedRowsChanged(const QSet<int>&);
 
 public slots:
 	void on_repaintListViews(const QFont& f);
@@ -63,12 +61,12 @@ private:
 	bool filterRightButtonPressed(QMouseEvent* e);
 	bool getLaneParentsChilds(SCRef sha, int x, SList p, SList c);
 	int getLaneType(SCRef sha, int pos) const;
-	bool isMatch(SCRef sha, SCRef filter, int colNum, ShaMap& shaMap);
 
 	Domain* d;
 	Git* git;
 	StateInfo* st;
 	FileHistory* fh;
+	ListViewProxy* lp;
 	unsigned long secs;
 	bool filterNextContextMenuRequest;
 };
@@ -76,7 +74,7 @@ private:
 class ListViewDelegate : public QItemDelegate {
 Q_OBJECT
 public:
-	ListViewDelegate(Git* git, FileHistory* fh, QObject *parent);
+	ListViewDelegate(Git* git, ListViewProxy* lp, QObject *parent);
 
 	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -88,7 +86,6 @@ signals:
 
 public slots:
 	void diffTargetChanged(int);
-	void matchedRowsChanged(const QSet<int>&);
 
 private:
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -100,10 +97,36 @@ private:
 	bool changedFiles(SCRef sha) const;
 
 	Git* git;
-	FileHistory* fh;
+	ListViewProxy* lp;
 	int _laneHeight;
 	int _diffTargetRow;
-	QSet<int> _matchedRows;
+};
+
+class ListViewProxy : public QSortFilterProxyModel {
+Q_OBJECT
+public:
+	ListViewProxy(QObject* parent, Domain* d, Git* g);
+	void setFilter(bool isOn, bool iH, SCRef filter, int colNum, const ShaSet& ss);
+	bool isHighlighted(int row) const;
+	const QString sha(int row) const;
+	int row(SCRef sha) const;
+	int matchesNum() const { return (isOn ? rowCount() : 0); }
+	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+
+protected:
+	virtual bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
+
+private:
+	bool isMatch(int row) const;
+	bool isMatch(SCRef sha) const;
+
+	Domain* d;
+	Git* git;
+	bool isOn;
+	bool isHighLight;
+	QString filter;
+	int colNum;
+	ShaSet ss;
 };
 
 #endif
