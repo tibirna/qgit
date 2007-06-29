@@ -686,17 +686,6 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	if (patchNeedsUpdate)
 		emit highlightPatch(isOn ? filter : "", isRegExp);
 
-	QModelIndex cur = lv->currentIndex();
-	if (cur.isValid() && lv->isRowHidden(cur.row(), QModelIndex()) && matchedCnt != 0) {
-		// we have an hidden current item so main list is
-		// out of sync with description and file list
-		// a workaround could be to select the first item in list
-		QModelIndex first = lv->indexAt(QPoint(0, 0));
-		if (first.isValid()) {
-			rv->st.setSha(rv->model()->sha(first.row()));
-			UPDATE_DOMAIN(rv);
-		}
-	}
 	QString msg;
 	if (isOn && !onlyHighlight)
 		msg = QString("Found %1 matches. Toggle filter/highlight "

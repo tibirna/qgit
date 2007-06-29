@@ -158,6 +158,7 @@ int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, Sh
 
 	lp->setFilter(isOn, highlight, filter, colNum, *set);
 	viewport()->update();
+	scrollTo(currentIndex());
 	return lp->matchesNum();
 }
 
@@ -687,6 +688,8 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 	*pp = newPm;
 }
 
+// *****************************************************************************
+
 ListViewProxy::ListViewProxy(QObject* p, Domain * dm, Git * g) : QSortFilterProxyModel(p) {
 
 	d = dm;
@@ -734,25 +737,27 @@ bool ListViewProxy::isMatch(SCRef sha) const {
 	return target.contains(QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard));
 }
 
-bool ListViewProxy::isMatch(int row) const {
+bool ListViewProxy::isMatch(int source_row) const {
 
 	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
-	if (fh->rowCount() <= row) // FIXME this seems required to avoid an ASSERT in d->isMatch()
+	if (fh->rowCount() <= source_row) // FIXME required to avoid an ASSERT in d->isMatch()
 		return false;
 
 	bool extFilter = (colNum == -1);
-	return ((!extFilter && isMatch(fh->sha(row)))
-	      ||( extFilter && d->isMatch(fh->sha(row))));
+	return ((!extFilter && isMatch(fh->sha(source_row)))
+	      ||( extFilter && d->isMatch(fh->sha(source_row))));
 }
 
 bool ListViewProxy::isHighlighted(int row) const {
 
+	// FIXME row == source_row only because when
+	// higlights the rows are not hidden
 	return (isOn && isHighLight && isMatch(row));
 }
 
-bool ListViewProxy::filterAcceptsRow(int row, const QModelIndex&) const {
+bool ListViewProxy::filterAcceptsRow(int source_row, const QModelIndex&) const {
 
-	return (!isOn || isHighLight || isMatch(row));
+	return (!isOn || isHighLight || isMatch(source_row));
 }
 
 void ListViewProxy::setFilter(bool on, bool isH, SCRef fl, int cn, const ShaSet& s) {
