@@ -26,6 +26,7 @@ public:
 	const QString getSha(uint id);
 	void showIdValues();
 	void scrollToCurrent(ScrollHint hint = EnsureVisible);
+	void scrollToNextHighlighted(int direction);
 	void getSelectedItems(QStringList& selectedItems);
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);

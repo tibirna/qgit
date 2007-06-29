@@ -79,6 +79,19 @@ void ListView::setupGeometry() {
 		hideColumn(ANN_ID_COL);
 }
 
+void ListView::scrollToNextHighlighted(int direction) {
+
+	QModelIndex idx = currentIndex();
+	do {
+		idx = (direction > 0 ? indexBelow(idx) : indexAbove(idx));
+		if (!idx.isValid())
+			return;
+
+	} while (!lp->isHighlighted(idx.row()));
+
+	setCurrentIndex(idx);
+}
+
 void ListView::scrollToCurrent(ScrollHint hint) {
 
 	if (currentIndex().isValid())
@@ -725,9 +738,6 @@ bool ListViewProxy::isMatch(int row) const {
 
 	bool extFilter = (colNum == -1);
 	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
-	if (fh->rowCount() <= row)
-		return false;
-
 	return ((!extFilter && isMatch(fh->sha(row)))
 	      ||( extFilter && d->isMatch(fh->sha(row))));
 }

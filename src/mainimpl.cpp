@@ -675,8 +675,12 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 		shortLogRE.setPattern("");
 		longLogRE.setPattern("");
 	}
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
 	ListView* lv = rv->tab()->listViewLog;
 	int matchedCnt = lv->filterRows(isOn, onlyHighlight, filter, colNum, &shaSet);
+
+	QApplication::restoreOverrideCursor();
 
 	emit updateRevDesc(); // could be highlighted
 	if (patchNeedsUpdate)
@@ -925,29 +929,8 @@ void MainImpl::shortCutActivated() {
 
 void MainImpl::goMatch(int delta) {
 
-//	if (!ActSearchAndHighlight->isChecked()) FIXME
-//		return;
-//
-//	Q3ListViewItemIterator it(rv->tab()->listViewLog->currentItem());
-//	if (delta > 0)
-//		++it;
-//	else
-//		--it;
-//
-//	while (it.current()) {
-//		ListViewItem* item = static_cast<ListViewItem*>(it.current());
-//		if (item->highlighted()) {
-//			Q3ListView* lv = rv->tab()->listViewLog;
-//			lv->clearSelection();
-//			lv->setCurrentItem(item);
-//			lv->ensureItemVisible(lv->currentItem());
-//			return;
-//		}
-//		if (delta > 0)
-//			++it;
-//		else
-//			--it;
-//	}
+	if (ActSearchAndHighlight->isChecked())
+		rv->tab()->listViewLog->scrollToNextHighlighted(delta);
 }
 
 QTextEdit* MainImpl::getCurrentTextEdit() {
