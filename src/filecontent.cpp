@@ -526,7 +526,7 @@ void FileContent::setAnnList() {
 
 	int linesNum = document()->blockCount();
 	int linesNumDigits = QString::number(linesNum).length();
-	int annoMaxLen = 0;
+	int curId, annoMaxLen = 0;
 	QLinkedList<QString>::const_iterator it, endIt;
 
 	isAnnotationAppended = isShowAnnotate && curAnn;
@@ -535,6 +535,7 @@ void FileContent::setAnnList() {
 		annoMaxLen = annotateLength(curAnn);
 		it = curAnn->lines.constBegin();
 		endIt = curAnn->lines.constEnd();
+		curId = curAnn->annId;
 	}
 
 	QString tmp;
@@ -542,10 +543,13 @@ void FileContent::setAnnList() {
 	int width = listWidgetAnn->fontMetrics().boundingRect(tmp).width();
 
 	QStringList sl;
+	QVector<int> curIdLines;
 	for (int i = 0; i < linesNum; i++) {
 
 		if (isAnnotationAppended && it != endIt) {
 			tmp = (*it).leftJustified(annoMaxLen);
+			if (tmp.section('.',0 ,0).toInt() == curId)
+				curIdLines.append(i);
 			++it;
 		} else
 			tmp.clear();
@@ -557,6 +561,14 @@ void FileContent::setAnnList() {
 	listWidgetAnn->clear();
 	listWidgetAnn->addItems(sl);
 
+	QBrush b(Qt::darkGray);
+	QFont f(listWidgetAnn->font());
+	f.setBold(true);
+	FOREACH (QVector<int>, it, curIdLines) {
+		QListWidgetItem* item = listWidgetAnn->item(*it);
+		item->setForeground(b);
+		item->setFont(f);
+	}
 	/* When listWidgetAnn get focus for the fisrt time the current
 	   item, if not already present, is set to the first row and
 	   scrolling starts from there, so set a proper current item here
