@@ -23,7 +23,7 @@ public:
 	ListView(QWidget* parent);
 	~ListView();
 	void setup(Domain* d, Git* g);
-	const QString getSha(uint id);
+	const QString shaFromAnnId(uint id);
 	void showIdValues();
 	void scrollToCurrent(ScrollHint hint = EnsureVisible);
 	void scrollToNextHighlighted(int direction);
@@ -32,6 +32,8 @@ public:
 	void addNewRevs(const QVector<QString>& shaVec);
 	const QString currentText(int col);
 	int filterRows(bool, bool, SCRef = QString(), int = -1, ShaSet* = NULL);
+	const QString sha(int row) const;
+	int row(SCRef sha) const;
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
@@ -55,7 +57,7 @@ protected:
 
 private slots:
 	void on_customContextMenuRequested(const QPoint&);
-	void on_currentChanged(const QModelIndex&, const QModelIndex&);
+	virtual void currentChanged(const QModelIndex&, const QModelIndex&);
 
 private:
 	void setupGeometry();
@@ -75,7 +77,7 @@ private:
 class ListViewDelegate : public QItemDelegate {
 Q_OBJECT
 public:
-	ListViewDelegate(Git* git, ListViewProxy* lp, QObject *parent);
+	ListViewDelegate(Git* git, ListViewProxy* lp, QObject* parent);
 
 	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -89,6 +91,7 @@ public slots:
 	void diffTargetChanged(int);
 
 private:
+	const Rev* revLookup(int row, FileHistory** fhPtr = NULL) const;
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraphLane(QPainter* p, int type, int x1, int x2, const QColor& col, const QBrush& back) const;
@@ -107,12 +110,8 @@ class ListViewProxy : public QSortFilterProxyModel {
 Q_OBJECT
 public:
 	ListViewProxy(QObject* parent, Domain* d, Git* g);
-	void setFilter(bool isOn, bool iH, SCRef filter, int colNum, const ShaSet& ss);
+	int setFilter(bool isOn, bool highlight, SCRef filter, int colNum, const ShaSet& ss);
 	bool isHighlighted(int row) const;
-	const QString sha(int row) const;
-	int row(SCRef sha) const;
-	int matchesNum() const { return (isOn ? rowCount() : 0); }
-	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
 protected:
 	virtual bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
@@ -123,11 +122,10 @@ private:
 
 	Domain* d;
 	Git* git;
-	bool isOn;
 	bool isHighLight;
 	QString filter;
 	int colNum;
-	ShaSet ss;
+	ShaSet shaSet;
 };
 
 #endif

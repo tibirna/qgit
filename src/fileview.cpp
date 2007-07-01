@@ -88,7 +88,8 @@ bool FileView::eventFilter(QObject* obj, QEvent* e) {
 		QHelpEvent* h = static_cast<QHelpEvent*>(e);
 		int id = fileTab->textEditFile->itemAnnId(lw->itemAt(h->pos()));
 		QRegExp re;
-		SCRef d(git->getDesc(fileTab->histListView->getSha(id), re, re, false, model()));
+		SCRef sha(fileTab->histListView->shaFromAnnId(id));
+		SCRef d(git->getDesc(sha, re, re, false, model()));
 		lw->setToolTip(d);
 	}
 	return QObject::eventFilter(obj, e);
@@ -272,7 +273,7 @@ void FileView::on_spinBoxRevision_valueChanged(int id) {
 
 	if (id != fileTab->spinBoxRevision->minimum()) {
 
-		SCRef selRev(fileTab->histListView->getSha(id));
+		SCRef selRev(fileTab->histListView->shaFromAnnId(id));
 		if (st.sha() != selRev) { // to avoid looping
 			st.setSha(selRev);
 			st.setSelectItem(true);

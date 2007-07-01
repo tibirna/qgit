@@ -28,9 +28,10 @@ void ListView::setup(Domain* dm, Git* g) {
 	st = &(d->st);
 	filterNextContextMenuRequest = false;
 
+	// create ListViewProxy unplugged, will be plug
+	// to the model only when filtering is needed
 	lp = new ListViewProxy(this, d, git);
-	lp->setSourceModel(fh);
-	setModel(lp);
+	setModel(fh);
 
 	ListViewDelegate* lvd = new ListViewDelegate(git, lp, this);
 	lvd->setLaneHeight(fontMetrics().height());
@@ -46,9 +47,6 @@ void ListView::setup(Domain* dm, Git* g) {
 
 	connect(this, SIGNAL(diffTargetChanged(int)), lvd, SLOT(diffTargetChanged(int)));
 
-	connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-	        this, SLOT(on_currentChanged(const QModelIndex&, const QModelIndex&)));
-
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
 }
@@ -56,6 +54,25 @@ void ListView::setup(Domain* dm, Git* g) {
 ListView::~ListView() {
 
 	git->cancelDataLoading(fh); // non blocking
+}
+
+const QString ListView::sha(int row) const {
+
+	if (!lp->sourceModel()) // unplugged
+		return fh->sha(row);
+
+	QModelIndex idx = lp->mapToSource(lp->index(row, 0));
+	return fh->sha(idx.row());
+}
+
+int ListView::row(SCRef sha) const {
+
+	if (!lp->sourceModel()) // unplugged
+		return fh->row(sha);
+
+	int row = fh->row(sha);
+	QModelIndex idx = fh->index(row, 0);
+	return lp->mapFromSource(idx).row();
 }
 
 void ListView::setupGeometry() {
@@ -143,28 +160,30 @@ void ListView::getSelectedItems(QStringList& selectedItems) {
 	selectedItems.clear();
 	QModelIndexList ml = selectionModel()->selectedRows();
 	FOREACH (QModelIndexList, it, ml)
-		selectedItems.append(lp->sha((*it).row()));
+		selectedItems.append(sha((*it).row()));
 }
 
-const QString ListView::getSha(uint id) {
+const QString ListView::shaFromAnnId(uint id) {
 
 	if (git->isMainHistory(fh))
 		return "";
 
-	return lp->sha(model()->rowCount() - id);
+	return sha(model()->rowCount() - id);
 }
 
 int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, ShaSet* set) {
 
-	lp->setFilter(isOn, highlight, filter, colNum, *set);
+	setUpdatesEnabled(false);
+	int matchedNum = lp->setFilter(isOn, highlight, filter, colNum, *set);
 	viewport()->update();
-	scrollTo(currentIndex());
-	return lp->matchesNum();
+	setUpdatesEnabled(true);
+	UPDATE_DOMAIN(d);
+	return matchedNum;
 }
 
 bool ListView::update() {
 
-	int stRow = lp->row(st->sha());
+	int stRow = row(st->sha());
 	if (stRow == -1)
 		return false; // main/tree view asked us a sha not in history
 
@@ -193,14 +212,14 @@ bool ListView::update() {
 		}
 	}
 	if (git->isMainHistory(fh))
-		emit diffTargetChanged(lp->row(st->diffToSha()));
+		emit diffTargetChanged(row(st->diffToSha()));
 
 	return currentIndex().isValid();
 }
 
-void ListView::on_currentChanged(const QModelIndex& index, const QModelIndex&) {
+void ListView::currentChanged(const QModelIndex& index, const QModelIndex&) {
 
-	SCRef selRev = lp->sha(index.row());
+	SCRef selRev = sha(index.row());
 	if (st->sha() != selRev) { // to avoid looping
 		st->setSha(selRev);
 		st->setSelectItem(true);
@@ -211,16 +230,16 @@ void ListView::on_currentChanged(const QModelIndex& index, const QModelIndex&) {
 bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 	QModelIndex index = indexAt(e->pos());
-	SCRef sha = lp->sha(index.row());
-	if (sha.isEmpty())
+	SCRef selSha = sha(index.row());
+	if (selSha.isEmpty())
 		return false;
 
 	if (e->modifiers() == Qt::ControlModifier) { // check for 'diff to' function
 
-		if (sha != ZERO_SHA && st->sha() != ZERO_SHA) {
+		if (selSha != ZERO_SHA && st->sha() != ZERO_SHA) {
 
-			if (sha != st->diffToSha())
-				st->setDiffToSha(sha);
+			if (selSha != st->diffToSha())
+				st->setDiffToSha(selSha);
 			else
 				st->setDiffToSha(""); // restore std view
 
@@ -234,7 +253,7 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 		filterNextContextMenuRequest = true;
 		QStringList parents, children;
-		if (getLaneParentsChilds(sha, e->pos().x(), parents, children))
+		if (getLaneParentsChilds(selSha, e->pos().x(), parents, children))
 			emit lanesContextMenuRequested(parents, children);
 
 		return true; // filter event out
@@ -315,7 +334,7 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 		filterNextContextMenuRequest = false;
 		return;
 	}
-	emit contextMenu(lp->sha(index.row()), POPUP_LIST_EV);
+	emit contextMenu(sha(index.row()), POPUP_LIST_EV);
 }
 
 bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
@@ -367,6 +386,20 @@ void ListViewDelegate::diffTargetChanged(int row) {
 		_diffTargetRow = row;
 		emit updateView();
 	}
+}
+
+const Rev* ListViewDelegate::revLookup(int row, FileHistory** fhPtr) const {
+
+	ListView* lv = static_cast<ListView*>(parent());
+	FileHistory* fh = static_cast<FileHistory*>(lv->model());
+
+	if (lp->sourceModel())
+		fh = static_cast<FileHistory*>(lp->sourceModel());
+
+	if (fhPtr)
+		*fhPtr = fh;
+
+	return git->revLookup(lv->sha(row), fh);
 }
 
 void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
@@ -508,9 +541,8 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 	else
 		p->fillRect(opt.rect, opt.palette.base());
 
-	int row = i.row();
-	FileHistory* fh = static_cast<FileHistory*>(lp->sourceModel());
-	const Rev* r = git->revLookup(lp->sha(row), fh);
+	FileHistory* fh;
+	const Rev* r = revLookup(i.row(), &fh);
 	if (!r)
 		return;
 
@@ -559,8 +591,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
                                 const QModelIndex& index) const {
 
 	int row = index.row();
-	FileHistory* fh = static_cast<FileHistory*>(lp->sourceModel());
-	const Rev* r = git->revLookup(lp->sha(row), fh);
+	const Rev* r = revLookup(row);
 	if (!r)
 		return;
 
@@ -694,29 +725,16 @@ ListViewProxy::ListViewProxy(QObject* p, Domain * dm, Git * g) : QSortFilterProx
 
 	d = dm;
 	git = g;
-	isOn = false;
-}
-
-const QString ListViewProxy::sha(int row) const {
-
-	QModelIndex idx = mapToSource(index(row, 0));
-	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
-	return fh->sha(idx.row());
-}
-
-int ListViewProxy::row(SCRef sha) const {
-
-	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
-	int row = fh->row(sha);
-	QModelIndex idx = fh->index(row, 0);
-	return mapFromSource(idx).row();
+	colNum = 0;
+	isHighLight = false;
+	setDynamicSortFilter(false);
 }
 
 bool ListViewProxy::isMatch(SCRef sha) const {
 
 	if (colNum == SHA_MAP_COL)
 		// in this case shaMap contains all good sha to search for
-		return ss.contains(sha);
+		return shaSet.contains(sha);
 
 	const Rev* r = git->revLookup(sha);
 	if (!r) {
@@ -739,7 +757,7 @@ bool ListViewProxy::isMatch(SCRef sha) const {
 
 bool ListViewProxy::isMatch(int source_row) const {
 
-	FileHistory* fh = static_cast<FileHistory*>(sourceModel());
+	FileHistory* fh = d->model();
 	if (fh->rowCount() <= source_row) // FIXME required to avoid an ASSERT in d->isMatch()
 		return false;
 
@@ -752,26 +770,32 @@ bool ListViewProxy::isHighlighted(int row) const {
 
 	// FIXME row == source_row only because when
 	// higlights the rows are not hidden
-	return (isOn && isHighLight && isMatch(row));
+	return (isHighLight && isMatch(row));
 }
 
 bool ListViewProxy::filterAcceptsRow(int source_row, const QModelIndex&) const {
 
-	return (!isOn || isHighLight || isMatch(source_row));
+	return (isHighLight || isMatch(source_row));
 }
 
-void ListViewProxy::setFilter(bool on, bool isH, SCRef fl, int cn, const ShaSet& s) {
+int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, const ShaSet& s) {
 
-	isOn = on; isHighLight = isH;
-	filter = fl; colNum = cn;
-	ss = s;
-	invalidateFilter();
-}
+	filter = fl; colNum = cn; shaSet = s;
 
-int ListViewProxy::rowCount(const QModelIndex& parent) const {
+	// isHighlighted() is called also when filter is off,
+	// so reset 'isHighLight' flag in that case
+	isHighLight = h && isOn;
 
-	if (isOn && !isHighLight)
-		return QSortFilterProxyModel::rowCount(parent);
+	ListView* lv = static_cast<ListView*>(parent());
+	FileHistory* fh = d->model();
 
-	return sourceModel()->rowCount(parent);
+	if (!isOn && sourceModel()){
+		lv->setModel(fh);
+		setSourceModel(NULL);
+
+	} else if (isOn && !isHighLight) {
+		setSourceModel(fh); // trigger a rows scanning
+		lv->setModel(this);
+	}
+	return (sourceModel() ? rowCount() : 0);
 }
