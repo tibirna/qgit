@@ -23,6 +23,22 @@
 
 using namespace QGit;
 
+static QHash<QString, QString> localDates;
+
+const QString Git::getLocalDate(SCRef gitDate) {
+// fast path here, we use a cache to avoid the slow date calculation
+
+	QString localDate(localDates.value(gitDate));
+	if (!localDate.isEmpty())
+		return localDate;
+
+	QDateTime d;
+	d.setTime_t(gitDate.toULong());
+	localDate = d.toString(Qt::LocalDate);
+	localDates[gitDate] = localDate;
+	return localDate;
+}
+
 const QStringList Git::getArgs(bool askForRange, bool* quit) {
 
 	static bool startup = true; // it's OK to be unique among qgit windows
@@ -547,6 +563,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 		workDir = getBaseDir(&repoChanged, wd, &isGIT, &gitDir);
 
 		if (repoChanged) {
+			localDates.clear();
 			clearFileNames();
 			fileCacheAccessed = false;
 		}

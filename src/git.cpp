@@ -354,21 +354,6 @@ const QString Git::quote(SCList sl) {
 	return q;
 }
 
-const QString Git::getLocalDate(SCRef gitDate) {
-// fast path here, we use a cache to avoid the slow date calculation
-
-	static QHash<QString, QString> localDates;
-	QString localDate(localDates.value(gitDate));
-	if (!localDate.isEmpty())
-		return localDate;
-
-	QDateTime d;
-	d.setTime_t(gitDate.toULong());
-	localDate = d.toString(Qt::LocalDate);
-	localDates[gitDate] = localDate;
-	return localDate;
-}
-
 uint Git::checkRef(SCRef sha, uint mask) const {
 
 	QMap<QString, Reference>::const_iterator it(refsShaMap.find(sha));

@@ -242,11 +242,9 @@ const QPixmap* QGit::mimePix(SCRef fileName) {
 void QGit::saveGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 
 	QSettings settings;
-	if (w && w->isVisible()) {
-		bool max = w->windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen);
-		if (!max) // workaround a X11 issue
-			settings.setValue(name + "_window", w->saveGeometry());
-	}
+	if (w && w->isVisible())
+		settings.setValue(name + "_window", w->saveGeometry());
+
 	if (!svPtr)
 		return;
 
