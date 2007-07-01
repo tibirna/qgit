@@ -30,18 +30,18 @@ public:
 	void afterBranch();
 	void afterApplied();
 	void nextParent(const QString& sha);
-	void getLanes(QVector<int> &ln) { ln = typeVec; } // O(1) vector is implicitly shared
+	void getLanes(QVector<uint> &ln) { ln = typeVec; } // O(1) vector is implicitly shared
 
 private:
 	int findNextSha(const QString& next, int pos);
-	int findType(int type, int pos);
-	int add(int type, const QString& next, int pos);
+	int findType(uint type, int pos);
+	int add(uint type, const QString& next, int pos);
 
 	int activeLane;
-	QVector<int> typeVec;
+	QVector<uint> typeVec;
 	QVector<QString> nextShaVec;
 	bool boundary;
-	int NODE, NODE_L, NODE_R;
+	uint NODE, NODE_L, NODE_R;
 };
 
 #endif

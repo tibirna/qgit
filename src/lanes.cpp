@@ -9,7 +9,7 @@
 #include "common.h"
 #include "lanes.h"
 
-#define IS_NODE(x) (x == NODE || x == NODE_R || x == NODE_L)
+#define IS_NODE(x) (x & (NODE | NODE_R | NODE_L))
 
 using namespace QGit;
 
@@ -71,8 +71,8 @@ void Lanes::setFork(const QString& sha) {
 	}
 	typeVec[activeLane] = NODE;
 
-	int& startT = typeVec[rangeStart];
-	int& endT = typeVec[rangeEnd];
+	uint& startT = typeVec[rangeStart];
+	uint& endT = typeVec[rangeEnd];
 
 	if (startT == NODE)
 		startT = NODE_L;
@@ -88,7 +88,7 @@ void Lanes::setFork(const QString& sha) {
 
 	for (int i = rangeStart + 1; i < rangeEnd; i++) {
 
-		int& t = typeVec[i];
+		uint& t = typeVec[i];
 
 		if (t == NOT_ACTIVE)
 			t = CROSS;
@@ -104,7 +104,7 @@ void Lanes::setMerge(const QStringList& parents) {
 	if (boundary)
 		return; // handle as a simple active line
 
-	int& t = typeVec[activeLane];
+	uint& t = typeVec[activeLane];
 	bool wasFork   = (t == NODE);
 	bool wasFork_L = (t == NODE_L);
 	bool wasFork_R = (t == NODE_R);
@@ -132,8 +132,8 @@ void Lanes::setMerge(const QStringList& parents) {
 		} else
 			rangeEnd = add(HEAD, *it, rangeEnd + 1);
 	}
-	int& startT = typeVec[rangeStart];
-	int& endT = typeVec[rangeEnd];
+	uint& startT = typeVec[rangeStart];
+	uint& endT = typeVec[rangeEnd];
 
 	if (startT == NODE && !wasFork && !wasFork_R)
 		startT = NODE_L;
@@ -155,7 +155,7 @@ void Lanes::setMerge(const QStringList& parents) {
 
 	for (int i = rangeStart + 1; i < rangeEnd; i++) {
 
-		int& t = typeVec[i];
+		uint& t = typeVec[i];
 
 		if (t == NOT_ACTIVE)
 			t = CROSS;
@@ -170,7 +170,7 @@ void Lanes::setMerge(const QStringList& parents) {
 
 void Lanes::setInitial() {
 
-	int& t = typeVec[activeLane];
+	uint& t = typeVec[activeLane];
 	if (!IS_NODE(t) && t != APPLIED)
 		t = (boundary ? BOUNDARY : INITIAL);
 }
@@ -183,7 +183,7 @@ void Lanes::setApplied() {
 
 void Lanes::changeActiveLane(const QString& sha) {
 
-	int& t = typeVec[activeLane];
+	uint& t = typeVec[activeLane];
 	if (t == INITIAL || isBoundary(t))
 		t = EMPTY;
 	else
@@ -205,7 +205,7 @@ void Lanes::afterMerge() {
 
 	for (int i = 0; i < typeVec.count(); i++) {
 
-		int& t = typeVec[i];
+		uint& t = typeVec[i];
 
 		if (isHead(t) || isJoin(t) || t == CROSS)
 			t = NOT_ACTIVE;
@@ -222,7 +222,7 @@ void Lanes::afterFork() {
 
 	for (int i = 0; i < typeVec.count(); i++) {
 
-		int& t = typeVec[i];
+		uint& t = typeVec[i];
 
 		if (t == CROSS)
 			t = NOT_ACTIVE;
@@ -267,7 +267,7 @@ int Lanes::findNextSha(const QString& next, int pos) {
 	return -1;
 }
 
-int Lanes::findType(int type, int pos) {
+int Lanes::findType(uint type, int pos) {
 
 	for (int i = pos; i < typeVec.count(); i++)
 		if (typeVec[i] == type)
@@ -275,10 +275,10 @@ int Lanes::findType(int type, int pos) {
 	return -1;
 }
 
-int Lanes::add(int type, const QString& next, int pos) {
+int Lanes::add(uint type, const QString& next, int pos) {
 
 	// first check empty lanes starting from pos
-	if (pos < (int)typeVec.count()) {
+	if (pos < typeVec.count()) {
 		pos = findType(EMPTY, pos);
 		if (pos != -1) {
 			typeVec[pos] = type;

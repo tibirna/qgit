@@ -63,7 +63,7 @@ private:
 	void setupGeometry();
 	bool filterRightButtonPressed(QMouseEvent* e);
 	bool getLaneParentsChilds(SCRef sha, int x, SList p, SList c);
-	int getLaneType(SCRef sha, int pos) const;
+	uint getLaneType(SCRef sha, int pos) const;
 
 	Domain* d;
 	Git* git;
@@ -94,9 +94,9 @@ private:
 	const Rev* revLookup(int row, FileHistory** fhPtr = NULL) const;
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
-	void paintGraphLane(QPainter* p, int type, int x1, int x2, const QColor& col, const QBrush& back) const;
+	void paintGraphLane(QPainter* p, uint type, int x1, int x2, const QColor& col, const QBrush& back) const;
 	QPixmap* getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const;
-	void addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const;
+	void addRefPixmap(QPixmap** pp, SCRef sha, uint type, QStyleOptionViewItem opt) const;
 	void addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const;
 	bool changedFiles(SCRef sha) const;
 

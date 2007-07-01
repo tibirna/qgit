@@ -143,10 +143,10 @@ const QString ListView::currentText(int column) {
 	return (idx.isValid() ? idx.data().toString() : "");
 }
 
-int ListView::getLaneType(SCRef sha, int pos) const {
+uint ListView::getLaneType(SCRef sha, int pos) const {
 
 	const Rev* r = git->revLookup(sha, fh);
-	return (r && pos < r->lanes.count() && pos >= 0 ? r->lanes.at(pos) : -1);
+	return (r && pos < r->lanes.count() && pos >= 0 ? r->lanes.at(pos) : 0);
 }
 
 void ListView::showIdValues() {
@@ -341,8 +341,8 @@ bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
 
 	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());
 	uint lane = x / lvd->laneWidth();
-	int t = getLaneType(sha, lane);
-	if (t == EMPTY || t == -1)
+	uint t = getLaneType(sha, lane);
+	if (t == EMPTY)
 		return false;
 
 	// first find the parents
@@ -402,7 +402,7 @@ const Rev* ListViewDelegate::revLookup(int row, FileHistory** fhPtr) const {
 	return git->revLookup(lv->sha(row), fh);
 }
 
-void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
+void ListViewDelegate::paintGraphLane(QPainter* p, uint type, int x1, int x2,
                                       const QColor& col, const QBrush& back) const {
 
 	int h = _laneHeight / 2;
@@ -554,7 +554,7 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		git->setLane(r->sha(), fh);
 
 	QBrush back = opt.palette.base();
-	const QVector<int>& lanes(r->lanes);
+	const QVector<uint>& lanes(r->lanes);
 	uint laneNum = lanes.count();
 	uint mergeLane = 0;
 	for (uint i = 0; i < laneNum; i++)
@@ -571,7 +571,7 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		x1 = x2;
 		x2 += lw;
 
-		int ln = lanes[i];
+		uint ln = lanes[i];
 		if (ln == EMPTY)
 			continue;
 
@@ -665,7 +665,7 @@ QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& op
 	return pm;
 }
 
-void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const {
+void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, uint type, QStyleOptionViewItem opt) const {
 
 	QString curBranch;
 	SCList refs = git->getRefName(sha, (Git::RefType)type, &curBranch);

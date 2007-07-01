@@ -93,45 +93,44 @@ namespace QGit {
 
 	// graph elements
 	enum LaneType {
-		EMPTY,
-		ACTIVE,
-		NOT_ACTIVE,
-		MERGE_FORK,
-		MERGE_FORK_R,
-		MERGE_FORK_L,
-		JOIN,
-		JOIN_R,
-		JOIN_L,
-		HEAD,
-		HEAD_R,
-		HEAD_L,
-		TAIL,
-		TAIL_R,
-		TAIL_L,
-		CROSS,
+		EMPTY        = 0,
+		ACTIVE       = 1,
+		NOT_ACTIVE   = 2,
+		HEAD         = 4,
+		HEAD_R       = 8,
+		HEAD_L       = 16,
+		TAIL         = 32,
+		TAIL_R       = 64,
+		TAIL_L       = 128,
+		JOIN         = 256,
+		JOIN_R       = 512,
+		JOIN_L       = 1024,
+		BOUNDARY     = 2048,
+		BOUNDARY_C   = 4096,  // corresponds to MERGE_FORK
+		BOUNDARY_R   = 8192,  // corresponds to MERGE_FORK_R
+		BOUNDARY_L   = 16384, // corresponds to MERGE_FORK_L
+		MERGE_FORK   = 32768,
+		MERGE_FORK_R = 65536,
+		MERGE_FORK_L = 131072,
+		CROSS        = 262144,
 		CROSS_EMPTY,
 		INITIAL,
 		BRANCH,
 		UNAPPLIED,
 		APPLIED,
-		BOUNDARY,
-		BOUNDARY_C, // corresponds to MERGE_FORK
-		BOUNDARY_R, // corresponds to MERGE_FORK_R
-		BOUNDARY_L, // corresponds to MERGE_FORK_L
 
-		LANE_TYPES_NUM
+		LANE_TYPES_NUM = 25
 	};
 	const int COLORS_NUM = 8;
 
 	// graph helpers
-	inline bool isHead(int x) { return (x == HEAD || x == HEAD_R || x == HEAD_L); }
-	inline bool isTail(int x) { return (x == TAIL || x == TAIL_R || x == TAIL_L); }
-	inline bool isJoin(int x) { return (x == JOIN || x == JOIN_R || x == JOIN_L); }
-	inline bool isFreeLane(int x) { return (x == NOT_ACTIVE || x == CROSS || isJoin(x)); }
-	inline bool isBoundary(int x) { return (x == BOUNDARY || x == BOUNDARY_C ||
-	                                        x == BOUNDARY_R || x == BOUNDARY_L); }
-	inline bool isMerge(int x) { return (x == MERGE_FORK || x == MERGE_FORK_R ||
-	                                     x == MERGE_FORK_L || isBoundary(x)); }
+	inline bool isHead(uint x) { return (x & (HEAD | HEAD_R | HEAD_L)); }
+	inline bool isTail(uint x) { return (x & (TAIL | TAIL_R | TAIL_L)); }
+	inline bool isJoin(uint x) { return (x & (JOIN | JOIN_R | JOIN_L)); }
+	inline bool isFreeLane(uint x) { return (x & (NOT_ACTIVE | CROSS)) || isJoin(x); }
+	inline bool isBoundary(uint x) { return (x & (BOUNDARY | BOUNDARY_C | BOUNDARY_R | BOUNDARY_L)); }
+	inline bool isMerge(uint x) { return (x & (MERGE_FORK | MERGE_FORK_R | MERGE_FORK_L)) || isBoundary(x); }
+
 	// custom events
 	enum EventType {
 		ERROR_EV      = 65432,
@@ -297,7 +296,7 @@ public:
 	const QString longLog() const { return mid(lLogStart, lLogLen); }
 	const QString diff() const { return mid(diffStart, diffLen); }
 
-	QVector<int> lanes, childs;
+	QVector<uint> lanes, childs;
 	bool isDiffCache, isApplied, isUnApplied;
 	int orderIdx;
 	QVector<int> descRefs;     // list of descendant refs index, normally tags

@@ -96,10 +96,10 @@ void FileHistory::on_newRevsAdded(const FileHistory* f, const QVector<QString>& 
 	endInsertRows();
 }
 
-Qt::ItemFlags FileHistory::flags(const QModelIndex& index) const {
+Qt::ItemFlags FileHistory::flags(const QModelIndex&) const {
 
-	if (!index.isValid())
-		return Qt::ItemIsEnabled;
+// 	if (!index.isValid())
+// 		return Qt::ItemIsEnabled;
 
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable; // read only
 }
@@ -128,7 +128,8 @@ QModelIndex FileHistory::index(int row, int column, const QModelIndex&) const {
 
 QModelIndex FileHistory::parent(const QModelIndex&) const {
 
-	return QModelIndex();
+	static const QModelIndex no_parent;
+	return no_parent;
 }
 
 const QString FileHistory::timeDiff(unsigned long secs) const {
@@ -153,12 +154,14 @@ const QString FileHistory::timeDiff(unsigned long secs) const {
 
 QVariant FileHistory::data(const QModelIndex& index, int role) const {
 
+	static const QVariant no_value;
+
 	if (!index.isValid() || role != Qt::DisplayRole)
-		return QVariant();
+		return no_value; // fast path, 90% of calls ends here!
 
 	const Rev* r = git->revLookup(revOrder.at(index.row()), this);
 	if (!r)
-		return QVariant();
+		return no_value;
 
 	int col = index.column();
 
@@ -182,7 +185,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 		else
 			return git->getLocalDate(r->authorDate());
 	}
-	return QVariant();
+	return no_value;
 }
 
 // ****************************************************************************
@@ -616,7 +619,8 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
 
 	const RevMap& r = (fh ? fh->revs : revData->revs);
-	return (r.contains(sha) ? r[sha] : NULL);
+	return r[sha];
+// 	return (r.contains(sha) ? r[sha] : NULL);
 }
 
 bool Git::run(SCRef runCmd, QString* runOutput, QObject* receiver, SCRef buf) {
