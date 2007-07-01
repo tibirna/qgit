@@ -396,6 +396,10 @@ bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) 
 		proc->setStandardInputFile(bufFile->fileName());
 		bufFile->close();
 	}
+	QStringList env = QProcess::systemEnvironment();
+	env << "GIT_FLUSH=0"; // skip the fflush() in 'git log'
+	proc->setEnvironment(env);
+
 	proc->start(prog, arguments); // TODO test QIODevice::Unbuffered
 	return proc->waitForStarted();
 }
