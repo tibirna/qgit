@@ -98,9 +98,6 @@ void FileHistory::on_newRevsAdded(const FileHistory* f, const QVector<QString>& 
 
 Qt::ItemFlags FileHistory::flags(const QModelIndex&) const {
 
-// 	if (!index.isValid())
-// 		return Qt::ItemIsEnabled;
-
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable; // read only
 }
 
@@ -358,10 +355,18 @@ const QString Git::quote(SCList sl) {
 }
 
 const QString Git::getLocalDate(SCRef gitDate) {
+// fast path here, we use a cache to avoid the slow date calculation
+
+	static QHash<QString, QString> localDates;
+	QString localDate(localDates.value(gitDate));
+	if (!localDate.isEmpty())
+		return localDate;
 
 	QDateTime d;
 	d.setTime_t(gitDate.toULong());
-	return d.toString(Qt::LocalDate);
+	localDate = d.toString(Qt::LocalDate);
+	localDates[gitDate] = localDate;
+	return localDate;
 }
 
 uint Git::checkRef(SCRef sha, uint mask) const {
@@ -619,8 +624,7 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
 
 	const RevMap& r = (fh ? fh->revs : revData->revs);
-	return r[sha];
-// 	return (r.contains(sha) ? r[sha] : NULL);
+	return r.value(sha);
 }
 
 bool Git::run(SCRef runCmd, QString* runOutput, QObject* receiver, SCRef buf) {

@@ -724,7 +724,6 @@ void Git::loadFileNames() {
 		runAsync(runCmd, this, diffTreeBuf);
 	}
 	indexTree();
-// 	exit(0);
 }
 
 int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
@@ -1170,9 +1169,8 @@ void Git::indexTree() {
 const QString Rev::mid(int start, int len) const {
 
 	// warning no sanity check is done on arguments
-// 	const char* data = ba.constData();
-// 	return QString::fromAscii(data + start, len);
-	return QString::fromAscii(ba.mid(start, len));
+	const char* data = ba.constData();
+	return QString::fromAscii(data + start, len);
 }
 
 const QString Rev::parent(int idx) const {
