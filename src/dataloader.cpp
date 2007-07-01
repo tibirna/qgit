@@ -216,8 +216,7 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 	ulong cnt = 0;
 	qint64 readPos = dataFile->pos();
 
-	while (!dataFile->atEnd()) {
-
+	while (true) {
 		// this is the ONLY deep copy involved in the whole loading
 		// QFile::read() calls standard C read() function when
 		// file is open with Unbuffered flag, or fread() otherwise
