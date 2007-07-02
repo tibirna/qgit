@@ -30,7 +30,7 @@ Main features
 Installation
 ------------
 
-You need Qt developer libraries, version 4.2 or later, already installed.
+You need Qt developer libraries, version 4.3 or later, already installed.
 Be sure compiler, qmake (Qt4 version) and Qt4 bin tools are in path.
 
 NOTE: Correct qmake for Qt4 (/usr/lib/qt4/bin/qmake) must be called, in
@@ -300,7 +300,7 @@ In file view page will be shown current revision's file content and file
 history.
 +
 It is possible to copy to the clipboard the selected content with CTRL+C or
-with the corresponding button. Any line header will be automatically removed.
+with the corresponding button.
 
 *File annotations*::
 On opening or updating file viewer, file history will be retrieved from archive
@@ -309,6 +309,9 @@ and the view is updated when ready.
 +
 Double clicking on an annotation index number will update history list
 to point to corresponding revision.
++
+Hovering the mouse over an annotation index will show a tool tip with the
+corresponding revision description.
 +
 File content will change too, to show new selected revision file. To keep
 the same view content after double clicking, probably what you want, just pin
