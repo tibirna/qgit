@@ -216,11 +216,13 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QByteArray fileContent;
-	git->getFile(rv->st.fileName(), rv->st.sha(), NULL, &fileContent);
+	QString fileSha(git->getFileSha(rv->st.fileName(), rv->st.sha()));
+	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
 	if (!writeToFile(fName1, QString(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName1);
 
-	git->getFile(rv->st.fileName(), prevRevSha, NULL, &fileContent);
+	fileSha = git->getFileSha(rv->st.fileName(), prevRevSha);
+	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
 	if (!writeToFile(fName2, QString(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName2);
 
@@ -1220,8 +1222,8 @@ void MainImpl::ActSaveFile_activated() {
 		return;
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	if (!git->saveFile(rv->st.fileName(), rv->st.sha(), fileName))
+	QString fileSha(git->getFileSha(rv->st.fileName(), rv->st.sha()));
+	if (!git->saveFile(fileSha, rv->st.sha(), fileName))
 		statusBar()->showMessage("Unable to save " + fileName);
 
 	QApplication::restoreOverrideCursor();

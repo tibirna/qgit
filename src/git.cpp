@@ -760,6 +760,14 @@ const QString Git::getWorkDirDiff(SCRef fileName) {
 	if (!run(runCmd, &runOutput))
 		return "";
 
+	/* For unknown reasons file sha of index is not ZERO_SHA but
+	   a value of unknown origin.
+	   Replace that with ZERO_SHA so to not fool annotate
+	*/
+	int idx = runOutput.indexOf("..");
+	if (idx != -1)
+		runOutput.replace(idx + 2, 40, ZERO_SHA);
+
 	return runOutput;
 }
 
@@ -779,7 +787,7 @@ const QString Git::getFileSha(SCRef file, SCRef revSha) {
 	return runOutput.mid(12, 40); // could be empty, deleted file case
 }
 
-MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SCRef file) {
+MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SCRef fileName) {
 
 	QString runCmd;
 	/*
@@ -793,7 +801,7 @@ MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SC
 	  change is committed.
 	*/
 	if (fileSha == ZERO_SHA)
-		runCmd = "cat " + quote(file);
+		runCmd = "cat " + quote(fileName);
 	else {
 		if (fileSha.isEmpty()) // deleted
 			runCmd = "git diff-tree HEAD HEAD"; // fake an empty file reading
@@ -807,21 +815,15 @@ MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SC
 	return runAsync(runCmd, receiver);
 }
 
-MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray* result) {
-
-	const QString fileSha(getFileSha(file, revSha));
-	return getFile(fileSha, receiver, result, file);
-}
-
-MyProcess* Git::getHighlightedFile(SCRef file, SCRef sha, QObject* receiver, QString* result) {
+MyProcess* Git::getHighlightedFile(SCRef fileSha, QObject* receiver, QString* result, SCRef fileName) {
 
 	if (!isTextHighlighter()) {
 		dbs("ASSERT in getHighlightedFile: highlighter not found");
 		return NULL;
 	}
-	QString ext(file.section('.', -1, -1, QString::SectionIncludeLeadingSep));
+	QString ext(fileName.section('.', -1, -1, QString::SectionIncludeLeadingSep));
 	QString inputFile(workDir + "/qgit_hlght_input" + ext);
-	if (!saveFile(file, sha, inputFile))
+	if (!saveFile(fileSha, fileName, inputFile))
 		return NULL;
 
 	QString runCmd("source-highlight --failsafe -f html -i " + quote(inputFile));
@@ -845,11 +847,11 @@ void Git::on_getHighlightedFile_eof() {
 		dir.remove(*it);
 }
 
-bool Git::saveFile(SCRef file, SCRef sha, SCRef path) {
+bool Git::saveFile(SCRef fileSha, SCRef fileName, SCRef path) {
 
 	QByteArray fileData;
-	getFile(file, sha, NULL, &fileData); // sync call
-	if (isBinaryFile(file))
+	getFile(fileSha, NULL, &fileData, fileName); // sync call
+	if (isBinaryFile(fileName))
 		return writeToFile(path, fileData);
 
 	return writeToFile(path, QString(fileData));

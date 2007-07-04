@@ -198,11 +198,17 @@ void FileContent::update(bool force) {
 
 	lookupAnnotation(); // before file loading
 
+	QString fileSha;
+	if (curAnn)
+		fileSha = curAnn->fileSha;
+	else
+		fileSha = git->getFileSha(st->fileName(), st->sha());
+
 	// both calls bound procFinished() and procReadyRead() slots
 	if (isHtmlSource && !isImageFile)
-		proc = git->getHighlightedFile(st->fileName(), st->sha(), this);
+		proc = git->getHighlightedFile(fileSha, this, NULL, st->fileName());
 	else
-		proc = git->getFile(st->fileName(), st->sha(), this); // non blocking
+		proc = git->getFile(fileSha, this, NULL, st->fileName()); // non blocking
 
 	ss.isValid = false;
 	if (isRangeFilterActive)

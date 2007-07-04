@@ -129,11 +129,10 @@ public:
 	bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
 	MyProcess* getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool combined);
 	const QString getWorkDirDiff(SCRef fileName = "");
-	MyProcess* getFile(SCRef fSha, QObject* receiver, QByteArray* result, SCRef file);
-	MyProcess* getFile(SCRef file, SCRef revSha, QObject* rcv, QByteArray* ro = NULL);
-	MyProcess* getHighlightedFile(SCRef file, SCRef revSha, QObject* rcv, QString* ro = NULL);
+	MyProcess* getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SCRef fileName);
+	MyProcess* getHighlightedFile(SCRef fileSha, QObject* receiver, QString* result, SCRef fileName);
 	const QString getFileSha(SCRef file, SCRef revSha);
-	bool saveFile(SCRef fileName, SCRef sha, SCRef path);
+	bool saveFile(SCRef fileSha, SCRef fileName, SCRef path);
 	void getFileFilter(SCRef path, ShaSet& shaSet);
 	bool getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet);
 	const RevFile* getFiles(SCRef sha, SCRef sha2 = "", bool all = false, SCRef path = "");
