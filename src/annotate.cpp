@@ -136,8 +136,9 @@ void Annotate::doAnnotate(SCRef fileName, SCRef sha) {
 		isError = true;
 		return;
 	}
+	const QString diff(getPatch(sha)); // update FileAnnotation::fileSha
 	if (r->parentsCount() == 0) { // initial revision
-		setInitialAnnotation(fileName, sha, fa); // calls Qt event loop
+		setInitialAnnotation(ah[sha].fileSha, fileName, fa); // calls Qt event loop
 		fa->isValid = true;
 		return;
 	}
@@ -151,7 +152,6 @@ void Annotate::doAnnotate(SCRef fileName, SCRef sha) {
 		isError = true;
 		return;
 	}
-	const QString diff(getPatch(sha));
 	const QString author(setupAuthor(r->author(), fa->annId));
 	setAnnotation(diff, author, pa->lines, fa->lines);
 
@@ -192,23 +192,15 @@ FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 	return &(*it);
 }
 
-void Annotate::setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* fa) {
+void Annotate::setInitialAnnotation(SCRef fileSha, SCRef fileName, FileAnnotation* fa) {
 
-	QString fileSha;
 	QByteArray fileData;
-	git->getFile(fileName, sha, NULL, &fileData, &fileSha); // calls Qt event loop
+	git->getFile(fileSha, NULL, &fileData, fileName); // calls Qt event loop
 	if (cancelingAnnotate)
 		return;
 
-	if (fileSha.isEmpty()) {
-		dbp("ASSERT in setInitialAnnotation: empty file of initial rev %1", sha);
-		isError = true;
-		return;
-	}
-	ah[sha].fileSha = fileSha;
-	QString fileTxt(fileData);
-	int lineNum = fileTxt.count('\n');
-	if (!fileTxt.endsWith("\n")) // No newline at end of file
+	int lineNum = fileData.count('\n');
+	if (!fileData.endsWith('\n')) // No newline at end of file
 		lineNum++;
 
 	for (int i = 0; i < lineNum; i++)

@@ -64,7 +64,7 @@ private:
 	void annotateFileHistory(SCRef fileName);
 	void doAnnotate(SCRef fileName, SCRef sha);
 	FileAnnotation* getFileAnnotation(SCRef sha);
-	void setInitialAnnotation(SCRef fileName, SCRef sha, FileAnnotation* fa);
+	void setInitialAnnotation(SCRef fileSha, SCRef fileName, FileAnnotation* fa);
 	const QString setupAuthor(SCRef origAuthor, int annId);
 	void setAnnotation(SCRef diff, SCRef aut, SCLList pAnn, SLList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);

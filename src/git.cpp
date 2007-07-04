@@ -779,7 +779,7 @@ const QString Git::getFileSha(SCRef file, SCRef revSha) {
 	return runOutput.mid(12, 40); // could be empty, deleted file case
 }
 
-MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray* result, QString* fSha) {
+MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SCRef file) {
 
 	QString runCmd;
 	/*
@@ -792,7 +792,6 @@ MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray*
 	  from an old plain file. In this case annotation will fail until
 	  change is committed.
 	*/
-	const QString fileSha(getFileSha(file, revSha));
 	if (fileSha == ZERO_SHA)
 		runCmd = "cat " + quote(file);
 	else {
@@ -801,14 +800,17 @@ MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray*
 		else
 			runCmd = "git cat-file blob " + fileSha;
 	}
-	if (fSha)
-		*fSha = fileSha;
-
 	if (!receiver) {
 		run(result, runCmd);
 		return NULL; // in case of sync call we ignore run() return value
 	}
 	return runAsync(runCmd, receiver);
+}
+
+MyProcess* Git::getFile(SCRef file, SCRef revSha, QObject* receiver, QByteArray* result) {
+
+	const QString fileSha(getFileSha(file, revSha));
+	return getFile(fileSha, receiver, result, file);
 }
 
 MyProcess* Git::getHighlightedFile(SCRef file, SCRef sha, QObject* receiver, QString* result) {
