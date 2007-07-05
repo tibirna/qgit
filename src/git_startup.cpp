@@ -259,25 +259,37 @@ const QStringList Git::getOthersFiles() {
 	return runOutput.split('\n', QString::SkipEmptyParts);
 }
 
-const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh) {
+Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
+                      SCRef patch, int idx, FileHistory* fh) {
 
-	QString date(QString::number(QDateTime::currentDateTime().toTime_t()) + " +0200");
-	QString data("commit " + ZERO_SHA + ' ' + parent + "\ntree ");
-	data.append(ZERO_SHA);
-	data.append("\nparent " + parent);
-	data.append("\nauthor Working Dir " + date);
-	data.append("\ncommitter Working Dir " + date);
+	QString data("commit " + sha + ' ' + parents.join(" ") + "\ntree ");
+	data.append(sha);
+	data.append("\nparent " + parents.join("\nparent "));
+	data.append("\nauthor " + author + " " + date);
+	data.append("\ncommitter " + author + " " + date);
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
-
-	if (!isMainHistory(fh))
-		data.append(getWorkDirDiff(fh->fileName()));
+	data.append(patch);
 
 	QByteArray* ba = new QByteArray(data.toAscii());
 	ba->append('\0');
+
 	fh->rowData.append(ba);
 	int dummy;
 	Rev* c = new Rev(*ba, 0, idx, &dummy, !isMainHistory(fh));
+	return c;
+}
+
+const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh) {
+
+	QString patch;
+	if (!isMainHistory(fh))
+		patch = getWorkDirDiff(fh->fileName());
+
+	QString date(QString::number(QDateTime::currentDateTime().toTime_t()) + " +0200");
+	QString author("Working Dir");
+	QStringList parents(parent);
+	Rev* c = fakeRevData(ZERO_SHA, parents, author, date, log, longLog, patch, idx, fh);
 	c->isDiffCache = true;
 	c->lanes.append(EMPTY);
 	return c;
@@ -452,9 +464,9 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 	connect(dl, SIGNAL(newDataReady(const FileHistory*)),
 	        this, SLOT(on_newDataReady(const FileHistory*)));
 
-	connect(dl, SIGNAL(loaded(const FileHistory*, ulong, int,
+	connect(dl, SIGNAL(loaded(FileHistory*, ulong, int,
 	        bool, const QString&, const QString&)), this,
-	        SLOT(on_loaded(const FileHistory*, ulong, int,
+	        SLOT(on_loaded(FileHistory*, ulong, int,
 	        bool, const QString&, const QString&)));
 
 	return dl->start(initCmd, workDir, buf);
@@ -663,7 +675,7 @@ void Git::on_newDataReady(const FileHistory* fh) {
 	emit newRevsAdded(fh , fh->revOrder);
 }
 
-void Git::on_loaded(const FileHistory* fh, ulong byteSize, int loadTime,
+void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
                     bool normalExit, SCRef cmd, SCRef errorDesc) {
 
 	if (!errorDesc.isEmpty()) {
@@ -683,7 +695,8 @@ void Git::on_loaded(const FileHistory* fh, ulong byteSize, int loadTime,
 			            "time elapsed: %i ms  (%.2f MB/s)",
 			            fh->revs.count(), kb, loadTime, mbs);
 
-			emit loadCompleted(fh, tmp);
+			if (!tryFollowRenames(fh))
+				emit loadCompleted(fh, tmp);
 
 			if (isMainHistory(fh))
 				// check for revisions modified files out of fast path
@@ -697,6 +710,38 @@ void Git::on_loaded(const FileHistory* fh, ulong byteSize, int loadTime,
 		revData->lns->clear(); // again to reset lanes
 		init2(); // continue with loading of remaining revisions
 	}
+}
+
+bool Git::tryFollowRenames(FileHistory* fh) {
+
+	if (isMainHistory(fh) || fh->revOrder.isEmpty())
+		return false;
+
+	SCRef lastSha = fh->revOrder.last();
+	QString runOutput;
+	if (!run("git diff-tree -M " + lastSha, &runOutput))
+		return false;
+
+	// TODO find renames from current to new file name also
+	SCRef line = runOutput.section('\t' + fh->_fileName + '\n', 0, 0).section('\n', -1, -1);
+	SCRef status = line.section('\t', -2, -2).section(' ', -1, -1);
+	if (!status.startsWith('R'))
+		return false;
+
+	// get the diff betwen two files
+	SCRef prevFileSha = line.section(' ', 2, 2);
+	SCRef lastFileSha = line.section(' ', 3, 3);
+	if (!run("git diff -r --full-index " + prevFileSha + " " + lastFileSha, &runOutput))
+		return false;
+
+	// save the patch, will be used later to create a
+	// proper graft sha with correct parent info
+	fh->lastShaPatch = runOutput;
+
+	SCRef prevFile = line.section('\t', -1, -1);
+	QStringList args;
+	args << lastSha << "--" << prevFile;
+	return startRevList(args, fh);
 }
 
 void Git::populateFileNamesMap() {
@@ -797,6 +842,19 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 	if (r.isEmpty() && !isMainHistory(fh)) {
 		bool added = copyDiffIndex(fh, sha);
 		rev->orderIdx = added ? 1 : 0;
+	}
+	if (!fh->lastShaPatch.isEmpty()) {
+
+		// this is the new rev with renamed file, the rev is correct but
+		// the patch, create a new rev with proper patch and use that instead
+		QString date(rev->authorDate() + " +0200");
+		Rev* c = fakeRevData(rev->sha(), rev->parents(), rev->author(),
+		                     date, rev->shortLog(), rev->longLog(),
+		                     fh->lastShaPatch, rev->orderIdx - 1, fh);
+
+		r.insert(rev->sha(), c); // overwrite old content
+		fh->lastShaPatch.clear();
+		return nextStart;
 	}
 	if (!isMainHistory(fh) && rev->parentsCount() > 1 && r.contains(sha)) {
 	/* In this case git log is called with -m option and merges are splitted

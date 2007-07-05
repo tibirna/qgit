@@ -45,6 +45,7 @@ public:
 
 private slots:
 	void on_newRevsAdded(const FileHistory*, const QVector<QString>&);
+	void on_loadCompleted(const FileHistory*, const QString&);
 
 private:
 	friend class Annotate;
@@ -64,6 +65,7 @@ private:
 	bool _annIdValid;
 	unsigned long _secs;
 	QString _fileName;
+	QString lastShaPatch;
 };
 
 class Git : public QObject {
@@ -193,7 +195,7 @@ private slots:
 	void on_runAsScript_eof();
 	void on_getHighlightedFile_eof();
 	void on_newDataReady(const FileHistory*);
-	void on_loaded(const FileHistory*, ulong,int,bool,const QString&,const QString&);
+	void on_loaded(FileHistory*, ulong,int,bool,const QString&,const QString&);
 
 private:
 	friend class MainImpl;
@@ -243,10 +245,13 @@ private:
 	bool startRevList(SCList args, FileHistory* fh);
 	bool startUnappliedList();
 	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
+	bool tryFollowRenames(FileHistory* fh);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);
 	void getDiffIndex();
+	Rev* fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log,
+                         SCRef longLog, SCRef patch, int idx, FileHistory* fh);
 	const Rev* fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, FileHistory* fh);
 	const RevFile* fakeWorkDirRevFile(const WorkingDirInfo& wd);
 	bool copyDiffIndex(FileHistory* fh, SCRef parent);

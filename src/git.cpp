@@ -33,6 +33,9 @@ FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
 
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
 	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+
+	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
+	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 }
 
 FileHistory::~FileHistory() {
@@ -86,13 +89,27 @@ void FileHistory::clear() {
 	reset();
 }
 
-void FileHistory::on_newRevsAdded(const FileHistory* f, const QVector<QString>& shaVec) {
+void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<QString>& shaVec) {
 
-	if (f != this) // signal newRevsAdded() is broadcast
+	if (fh != this || _rowCnt >= shaVec.count()) // signal newRevsAdded() is broadcast
 		return;
 
-	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count());
-	_rowCnt = shaVec.count();
+	// do not process last arrived rev until load is completed, last
+	// rev could be overwritten in case of renames and we don't
+	// want to have stale lane information.
+	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count() - 1);
+	_rowCnt = shaVec.count() - 1;
+	endInsertRows();
+}
+
+void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
+
+	if (fh != this || _rowCnt >= revOrder.count())
+		return;
+
+	// now we can process last revision
+	beginInsertRows(QModelIndex(), _rowCnt, revOrder.count());
+	_rowCnt = revOrder.count();
 	endInsertRows();
 }
 
