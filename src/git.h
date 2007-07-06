@@ -65,7 +65,9 @@ private:
 	bool _annIdValid;
 	unsigned long _secs;
 	QString _fileName;
-	QString lastShaPatch;
+	QStringList renamedRevs;
+	QStringList renamedFileNames;
+	QHash<QString, QString> renamedPatches;
 };
 
 class Git : public QObject {
@@ -246,6 +248,7 @@ private:
 	bool startUnappliedList();
 	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
 	bool tryFollowRenames(FileHistory* fh);
+	bool populateRenamedPatches(SCRef renamedSha, SCRef newFile, FileHistory* fh);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);

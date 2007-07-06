@@ -91,14 +91,16 @@ void FileHistory::clear() {
 
 void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<QString>& shaVec) {
 
-	if (fh != this || _rowCnt >= shaVec.count()) // signal newRevsAdded() is broadcast
+	if (fh != this) // signal newRevsAdded() is broadcast
 		return;
 
-	// do not process last arrived rev until load is completed, last
-	// rev could be overwritten in case of renames and we don't
-	// want to have stale lane information.
-	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count() - 1);
-	_rowCnt = shaVec.count() - 1;
+	// do not process revisions if there are possible renamed points
+	// or pending renamed patch to apply
+	if (!renamedRevs.isEmpty() || !renamedPatches.isEmpty())
+		return;
+
+	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count());
+	_rowCnt = shaVec.count();
 	endInsertRows();
 }
 

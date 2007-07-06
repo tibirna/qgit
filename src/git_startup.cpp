@@ -714,16 +714,32 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
 
 bool Git::tryFollowRenames(FileHistory* fh) {
 
-	if (isMainHistory(fh) || fh->revOrder.isEmpty())
+	if (isMainHistory(fh))
 		return false;
 
-	SCRef lastSha = fh->revOrder.last();
+	QMutableStringListIterator it(fh->renamedRevs);
+	while (it.hasNext())
+		if (!populateRenamedPatches(it.next(), fh->_fileName, fh))
+			it.remove();
+
+	if (fh->renamedRevs.isEmpty())
+		return false;
+
+	QStringList args;
+	args << fh->renamedRevs << "--" << fh->renamedFileNames;
+	fh->renamedRevs.clear();
+	fh->renamedFileNames.clear();
+	return startRevList(args, fh);
+}
+
+bool Git::populateRenamedPatches(SCRef renamedSha, SCRef newFileName, FileHistory* fh) {
+
 	QString runOutput;
-	if (!run("git diff-tree -M " + lastSha, &runOutput))
+	if (!run("git diff-tree -M " + renamedSha, &runOutput))
 		return false;
 
 	// TODO find renames from current to new file name also
-	QString line = runOutput.section('\t' + fh->_fileName + '\n', 0, 0);
+	QString line = runOutput.section('\t' + newFileName + '\n', 0, 0);
 	if (line.contains('\n'))
 		line = line.section('\n', -1, -1);
 
@@ -739,14 +755,18 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	else if (!run("git diff -r --full-index " + prevFileSha + " " + lastFileSha, &runOutput))
 		return false;
 
+	SCRef prevFile = line.section('\t', -1, -1);
+	if (!fh->renamedFileNames.contains(prevFile))
+		fh->renamedFileNames.append(prevFile);
+
 	// save the patch, will be used later to create a
 	// proper graft sha with correct parent info
-	fh->lastShaPatch = !runOutput.isEmpty() ? runOutput : "similarity index 100%";
+	if (!runOutput.isEmpty())
+		fh->renamedPatches.insert(renamedSha, runOutput);
+	else
+		fh->renamedPatches.insert(renamedSha, "similarity index 100%");
 
-	SCRef prevFile = line.section('\t', -1, -1);
-	QStringList args;
-	args << lastSha << "--" << prevFile;
-	return startRevList(args, fh);
+	return true;
 }
 
 void Git::populateFileNamesMap() {
@@ -848,17 +868,20 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		bool added = copyDiffIndex(fh, sha);
 		rev->orderIdx = added ? 1 : 0;
 	}
-	if (!fh->lastShaPatch.isEmpty()) {
+	if (   !isMainHistory(fh)
+	    && !fh->renamedPatches.isEmpty()
+	    &&  fh->renamedPatches.contains(sha)) {
 
 		// this is the new rev with renamed file, the rev is correct but
 		// the patch, create a new rev with proper patch and use that instead
+		const Rev* prevSha = revLookup(sha, fh);
 		QString date(rev->authorDate() + " +0200");
 		Rev* c = fakeRevData(rev->sha(), rev->parents(), rev->author(),
 		                     date, rev->shortLog(), rev->longLog(),
-		                     fh->lastShaPatch, rev->orderIdx - 1, fh);
+		                     fh->renamedPatches[sha], prevSha->orderIdx, fh);
 
 		r.insert(rev->sha(), c); // overwrite old content
-		fh->lastShaPatch.clear();
+		fh->renamedPatches.remove(sha);
 		return nextStart;
 	}
 	if (!isMainHistory(fh) && rev->parentsCount() > 1 && r.contains(sha)) {
@@ -877,6 +900,8 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 	} else {
 		r.insert(sha, rev);
 		fh->revOrder.append(sha);
+		if (rev->parentsCount() == 0 && !isMainHistory(fh))
+			fh->renamedRevs.append(sha);
 	}
 	if (isStGIT) {
 		// updateLanes() is called too late, after loadingUnAppliedPatches
