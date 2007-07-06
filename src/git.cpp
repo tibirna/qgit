@@ -44,6 +44,13 @@ FileHistory::~FileHistory() {
 	delete lns;
 }
 
+void FileHistory::setFileName(SCRef fn) {
+
+	_fileName = fn;
+	renamedFileNames.clear();
+	renamedFileNames.append(_fileName);
+}
+
 int FileHistory::rowCount(const QModelIndex& parent) const {
 
 	return (!parent.isValid() ? _rowCnt : 0);

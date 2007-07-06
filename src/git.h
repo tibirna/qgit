@@ -31,7 +31,7 @@ public:
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
 	const QString fileName() const { return _fileName; }
-	void setFileName(SCRef fn) { _fileName = fn; }
+	void setFileName(SCRef fn);
 	void setAnnIdValid(bool b = true) { _annIdValid = b; }
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
@@ -248,7 +248,7 @@ private:
 	bool startUnappliedList();
 	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
 	bool tryFollowRenames(FileHistory* fh);
-	bool populateRenamedPatches(SCRef renamedSha, SCRef newFile, FileHistory* fh);
+	bool populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);

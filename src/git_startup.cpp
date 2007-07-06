@@ -717,9 +717,12 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	if (isMainHistory(fh))
 		return false;
 
+	QStringList oldRenamedFiles(fh->renamedFileNames);
+	fh->renamedFileNames.clear(); // will be updated by populateRenamedPatches()
+
 	QMutableStringListIterator it(fh->renamedRevs);
 	while (it.hasNext())
-		if (!populateRenamedPatches(it.next(), fh->_fileName, fh))
+		if (!populateRenamedPatches(it.next(), oldRenamedFiles, fh))
 			it.remove();
 
 	if (fh->renamedRevs.isEmpty())
@@ -728,18 +731,23 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	QStringList args;
 	args << fh->renamedRevs << "--" << fh->renamedFileNames;
 	fh->renamedRevs.clear();
-	fh->renamedFileNames.clear();
 	return startRevList(args, fh);
 }
 
-bool Git::populateRenamedPatches(SCRef renamedSha, SCRef newFileName, FileHistory* fh) {
+bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh) {
 
 	QString runOutput;
 	if (!run("git diff-tree -M " + renamedSha, &runOutput))
 		return false;
 
-	// TODO find renames from current to new file name also
-	QString line = runOutput.section('\t' + newFileName + '\n', 0, 0);
+	// find the first renamed file with the new file
+	// name in renamedFiles list
+	QString line;
+	FOREACH_SL (it, renamedFiles) {
+		line = runOutput.section('\t' + *it + '\n', 0, 0);
+		if (!line.isEmpty())
+			break;
+	}
 	if (line.contains('\n'))
 		line = line.section('\n', -1, -1);
 
