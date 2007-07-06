@@ -737,7 +737,7 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh) {
 
 	QString runOutput;
-	if (!run("git diff-tree -M " + renamedSha, &runOutput))
+	if (!run("git diff-tree -r -M " + renamedSha, &runOutput))
 		return false;
 
 	// find the first renamed file with the new file
