@@ -723,7 +723,10 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 		return false;
 
 	// TODO find renames from current to new file name also
-	SCRef line = runOutput.section('\t' + fh->_fileName + '\n', 0, 0).section('\n', -1, -1);
+	QString line = runOutput.section('\t' + fh->_fileName + '\n', 0, 0);
+	if (line.contains('\n'))
+		line = line.section('\n', -1, -1);
+
 	SCRef status = line.section('\t', -2, -2).section(' ', -1, -1);
 	if (!status.startsWith('R'))
 		return false;
@@ -731,12 +734,14 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	// get the diff betwen two files
 	SCRef prevFileSha = line.section(' ', 2, 2);
 	SCRef lastFileSha = line.section(' ', 3, 3);
-	if (!run("git diff -r --full-index " + prevFileSha + " " + lastFileSha, &runOutput))
+	if (prevFileSha == lastFileSha) // just renamed
+		runOutput.clear();
+	else if (!run("git diff -r --full-index " + prevFileSha + " " + lastFileSha, &runOutput))
 		return false;
 
 	// save the patch, will be used later to create a
 	// proper graft sha with correct parent info
-	fh->lastShaPatch = runOutput;
+	fh->lastShaPatch = !runOutput.isEmpty() ? runOutput : "similarity index 100%";
 
 	SCRef prevFile = line.section('\t', -1, -1);
 	QStringList args;

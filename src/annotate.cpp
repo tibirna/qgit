@@ -337,9 +337,11 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 	QString diff(r->diff());
 
 	if (ah[sha].fileSha.isEmpty() && !parentNum) {
-		int idx = diff.indexOf(".."); // FIXME file mode change only
+		int idx = diff.indexOf("..");
 		if (idx != -1)
 			ah[sha].fileSha = diff.mid(idx + 2, 40);
+		else // file mode change only, same sha of parent
+			ah[sha].fileSha = ah[r->parent(0)].fileSha;
 	}
 	return diff;
 }
