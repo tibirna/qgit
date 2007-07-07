@@ -198,7 +198,8 @@ void PatchContent::centerMatch(int id) {
 void PatchContent::procReadyRead(const QByteArray& data) {
 
 	patchRowData.append(data);
-	processData(data);
+	if (document()->isEmpty() && isVisible())
+		processData(data);
 }
 
 void PatchContent::typeWriterFontChanged() {
@@ -294,7 +295,9 @@ skip_filter:
 void PatchContent::procFinished() {
 
 	if (!patchRowData.endsWith("\n"))
-		processData("\n"); // flush pending half lines
+		patchRowData.append('\n'); // flush pending half lines
+
+	refresh(); // show patchRowData content
 
 	if (seekTarget)
 		seekTarget = !centerTarget(target);
