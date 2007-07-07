@@ -281,9 +281,10 @@ skip_filter:
 		setPlainText(newLines);
 		moveCursor(QTextCursor::Start);
 	} else {
-		QTextCursor tc(cursorForPosition(QPoint(1, 1)));
+		int topLine = cursorForPosition(QPoint(1, 1)).blockNumber();
 		append(newLines);
-		setTextCursor(tc);
+		if (topLine > 0)
+			scrollLineToTop(topLine);
 	}
 	QScrollBar* vsb = verticalScrollBar();
 	vsb->setValue(vsb->value() + cursorRect().top());
