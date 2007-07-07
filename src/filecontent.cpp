@@ -510,6 +510,8 @@ void FileContent::procFinished(bool emitSignal) {
 	isFileAvail = true;
 	if (ss.isValid)
 		restoreScreenState(); // could be slow for big files
+	else
+		moveCursor(QTextCursor::Start);
 
 	if (emitSignal)
 		emit fileAvailable(true);
@@ -550,10 +552,14 @@ void FileContent::setAnnList() {
 
 	QStringList sl;
 	QVector<int> curIdLines;
-	for (int i = 0; i < linesNum; i++) {
+	for (int i = 0; i <= linesNum; i++) { // QTextEdit adds a blank line after content
 
-		if (isAnnotationAppended && it != endIt) {
-			tmp = (*it).leftJustified(annoMaxLen);
+		if (isAnnotationAppended) {
+			if (it != endIt)
+				tmp = (*it).leftJustified(annoMaxLen);
+			else
+				tmp = QString().leftJustified(annoMaxLen);
+
 			if (tmp.section('.',0 ,0).toInt() == curId)
 				curIdLines.append(i);
 			++it;
@@ -598,7 +604,7 @@ void FileContent::adjustAnnListSize(int width) {
 
 void FileContent::resizeEvent(QResizeEvent* e) {
 
+	QTextEdit::resizeEvent(e);
 	int width = listWidgetAnn->geometry().width();
 	adjustAnnListSize(width); // update list height
-	QWidget::resizeEvent(e);
 }
