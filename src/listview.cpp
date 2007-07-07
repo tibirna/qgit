@@ -174,7 +174,7 @@ const QString ListView::shaFromAnnId(uint id) {
 int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, ShaSet* set) {
 
 	setUpdatesEnabled(false);
-	int matchedNum = lp->setFilter(isOn, highlight, filter, colNum, *set);
+	int matchedNum = lp->setFilter(isOn, highlight, filter, colNum, set);
 	viewport()->update();
 	setUpdatesEnabled(true);
 	UPDATE_DOMAIN(d);
@@ -780,9 +780,12 @@ bool ListViewProxy::filterAcceptsRow(int source_row, const QModelIndex&) const {
 	return (isHighLight || isMatch(source_row));
 }
 
-int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, const ShaSet& s) {
+int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 
-	filter = fl; colNum = cn; shaSet = s;
+	filter = fl;
+	colNum = cn;
+	if (s)
+		shaSet = *s;
 
 	// isHighlighted() is called also when filter is off,
 	// so reset 'isHighLight' flag in that case

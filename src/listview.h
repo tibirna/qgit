@@ -110,7 +110,7 @@ class ListViewProxy : public QSortFilterProxyModel {
 Q_OBJECT
 public:
 	ListViewProxy(QObject* parent, Domain* d, Git* g);
-	int setFilter(bool isOn, bool highlight, SCRef filter, int colNum, const ShaSet& ss);
+	int setFilter(bool isOn, bool highlight, SCRef filter, int colNum, ShaSet* s);
 	bool isHighlighted(int row) const;
 
 protected:
