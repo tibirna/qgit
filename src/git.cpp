@@ -1263,16 +1263,15 @@ bool Git::startFileHistory(SCRef sha, FileHistory* fh) {
 	if (args.isEmpty())
 		args << "HEAD";
 
-	QString newFileName = getCurrentFileName(args, fh->fileName());
+	QString newFileName = getNewestFileName(args, fh->fileName());
 	fh->setFileName(newFileName);
 	args << "--" << newFileName;
 	return startRevList(args, fh);
 }
 
-const QString Git::getCurrentFileName(SCList branches, SCRef fileName) {
+const QString Git::getNewestFileName(SCList branches, SCRef fileName) {
 
 	QString curFileName(fileName), runOutput, args;
-	FileHistory* fh = new FileHistory(NULL, this);
 	while (true) {
 		args = branches.join(" ") + " -- " + curFileName;
 		if (!run("git ls-tree " + args, &runOutput))
@@ -1288,13 +1287,11 @@ const QString Git::getCurrentFileName(SCList branches, SCRef fileName) {
 
 		SCRef sha = runOutput.trimmed();
 		QStringList newCur;
-		if (!populateRenamedPatches(sha, QStringList(curFileName), fh, &newCur, true))
+		if (!populateRenamedPatches(sha, QStringList(curFileName), NULL, &newCur, true))
 			break;
 
 		curFileName = newCur.first();
-		fh->fileNames.append(curFileName);
 	}
-	delete fh;
 	return curFileName;
 }
 

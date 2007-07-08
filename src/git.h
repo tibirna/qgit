@@ -273,7 +273,7 @@ private:
 	bool mkPatchFromIndex(SCRef msg, SCRef patchFile);
 	const QStringList getOthersFiles();
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
-	const QString getCurrentFileName(SCList args, SCRef fileName);
+	const QString getNewestFileName(SCList args, SCRef fileName);
 	static const QString colorMatch(SCRef txt, QRegExp& regExp);
 	void appendFileName(RevFile& rf, SCRef name);
 	void populateFileNamesMap();

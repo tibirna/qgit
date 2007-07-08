@@ -194,7 +194,8 @@ FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 void Annotate::setInitialAnnotation(SCRef fileSha, FileAnnotation* fa) {
 
 	QByteArray fileData;
-	git->getFile(fileSha, NULL, &fileData, fh->fileName()); // calls Qt event loop
+	// fh->fileNames are in cronological order, so we need the last one
+	git->getFile(fileSha, NULL, &fileData, fh->fileNames.last()); // calls Qt event loop
 	if (cancelingAnnotate)
 		return;
 
@@ -606,10 +607,13 @@ const QString Annotate::getAncestor(SCRef sha, int* shaIdx) {
 		annotateActivity = true;
 		EM_REGISTER(exAnnCanceled);
 
-		fileSha = git->getFileSha(fh->fileName(), sha); // calls qApp->processEvents()
+		FOREACH_SL (it, fh->fileNames) {
+			fileSha = git->getFileSha(*it, sha); // calls qApp->processEvents()
+			if (!fileSha.isEmpty())
+				break;
+		}
 		if (fileSha.isEmpty()) {
 			dbp("ASSERT in getAncestor: empty file from %1", sha);
-			dbg(fh->fileName());
 			return "";
 		}
 		EM_REMOVE(exAnnCanceled);
