@@ -1259,8 +1259,39 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 bool Git::startFileHistory(SCRef sha, FileHistory* fh) {
 
 	QStringList args(getDescendantBranches(sha, true));
-	args << "--" << fh->fileName();
+	if (args.isEmpty())
+		args << "HEAD";
+
+	QString newFileName = getCurrentFileName(args, fh->fileName());
+	fh->setFileName(newFileName);
+	args << "--" << newFileName;
 	return startRevList(args, fh);
+}
+
+const QString Git::getCurrentFileName(SCList branches, SCRef fileName) {
+
+	QString curFileName(fileName), runOutput, args;
+	FileHistory* fh = new FileHistory(NULL, this);
+	while (true) {
+		args = branches.join(" ") + " -- " + curFileName;
+		if (!run("git ls-tree " + args, &runOutput))
+			break;
+
+		if (!runOutput.isEmpty())
+			break;
+
+// 		dbp("RENAMED FILE %1", curFileName);
+		if (!run("git rev-list -n1 " + args, &runOutput))
+			break;
+
+		SCRef sha = runOutput.trimmed();
+		if (!populateRenamedPatches(sha, QStringList(curFileName), fh, true))
+			break;
+
+		curFileName = fh->renamedFileNames.last();
+	}
+	delete fh;
+	return curFileName;
 }
 
 void Git::getFileFilter(SCRef path, ShaSet& shaSet) {

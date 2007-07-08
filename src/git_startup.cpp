@@ -722,7 +722,7 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 
 	QMutableStringListIterator it(fh->renamedRevs);
 	while (it.hasNext())
-		if (!populateRenamedPatches(it.next(), oldRenamedFiles, fh))
+		if (!populateRenamedPatches(it.next(), oldRenamedFiles, fh, false))
 			it.remove();
 
 	if (fh->renamedRevs.isEmpty())
@@ -734,17 +734,22 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	return startRevList(args, fh);
 }
 
-bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh) {
+bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh, bool backTrack) {
 
 	QString runOutput;
 	if (!run("git diff-tree -r -M " + renamedSha, &runOutput))
 		return false;
 
-	// find the first renamed file with the new file
-	// name in renamedFiles list
+	// find the first renamed file with the new file name in renamedFiles list
 	QString line;
 	FOREACH_SL (it, renamedFiles) {
-		line = runOutput.section('\t' + *it + '\n', 0, 0);
+		if (backTrack) {
+			line = runOutput.section('\t' + *it + '\t', 0, 0,
+			                         QString::SectionIncludeTrailingSep);
+			line.chop(1);
+		} else
+			line = runOutput.section('\t' + *it + '\n', 0, 0);
+
 		if (!line.isEmpty())
 			break;
 	}
@@ -755,6 +760,11 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHist
 	if (!status.startsWith('R'))
 		return false;
 
+	if (backTrack) {
+		SCRef nextFile = runOutput.section(line, 1, 1).section('\t', 1, 1);
+		fh->renamedFileNames.append(nextFile.section('\n', 0, 0));
+		return true;
+	}
 	// get the diff betwen two files
 	SCRef prevFileSha = line.section(' ', 2, 2);
 	SCRef lastFileSha = line.section(' ', 3, 3);

@@ -248,7 +248,7 @@ private:
 	bool startUnappliedList();
 	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
 	bool tryFollowRenames(FileHistory* fh);
-	bool populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh);
+	bool populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh, bool backTrack);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);
@@ -273,6 +273,7 @@ private:
 	bool mkPatchFromIndex(SCRef msg, SCRef patchFile);
 	const QStringList getOthersFiles();
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
+	const QString getCurrentFileName(SCList args, SCRef fileName);
 	static const QString colorMatch(SCRef txt, QRegExp& regExp);
 	void appendFileName(RevFile& rf, SCRef name);
 	void populateFileNamesMap();

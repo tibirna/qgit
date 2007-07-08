@@ -460,10 +460,11 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		d->showStatusBarMessage("Sorry, annotation not available for this file.");
 		return;
 	}
-	if (st->fileName() != fileName) {
-		dbp("ASSERT arrived annotation of wrong file <%1>", fileName);
-		return;
-	}
+// FIXME file could have been renamed!
+// 	if (st->fileName() != fileName) {
+// 		dbp("ASSERT arrived annotation of wrong file <%1>", fileName);
+// 		return;
+// 	}
 	QString fileNum = msg.section(' ', 0, 0);
 	QString annTime = msg.section(' ', 1, 1);
 	QString stats("File '%1': revisions %2, history loaded in %3 ms, files annotated in %4 ms");

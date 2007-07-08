@@ -26,9 +26,9 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 	        git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)));
 }
 
-const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) {
+const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) { // FIXME remove file name
 
-	if (!valid || fileName != fn)
+	if (!valid)
 		return NULL;
 
 	AnnotateHistory::const_iterator it = ah.find(sha);
