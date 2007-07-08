@@ -30,8 +30,8 @@ public:
 	void clear();
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
-	const QString fileName() const { return fileNames.isEmpty() ? "" : fileNames.first(); }
-	void setFileName(SCRef fn);
+	const QStringList fileNames() const { return fNames; }
+	void resetFileNames(SCRef fn);
 	void setAnnIdValid(bool b = true) { _annIdValid = b; }
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
@@ -64,8 +64,8 @@ private:
 	int _rowCnt;
 	bool _annIdValid;
 	unsigned long _secs;
-	QStringList fileNames;
-	QStringList curFileNames;
+	QStringList fNames;
+	QStringList curFNames;
 	QStringList renamedRevs;
 	QHash<QString, QString> renamedPatches;
 };
@@ -118,7 +118,7 @@ public:
 	Annotate* startAnnotate(FileHistory* fh, QObject* guiObj);
 	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
-	bool startFileHistory(SCRef sha, FileHistory* fh);
+	bool startFileHistory(SCRef sha, SCRef startingFileName, FileHistory* fh);
 	void cancelDataLoading(const FileHistory* fh);
 	void cancelProcess(MyProcess* p);
 	bool isCommittingMerge() const { return isMergeHead; }

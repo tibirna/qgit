@@ -284,7 +284,7 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 
 	QString patch;
 	if (!isMainHistory(fh))
-		patch = getWorkDirDiff(fh->fileName());
+		patch = getWorkDirDiff(fh->fileNames().first());
 
 	QString date(QString::number(QDateTime::currentDateTime().toTime_t()) + " +0200");
 	QString author("Working Dir");
@@ -720,7 +720,7 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	QStringList oldNames;
 	QMutableStringListIterator it(fh->renamedRevs);
 	while (it.hasNext())
-		if (!populateRenamedPatches(it.next(), fh->curFileNames, fh, &oldNames, false))
+		if (!populateRenamedPatches(it.next(), fh->curFNames, fh, &oldNames, false))
 			it.remove();
 
 	if (fh->renamedRevs.isEmpty())
@@ -728,8 +728,8 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 
 	QStringList args;
 	args << fh->renamedRevs << "--" << oldNames;
-	fh->fileNames << oldNames;
-	fh->curFileNames = oldNames;
+	fh->fNames << oldNames;
+	fh->curFNames = oldNames;
 	fh->renamedRevs.clear();
 	return startRevList(args, fh);
 }
@@ -960,7 +960,7 @@ bool Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
 		return false;
 
 	const RevFile* files = getFiles(ZERO_SHA);
-	if (!files || findFileIndex(*files, fh->fileName()) == -1)
+	if (!files || findFileIndex(*files, fh->fileNames().first()) == -1)
 		return false;
 
 	// insert a custom ZERO_SHA rev with proper parent

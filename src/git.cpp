@@ -44,11 +44,11 @@ FileHistory::~FileHistory() {
 	delete lns;
 }
 
-void FileHistory::setFileName(SCRef fn) {
+void FileHistory::resetFileNames(SCRef fn) {
 
-	fileNames.clear();
-	fileNames.append(fn);
-	curFileNames = fileNames;
+	fNames.clear();
+	fNames.append(fn);
+	curFNames = fNames;
 }
 
 int FileHistory::rowCount(const QModelIndex& parent) const {
@@ -80,8 +80,8 @@ void FileHistory::clear() {
 	revOrder.clear();
 	firstFreeLane = 0;
 	lns->clear();
-	fileNames.clear();
-	curFileNames.clear();
+	fNames.clear();
+	curFNames.clear();
 	qDeleteAll(rowData);
 	rowData.clear();
 
@@ -1257,15 +1257,15 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	return insertNewFiles(sha, runOutput);
 }
 
-bool Git::startFileHistory(SCRef sha, FileHistory* fh) {
+bool Git::startFileHistory(SCRef sha, SCRef startingFileName, FileHistory* fh) {
 
 	QStringList args(getDescendantBranches(sha, true));
 	if (args.isEmpty())
 		args << "HEAD";
 
-	QString newFileName = getNewestFileName(args, fh->fileName());
-	fh->setFileName(newFileName);
-	args << "--" << newFileName;
+	QString newestFileName = getNewestFileName(args, startingFileName);
+	fh->resetFileNames(newestFileName);
+	args << "--" << newestFileName;
 	return startRevList(args, fh);
 }
 
