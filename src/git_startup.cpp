@@ -717,24 +717,25 @@ bool Git::tryFollowRenames(FileHistory* fh) {
 	if (isMainHistory(fh))
 		return false;
 
-	QStringList oldRenamedFiles(fh->renamedFileNames);
-	fh->renamedFileNames.clear(); // will be updated by populateRenamedPatches()
-
+	QStringList oldNames;
 	QMutableStringListIterator it(fh->renamedRevs);
 	while (it.hasNext())
-		if (!populateRenamedPatches(it.next(), oldRenamedFiles, fh, false))
+		if (!populateRenamedPatches(it.next(), fh->curFileNames, fh, &oldNames, false))
 			it.remove();
 
 	if (fh->renamedRevs.isEmpty())
 		return false;
 
 	QStringList args;
-	args << fh->renamedRevs << "--" << fh->renamedFileNames;
+	args << fh->renamedRevs << "--" << oldNames;
+	fh->fileNames << oldNames;
+	fh->curFileNames = oldNames;
 	fh->renamedRevs.clear();
 	return startRevList(args, fh);
 }
 
-bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh, bool backTrack) {
+bool Git::populateRenamedPatches(SCRef renamedSha, SCList newNames, FileHistory* fh,
+                                 QStringList* oldNames, bool backTrack) {
 
 	QString runOutput;
 	if (!run("git diff-tree -r -M " + renamedSha, &runOutput))
@@ -742,7 +743,7 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHist
 
 	// find the first renamed file with the new file name in renamedFiles list
 	QString line;
-	FOREACH_SL (it, renamedFiles) {
+	FOREACH_SL (it, newNames) {
 		if (backTrack) {
 			line = runOutput.section('\t' + *it + '\t', 0, 0,
 			                         QString::SectionIncludeTrailingSep);
@@ -762,7 +763,7 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHist
 
 	if (backTrack) {
 		SCRef nextFile = runOutput.section(line, 1, 1).section('\t', 1, 1);
-		fh->renamedFileNames.append(nextFile.section('\n', 0, 0));
+		oldNames->append(nextFile.section('\n', 0, 0));
 		return true;
 	}
 	// get the diff betwen two files
@@ -774,8 +775,8 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHist
 		return false;
 
 	SCRef prevFile = line.section('\t', -1, -1);
-	if (!fh->renamedFileNames.contains(prevFile))
-		fh->renamedFileNames.append(prevFile);
+	if (!oldNames->contains(prevFile))
+		oldNames->append(prevFile);
 
 	// save the patch, will be used later to create a
 	// proper graft sha with correct parent info

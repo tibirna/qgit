@@ -84,8 +84,8 @@ void FileContent::setup(Domain* dm, Git* g, QListWidget* lw) {
 	connect(d->m(), SIGNAL(typeWriterFontChanged()),
 	        this, SLOT(typeWriterFontChanged()));
 
-	connect(git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
-	        this, SLOT(on_annotateReady(Annotate*, const QString&, bool, const QString&)));
+	connect(git, SIGNAL(annotateReady(Annotate*, bool, const QString&)),
+	        this, SLOT(on_annotateReady(Annotate*, bool, const QString&)));
 
 	connect(listWidgetAnn, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 	        this, SLOT(on_list_doubleClicked(QListWidgetItem*)));
@@ -421,7 +421,7 @@ bool FileContent::lookupAnnotation() {
 		d->setThrowOnDelete(true);
 
 		// could call qApp->processEvents()
-		curAnn = git->lookupAnnotation(annotateObj, st->fileName(), st->sha());
+		curAnn = git->lookupAnnotation(annotateObj, st->sha());
 
 		if (!curAnn) {
 			dbp("ASSERT in lookupAnnotation: no annotation for %1", st->fileName());
@@ -448,8 +448,7 @@ bool FileContent::lookupAnnotation() {
 	return (curAnn != NULL);
 }
 
-void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
-                                   bool ok, const QString& msg) {
+void FileContent::on_annotateReady(Annotate* readyAnn, bool ok, const QString& msg) {
 
 	if (readyAnn != annotateObj) // Git::annotateReady() is sent to all receivers
 		return;
@@ -460,15 +459,10 @@ void FileContent::on_annotateReady(Annotate* readyAnn, const QString& fileName,
 		d->showStatusBarMessage("Sorry, annotation not available for this file.");
 		return;
 	}
-// FIXME file could have been renamed!
-// 	if (st->fileName() != fileName) {
-// 		dbp("ASSERT arrived annotation of wrong file <%1>", fileName);
-// 		return;
-// 	}
 	QString fileNum = msg.section(' ', 0, 0);
 	QString annTime = msg.section(' ', 1, 1);
 	QString stats("File '%1': revisions %2, history loaded in %3 ms, files annotated in %4 ms");
-	d->showStatusBarMessage(stats.arg(fileName, fileNum, histTime, annTime), 12000);
+	d->showStatusBarMessage(stats.arg(st->fileName(), fileNum, histTime, annTime), 12000);
 
 	if (lookupAnnotation())
 		emit annotationAvailable(true);

@@ -30,7 +30,7 @@ public:
 	void clear();
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
-	const QString fileName() const { return _fileName; }
+	const QString fileName() const { return fileNames.isEmpty() ? "" : fileNames.first(); }
 	void setFileName(SCRef fn);
 	void setAnnIdValid(bool b = true) { _annIdValid = b; }
 
@@ -64,9 +64,9 @@ private:
 	int _rowCnt;
 	bool _annIdValid;
 	unsigned long _secs;
-	QString _fileName;
+	QStringList fileNames;
+	QStringList curFileNames;
 	QStringList renamedRevs;
-	QStringList renamedFileNames;
 	QHash<QString, QString> renamedPatches;
 };
 
@@ -116,7 +116,7 @@ public:
 	bool isThrowOnStopRaised(int excpId, SCRef curContext);
 	void setLane(SCRef sha, FileHistory* fh);
 	Annotate* startAnnotate(FileHistory* fh, QObject* guiObj);
-	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha);
+	const FileAnnotation* lookupAnnotation(Annotate* ann, SCRef sha);
 	void cancelAnnotate(Annotate* ann);
 	bool startFileHistory(SCRef sha, FileHistory* fh);
 	void cancelDataLoading(const FileHistory* fh);
@@ -186,7 +186,7 @@ signals:
 	void loadCompleted(const FileHistory*, const QString&);
 	void cancelLoading(const FileHistory*);
 	void cancelAllProcesses();
-	void annotateReady(Annotate*, const QString&, bool, const QString&);
+	void annotateReady(Annotate*, bool, const QString&);
 
 public slots:
 	void procReadyRead(const QByteArray&);
@@ -248,7 +248,7 @@ private:
 	bool startUnappliedList();
 	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
 	bool tryFollowRenames(FileHistory* fh);
-	bool populateRenamedPatches(SCRef renamedSha, SCList renamedFiles, FileHistory* fh, bool backTrack);
+	bool populateRenamedPatches(SCRef sha, SCList nn, FileHistory* fh, QStringList* on, bool bt);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);

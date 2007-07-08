@@ -22,11 +22,11 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 	cancelingAnnotate = annotateRunning = annotateActivity = false;
 	valid = canceled = isError = false;
 
-	connect(this, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)),
-	        git, SIGNAL(annotateReady(Annotate*, const QString&, bool, const QString&)));
+	connect(this, SIGNAL(annotateReady(Annotate*, bool, const QString&)),
+	        git, SIGNAL(annotateReady(Annotate*, bool, const QString&)));
 }
 
-const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) { // FIXME remove file name
+const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 
 	if (!valid)
 		return NULL;
@@ -37,7 +37,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha, SCRef fn) { // FIXME
 
 	// ok, we are not lucky. Check for an ancestor before to give up
 	int shaIdx;
-	const QString ancestorSha = getAncestor(sha, fileName, &shaIdx);
+	const QString ancestorSha = getAncestor(sha, &shaIdx);
 	if (!ancestorSha.isEmpty()) {
 		it = ah.find(ancestorSha);
 		if (it != ah.constEnd())
@@ -69,7 +69,6 @@ bool Annotate::start(const FileHistory* _fh) {
 
 	// could change during annotation, so save them
 	fh = _fh;
-	fileName = fh->fileName();
 	histRevOrder = fh->revOrder;
 
 	if (histRevOrder.isEmpty()) {
@@ -98,7 +97,7 @@ void Annotate::slotComputeDiffs() {
 	processingTime.start();
 
 	if (!cancelingAnnotate)
-		annotateFileHistory(fileName); // now could call Qt event loop
+		annotateFileHistory(); // now could call Qt event loop
 
 	valid = !(isError || cancelingAnnotate);
 	canceled = cancelingAnnotate;
@@ -108,22 +107,22 @@ void Annotate::slotComputeDiffs() {
 	else {
 		QString msg("%1 %2");
 		msg = msg.arg(ah.count()).arg(processingTime.elapsed());
-		emit annotateReady(this, fileName, valid, msg);
+		emit annotateReady(this, valid, msg);
 	}
 }
 
-void Annotate::annotateFileHistory(SCRef fileName) {
+void Annotate::annotateFileHistory() {
 
 	// sweep from the oldest to newest so that parent
 	// annotations are calculated before children
 	StrVect::const_iterator it(histRevOrder.constEnd());
 	do {
 		--it;
-		doAnnotate(fileName, *it);
+		doAnnotate(*it);
 	} while (it != histRevOrder.constBegin() && !isError && !cancelingAnnotate);
 }
 
-void Annotate::doAnnotate(SCRef fileName, SCRef sha) {
+void Annotate::doAnnotate(SCRef sha) {
 // all the parents annotations must be valid here
 
 	FileAnnotation* fa = getFileAnnotation(sha);
@@ -138,7 +137,7 @@ void Annotate::doAnnotate(SCRef fileName, SCRef sha) {
 	}
 	const QString diff(getPatch(sha)); // update FileAnnotation::fileSha
 	if (r->parentsCount() == 0) { // initial revision
-		setInitialAnnotation(ah[sha].fileSha, fileName, fa); // calls Qt event loop
+		setInitialAnnotation(ah[sha].fileSha, fa); // calls Qt event loop
 		fa->isValid = true;
 		return;
 	}
@@ -192,10 +191,10 @@ FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 	return &(*it);
 }
 
-void Annotate::setInitialAnnotation(SCRef fileSha, SCRef fileName, FileAnnotation* fa) {
+void Annotate::setInitialAnnotation(SCRef fileSha, FileAnnotation* fa) {
 
 	QByteArray fileData;
-	git->getFile(fileSha, NULL, &fileData, fileName); // calls Qt event loop
+	git->getFile(fileSha, NULL, &fileData, fh->fileName()); // calls Qt event loop
 	if (cancelingAnnotate)
 		return;
 
@@ -599,7 +598,7 @@ void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
 	}
 }
 
-const QString Annotate::getAncestor(SCRef sha, SCRef fileName, int* shaIdx) {
+const QString Annotate::getAncestor(SCRef sha, int* shaIdx) {
 
 	QString fileSha;
 
@@ -607,9 +606,10 @@ const QString Annotate::getAncestor(SCRef sha, SCRef fileName, int* shaIdx) {
 		annotateActivity = true;
 		EM_REGISTER(exAnnCanceled);
 
-		fileSha = git->getFileSha(fileName, sha); // calls qApp->processEvents()
+		fileSha = git->getFileSha(fh->fileName(), sha); // calls qApp->processEvents()
 		if (fileSha.isEmpty()) {
 			dbp("ASSERT in getAncestor: empty file from %1", sha);
+			dbg(fh->fileName());
 			return "";
 		}
 		EM_REMOVE(exAnnCanceled);
@@ -688,7 +688,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 			break;
 
 	if (shaIdx == (int)histRevOrder.count()) { // not in history, find an ancestor
-		ancestor = getAncestor(sha, fileName, &shaIdx);
+		ancestor = getAncestor(sha, &shaIdx);
 		if (ancestor.isEmpty())
 			return "";
 	}

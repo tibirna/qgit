@@ -43,16 +43,16 @@ Q_OBJECT
 public:
 	Annotate(Git* parent, QObject* guiObj);
 	void deleteWhenDone();
-	const FileAnnotation* lookupAnnotation(SCRef sha, SCRef fileName);
+	const FileAnnotation* lookupAnnotation(SCRef sha);
 	bool start(const FileHistory* fh);
 	bool isCanceled() { return canceled; }
-	const QString getAncestor(SCRef sha, SCRef fileName, int* shaIdx);
+	const QString getAncestor(SCRef sha, int* shaIdx);
 	bool getRange(SCRef sha, RangeInfo* r);
 	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);
 	const QString computeRanges(SCRef sha, int rStart, int rEnd, SCRef target = "");
 
 signals:
-	void annotateReady(Annotate*, const QString&, bool, const QString&);
+	void annotateReady(Annotate*, bool, const QString&);
 
 private slots:
 	void on_deleteWhenDone();
@@ -61,10 +61,10 @@ private slots:
 private:
 	typedef QMap<QString, FileAnnotation> AnnotateHistory;
 
-	void annotateFileHistory(SCRef fileName);
-	void doAnnotate(SCRef fileName, SCRef sha);
+	void annotateFileHistory();
+	void doAnnotate(SCRef sha);
 	FileAnnotation* getFileAnnotation(SCRef sha);
-	void setInitialAnnotation(SCRef fileSha, SCRef fileName, FileAnnotation* fa);
+	void setInitialAnnotation(SCRef fileSha, FileAnnotation* fa);
 	const QString setupAuthor(SCRef origAuthor, int annId);
 	void setAnnotation(SCRef diff, SCRef aut, SCLList pAnn, SLList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);
@@ -88,7 +88,6 @@ private:
 	int annNumLen;
 	int annId;
 	int annFilesNum;
-	QString fileName;
 	StrVect histRevOrder; // TODO use reference
 	bool valid;
 	bool canceled;

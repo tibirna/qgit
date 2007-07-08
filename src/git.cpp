@@ -46,9 +46,9 @@ FileHistory::~FileHistory() {
 
 void FileHistory::setFileName(SCRef fn) {
 
-	_fileName = fn;
-	renamedFileNames.clear();
-	renamedFileNames.append(_fileName);
+	fileNames.clear();
+	fileNames.append(fn);
+	curFileNames = fileNames;
 }
 
 int FileHistory::rowCount(const QModelIndex& parent) const {
@@ -80,7 +80,8 @@ void FileHistory::clear() {
 	revOrder.clear();
 	firstFreeLane = 0;
 	lns->clear();
-	_fileName = "";
+	fileNames.clear();
+	curFileNames.clear();
 	qDeleteAll(rowData);
 	rowData.clear();
 
@@ -621,9 +622,9 @@ void Git::cancelAnnotate(Annotate* ann) {
 		ann->deleteWhenDone();
 }
 
-const FileAnnotation* Git::lookupAnnotation(Annotate* ann, SCRef fileName, SCRef sha) {
+const FileAnnotation* Git::lookupAnnotation(Annotate* ann, SCRef sha) {
 
-	return (ann ? ann->lookupAnnotation(sha, fileName) : NULL);
+	return (ann ? ann->lookupAnnotation(sha) : NULL);
 }
 
 void Git::cancelDataLoading(const FileHistory* fh) {
@@ -1280,15 +1281,18 @@ const QString Git::getCurrentFileName(SCList branches, SCRef fileName) {
 		if (!runOutput.isEmpty())
 			break;
 
-// 		dbp("RENAMED FILE %1", curFileName);
+		QString msg("Retrieving file renames, now at '" + curFileName + "'...");
+		QApplication::postEvent(parent(), new MessageEvent(msg));
 		if (!run("git rev-list -n1 " + args, &runOutput))
 			break;
 
 		SCRef sha = runOutput.trimmed();
-		if (!populateRenamedPatches(sha, QStringList(curFileName), fh, true))
+		QStringList newCur;
+		if (!populateRenamedPatches(sha, QStringList(curFileName), fh, &newCur, true))
 			break;
 
-		curFileName = fh->renamedFileNames.last();
+		curFileName = newCur.first();
+		fh->fileNames.append(curFileName);
 	}
 	delete fh;
 	return curFileName;
