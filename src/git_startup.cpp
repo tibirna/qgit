@@ -780,11 +780,10 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList newNames, FileHistory*
 
 	// save the patch, will be used later to create a
 	// proper graft sha with correct parent info
-	if (!runOutput.isEmpty() && fh)
-		fh->renamedPatches.insert(renamedSha, runOutput);
-	else
-		fh->renamedPatches.insert(renamedSha, "similarity index 100%");
-
+	if (fh) {
+		QString tmp(!runOutput.isEmpty() ? runOutput : "similarity index 100%");
+		fh->renamedPatches.insert(renamedSha, tmp);
+	}
 	return true;
 }
 
