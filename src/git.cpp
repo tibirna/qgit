@@ -1315,7 +1315,7 @@ void Git::getFileFilter(SCRef path, ShaSet& shaSet) {
 		// case insensitive, wildcard search
 		const RevFile* rf = revsFiles[*it];
 		for (int i = 0; i < rf->count(); ++i)
-			if (filePath(*rf, i).indexOf(rx) != -1) {
+			if (filePath(*rf, i).contains(rx)) {
 				shaSet.insert(*it);
 				break;
 			}

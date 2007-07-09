@@ -754,7 +754,7 @@ bool ListViewProxy::isMatch(SCRef sha) const {
 		target = sha;
 
 	// wildcard search, case insensitive
-	return target.contains(QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard));
+	return (target.contains(filter));
 }
 
 bool ListViewProxy::isMatch(int source_row) const {
@@ -782,7 +782,7 @@ bool ListViewProxy::filterAcceptsRow(int source_row, const QModelIndex&) const {
 
 int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 
-	filter = fl;
+	filter = QRegExp(fl, Qt::CaseInsensitive, QRegExp::Wildcard);
 	colNum = cn;
 	if (s)
 		shaSet = *s;
