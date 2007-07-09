@@ -59,7 +59,8 @@ private slots:
 	void slotComputeDiffs();
 
 private:
-	typedef QMap<QString, FileAnnotation> AnnotateHistory;
+	typedef QHash<QString, FileAnnotation> AnnotateHistory;
+	typedef QHash<QString, RangeInfo> Ranges;
 
 	void annotateFileHistory();
 	void doAnnotate(SCRef sha);
@@ -92,7 +93,7 @@ private:
 	bool valid;
 	bool canceled;
 	QTime processingTime;
-	QMap<QString, RangeInfo> rangeMap;
+	Ranges ranges;
 };
 
 #endif

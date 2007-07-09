@@ -367,11 +367,11 @@ bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
 
 bool Annotate::getRange(SCRef sha, RangeInfo* r) {
 
-	if (!rangeMap.contains(sha) || !valid || canceled) {
+	if (!ranges.contains(sha) || !valid || canceled) {
 		r->clear();
 		return false;
 	}
-	*r = rangeMap[sha]; // by copy
+	*r = ranges[sha]; // by copy
 	return true;
 }
 
@@ -680,7 +680,7 @@ bool Annotate::isDescendant(SCRef sha, SCRef target) {
 */
 const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, SCRef target) {
 
-	rangeMap.clear();
+	ranges.clear();
 
 	if (!valid || canceled) {
 		dbp("ASSERT in computeRanges: annotation from %1 not valid", sha);
@@ -698,7 +698,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 			return "";
 	}
 	// insert starting one, always included by default, could be removed after
-	rangeMap.insert(ancestor, RangeInfo(rangeStart, rangeEnd, true));
+	ranges.insert(ancestor, RangeInfo(rangeStart, rangeEnd, true));
 
 	// check if target is a descendant, so to skip back history walking
 	bool isDirectDescendant = isDescendant(ancestor, target);
@@ -717,13 +717,13 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 			dbp("ASSERT in rangeFilter 1: diff for %1 not found", curRevSha);
 			return "";
 		}
-		RangeInfo r(rangeMap[curRevSha]);
+		RangeInfo r(ranges[curRevSha]);
 		updateRange(&r, diff, true);
 
 		// special case for modified flag. Mark always the 'after patch' revision
 		// with modified flag, not the before patch. So we have to stick the flag
 		// to the newer revision.
-		rangeMap[curRevSha].modified = r.modified;
+		ranges[curRevSha].modified = r.modified;
 
 		// if the second revision does not modify the range then r.modified == false
 		// and the first revision range is created with modified == false, if the
@@ -739,7 +739,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 
 		curRev = git->revLookup(curRev->parent(0), fh);
 		curRevSha = curRev->sha();
-		rangeMap.insert(curRevSha, r);
+		ranges.insert(curRevSha, r);
 
 		if (curRevSha == target) // stop now, no need to continue
 			return ancestor;
@@ -754,7 +754,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 
 		SCRef sha(histRevOrder[shaIdx]);
 
-		if (!rangeMap.contains(sha)) {
+		if (!ranges.contains(sha)) {
 
 			curRev = git->revLookup(sha, fh);
 
@@ -763,7 +763,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 				// insert an empty range, the whole branch will be ignored.
 				// Merge of outside branches are very rare so this solution
 				// seems enough if we don't want to dive in (useless) complications.
-				rangeMap.insert(sha, RangeInfo());
+				ranges.insert(sha, RangeInfo());
 				continue;
 			}
 			QString diff(getPatch(sha));
@@ -773,7 +773,7 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 			}
 			SCRef parSha(curRev->parent(0));
 
-			if (!rangeMap.contains(parSha)) {
+			if (!ranges.contains(parSha)) {
 
 				if (isDirectDescendant) // we must be in a parallel lane, no need
 					continue;       // to compute range info, simply go on
@@ -781,9 +781,9 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 				dbp("ASSERT in rangeFilter: range info for %1 not found", parSha);
 				return "";
 			}
-			RangeInfo r(rangeMap[parSha]);
+			RangeInfo r(ranges[parSha]);
 			updateRange(&r, diff, false);
-			rangeMap.insert(sha, r);
+			ranges.insert(sha, r);
 
 			if (sha == target) // stop now, no need to continue
 				return ancestor;
@@ -797,22 +797,21 @@ bool Annotate::seekPosition(int* paraFrom, int* paraTo, SCRef fromSha, SCRef toS
 	if ((*paraFrom == 0 && *paraTo == 0) || fromSha == toSha)
 		return true;
 
-	QMap<QString, RangeInfo> backup;
-	backup = rangeMap;  // QMap is implicitly shared
+	Ranges backup(ranges); // implicitly shared
 
 	// paragraphs start from 0 but ranges from 1
 	if (computeRanges(fromSha, *paraFrom + 1, *paraTo + 1, toSha).isEmpty())
 		goto fail;
 
-	if (!rangeMap.contains(toSha))
+	if (!ranges.contains(toSha))
 		goto fail;
 
-	*paraFrom = rangeMap[toSha].start - 1;
-	*paraTo = rangeMap[toSha].end - 1;
-	rangeMap = backup;
+	*paraFrom = ranges[toSha].start - 1;
+	*paraTo = ranges[toSha].end - 1;
+	ranges = backup;
 	return true;
 
 fail:
-	rangeMap = backup;
+	ranges = backup;
 	return false;
 }
