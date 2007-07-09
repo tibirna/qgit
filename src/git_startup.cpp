@@ -6,8 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <valgrind/callgrind.h>
-
 #include <QApplication>
 #include <QSettings>
 #include <QTextCodec>
@@ -817,6 +815,8 @@ void Git::loadFileNames() {
 			revsFiles.insert(ZERO_SHA, fakeWorkDirRevFile(_wd));
 	}
 
+	EM_PROCESS_EVENTS; // after cache loading and before indexing
+
 	QString diffTreeBuf;
 	FOREACH (StrVect, it, revData->revOrder) {
 		if (!revsFiles.contains(*it)) {
@@ -1078,7 +1078,7 @@ void Git::appendFileName(RevFile& rf, SCRef name) {
 	SCRef dr = name.left(idx);
 	SCRef nm = name.mid(idx);
 
-	QMap<QString, int>::const_iterator it(dirNamesMap.find(dr));
+	QHash<QString, int>::const_iterator it(dirNamesMap.constFind(dr));
 	if (it == dirNamesMap.constEnd()) {
 		int idx = dirNamesVec.count();
 		dirNamesMap.insert(dr, idx);
@@ -1087,7 +1087,7 @@ void Git::appendFileName(RevFile& rf, SCRef name) {
 	} else
 		rf.dirs.append(*it);
 
-	it = fileNamesMap.find(nm);
+	it = fileNamesMap.constFind(nm);
 	if (it == fileNamesMap.constEnd()) {
 		int idx = fileNamesVec.count();
 		fileNamesMap.insert(nm, idx);

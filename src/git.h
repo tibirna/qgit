@@ -308,8 +308,8 @@ private:
 	RevFileMap revsFiles;
 	StrVect fileNamesVec;
 	StrVect dirNamesVec;
-	QMap<QString, int> fileNamesMap; // quick lookup file name
-	QMap<QString, int> dirNamesMap;  // quick lookup directory name
+	QHash<QString, int> fileNamesMap; // quick lookup file name
+	QHash<QString, int> dirNamesMap;  // quick lookup directory name
 	FileHistory* revData;
 };
 

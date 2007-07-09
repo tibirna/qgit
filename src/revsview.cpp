@@ -46,6 +46,9 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(m(), SIGNAL(flagChanged(uint)),
 	        sb, SLOT(flagChanged(uint)));
 
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
+	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
@@ -189,20 +192,26 @@ void RevsView::viewPatch(bool newTab) {
 	UPDATE_DM_MASTER(pv, false);
 }
 
+void RevsView::on_newRevsAdded(const FileHistory* fh, const QVector<QString>&) {
+
+	if (!git->isMainHistory(fh) || !st.sha().isEmpty())
+		return;
+
+	ListView* lv = tab()->listViewLog;
+	if (lv->model()->rowCount() == 0)
+		return;
+
+	st.setSha(lv->sha(0));
+	st.setSelectItem(true);
+	UPDATE(); // give feedback to user as soon as possible
+}
+
 void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
 	if (!git->isMainHistory(fh))
 		return;
 
-	if (st.sha().isEmpty()) { // point to first one in list
-
-		ListView* lv = tab()->listViewLog;
-		if (lv->model()->rowCount() > 0) {
-			st.setSha(lv->sha(0));
-			st.setSelectItem(true);
-		}
-	}
-	UPDATE();
+	UPDATE(); // restore revision after a refresh
 	QApplication::postEvent(this, new MessageEvent(stats));
 }
 
