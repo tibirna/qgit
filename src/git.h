@@ -217,7 +217,7 @@ private:
 		QString     tagMsg;
 		QString     stgitPatch;
 	};
-	typedef QMap<QString, Reference> RefMap;
+	typedef QHash<QString, Reference> RefMap;
 	RefMap refsShaMap;
 
 	struct WorkingDirInfo {
@@ -263,9 +263,9 @@ private:
 	bool isParentOf(SCRef par, SCRef child);
 	bool isTreeModified(SCRef sha);
 	void indexTree();
-	void updateDescMap(const Rev* r, uint i, QMap<QPair<uint, uint>,bool>& dm,
-	                   QMap<uint, QVector<int> >& dv);
-	void mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, uint>, bool>&dm);
+	void updateDescMap(const Rev* r, uint i, QHash<QPair<uint, uint>,bool>& dm,
+	                   QHash<uint, QVector<int> >& dv);
+	void mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint, uint>, bool>&dm);
 	void mergeBranches(Rev* p, const Rev* r);
 	void updateLanes(Rev& c, Lanes& lns, SCRef sha);
 	static void removeFiles(SCList selFiles, SCRef workDir, SCRef ext);

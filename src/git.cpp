@@ -383,7 +383,7 @@ const QString Git::quote(SCList sl) {
 
 uint Git::checkRef(SCRef sha, uint mask) const {
 
-	QMap<QString, Reference>::const_iterator it(refsShaMap.find(sha));
+	RefMap::const_iterator it(refsShaMap.constFind(sha));
 	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 

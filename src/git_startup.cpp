@@ -6,6 +6,8 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <valgrind/callgrind.h>
+
 #include <QApplication>
 #include <QSettings>
 #include <QTextCodec>
@@ -1095,8 +1097,8 @@ void Git::appendFileName(RevFile& rf, SCRef name) {
 		rf.names.append(*it);
 }
 
-void Git::updateDescMap(const Rev* r,uint idx, QMap<QPair<uint, uint>, bool>& dm,
-                        QMap<uint, QVector<int> >& dv) {
+void Git::updateDescMap(const Rev* r,uint idx, QHash<QPair<uint, uint>, bool>& dm,
+                        QHash<uint, QVector<int> >& dv) {
 
 	QVector<int> descVec;
 	if (r->descRefsMaster != -1) {
@@ -1154,7 +1156,7 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
 	p->descBrnMaster = p->orderIdx;
 }
 
-void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QMap<QPair<uint, uint>, bool>& dm) {
+void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint, uint>, bool>& dm) {
 
 	bool isTag = checkRef(r->sha(), TAG);
 	int r_descRefsMaster = isTag ? r->orderIdx : r->descRefsMaster;
@@ -1218,8 +1220,8 @@ void Git::indexTree() {
 
 	// we keep the pairs(x, y). Value is true if x is
 	// ancestor of y or false if y is ancestor of x
-	QMap<QPair<uint, uint>, bool> descMap;
-	QMap<uint, QVector<int> > descVect;
+	QHash<QPair<uint, uint>, bool> descMap;
+	QHash<uint, QVector<int> > descVect;
 
 	// walk down the tree from latest to oldest,
 	// compute children and nearest descendants
