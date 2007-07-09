@@ -273,6 +273,11 @@ int FileContent::positionToLineNum(int pos) {
 	return tc.blockNumber();
 }
 
+int FileContent::lineAtTop() {
+
+	return cursorForPosition(QPoint(1, 1)).blockNumber();
+}
+
 void FileContent::setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo) {
 
 	scrollLineToTop(paraFrom);
@@ -299,7 +304,7 @@ void FileContent::saveScreenState() {
 		tc.setPosition(endPos);
 		ss.indexTo = tc.columnNumber();
 	} else
-		ss.topPara = cursorForPosition(QPoint(1, 1)).blockNumber();
+		ss.topPara = lineAtTop();
 }
 
 void FileContent::restoreScreenState() {
@@ -313,20 +318,23 @@ void FileContent::restoreScreenState() {
 		scrollLineToTop(ss.topPara);
 }
 
-void FileContent::goToAnnotation(int revId) {
+void FileContent::goToAnnotation(int revId, int dir) {
 
 	if (!isAnnotationAppended || !curAnn || (revId == 0))
 		return;
 
-	const QString firstLine(QString::number(revId) + ".");
-	int lineNum = 0;
-	FOREACH (QLinkedList<QString>, it, curAnn->lines) { // annotation could be hidden
-		if ((*it).trimmed().startsWith(firstLine)) {
-			scrollLineToTop(lineNum);
+	const QString header(QString::number(revId) + ".");
+	int row = (dir == 0 ? -1 : lineAtTop());
+	QListWidgetItem* itm = NULL;
+	do {
+		row += (dir >= 0 ? 1 : -1);
+		itm = listWidgetAnn->item(row);
+
+		if (itm && itm->text().trimmed().startsWith(header)) {
+			scrollLineToTop(row);
 			break;
 		}
-		lineNum++;
-	}
+	} while (itm);
 }
 
 bool FileContent::goToRangeStart() {
@@ -577,11 +585,11 @@ void FileContent::setAnnList() {
 		item->setForeground(b);
 		item->setFont(f);
 	}
-	/* When listWidgetAnn get focus for the fisrt time the current
+	/* When listWidgetAnn get focus for the first time the current
 	   item, if not already present, is set to the first row and
 	   scrolling starts from there, so set a proper current item here
 	*/
-	int topRow = cursorForPosition(QPoint(1, 1)).blockNumber() + 1;
+	int topRow = lineAtTop() + 1;
 	listWidgetAnn->setCurrentRow(topRow);
 	listWidgetAnn->adjustSize(); // update scrollbar state
 	adjustAnnListSize(width);

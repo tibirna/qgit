@@ -57,6 +57,12 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	connect(fileTab->toolButtonFindAnnotate, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonFindAnnotate_toggled(bool)));
 
+	connect(fileTab->toolButtonGoNext, SIGNAL(clicked()),
+	        this, SLOT(on_toolButtonGoNext_clicked()));
+
+	connect(fileTab->toolButtonGoPrev, SIGNAL(clicked()),
+	        this, SLOT(on_toolButtonGoPrev_clicked()));
+
 	connect(fileTab->toolButtonRangeFilter, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonRangeFilter_toggled(bool)));
 
@@ -111,11 +117,11 @@ void FileView::clear(bool complete) {
 	fileTab->spinBoxRevision->setValue(fileTab->spinBoxRevision->minimum()); // clears the box
 }
 
-bool FileView::goToCurrentAnnotation() {
+bool FileView::goToCurrentAnnotation(int direction) {
 
 	SCRef ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
 	int id = (!ids.isEmpty() ? ids.toInt() : 0);
-	fileTab->textEditFile->goToAnnotation(id);
+	fileTab->textEditFile->goToAnnotation(id, direction);
 	return (id != 0);
 }
 
@@ -185,6 +191,8 @@ void FileView::updateEnabledButtons() {
 	QToolButton* copy = fileTab->toolButtonCopy;
 	QToolButton* showAnnotate = fileTab->toolButtonShowAnnotate;
 	QToolButton* findAnnotate = fileTab->toolButtonFindAnnotate;
+	QToolButton* goPrev = fileTab->toolButtonGoPrev;
+	QToolButton* goNext = fileTab->toolButtonGoNext;
 	QToolButton* rangeFilter = fileTab->toolButtonRangeFilter;
 	QToolButton* highlight = fileTab->toolButtonHighlightText;
 
@@ -195,13 +203,17 @@ void FileView::updateEnabledButtons() {
 	copy->setEnabled(fileAvailable);
 	showAnnotate->setEnabled(annotateAvailable);
 	findAnnotate->setEnabled(annotateAvailable);
+	goPrev->setEnabled(annotateAvailable);
+	goNext->setEnabled(annotateAvailable);
 	rangeFilter->setEnabled(annotateAvailable);
 	highlight->setEnabled(fileAvailable && git->isTextHighlighter());
 
 	// then disable
-	if (!showAnnotate->isChecked())
+	if (!showAnnotate->isChecked()) {
 		findAnnotate->setEnabled(false);
-
+		goPrev->setEnabled(false);
+		goNext->setEnabled(false);
+	}
 	if (highlight->isChecked())
 		rangeFilter->setEnabled(false);
 
@@ -232,6 +244,16 @@ void FileView::on_toolButtonFindAnnotate_toggled(bool b) {
 	updateEnabledButtons();
 	if (b)
 		goToCurrentAnnotation();
+}
+
+void FileView::on_toolButtonGoNext_clicked() {
+
+	goToCurrentAnnotation(1);
+}
+
+void FileView::on_toolButtonGoPrev_clicked() {
+
+	goToCurrentAnnotation(-1);
 }
 
 void FileView::on_toolButtonPin_toggled(bool b) {

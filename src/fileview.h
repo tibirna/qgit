@@ -32,6 +32,8 @@ public slots:
 	void on_toolButtonCopy_clicked();
 	void on_toolButtonShowAnnotate_toggled(bool);
 	void on_toolButtonFindAnnotate_toggled(bool);
+	void on_toolButtonGoNext_clicked();
+	void on_toolButtonGoPrev_clicked();
 	void on_toolButtonRangeFilter_toggled(bool);
 	void on_toolButtonPin_toggled(bool);
 	void on_toolButtonHighlightText_toggled(bool);
@@ -51,7 +53,7 @@ private:
 	friend class FileHighlighter;
 
 	void showAnnotation();
-	bool goToCurrentAnnotation();
+	bool goToCurrentAnnotation(int direction = 0);
 	void filterOnRange(bool b);
 	void updateSpinBoxValue();
 	void updateEnabledButtons();

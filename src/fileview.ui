@@ -13,26 +13,53 @@
    <string>File</string>
   </property>
   <layout class="QHBoxLayout" >
-   <property name="margin" >
+   <property name="spacing" >
     <number>0</number>
    </property>
-   <property name="spacing" >
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
     <number>0</number>
    </property>
    <item>
     <layout class="QVBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
      <property name="spacing" >
       <number>6</number>
      </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
      <item>
       <layout class="QHBoxLayout" >
-       <property name="margin" >
+       <property name="spacing" >
         <number>0</number>
        </property>
-       <property name="spacing" >
+       <property name="leftMargin" >
+        <number>0</number>
+       </property>
+       <property name="topMargin" >
+        <number>0</number>
+       </property>
+       <property name="rightMargin" >
+        <number>0</number>
+       </property>
+       <property name="bottomMargin" >
         <number>0</number>
        </property>
        <item>
@@ -45,9 +72,6 @@
          </property>
          <property name="toolTip" >
           <string>Copy selection to the clipboard stripping line headers (CTRL+C)</string>
-         </property>
-         <property name="text" >
-          <string/>
          </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/editcopy.png</iconset>
@@ -73,9 +97,6 @@
          </property>
          <property name="toolTip" >
           <string>Hide/show file annotation</string>
-         </property>
-         <property name="text" >
-          <string/>
          </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/view_choose.png</iconset>
@@ -105,14 +126,43 @@
          <property name="toolTip" >
           <string>Lock selection to first tagged line of current revision (CTRL + L)</string>
          </property>
-         <property name="text" >
-          <string/>
-         </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/encrypted.png</iconset>
          </property>
          <property name="checkable" >
           <bool>true</bool>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonGoPrev" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="toolTip" >
+          <string>Go to previous annotation line</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/1uparrow.png</iconset>
+         </property>
+         <property name="autoRaise" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButtonGoNext" >
+         <property name="enabled" >
+          <bool>false</bool>
+         </property>
+         <property name="toolTip" >
+          <string>Go to next annotation line</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="icons.qrc" >:/icons/resources/1downarrow.png</iconset>
          </property>
          <property name="autoRaise" >
           <bool>true</bool>
@@ -132,9 +182,6 @@
          </property>
          <property name="toolTip" >
           <string>Filter revisions on selected line range</string>
-         </property>
-         <property name="text" >
-          <string/>
          </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
@@ -160,9 +207,6 @@
          </property>
          <property name="toolTip" >
           <string>Source highlight</string>
-         </property>
-         <property name="text" >
-          <string/>
          </property>
          <property name="icon" >
           <iconset resource="icons.qrc" >:/icons/resources/colorize.png</iconset>
@@ -200,18 +244,36 @@
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>2</number>
-          </property>
           <property name="spacing" >
            <number>0</number>
           </property>
+          <property name="leftMargin" >
+           <number>2</number>
+          </property>
+          <property name="topMargin" >
+           <number>2</number>
+          </property>
+          <property name="rightMargin" >
+           <number>2</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>2</number>
+          </property>
           <item>
            <layout class="QHBoxLayout" >
-            <property name="margin" >
+            <property name="spacing" >
              <number>0</number>
             </property>
-            <property name="spacing" >
+            <property name="leftMargin" >
+             <number>0</number>
+            </property>
+            <property name="topMargin" >
+             <number>0</number>
+            </property>
+            <property name="rightMargin" >
+             <number>0</number>
+            </property>
+            <property name="bottomMargin" >
              <number>0</number>
             </property>
             <item>
@@ -280,19 +342,37 @@
          <enum>QFrame::Sunken</enum>
         </property>
         <layout class="QHBoxLayout" >
-         <property name="margin" >
+         <property name="spacing" >
           <number>0</number>
          </property>
-         <property name="spacing" >
+         <property name="leftMargin" >
+          <number>0</number>
+         </property>
+         <property name="topMargin" >
+          <number>0</number>
+         </property>
+         <property name="rightMargin" >
+          <number>0</number>
+         </property>
+         <property name="bottomMargin" >
           <number>0</number>
          </property>
          <item>
           <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
            <property name="spacing" >
             <number>1</number>
+           </property>
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
            </property>
            <item>
             <widget class="QListWidget" name="listWidgetAnn" >
@@ -329,9 +409,6 @@
              </property>
              <property name="readOnly" >
               <bool>true</bool>
-             </property>
-             <property name="acceptRichText" >
-              <bool>false</bool>
              </property>
             </widget>
            </item>

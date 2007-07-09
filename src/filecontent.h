@@ -32,7 +32,7 @@ public:
 	void update(bool force = false);
 	void clearAll(bool emitSignal = true);
 	void copySelection();
-	void goToAnnotation(int id);
+	void goToAnnotation(int id, int direction);
 	bool goToRangeStart();
 	bool rangeFilter(bool b);
 	bool getRange(SCRef sha, RangeInfo* r);
@@ -73,6 +73,7 @@ private:
 	void scrollCursorToTop();
 	void scrollLineToTop(int lineNum);
 	int positionToLineNum(int pos = -1);
+	int lineAtTop();
 	bool lookupAnnotation();
 	uint annotateLength(const FileAnnotation* curAnn);
 	void saveScreenState();
