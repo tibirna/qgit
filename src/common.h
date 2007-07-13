@@ -7,8 +7,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <QLinkedList>
 #include <QHash>
+#include <QLinkedList>
 #include <QVector>
 #include <QSet>
 #include <QEvent>
@@ -59,6 +59,9 @@ class QSplitter;
 class QWidget;
 
 namespace QGit {
+
+	// optimized sha hash function
+	uint shaHash(const QString& s);
 
 	// minimum git version required
 	extern const QString GIT_VERSION;
@@ -273,6 +276,19 @@ namespace QGit {
 	extern const QString SCRIPT_EXT;
 }
 
+/* For a class stored in a QHash with key of type 'sha' string it is
+   possible to overload the default qHash() function to use a faster one,
+   optimized for sha values.
+
+   To enable this feature use SHA_HASH_DECL to declare a template
+   specialization for your class. The corresponding definition must be
+   added in namespace_def.cpp
+*/
+#define SHA_HASH_DECL(class_name) template<> Q_OUTOFLINE_TEMPLATE     \
+        QHash<QString, class_name>::Node** QHash<QString, class_name> \
+        ::findNode(const QString &akey, uint *ahp) const
+
+
 class Rev {
 	// prevent implicit C++ compiler defaults
 	Rev();
@@ -318,6 +334,8 @@ private:
 	int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 };
 typedef QHash<QString, const Rev*> RevMap;  // faster then a map
+SHA_HASH_DECL(const Rev*);
+
 
 class RevFile {
 
@@ -375,6 +393,8 @@ public:
 	}
 };
 typedef QHash<QString, const RevFile*> RevFileMap;
+SHA_HASH_DECL(const RevFile*);
+
 
 class FileAnnotation {
 public:
@@ -385,6 +405,9 @@ public:
 	int annId;
 	QString fileSha;
 };
+typedef QHash<QString, FileAnnotation> AnnotateHistory;
+SHA_HASH_DECL(FileAnnotation);
+
 
 class BaseEvent: public QEvent {
 public:

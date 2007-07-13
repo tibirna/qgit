@@ -70,6 +70,22 @@ private:
 	QHash<QString, QString> renamedPatches;
 };
 
+struct Reference { // stores tag information associated to a revision
+	Reference() : type(0) {}
+	uint type;
+	QStringList branches;
+	QStringList remoteBranches;
+	QString     currentBranch;
+	QStringList tags;
+	QStringList refs;
+	QString     tagObj; // TODO support more then one obj
+	QString     tagMsg;
+	QString     stgitPatch;
+};
+typedef QHash<QString, Reference> RefMap;
+SHA_HASH_DECL(Reference);
+
+
 class Git : public QObject {
 Q_OBJECT
 public:
@@ -205,21 +221,6 @@ private:
 	friend class ConsoleImpl;
 	friend class RevsView;
 
-	struct Reference { // stores tag information associated to a revision
-		Reference() : type(0) {}
-		uint type;
-		QStringList branches;
-		QStringList remoteBranches;
-		QString     currentBranch;
-		QStringList tags;
-		QStringList refs;
-		QString     tagObj; // TODO support more then one obj
-		QString     tagMsg;
-		QString     stgitPatch;
-	};
-	typedef QHash<QString, Reference> RefMap;
-	RefMap refsShaMap;
-
 	struct WorkingDirInfo {
 		void clear() { diffIndex = diffIndexCached = ""; otherFiles.clear(); }
 		QString diffIndex;
@@ -306,6 +307,7 @@ private:
 	int patchesStillToFind;
 	QString firstNonStGitPatch;
 	RevFileMap revsFiles;
+	RefMap refsShaMap;
 	StrVect fileNamesVec;
 	StrVect dirNamesVec;
 	QHash<QString, int> fileNamesMap; // quick lookup file name

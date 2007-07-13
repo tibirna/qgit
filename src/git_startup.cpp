@@ -96,7 +96,7 @@ const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
 	return d.absolutePath();
 }
 
-Git::Reference* Git::lookupReference(SCRef sha, bool create) {
+Reference* Git::lookupReference(SCRef sha, bool create) {
 
 	RefMap::iterator it(refsShaMap.find(sha));
 	if (it == refsShaMap.end() && create)

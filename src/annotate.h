@@ -37,6 +37,8 @@ public:
 	int start, end; // ranges count file lines from 1 like patches diffs
 	bool modified;
 };
+typedef QHash<QString, RangeInfo> Ranges;
+SHA_HASH_DECL(RangeInfo);
 
 class Annotate : public QObject {
 Q_OBJECT
@@ -59,9 +61,6 @@ private slots:
 	void slotComputeDiffs();
 
 private:
-	typedef QHash<QString, FileAnnotation> AnnotateHistory;
-	typedef QHash<QString, RangeInfo> Ranges;
-
 	void annotateFileHistory();
 	void doAnnotate(SCRef sha);
 	FileAnnotation* getFileAnnotation(SCRef sha);
