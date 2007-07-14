@@ -66,9 +66,9 @@ private:
 	FileAnnotation* getFileAnnotation(SCRef sha);
 	void setInitialAnnotation(SCRef fileSha, FileAnnotation* fa);
 	const QString setupAuthor(SCRef origAuthor, int annId);
-	void setAnnotation(SCRef diff, SCRef aut, SCLList pAnn, SLList nAnn, int ofs = 0);
+	void setAnnotation(SCRef diff, SCRef aut, SCList pAnn, SList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);
-	static void unify(SLList dst, SCLList src);
+	static void unify(SList dst, SCList src);
 	const QString getPatch(SCRef sha, int parentNum = 0);
 	bool getNextSection(SCRef d, int& idx, QString& sec, SCRef target);
 	void updateRange(RangeInfo* r, SCRef diff, bool reverse);

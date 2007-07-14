@@ -234,7 +234,7 @@ bool FileContent::startAnnotate(FileHistory* fh, SCRef ht) {
 uint FileContent::annotateLength(const FileAnnotation* annFile) {
 
 	int maxLen = 0;
-	FOREACH (QLinkedList<QString>, it, annFile->lines)
+	FOREACH_SL (it, annFile->lines)
 		if ((*it).length() > maxLen)
 			maxLen = (*it).length();
 
@@ -538,7 +538,7 @@ void FileContent::setAnnList() {
 	int linesNum = document()->blockCount();
 	int linesNumDigits = QString::number(linesNum).length();
 	int curId = 0, annoMaxLen = 0;
-	QLinkedList<QString>::const_iterator it, endIt;
+	QStringList::const_iterator it, endIt;
 
 	isAnnotationAppended = isShowAnnotate && curAnn;
 
@@ -559,13 +559,12 @@ void FileContent::setAnnList() {
 
 		if (isAnnotationAppended) {
 			if (it != endIt)
-				tmp = (*it).leftJustified(annoMaxLen);
+				tmp = (*(it++)).leftJustified(annoMaxLen);
 			else
 				tmp = QString().leftJustified(annoMaxLen);
 
 			if (tmp.section('.',0 ,0).toInt() == curId)
 				curIdLines.append(i);
-			++it;
 		} else
 			tmp.clear();
 

@@ -6,6 +6,8 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <valgrind/callgrind.h>
+
 #include <QApplication>
 #include <QSettings>
 #include <QTextCodec>

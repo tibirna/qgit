@@ -49,8 +49,6 @@ inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 typedef const QString&              SCRef;
 typedef QStringList&                SList;
 typedef const QStringList&          SCList;
-typedef QLinkedList<QString>&       SLList;
-typedef const QLinkedList<QString>& SCLList;
 typedef QVector<QString>            StrVect;
 typedef QSet<QString>               ShaSet;
 
@@ -400,7 +398,7 @@ class FileAnnotation {
 public:
 	explicit FileAnnotation(int id) : isValid(false), annId(id) {}
 	FileAnnotation() : isValid(false) {}
-	QLinkedList<QString> lines;
+	QStringList lines;
 	bool isValid;
 	int annId;
 	QString fileSha;

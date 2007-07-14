@@ -167,7 +167,7 @@ void Annotate::doAnnotate(SCRef sha) {
 
 		FileAnnotation* pa = getFileAnnotation(*it);
 		const QString diff(getPatch(sha, parentNum++));
-		QLinkedList<QString> tmpAnn;
+		QStringList tmpAnn;
 		setAnnotation(diff, "Merge", pa->lines, tmpAnn);
 
 		// the two annotations must be of the same length
@@ -234,20 +234,20 @@ const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 	return author;
 }
 
-void Annotate::unify(SLList dst, SCLList src) {
+void Annotate::unify(SList dst, SCList src) {
 
-	QLinkedList<QString>::Iterator itd(dst.begin());
-	QLinkedList<QString>::const_iterator its(src.constBegin());
+	QStringList::iterator itd(dst.begin());
+	QStringList::const_iterator its(src.constBegin());
 	for ( ; itd != dst.end(); ++itd, ++its)
 		if (*itd == "Merge")
 			*itd = *its;
 }
 
-void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList newAnn, int ofs) {
+void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList newAnn, int ofs) {
 
 	newAnn.clear();
-	QLinkedList<QString>::const_iterator cur(prevAnn.constBegin());
-	QLinkedList<QString>::const_iterator prevAnnEnd(prevAnn.constEnd());
+	QStringList::const_iterator cur(prevAnn.constBegin());
+	QStringList::const_iterator prevAnnEnd(prevAnn.constEnd());
 	QString line;
 	int idx = 0, num, lineNumStart, lineNumEnd, curLineNum = 1;
 	bool inHeader = true;
@@ -411,8 +411,8 @@ void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, Ra
 	// because of the padding the file first line number will be
 	//
 	// fileFirstLineNr = newLineId - beforePadding = fileOffset + 1
-	QLinkedList<QString> beforeAnn;
-	QLinkedList<QString> afterAnn;
+	QStringList beforeAnn;
+	QStringList afterAnn;
 	for (int lineNum = ofs + 1; lineNum <= ofs + fileLen; lineNum++)
 		beforeAnn.append(QString::number(lineNum));
 
@@ -426,11 +426,11 @@ void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, Ra
 		// at() counts from 0.
 		//QLinkedList<QString>::const_iterator itStart(afterAnn.at(r->start - ofs - 1));
 		//QLinkedList<QString>::const_iterator itEnd(afterAnn.at(r->end - ofs - 1));
-		QLinkedList<QString>::const_iterator itStart(afterAnn.begin());
+		QStringList::const_iterator itStart(afterAnn.begin());
 		for (int i = 0; i < r->start - ofs - 1; i++)
 			++itStart;
 
-		QLinkedList<QString>::const_iterator itEnd(afterAnn.begin());
+		QStringList::const_iterator itEnd(afterAnn.begin());
 		for (int i = 0; i < r->end - ofs - 1; i++)
 			++itEnd;
 
@@ -477,10 +477,10 @@ void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, Ra
 	} else { // forward case
 
 		// scan afterAnn to check for before-patch range boundaries
-		QLinkedList<QString>::const_iterator itStart(afterAnn.constEnd());
-		QLinkedList<QString>::const_iterator itEnd(afterAnn.constEnd());
+		QStringList::const_iterator itStart(afterAnn.constEnd());
+		QStringList::const_iterator itEnd(afterAnn.constEnd());
 
-		QLinkedList<QString>::const_iterator it(afterAnn.begin());
+		QStringList::const_iterator it(afterAnn.begin());
 		for (int lineNum = ofs + 1; it != afterAnn.constEnd(); ++lineNum, ++it) {
 
 			if (*it != fakedAuthor) {
