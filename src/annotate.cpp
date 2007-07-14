@@ -6,6 +6,8 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <valgrind/callgrind.h>
+
 #include <QApplication>
 #include "git.h"
 #include "myprocess.h"
@@ -95,9 +97,12 @@ bool Annotate::start(const FileHistory* _fh) {
 void Annotate::slotComputeDiffs() {
 
 	processingTime.start();
-
+// dbStart;
+// CALLGRIND_START_INSTRUMENTATION;
 	if (!cancelingAnnotate)
 		annotateFileHistory(); // now could call Qt event loop
+// CALLGRIND_STOP_INSTRUMENTATION;
+// dbRestart;
 
 	valid = !(isError || cancelingAnnotate);
 	canceled = cancelingAnnotate;
@@ -240,11 +245,12 @@ void Annotate::unify(SLList dst, SCLList src) {
 
 void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList newAnn, int ofs) {
 
-	newAnn = prevAnn;
-	QLinkedList<QString>::iterator cur(newAnn.begin());
+	newAnn.clear();
+	QLinkedList<QString>::const_iterator cur(prevAnn.constBegin());
+	QLinkedList<QString>::const_iterator prevAnnEnd(prevAnn.constEnd());
 	QString line;
-	int idx = 0, num, lineNumStart, lineNumEnd;
-	bool inHeader= true;
+	int idx = 0, num, lineNumStart, lineNumEnd, curLineNum = 1;
+	bool inHeader = true;
 
 	while (getNextSection(diff, idx, line, "\n")) {
 		char firstChar = line.at(0).toLatin1();
@@ -252,10 +258,8 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 		if (inHeader) {
 			if (firstChar == '@')
 				inHeader = false;
-			else {
-				++cur;
+			else
 				continue;
-			}
 		}
 		switch (firstChar) {
 		case '@':
@@ -264,48 +268,43 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 			// number of lines of the hunk, 'c' and 'd' are the same
 			// for new file. If the file does not have enough lines
 			// then also the form '@@ -a +c @@' is used.
-			lineNumStart = line.indexOf('+') + 1;
+			lineNumStart = line.indexOf('-') + 1;
 			lineNumEnd = line.indexOf(',', lineNumStart);
 			if (lineNumEnd == -1) // small file case
 				lineNumEnd = line.indexOf(' ', lineNumStart);
 
 			num = line.mid(lineNumStart, lineNumEnd - lineNumStart).toInt();
-			num -= ofs; // offset for range filter computation
+			num -= ofs; // offset for range filter computation FIXME
 
 			// diff lines start from 1, 0 is empty file,
 			// instead QValueList::at() starts from 0
-			if (num <= 0) { // file is deleted
-				if (num < 0)
-					dbp("ASSERT processDiff: start line number is %1", num);
-				newAnn.clear();
+			if (num < 0) {
+				dbp("ASSERT setAnnotation: start line number is %1", num);
+				isError = true;
 				return;
 			}
-			cur = newAnn.begin();
-			for (int i = 0; i < num - 1; i++) // FIXME save pointer
-				++cur;
-			break;
-		case '+':
-			if (cur != newAnn.end()) {
-				cur = newAnn.insert(cur, author);
-				++cur;
-			} else {
-				newAnn.append(author);
-				cur = newAnn.end();
-			}
-			break;
-		case '-':
-			if (!newAnn.isEmpty()) {
-				if (cur != newAnn.end())
-					cur = newAnn.erase(cur);
-				else {
-					dbp("ASSERT processDiff: remove end of "
-					    "file, diff is %1", diff);
+			while (curLineNum < num) {
+				if (cur == prevAnnEnd) {
+					dbp("ASSERT setAnnotation: start line "
+					    "number %1 is out of range", num);
 					isError = true;
 					return;
 				}
+				newAnn.append(*cur);
+				++cur;
+				++curLineNum;
+			}
+			break;
+		case '+':
+			newAnn.append(author);
+			break;
+		case '-':
+			if (cur != prevAnnEnd) {
+				++cur;
+				++curLineNum;
 			} else {
-				dbp("ASSERT processDiff: remove line from "
-				    "empty annotation, diff is %1", diff);
+				dbp("ASSERT setAnnotation: remove end of "
+				    "file, diff is %1", diff);
 				isError = true;
 				return;
 			}
@@ -318,9 +317,23 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCLList prevAnn, SLList n
 
 			// fall through
 		default:
-			++cur;
+			if (cur != prevAnnEnd) {
+				newAnn.append(*cur);
+				++cur;
+				++curLineNum;
+			} else {
+				dbp("ASSERT setAnnotation: end of "
+				    "file reached, diff is %1", diff);
+				isError = true;
+				return;
+			}
 			break;
 		}
+	}
+	while (cur != prevAnnEnd) {
+		newAnn.append(*cur);
+		++cur;
+		++curLineNum;
 	}
 }
 
@@ -348,7 +361,7 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 
 bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
 
-	if (idx >= (int)d.length())
+	if (idx >= d.length())
 		return false;
 
 	int newIdx = d.indexOf(target, idx);
