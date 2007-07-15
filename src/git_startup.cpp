@@ -262,17 +262,21 @@ const QStringList Git::getOthersFiles() {
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
                       SCRef patch, int idx, FileHistory* fh) {
 
-	QString header("commit " + sha + ' ' + parents.join(" "));
-	QString data("\ntree " + sha);
+QString data("commit " + sha + ' ' + parents.join(" ") + "\ntree ");
+data.append(sha);
+//	QString header("commit " + sha + ' ' + parents.join(" "));
+//	QString data("\ntree " + sha);
+
 	data.append("\nparent " + parents.join("\nparent "));
 	data.append("\nauthor " + author + " " + date);
 	data.append("\ncommitter " + author + " " + date);
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
-	header.append("\nsize " + QString::number(data.size() - 1));
-	data.prepend(header);
-	if (!patch.isEmpty())
-		data.append('\n' + patch);
+data.append(patch);
+// 	header.append("\nsize " + QString::number(data.size() - 1));
+// 	data.prepend(header);
+// 	if (!patch.isEmpty())
+// 		data.append('\n' + patch);
 
 	QByteArray* ba = new QByteArray(data.toAscii());
 	ba->append('\0');
@@ -477,7 +481,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --parents --boundary --pretty=raw --show-size -z");
+	const QString baseCmd("git log --parents --boundary --pretty=raw -z");
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh))
 	/*
@@ -1322,7 +1326,7 @@ const QStringList Rev::parents() const {
 	return midSha(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
-int Rev::indexData(bool quick, bool withDiff) const {
+int Rev::indexData(bool, bool withDiff) const {
 /*
   This is what 'git log' produces:
 
@@ -1360,6 +1364,81 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		parentsCnt--;
 		idx += 7;
 	}
+
+// CODE BELOW IS TO REMOVE WHEN GIT IMPLEMENTS MESSAGE SIZES
+
+	idx += 47; // idx points to first line '\n', so skip tree line
+	while (idx < last && ba.at(idx) == 'p') //skip parents
+		idx += 48;
+
+	idx += 23;
+	if (idx > last)
+		return -1;
+
+	int lineEnd = ba.indexOf('\n', idx); // author line end
+	if (lineEnd == -1)
+		return -1;
+
+	lineEnd += 23;
+	if (lineEnd > last)
+		return -1;
+
+	autStart = idx - 16;
+	autLen = lineEnd - idx - 24;
+	autDateStart = lineEnd - 39;
+	autDateLen = 10;
+
+	idx = ba.indexOf('\n', lineEnd); // committer line end
+	if (idx == -1)
+		return -1;
+
+	// shortlog could be not '\n' terminated so use committer
+	// end of line as a safe start point to find chunk end
+	int end = ba.indexOf('\0', idx); // this is the slowest find
+	if (end == -1)
+		return -1;
+
+	// ok, from here we are sure we have a complete chunk
+	while (++idx < end && ba.at(idx) != '\n') // check for the first blank line
+		idx = ba.indexOf('\n', idx);
+
+	sLogStart = idx + 5;
+	if (end < sLogStart) { // no shortlog no longLog and no diff
+
+		sLogStart = sLogLen = 0;
+		lLogStart = lLogLen = 0;
+		diffStart = diffLen = 0;
+		return ++end;
+	}
+	lLogStart = ba.indexOf('\n', sLogStart);
+	if (lLogStart != -1 && lLogStart < end) {
+
+		sLogLen = lLogStart++ - sLogStart;
+		lLogLen = end - lLogStart;
+
+	} else { // no longLog and no new line at the end of shortlog
+		sLogLen = end - sLogStart;
+		lLogStart = lLogLen = 0;
+	}
+	diffStart = diffLen = 0;
+	if (withDiff) {
+
+		diffStart = ba.indexOf("\ndiff ", lineEnd);
+		if (diffStart != -1 && diffStart < end) {
+
+			lLogLen = diffStart++ - lLogStart;
+			diffLen = end - diffStart;
+
+			// chatch patological cases
+			if (sLogStart >= diffStart)
+				sLogStart = sLogLen = 0;
+			if (lLogStart >= diffStart)
+				lLogStart = lLogLen = 0;
+		}
+	}
+	return ++end;
+
+/*
 	idx += 6; // move idx from first line '\n' to beginning of msg size
 	int msgSize = 0;
 	while (idx < last && ba.at(idx) != '\n')
@@ -1442,4 +1521,5 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	}
 	indexed = true;
 	return ++msgEnd;
+*/
 }
