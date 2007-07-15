@@ -341,6 +341,11 @@ bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* p
 
 	if (ba.endsWith('\n')) { // optimize common case
 		*dst = ba;
+
+		// handle rare case of a '\0' inside content
+		while (dst->size() < ba.size() && ba.at(dst->size()) == '\0')
+			dst->append(" ").append(ba.mid(dst->size() + 1)); // sizes should match
+
 		dst->truncate(dst->size() - 1); // strip trailing '\n'
 		if (!prev->isEmpty()) {
 			dst->prepend(*prev);
@@ -348,7 +353,11 @@ bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* p
 		}
 		return true;
 	}
-	const QString src(ba);
+	QString src(ba);
+	// handle rare case of a '\0' inside content
+	while (src.size() < ba.size() && ba.at(src.size()) == '\0')
+		src.append(" ").append(ba.mid(src.size() + 1));
+
 	int idx = src.lastIndexOf('\n');
 	if (idx == -1) {
 		prev->append(src);

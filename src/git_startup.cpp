@@ -1425,9 +1425,14 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	diffStart = diffLen = 0;
 	if (withDiff) {
 
-		int end = ba.indexOf('\0', msgEnd);
-		if (end == -1)
-			return -1;
+		int end = msgEnd - 1;
+		do { // rare case of a '\0' inside diff content,
+		     // see c4201214 and bb8d8a6f5 in Linux tree
+			end = ba.indexOf('\0', end + 1);
+			if (end == -1)
+				return -1;
+
+		} while (end + 1 < ba.size() && ba.at(end + 1) != 'c');
 
 		if (msgEnd < end) {
 			diffStart = msgEnd + 1;
