@@ -1432,7 +1432,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 			if (end == -1)
 				return -1;
 
-		} while (end + 1 < ba.size() && ba.at(end + 1) != 'c');
+		} while (ba.at(end - 1) != '\n');
 
 		if (msgEnd < end) {
 			diffStart = msgEnd + 1;
