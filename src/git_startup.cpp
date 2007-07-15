@@ -6,8 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <valgrind/callgrind.h>
-
 #include <QApplication>
 #include <QSettings>
 #include <QTextCodec>
@@ -264,14 +262,17 @@ const QStringList Git::getOthersFiles() {
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
                       SCRef patch, int idx, FileHistory* fh) {
 
-	QString data("commit " + sha + ' ' + parents.join(" ") + "\ntree ");
-	data.append(sha);
+	QString header("commit " + sha + ' ' + parents.join(" "));
+	QString data("\ntree " + sha);
 	data.append("\nparent " + parents.join("\nparent "));
 	data.append("\nauthor " + author + " " + date);
 	data.append("\ncommitter " + author + " " + date);
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
-	data.append(patch);
+	header.append("\nsize " + QString::number(data.size() - 1));
+	data.prepend(header);
+	if (!patch.isEmpty())
+		data.append('\n' + patch);
 
 	QByteArray* ba = new QByteArray(data.toAscii());
 	ba->append('\0');
@@ -476,7 +477,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --parents --boundary --pretty=raw -z --default HEAD");
+	const QString baseCmd("git log --parents --boundary --pretty=raw --show-size -z --default HEAD");
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh))
 	/*
@@ -1300,9 +1301,16 @@ const QString Rev::mid(int start, int len) const {
 	return QString::fromAscii(data + start, len);
 }
 
+const QString Rev::midSha(int start, int len) const {
+
+	// warning no sanity check is done on arguments
+	const char* data = ba.constData();
+	return QString::fromLatin1(data + start, len); // faster then formAscii
+}
+
 const QString Rev::parent(int idx) const {
 
-	return mid(start + boundaryOfs + 41 + 41 * idx, 40);
+	return midSha(start + boundaryOfs + 41 + 41 * idx, 40);
 }
 
 const QStringList Rev::parents() const {
@@ -1311,15 +1319,16 @@ const QStringList Rev::parents() const {
 		return QStringList();
 
 	int ofs = start + boundaryOfs + 41;
-	return mid(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
+	return midSha(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
-int Rev::indexData(bool withDiff) { // fast path here, less then 4% of load time
+int Rev::indexData(bool quick, bool withDiff) const {
 /*
   This is what 'git log' produces:
 
 	- one line with "commit" + sha + an arbitrary amount of parent's sha, in case
 	  of a merge in file history the line terminates with "(from <sha of parent>)"
+	- one line with "size" + len of this record
 	- one line with "tree"
 	- an arbitrary amount of "parent" lines
 	- one line with "author"
@@ -1351,74 +1360,81 @@ int Rev::indexData(bool withDiff) { // fast path here, less then 4% of load time
 		parentsCnt--;
 		idx += 7;
 	}
-	idx += 47; // idx points to first line '\n', so skip tree line
+	idx += 6; // move idx from first line '\n' to beginning of msg size
+	int msgSize = 0;
+	while (idx < last && ba.at(idx) != '\n')
+		msgSize = msgSize * 10 + ba.at(idx++) - 48;
+
+	int msgStart = ++idx; // could be truncated
+	if (idx > last)
+		return -1;
+
+	// ok, now we know msgStart and msgSize are valid
+	int msgEnd = msgStart + msgSize;
+	if (msgEnd > last)
+		return -1;
+
+	if (quick && !withDiff)
+		return ++msgEnd;
+
+	idx += 46; // idx points to first line '\n', so skip tree line
 	while (idx < last && ba.at(idx) == 'p') //skip parents
 		idx += 48;
 
 	idx += 23;
-	if (idx > last)
-		return -1;
-
 	int lineEnd = ba.indexOf('\n', idx); // author line end
-	if (lineEnd == -1)
+	if (lineEnd == -1) {
+		dbs("ASSERT in indexData: unexpected end of data");
 		return -1;
-
+	}
 	lineEnd += 23;
-	if (lineEnd > last)
+	if (lineEnd > last) {
+		dbs("ASSERT in indexData: unexpected end of data");
 		return -1;
-
+	}
 	autStart = idx - 16;
 	autLen = lineEnd - idx - 24;
 	autDateStart = lineEnd - 39;
 	autDateLen = 10;
 
 	idx = ba.indexOf('\n', lineEnd); // committer line end
-	if (idx == -1)
+	if (idx == -1) {
+		dbs("ASSERT in indexData: unexpected end of data");
 		return -1;
-
-	// shortlog could be not '\n' terminated so use committer
-	// end of line as a safe start point to find chunk end
-	int end = ba.indexOf('\0', idx); // this is the slowest find
-	if (end == -1)
-		return -1;
-
-	// ok, from here we are sure we have a complete chunk
-	while (++idx < end && ba.at(idx) != '\n') // check for the first blank line
+	}
+	while (++idx < msgEnd && ba.at(idx) != '\n') // check for the first blank line
 		idx = ba.indexOf('\n', idx);
 
 	sLogStart = idx + 5;
-	if (end < sLogStart) { // no shortlog no longLog and no diff
+	if (msgEnd < sLogStart) { // no shortlog no longLog and no diff
 
 		sLogStart = sLogLen = 0;
 		lLogStart = lLogLen = 0;
-		diffStart = diffLen = 0;
-		return ++end;
-	}
-	lLogStart = ba.indexOf('\n', sLogStart);
-	if (lLogStart != -1 && lLogStart < end) {
+	} else {
+		lLogStart = ba.indexOf('\n', sLogStart);
+		if (lLogStart != -1 && lLogStart < msgEnd) {
 
-		sLogLen = lLogStart++ - sLogStart;
-		lLogLen = end - lLogStart;
+			sLogLen = lLogStart++ - sLogStart;
+			lLogLen = msgEnd - lLogStart;
 
-	} else { // no longLog and no new line at the end of shortlog
-		sLogLen = end - sLogStart;
-		lLogStart = lLogLen = 0;
+		} else { // no longLog and no new line at the end of shortlog
+			sLogLen = msgEnd - sLogStart;
+			lLogStart = lLogLen = 0;
+		}
 	}
 	diffStart = diffLen = 0;
 	if (withDiff) {
 
-		diffStart = ba.indexOf("\ndiff ", lineEnd);
-		if (diffStart != -1 && diffStart < end) {
+		int end = ba.indexOf('\0', msgEnd);
+		if (end == -1)
+			return -1;
 
-			lLogLen = diffStart++ - lLogStart;
+		if (msgEnd < end) {
+			diffStart = msgEnd + 1;
 			diffLen = end - diffStart;
-
-			// chatch patological cases
-			if (sLogStart >= diffStart)
-				sLogStart = sLogLen = 0;
-			if (lLogStart >= diffStart)
-				lLogStart = lLogLen = 0;
+			msgEnd = end;
 		}
 	}
-	return ++end;
+	indexed = true;
+	return ++msgEnd;
 }

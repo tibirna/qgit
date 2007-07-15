@@ -296,20 +296,20 @@ public:
 	Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff)
 	    : orderIdx(idx), ba(b), start(s + 7) {
 
-		isDiffCache = isApplied = isUnApplied = false;
+		indexed = isDiffCache = isApplied = isUnApplied = false;
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
-		*next = indexData(withDiff);
+		*next = indexData(true, withDiff);
 	}
 	bool isBoundary() const { return (boundaryOfs == 1); }
 	uint parentsCount() const { return parentsCnt; }
 	const QString parent(int idx) const;
 	const QStringList parents() const;
-	const QString sha() const { return mid(start + boundaryOfs, 40); }
-	const QString author() const { return mid(autStart, autLen); }
-	const QString authorDate() const { return mid(autDateStart, autDateLen); }
-	const QString shortLog() const { return mid(sLogStart, sLogLen); }
-	const QString longLog() const { return mid(lLogStart, lLogLen); }
-	const QString diff() const { return mid(diffStart, diffLen); }
+	const QString sha() const { return midSha(start + boundaryOfs, 40); }
+	const QString author() const { setup(); return mid(autStart, autLen); }
+	const QString authorDate() const { setup(); return mid(autDateStart, autDateLen); }
+	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
+	const QString longLog() const { setup(); return mid(lLogStart, lLogLen); }
+	const QString diff() const { setup(); return mid(diffStart, diffLen); }
 
 	QVector<int> lanes, childs;
 	bool isDiffCache, isApplied, isUnApplied;
@@ -322,14 +322,17 @@ public:
 	int descBrnMaster;  // by corresponding index xxxMaster
 
 private:
-	int indexData(bool withDiff);
+	inline void setup() const { if (!indexed) indexData(); }
+	int indexData(bool quick = false, bool withDiff = false) const;
 	const QString mid(int start, int len) const;
+	const QString midSha(int start, int len) const;
 
 	const QByteArray& ba; // reference here!
+	mutable bool indexed;
 	const int start;
-	uint parentsCnt, boundaryOfs;
-	int autStart, autLen, autDateStart, autDateLen;
-	int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
+	mutable uint parentsCnt, boundaryOfs;
+	mutable int autStart, autLen, autDateStart, autDateLen;
+	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 };
 typedef QHash<QString, const Rev*> RevMap;  // faster then a map
 SHA_HASH_DECL(const Rev*);
