@@ -66,14 +66,13 @@ static inline uint hexVal(const uchar* ch) {
 uint QGit::shaHash(const QString& s) { // fast path, called 6-7 times per revision
 
 	const uchar* ch = reinterpret_cast<const uchar*>(s.constData());
-	uint v  = (hexVal(ch    )<<24);
-	     v += (hexVal(ch + 2)<<20);
-	     v += (hexVal(ch + 4)<<16);
-	     v += (hexVal(ch + 6)<<12);
-	     v += (hexVal(ch + 8)<< 8);
-	     v += (hexVal(ch +10)<< 4);
-	     v +=  hexVal(ch +12);
-	return v;
+	return (hexVal(ch    )<<24)
+	     + (hexVal(ch + 2)<<20)
+	     + (hexVal(ch + 4)<<16)
+	     + (hexVal(ch + 6)<<12)
+	     + (hexVal(ch + 8)<< 8)
+	     + (hexVal(ch +10)<< 4)
+	     +  hexVal(ch +12);
 }
 
 #define SHA_HASH_DEF(class_name)                                                        \

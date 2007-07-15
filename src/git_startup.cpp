@@ -477,7 +477,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --parents --boundary --pretty=raw --show-size -z --default HEAD");
+	const QString baseCmd("git log --parents --boundary --pretty=raw --show-size -z");
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh))
 	/*

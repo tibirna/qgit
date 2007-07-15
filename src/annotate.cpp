@@ -33,7 +33,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	if (!valid)
 		return NULL;
 
-	AnnotateHistory::const_iterator it = ah.find(sha);
+	AnnotateHistory::const_iterator it = ah.constFind(sha);
 	if (it != ah.constEnd())
 		return &(it.value());
 
@@ -41,7 +41,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	int shaIdx;
 	const QString ancestorSha = getAncestor(sha, &shaIdx);
 	if (!ancestorSha.isEmpty()) {
-		it = ah.find(ancestorSha);
+		it = ah.constFind(ancestorSha);
 		if (it != ah.constEnd())
 			return &(it.value());
 	}
@@ -268,13 +268,22 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 			// number of lines of the hunk, 'c' and 'd' are the same
 			// for new file. If the file does not have enough lines
 			// then also the form '@@ -a +c @@' is used.
-			lineNumStart = line.indexOf('-') + 1;
+			if (ofs == 0)
+				lineNumStart = line.indexOf('-') + 1;
+			else
+			// in this case we are given diff fragments with
+			// faked small files that span the fragment plus
+			// some padding. So we use 'c' instead of 'a' to
+			// find the beginning of our patch in the faked file,
+			// this value will be offsetted by ofs later
+				lineNumStart = line.indexOf('+') + 1;
+
 			lineNumEnd = line.indexOf(',', lineNumStart);
 			if (lineNumEnd == -1) // small file case
 				lineNumEnd = line.indexOf(' ', lineNumStart);
 
 			num = line.mid(lineNumStart, lineNumEnd - lineNumStart).toInt();
-			num -= ofs; // offset for range filter computation FIXME
+			num -= ofs; // offset for range filter computation
 
 			// diff lines start from 1, 0 is empty file,
 			// instead QValueList::at() starts from 0
@@ -652,7 +661,7 @@ const QString Annotate::getAncestor(SCRef sha, int* shaIdx) {
 	// modify only file mode but no content. From the point of view of code
 	// range filtering this is equivalent, so we don't care to find the correct
 	// ancestor, but just the first revision with the same file sha
-	for (*shaIdx = 0; *shaIdx < (int)histRevOrder.count(); (*shaIdx)++) {
+	for (*shaIdx = 0; *shaIdx < histRevOrder.count(); (*shaIdx)++) {
 
 		const FileAnnotation& fa(ah[histRevOrder[*shaIdx]]);
 		if (fa.fileSha == fileSha)
@@ -691,7 +700,7 @@ bool Annotate::isDescendant(SCRef sha, SCRef target) {
   Only checking for copies would fix the corner case, but implementation
   is too difficult, so better accept this design limitation for now.
 */
-const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, SCRef target) {
+const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef target) {
 
 	ranges.clear();
 
@@ -699,13 +708,17 @@ const QString Annotate::computeRanges(SCRef sha, int rangeStart, int rangeEnd, S
 		dbp("ASSERT in computeRanges: annotation from %1 not valid", sha);
 		return "";
 	}
+	// paragraphs start from 0 but ranges from 1
+	int rangeStart = paraFrom + 1;
+	int rangeEnd = paraTo + 1;
+
 	QString ancestor(sha);
 	int shaIdx;
-	for (shaIdx = 0; shaIdx < (int)histRevOrder.count(); shaIdx++)
+	for (shaIdx = 0; shaIdx < histRevOrder.count(); shaIdx++)
 		if (histRevOrder[shaIdx] == sha)
 			break;
 
-	if (shaIdx == (int)histRevOrder.count()) { // not in history, find an ancestor
+	if (shaIdx == histRevOrder.count()) { // not in history, find an ancestor
 		ancestor = getAncestor(sha, &shaIdx);
 		if (ancestor.isEmpty())
 			return "";
@@ -812,8 +825,7 @@ bool Annotate::seekPosition(int* paraFrom, int* paraTo, SCRef fromSha, SCRef toS
 
 	Ranges backup(ranges); // implicitly shared
 
-	// paragraphs start from 0 but ranges from 1
-	if (computeRanges(fromSha, *paraFrom + 1, *paraTo + 1, toSha).isEmpty())
+	if (computeRanges(fromSha, *paraFrom, *paraTo, toSha).isEmpty())
 		goto fail;
 
 	if (!ranges.contains(toSha))

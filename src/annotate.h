@@ -51,7 +51,7 @@ public:
 	const QString getAncestor(SCRef sha, int* shaIdx);
 	bool getRange(SCRef sha, RangeInfo* r);
 	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);
-	const QString computeRanges(SCRef sha, int rStart, int rEnd, SCRef target = "");
+	const QString computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef target = "");
 
 signals:
 	void annotateReady(Annotate*, bool, const QString&);
