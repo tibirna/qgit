@@ -65,17 +65,22 @@ bool ConsoleImpl::start(const QString& cmd, const QString& cmdArgs) {
 
 	statusBar()->showMessage("Executing \'" + actionName + "\' action...");
 
-	QString t(cmd.section('\n', 1, 0xffffffff, QString::SectionIncludeLeadingSep));
-
 	// in case of a multi-sequence, line arguments are bounded to first command only
-	QString txt = cmd.section('\n', 0, 0).append(cmdArgs).append(t);
-	textLabelCmd->setText(txt);
+	QString txt = cmd.section('\n', 0, 0).trimmed();
+	QString args = cmdArgs.trimmed();
+	QString tail(cmd.section('\n', 1).trimmed());
 
-	if (t.trimmed().isEmpty())
-		// any one-line command followed by a newline would fail
-		proc = git->runAsync(cmd.trimmed(), this);
+	if (!args.isEmpty())
+		txt.append(' ' + args);
+
+	if (!tail.isEmpty()) // any one-line command followed by a newline would fail
+		txt.append('\n' + tail);
+
+	textLabelCmd->setText(txt);
+	if (tail.isEmpty())
+		proc = git->runAsync(txt, this);
 	else
-		proc = git->runAsScript(cmd, this); // wrap in a script
+		proc = git->runAsScript(txt.append('\n'), this); // wrap in a script
 
 	if (proc.isNull())
 		deleteLater();

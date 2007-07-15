@@ -668,7 +668,13 @@ MyProcess* Git::runAsync(SCRef runCmd, QObject* receiver, SCRef buf) {
 MyProcess* Git::runAsScript(SCRef runCmd, QObject* receiver, SCRef buf) {
 
 	const QString scriptFile(workDir + "/qgit_script" + QGit::SCRIPT_EXT);
-	if (!writeToFile(scriptFile, runCmd, true))
+#ifndef Q_OS_WIN32
+	// without this process doesn't start under Linux
+	QString cmd(runCmd.startsWith("#!") ? runCmd : "#!/bin/sh\n" + runCmd);
+#else
+	QString cmd(runCmd);
+#endif
+	if (!writeToFile(scriptFile, cmd, true))
 		return NULL;
 
 	MyProcess* p = runAsync(scriptFile, receiver, buf);
