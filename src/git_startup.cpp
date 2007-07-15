@@ -1394,11 +1394,17 @@ int Rev::indexData(bool, bool withDiff) const {
 
 	// shortlog could be not '\n' terminated so use committer
 	// end of line as a safe start point to find chunk end
-	int end = ba.indexOf('\0', idx); // this is the slowest find
-	if (end == -1)
-		return -1;
+	int end = idx - 1;
+	do { // rare case of a '\0' inside content,
+	     // see c4201214 and bb8d8a6f5 in Linux tree
+		end = ba.indexOf('\0', end + 1); // this is the slowest find
+		if (end == -1)
+			return -1;
 
-	// ok, from here we are sure we have a complete chunk
+	} while (ba.at(end - 1) != '\n');
+
+	indexed = true; // ok, from here we are sure we have a complete chunk
+
 	while (++idx < end && ba.at(idx) != '\n') // check for the first blank line
 		idx = ba.indexOf('\n', idx);
 
