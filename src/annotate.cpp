@@ -6,8 +6,6 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <valgrind/callgrind.h>
-
 #include <QApplication>
 #include "git.h"
 #include "myprocess.h"
@@ -89,7 +87,7 @@ bool Annotate::start(const FileHistory* _fh) {
 	while (++it != histRevOrder.constEnd());
 
 	// annotating the file history could be time consuming,
-	// so return now a use a timer to start annotation
+	// so return now and use a timer to start annotation
 	QTimer::singleShot(10, this, SLOT(slotComputeDiffs()));
 	return true;
 }
@@ -97,12 +95,9 @@ bool Annotate::start(const FileHistory* _fh) {
 void Annotate::slotComputeDiffs() {
 
 	processingTime.start();
-// dbStart;
-// CALLGRIND_START_INSTRUMENTATION;
+
 	if (!cancelingAnnotate)
 		annotateFileHistory(); // now could call Qt event loop
-// CALLGRIND_STOP_INSTRUMENTATION;
-// dbRestart;
 
 	valid = !(isError || cancelingAnnotate);
 	canceled = cancelingAnnotate;
@@ -140,23 +135,23 @@ void Annotate::doAnnotate(SCRef sha) {
 		isError = true;
 		return;
 	}
-	const QString diff(getPatch(sha)); // update FileAnnotation::fileSha
+	const QString& diff(getPatch(sha)); // set FileAnnotation::fileSha
 	if (r->parentsCount() == 0) { // initial revision
 		setInitialAnnotation(ah[sha].fileSha, fa); // calls Qt event loop
 		fa->isValid = true;
 		return;
 	}
 	// now create a new annotation from first parent diffs
-	const QStringList parents(r->parents());
+	const QStringList& parents(r->parents());
 	const QString& parSha = parents.first();
 	FileAnnotation* pa = getFileAnnotation(parSha);
 
-	if (!(pa && pa->isValid)) {
+	if (!pa || !pa->isValid) {
 		dbp("ASSERT in doAnnotate: annotation for %1 not valid", parSha);
 		isError = true;
 		return;
 	}
-	const QString author(setupAuthor(r->author(), fa->annId));
+	const QString& author(setupAuthor(r->author(), fa->annId));
 	setAnnotation(diff, author, pa->lines, fa->lines);
 
 	// then add other parents diff if any
@@ -166,7 +161,7 @@ void Annotate::doAnnotate(SCRef sha) {
 	while (it != parents.constEnd()) {
 
 		FileAnnotation* pa = getFileAnnotation(*it);
-		const QString diff(getPatch(sha, parentNum++));
+		const QString& diff(getPatch(sha, parentNum++));
 		QStringList tmpAnn;
 		setAnnotation(diff, "Merge", pa->lines, tmpAnn);
 
@@ -199,22 +194,23 @@ FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 void Annotate::setInitialAnnotation(SCRef fileSha, FileAnnotation* fa) {
 
 	QByteArray fileData;
+
 	// fh->fileNames() are in cronological order, so we need the last one
 	git->getFile(fileSha, NULL, &fileData, fh->fileNames().last()); // calls Qt event loop
 	if (cancelingAnnotate)
 		return;
 
 	int lineNum = fileData.count('\n');
-	if (!fileData.endsWith('\n')) // No newline at end of file
+	if (!fileData.endsWith('\n') && !fileData.isEmpty()) // No newline at end of file
 		lineNum++;
 
+	const QString empty;
 	for (int i = 0; i < lineNum; i++)
-		fa->lines.append(QString(""));
+		fa->lines.append(empty);
 }
 
 const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 
-	QString author(QString("%1.").arg(annId, annNumLen)); // first field is annotation id
 	QString tmp(origAuthor.section('<', 0, 0).trimmed()); // strip e-mail address
 	if (tmp.isEmpty()) { // probably only e-mail
 		tmp = origAuthor;
@@ -224,35 +220,36 @@ const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 	}
 	// shrink author name if necessary
 	if (tmp.length() > MAX_AUTHOR_LEN) {
-		SCRef firstName(tmp.section(' ', 0, 0));
-		SCRef surname(tmp.section(' ', 1));
+		SCRef firstName(tmp.section(' ', 0, 0).trimmed());
+		SCRef surname(tmp.section(' ', 1).trimmed());
 		if (!firstName.isEmpty() && !surname.isEmpty())
 			tmp = firstName.left(1) + ". " + surname;
+
 		tmp.truncate(MAX_AUTHOR_LEN);
 	}
-	author.append(tmp);
-	return author;
+	return QString("%1.%2").arg(annId, annNumLen).arg(tmp);
 }
 
 void Annotate::unify(SList dst, SCList src) {
 
-	QStringList::iterator itd(dst.begin());
-	QStringList::const_iterator its(src.constBegin());
-	for ( ; itd != dst.end(); ++itd, ++its)
-		if (*itd == "Merge")
-			*itd = *its;
+	const QString m("Merge");
+	for (int i = 0; i < dst.size(); ++i) {
+		if (dst.at(i) == m)
+			dst[i] = src.at(i);
+	}
 }
 
 void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList newAnn, int ofs) {
 
 	newAnn.clear();
 	QStringList::const_iterator cur(prevAnn.constBegin());
-	QStringList::const_iterator prevAnnEnd(prevAnn.constEnd());
 	QString line;
-	int idx = 0, num, lineNumStart, lineNumEnd, curLineNum = 1;
+	int idx = 0, num, lineNumStart, lineNumEnd;
+	int curLineNum = 1; // warning, starts from 1 instead of 0
 	bool inHeader = true;
 
 	while (getNextSection(diff, idx, line, "\n")) {
+
 		char firstChar = line.at(0).toLatin1();
 
 		if (inHeader) {
@@ -287,35 +284,28 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 
 			// diff lines start from 1, 0 is empty file,
 			// instead QValueList::at() starts from 0
-			if (num < 0) {
+			if (num < 0 || num > prevAnn.size()) {
 				dbp("ASSERT setAnnotation: start line number is %1", num);
 				isError = true;
 				return;
 			}
-			while (curLineNum < num) {
-				if (cur == prevAnnEnd) {
-					dbp("ASSERT setAnnotation: start line "
-					    "number %1 is out of range", num);
-					isError = true;
-					return;
-				}
+			for ( ; curLineNum < num; ++curLineNum) {
 				newAnn.append(*cur);
 				++cur;
-				++curLineNum;
 			}
 			break;
 		case '+':
 			newAnn.append(author);
 			break;
 		case '-':
-			if (cur != prevAnnEnd) {
-				++cur;
-				++curLineNum;
-			} else {
+			if (curLineNum > prevAnn.size()) {
 				dbp("ASSERT setAnnotation: remove end of "
 				    "file, diff is %1", diff);
 				isError = true;
 				return;
+			} else {
+				++cur;
+				++curLineNum;
 			}
 			break;
 		case '\\':
@@ -326,23 +316,23 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 
 			// fall through
 		default:
-			if (cur != prevAnnEnd) {
-				newAnn.append(*cur);
-				++cur;
-				++curLineNum;
-			} else {
+			if (curLineNum > prevAnn.size()) {
 				dbp("ASSERT setAnnotation: end of "
 				    "file reached, diff is %1", diff);
 				isError = true;
 				return;
+			} else {
+				newAnn.append(*cur);
+				++cur;
+				++curLineNum;
 			}
 			break;
 		}
 	}
-	while (cur != prevAnnEnd) {
+	// copy the tail
+	for ( ; curLineNum <= prevAnn.size(); ++curLineNum) {
 		newAnn.append(*cur);
 		++cur;
-		++curLineNum;
 	}
 }
 
@@ -352,13 +342,14 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 	if (parentNum)
 		mergeSha = QString::number(parentNum) + " m " + sha;
 
-	const Rev* r = git->revLookup(parentNum ? mergeSha : sha, fh);
+	const Rev* r = git->revLookup(mergeSha, fh);
 	if (!r)
 		return QString();
 
-	QString diff(r->diff());
+	const QString diff(r->diff());
 
 	if (ah[sha].fileSha.isEmpty() && !parentNum) {
+
 		int idx = diff.indexOf("..");
 		if (idx != -1)
 			ah[sha].fileSha = diff.mid(idx + 2, 40);
@@ -735,7 +726,7 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 	QString curRevSha(curRev->sha());
 	while (curRevSha != oldest && !isDirectDescendant) {
 
-		QString diff(getPatch(curRevSha));
+		const QString& diff(getPatch(curRevSha));
 		if (diff.isEmpty()) {
 			if (curRev->parentsCount() == 0)  // is initial
 				break;
@@ -792,7 +783,7 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 				ranges.insert(sha, RangeInfo());
 				continue;
 			}
-			QString diff(getPatch(sha));
+			const QString& diff(getPatch(sha));
 			if (diff.isEmpty()) {
 				dbp("ASSERT in rangeFilter 2: diff for %1 not found", sha);
 				return "";
