@@ -695,12 +695,14 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
 
 		if (!loadingUnAppliedPatches) {
 
+			fh->loadTime += loadTime;
+
 			uint kb = byteSize / 1024;
-			float mbs = (float)byteSize / loadTime / 1000;
+			float mbs = (float)byteSize / fh->loadTime / 1000;
 			QString tmp;
 			tmp.sprintf("Loaded %i revisions  (%i KB),   "
 			            "time elapsed: %i ms  (%.2f MB/s)",
-			            fh->revs.count(), kb, loadTime, mbs);
+			            fh->revs.count(), kb, fh->loadTime, mbs);
 
 			if (!tryFollowRenames(fh))
 				emit loadCompleted(fh, tmp);

@@ -78,7 +78,7 @@ void FileHistory::clear() {
 	qDeleteAll(revs);
 	revs.clear();
 	revOrder.clear();
-	firstFreeLane = 0;
+	firstFreeLane = loadTime = 0;
 	lns->clear();
 	fNames.clear();
 	curFNames.clear();

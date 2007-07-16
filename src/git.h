@@ -64,6 +64,7 @@ private:
 	int _rowCnt;
 	bool _annIdValid;
 	unsigned long _secs;
+	int loadTime;
 	QStringList fNames;
 	QStringList curFNames;
 	QStringList renamedRevs;
