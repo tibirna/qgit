@@ -262,21 +262,19 @@ const QStringList Git::getOthersFiles() {
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
                       SCRef patch, int idx, FileHistory* fh) {
 
-QString data("commit " + sha + ' ' + parents.join(" ") + "\ntree ");
-data.append(sha);
-//	QString header("commit " + sha + ' ' + parents.join(" "));
-//	QString data("\ntree " + sha);
+	QString header("commit " + sha + ' ' + parents.join(" "));
+	QString data("\ntree " + sha);
 
 	data.append("\nparent " + parents.join("\nparent "));
 	data.append("\nauthor " + author + " " + date);
 	data.append("\ncommitter " + author + " " + date);
 	data.append("\n\n    " + log + '\n');
 	data.append(longLog);
-data.append(patch);
-// 	header.append("\nsize " + QString::number(data.size() - 1));
-// 	data.prepend(header);
-// 	if (!patch.isEmpty())
-// 		data.append('\n' + patch);
+
+	header.append("\nlog size " + QString::number(data.size() - 1));
+	data.prepend(header);
+	if (!patch.isEmpty())
+		data.append('\n' + patch);
 
 	QByteArray* ba = new QByteArray(data.toAscii());
 	ba->append('\0');
@@ -1328,7 +1326,7 @@ const QStringList Rev::parents() const {
 	return midSha(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
-int Rev::indexData(bool, bool withDiff) const {
+int Rev::indexData(bool quick, bool withDiff) const {
 /*
   This is what 'git log' produces:
 
@@ -1367,105 +1365,53 @@ int Rev::indexData(bool, bool withDiff) const {
 		idx += 7;
 	}
 
-// CODE BELOW IS TO REMOVE WHEN GIT IMPLEMENTS MESSAGE SIZES
-
-	idx += 47; // idx points to first line '\n', so skip tree line
-	while (idx < last && ba.at(idx) == 'p') //skip parents
-		idx += 48;
-
-	idx += 23;
-	if (idx > last)
+	if (idx + 1 > last)
 		return -1;
 
-	int lineEnd = ba.indexOf('\n', idx); // author line end
-	if (lineEnd == -1)
-		return -1;
-
-	lineEnd += 23;
-	if (lineEnd > last)
-		return -1;
-
-	autStart = idx - 16;
-	autLen = lineEnd - idx - 24;
-	autDateStart = lineEnd - 39;
-	autDateLen = 10;
-
-	idx = ba.indexOf('\n', lineEnd); // committer line end
-	if (idx == -1)
-		return -1;
-
-	// shortlog could be not '\n' terminated so use committer
-	// end of line as a safe start point to find chunk end
-	int end = idx - 1;
-	do { // rare case of a '\0' inside content,
-	     // see c4201214 and bb8d8a6f5 in Linux tree
-		end = ba.indexOf('\0', end + 1); // this is the slowest find
-		if (end == -1)
-			return -1;
-
-	} while (ba.at(end - 1) != '\n');
-
-	indexed = true; // ok, from here we are sure we have a complete chunk
-
-	while (++idx < end && ba.at(idx) != '\n') // check for the first blank line
-		idx = ba.indexOf('\n', idx);
-
-	sLogStart = idx + 5;
-	if (end < sLogStart) { // no shortlog no longLog and no diff
-
-		sLogStart = sLogLen = 0;
-		lLogStart = lLogLen = 0;
-		diffStart = diffLen = 0;
-		return ++end;
-	}
-	lLogStart = ba.indexOf('\n', sLogStart);
-	if (lLogStart != -1 && lLogStart < end) {
-
-		sLogLen = lLogStart++ - sLogStart;
-		lLogLen = end - lLogStart;
-
-	} else { // no longLog and no new line at the end of shortlog
-		sLogLen = end - sLogStart;
-		lLogStart = lLogLen = 0;
-	}
-	diffStart = diffLen = 0;
-	if (withDiff) {
-
-		diffStart = ba.indexOf("\ndiff ", lineEnd);
-		if (diffStart != -1 && diffStart < end) {
-
-			lLogLen = diffStart++ - lLogStart;
-			diffLen = end - diffStart;
-
-			// chatch patological cases
-			if (sLogStart >= diffStart)
-				sLogStart = sLogLen = 0;
-			if (lLogStart >= diffStart)
-				lLogStart = lLogLen = 0;
-		}
-	}
-	return ++end;
-
-/*
-	idx += 6; // move idx from first line '\n' to beginning of msg size
 	int msgSize = 0;
-	while (idx < last && ba.at(idx) != '\n')
-		msgSize = msgSize * 10 + ba.at(idx++) - 48;
 
-	int msgStart = ++idx; // could be truncated
+	if (ba.at(idx + 1) == 'l') { // 'log size xxx\n'
+
+		idx += 10; // move idx from first line '\n' to beginning of log size
+
+		while (idx < last && ba.at(idx) != '\n')
+			msgSize = msgSize * 10 + ba.at(idx++) - 48;
+
+	}
+	int msgStart = idx + 1;
+	idx += 47; // idx points to the line before "tree" at '\n', so skip tree line
+
 	if (idx > last)
 		return -1;
 
-	// ok, now we know msgStart and msgSize are valid
+	// ok, now msgStart and msgSize are valid,
+	// msgSize could be 0 if not available
 	int msgEnd = msgStart + msgSize;
 	if (msgEnd > last)
 		return -1;
 
-	if (quick && !withDiff)
-		return ++msgEnd;
+	int end;
+	if (withDiff || !msgSize) {
 
-	idx += 46; // idx points to first line '\n', so skip tree line
-	while (idx < last && ba.at(idx) == 'p') //skip parents
+		end = msgEnd - 1;
+		do { // search for "\n\0" to handle (rare) cases of '\0'
+		     // in content, see c42012 and bb8d8a6 in Linux tree
+			end = ba.indexOf('\0', end + 1);
+			if (end == -1)
+				return -1;
+
+		} while (ba.at(end - 1) != '\n');
+
+	} else
+		end = msgEnd;
+
+	// ok, now end is valid but msgEnd could be not if !msgSize
+	// in case of diff we are sure content will be consumed so
+	// we go all the way
+	if (quick && !withDiff)
+		return ++end;
+
+	while (idx < last && ba.at(idx) == 'p') // skip parents
 		idx += 48;
 
 	idx += 23;
@@ -1489,45 +1435,43 @@ int Rev::indexData(bool, bool withDiff) const {
 		dbs("ASSERT in indexData: unexpected end of data");
 		return -1;
 	}
+	diffStart = diffLen = 0;
+	if (withDiff) {
+		diffStart = msgSize ? msgEnd : ba.indexOf("\ndiff ", idx);
+
+		if (diffStart != -1 && diffStart < end)
+			diffLen = end - ++diffStart;
+		else
+			diffStart = 0;
+	}
+	if (!msgSize)
+		msgEnd = diffStart ? diffStart : end;
+
+	// ok, now msgEnd is valid and we can handle the log
+
 	while (++idx < msgEnd && ba.at(idx) != '\n') // check for the first blank line
 		idx = ba.indexOf('\n', idx);
 
 	sLogStart = idx + 5;
-	if (msgEnd < sLogStart) { // no shortlog no longLog and no diff
+	if (msgEnd < sLogStart) { // no shortlog no longLog
 
 		sLogStart = sLogLen = 0;
 		lLogStart = lLogLen = 0;
 	} else {
 		lLogStart = ba.indexOf('\n', sLogStart);
-		if (lLogStart != -1 && lLogStart < msgEnd) {
+		if (lLogStart != -1 && lLogStart < msgEnd - 1) {
 
-			sLogLen = lLogStart++ - sLogStart;
-			lLogLen = msgEnd - lLogStart;
+			sLogLen = lLogStart - sLogStart; // skip sLog trailing '\n'
+			lLogLen = msgEnd - ++lLogStart;
 
-		} else { // no longLog and no new line at the end of shortlog
+		} else { // no longLog
 			sLogLen = msgEnd - sLogStart;
+			if (ba.at(sLogStart + sLogLen - 1) == '\n')
+				sLogLen--; // skip trailing '\n' if any
+
 			lLogStart = lLogLen = 0;
 		}
 	}
-	diffStart = diffLen = 0;
-	if (withDiff) {
-
-		int end = msgEnd - 1;
-		do { // rare case of a '\0' inside diff content,
-		     // see c4201214 and bb8d8a6f5 in Linux tree
-			end = ba.indexOf('\0', end + 1);
-			if (end == -1)
-				return -1;
-
-		} while (ba.at(end - 1) != '\n');
-
-		if (msgEnd < end) {
-			diffStart = msgEnd + 1;
-			diffLen = end - diffStart;
-			msgEnd = end;
-		}
-	}
 	indexed = true;
-	return ++msgEnd;
-*/
+	return ++end;
 }
