@@ -25,6 +25,7 @@
    Function _valueOf() is used by debug macros
 */
 template<typename T> inline const QString _valueOf(const T& x) { return QVariant(x).toString(); }
+template<> inline const QString _valueOf(const QStringList& x) { return x.join(" "); }
 inline const QString& _valueOf(const QString& x) { return x; }
 inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 
