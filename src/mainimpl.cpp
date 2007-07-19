@@ -762,19 +762,12 @@ int MainImpl::currentTabType(Domain** t) {
 
 template<class X> QList<X*>* MainImpl::getTabs(QWidget* tabPage) {
 
-	X dummy;
-	const char* clName = dummy.metaObject()->className();
-	QList<Domain*> l = this->findChildren<Domain*>();
-
+	QList<X*> l = this->findChildren<X*>();
 	QList<X*>* ret = new QList<X*>;
+
 	for (int i = 0; i < l.size(); ++i) {
-
-		if (!l.at(i)->inherits(clName))
-			continue;
-
-		X* x = static_cast<X*>(l.at(i));
-		if (!tabPage || x->tabPage() == tabPage)
-			ret->append(x);
+		if (!tabPage || l.at(i)->tabPage() == tabPage)
+			ret->append(l.at(i));
 	}
 	return ret; // 'ret' must be deleted by caller
 }
