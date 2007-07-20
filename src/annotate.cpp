@@ -658,6 +658,12 @@ const QString Annotate::getAncestor(SCRef sha, int* shaIdx) {
 		if (fa.fileSha == fileSha)
 			return histRevOrder[*shaIdx];
 	}
+	// ok still not found, this could happen if sha is an unapplied
+	// stgit patch. In this case fall back on the first in the list
+	// that is the newest.
+	if (git->getAllRefSha(Git::UN_APPLIED).contains(sha))
+		return histRevOrder.first();
+
 	dbp("ASSERT in getAncestor: ancestor of %1 not found", sha);
 	return "";
 }
