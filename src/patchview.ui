@@ -31,7 +31,7 @@
    <item>
     <layout class="QVBoxLayout" >
      <property name="spacing" >
-      <number>6</number>
+      <number>0</number>
      </property>
      <property name="leftMargin" >
       <number>0</number>
@@ -131,7 +131,7 @@
          <property name="sizeHint" >
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>0</height>
           </size>
          </property>
         </spacer>
