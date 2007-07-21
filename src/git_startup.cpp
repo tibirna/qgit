@@ -871,7 +871,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		// out unknown revs until no more StGIT patches are waited and
 		// firstNonStGitPatch is reached
 		if (!(firstNonStGitPatch.isEmpty() && patchesStillToFind == 0) &&
-		    !loadingUnAppliedPatches) {
+		    !loadingUnAppliedPatches && isMainHistory(fh)) {
 
 			Reference* rf = lookupReference(sha);
 			if (!(rf && (rf->type & APPLIED))) {
@@ -939,18 +939,20 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 			c->isUnApplied = true;
 			c->lanes.append(UNAPPLIED);
 
-		} else if (patchesStillToFind > 0) { // try to avoid costly lookup
+		} else if (patchesStillToFind > 0 || !isMainHistory(fh)) { // try to avoid costly lookup
 
 			Reference* rf = lookupReference(sha);
 			if (rf && (rf->type & APPLIED)) {
 
 				Rev* c = const_cast<Rev*>(revLookup(sha, fh));
 				c->isApplied = true;
-				patchesStillToFind--;
-				if (patchesStillToFind == 0)
-					// any rev will be discarded until
-					// firstNonStGitPatch arrives
-					firstNonStGitPatch = c->parent(0);
+				if (isMainHistory(fh)) {
+					patchesStillToFind--;
+					if (patchesStillToFind == 0)
+						// any rev will be discarded until
+						// firstNonStGitPatch arrives
+						firstNonStGitPatch = c->parent(0);
+				}
 			}
 		}
 	}
