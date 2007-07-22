@@ -13,27 +13,54 @@
    <string>Patch</string>
   </property>
   <layout class="QHBoxLayout" >
-   <property name="margin" >
+   <property name="spacing" >
     <number>0</number>
    </property>
-   <property name="spacing" >
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
     <number>0</number>
    </property>
    <item>
     <layout class="QVBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
      <property name="spacing" >
       <number>6</number>
      </property>
+     <property name="leftMargin" >
+      <number>0</number>
+     </property>
+     <property name="topMargin" >
+      <number>0</number>
+     </property>
+     <property name="rightMargin" >
+      <number>0</number>
+     </property>
+     <property name="bottomMargin" >
+      <number>0</number>
+     </property>
      <item>
       <layout class="QHBoxLayout" >
-       <property name="margin" >
-        <number>2</number>
-       </property>
        <property name="spacing" >
         <number>6</number>
+       </property>
+       <property name="leftMargin" >
+        <number>2</number>
+       </property>
+       <property name="topMargin" >
+        <number>2</number>
+       </property>
+       <property name="rightMargin" >
+        <number>2</number>
+       </property>
+       <property name="bottomMargin" >
+        <number>2</number>
        </property>
        <item>
         <widget class="QLabel" name="textLabel" >
@@ -112,9 +139,7 @@
        <item>
         <widget class="QLineEdit" name="lineEditDiff" >
          <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>7</hsizetype>
-           <vsizetype>0</vsizetype>
+          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
            <horstretch>1</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -143,9 +168,7 @@
        </property>
        <widget class="QSplitter" name="splitter" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>7</vsizetype>
+         <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
           <horstretch>5</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -169,15 +192,13 @@
           <bool>true</bool>
          </property>
          <property name="textInteractionFlags" >
-          <enum>Qt::TextSelectableByMouse</enum>
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </widget>
        <widget class="FileList" name="fileList" >
         <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>13</hsizetype>
-          <vsizetype>13</vsizetype>
+         <sizepolicy vsizetype="Ignored" hsizetype="Ignored" >
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
