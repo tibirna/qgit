@@ -301,11 +301,11 @@ public:
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
 		*next = indexData(true, withDiff);
 	}
-	bool isBoundary() const { return (boundaryOfs == 1); }
+	bool isBoundary() const { return boundary; }
 	uint parentsCount() const { return parentsCnt; }
 	const QString parent(int idx) const;
 	const QStringList parents() const;
-	const QString sha() const { return midSha(start + boundaryOfs, 40); }
+	const QString sha() const { return midSha(start + startOfs, 40); }
 	const QString author() const { setup(); return mid(autStart, autLen); }
 	const QString authorDate() const { setup(); return mid(autDateStart, autDateLen); }
 	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
@@ -329,9 +329,9 @@ private:
 	const QString midSha(int start, int len) const;
 
 	const QByteArray& ba; // reference here!
-	mutable bool indexed;
+	mutable bool indexed, boundary;
 	const int start;
-	mutable uint parentsCnt, boundaryOfs;
+	mutable uint parentsCnt, startOfs;
 	mutable int autStart, autLen, autDateStart, autDateLen;
 	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 };

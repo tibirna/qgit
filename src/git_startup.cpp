@@ -1316,7 +1316,7 @@ const QString Rev::midSha(int start, int len) const {
 
 const QString Rev::parent(int idx) const {
 
-	return midSha(start + boundaryOfs + 41 + 41 * idx, 40);
+	return midSha(start + startOfs + 41 + 41 * idx, 40);
 }
 
 const QStringList Rev::parents() const {
@@ -1324,7 +1324,7 @@ const QStringList Rev::parents() const {
 	if (parentsCnt == 0)
 		return QStringList();
 
-	int ofs = start + boundaryOfs + 41;
+	int ofs = start + startOfs + 41;
 	return midSha(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
@@ -1350,10 +1350,12 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	if (start > last)
 		return -1;
 
-	boundaryOfs = uint(ba.at(start) == '-');
+	// take in account --boundary and --left-right options
+	startOfs = uint(ba.at(start) == '-' || ba.at(start) == '<' || ba.at(start) == '>');
+	boundary = startOfs && ba.at(start) == '-';
 
 	parentsCnt = 0;
-	int idx = start + boundaryOfs + 40;
+	int idx = start + startOfs + 40;
 	while (idx < last && ba.at(idx) == ' ') {
 		idx += 41;
 		parentsCnt++;
