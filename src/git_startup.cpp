@@ -474,7 +474,11 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 	        SLOT(on_loaded(FileHistory*, ulong, int,
 	        bool, const QString&, const QString&)));
 
-	return dl->start(initCmd, workDir, buf);
+	bool started = dl->start(initCmd, workDir, buf);
+	if (!started)
+		delete dl;
+
+	return started;
 }
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
