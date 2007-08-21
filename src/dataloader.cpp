@@ -180,9 +180,9 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 	   pointer list, from qprocess_unix.cpp:
 
 		const int basize = 4096;
-		QByteArray *ba = new QByteArray( basize );
-		n = ::read( fd, ba->data(), basize );
-		buffer->append( ba ); // added to a QPtrList<QByteArray> pointer list
+		QByteArray *ba = new QByteArray(basize);
+		n = ::read(fd, ba->data(), basize);
+		buffer->append(ba); // added to a QPtrList<QByteArray> pointer list
 
 	   When we call QProcess::readStdout() data from buffers pointed by the
 	   pointer list is memcpy() to the function return value, from qprocess.cpp:

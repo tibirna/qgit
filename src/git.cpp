@@ -1085,7 +1085,7 @@ const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 
 	QString text;
 
-	text = Qt::escape( txt );
+	text = Qt::escape(txt);
 
 	if (regExp.isEmpty())
 		return text;
@@ -1127,7 +1127,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 	QString text;
 	if (c->isDiffCache)
-		text = Qt::convertFromPlainText( c->longLog() );
+		text = Qt::convertFromPlainText(c->longLog());
 	else {
 		QTextStream ts(&text);
 		ts << "<html><head><style type=\"text/css\">"

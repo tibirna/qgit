@@ -39,9 +39,9 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 	case 'r':
 	case 's':
 		if (text.startsWith("diff --git a/")) {
-			myFormat.setForeground( Qt::darkBlue );
-			myFormat.setBackground( QColor(0xe0,0xe0,0xf0) );
-		} else if ( text.startsWith("copy ")
+			myFormat.setForeground(Qt::darkBlue);
+			myFormat.setBackground(QGit::PURPLE);
+		} else if (text.startsWith("copy ")
 			|| text.startsWith("index ")
 			|| text.startsWith("new ")
 			|| text.startsWith("old ")
@@ -51,7 +51,7 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 
 		else if (cl > 0 && text.startsWith("diff --combined")) {
 			myFormat.setForeground(Qt::darkBlue);
-			myFormat.setBackground( QColor(0xe0,0xe0,0xf0) );
+			myFormat.setBackground(QGit::PURPLE);
 		}
 		break;
 	case ' ':
@@ -63,7 +63,7 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 		}
 		break;
 	}
-	if( myFormat.isValid() )
+	if (myFormat.isValid())
 		setFormat(0, text.length(), myFormat);
 
 	PatchContent* pc = static_cast<PatchContent*>(parent());

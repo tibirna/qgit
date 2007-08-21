@@ -41,9 +41,9 @@ public:
 	const QString sha(bool n = true) const { return (n ? curS.sha : prevS.sha); }
 	const QString fileName(bool n = true) const { return (n ? curS.fn : prevS.fn); }
 	const QString diffToSha(bool n = true) const {return(n ? curS.dtSha : prevS.dtSha); }
-	bool selectItem(bool n = true) const { return( n ? curS.sel : prevS.sel); }
-	bool isMerge(bool n = true) const { return( n ? curS.isM : prevS.isM); }
-	bool allMergeFiles(bool n = true) const { return( n ? curS.allM : prevS.allM); }
+	bool selectItem(bool n = true) const { return (n ? curS.sel : prevS.sel); }
+	bool isMerge(bool n = true) const { return (n ? curS.isM : prevS.isM); }
+	bool allMergeFiles(bool n = true) const { return (n ? curS.allM : prevS.allM); }
 	void setSha(const QString& s) { if (isLocked) nextS.sha = s; else curS.sha = s; }
 	void setFileName(const QString& s) { if (isLocked) nextS.fn = s; else curS.fn = s; }
 	void setDiffToSha(const QString& s) { if (isLocked) nextS.dtSha = s; else curS.dtSha = s; }
