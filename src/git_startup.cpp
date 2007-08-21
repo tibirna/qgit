@@ -7,6 +7,7 @@
 
 */
 #include <QApplication>
+#include <QPair>
 #include <QSettings>
 #include <QTextCodec>
 #include "exceptionmanager.h"

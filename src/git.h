@@ -8,10 +8,10 @@
 #define GIT_H
 
 #include <QAbstractItemModel>
-#include <QPair>
 #include "exceptionmanager.h"
 #include "common.h"
 
+template <class, class> struct QPair;
 class QRegExp;
 class QTextCodec;
 class Annotate;
