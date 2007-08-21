@@ -7,28 +7,27 @@
 #ifndef MAINIMPL_H
 #define MAINIMPL_H
 
-#include <QSet>
-#include <QModelIndex>
 #include <QProcess>
 #include <QRegExp>
-#include <QTimer>
-#include <QCloseEvent>
 #include <QDir>
-#include <QEvent>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "ui_mainview.h"
 
-class QShortcutEvent;
-class QComboBox;
 class QAction;
-class QTextEdit;
-class Git;
-class Domain;
-class RevsView;
-class FileView;
-class FileHistory;
+class QCloseEvent;
+class QComboBox;
+class QEvent;
 class QListWidgetItem;
+class QModelIndex;
+class QShortcutEvent;
+class QTextEdit;
+
+class Domain;
+class Git;
+class FileHistory;
+class FileView;
+class RevsView;
 
 class MainImpl : public QMainWindow, public Ui_MainBase {
 Q_OBJECT

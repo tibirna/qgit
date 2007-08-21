@@ -7,7 +7,6 @@
 #ifndef PATCHVIEW_H
 #define PATCHVIEW_H
 
-#include <QRegExp>
 #include "ui_patchview.h"
 #include "domain.h"
 

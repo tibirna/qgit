@@ -6,19 +6,19 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#include <QWheelEvent>
 #include <QCloseEvent>
-#include <QEvent>
-#include <QSettings>
-#include <QMessageBox>
-#include <QInputDialog>
-#include <QStatusBar>
-#include <QFileDialog>
-#include <QMenu>
 #include <QDrag>
-#include <QShortcut>
+#include <QEvent>
+#include <QFileDialog>
+#include <QInputDialog>
 #include <QMenu>
+#include <QMessageBox>
 #include <QScrollBar>
+#include <QSettings>
+#include <QShortcut>
+#include <QStatusBar>
+#include <QTimer>
+#include <QWheelEvent>
 #include "config.h" // defines PACKAGE_VERSION
 #include "help.h"
 #include "ui_help.h"

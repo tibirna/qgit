@@ -6,6 +6,7 @@
 */
 #include <QApplication>
 #include <QStatusBar>
+#include <QTimer>
 #include "exceptionmanager.h"
 #include "mainimpl.h"
 #include "git.h"

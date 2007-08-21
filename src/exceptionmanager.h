@@ -8,7 +8,6 @@
 #define EXCEPTIONMANAGER_H
 
 #include <QVector>
-#include <QList>
 #include <QString>
 #include <QMap>
 

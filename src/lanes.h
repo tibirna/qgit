@@ -8,8 +8,9 @@
 #define LANES_H
 
 #include <QString>
-#include <QStringList>
 #include <QVector>
+
+class QStringList;
 
 class Lanes {
 public:

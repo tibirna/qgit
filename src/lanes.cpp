@@ -6,6 +6,7 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
+#include <QStringList>
 #include "common.h"
 #include "lanes.h"
 
