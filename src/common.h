@@ -8,9 +8,7 @@
 #define COMMON_H
 
 #include <QHash>
-#include <QLinkedList>
 #include <QVector>
-#include <QSet>
 #include <QEvent>
 #include <QColor>
 #include <QFont>

@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
+#include <QSet>
 #include <QSettings>
 #include <QTextDocument>
 #include <QTextCodec>
