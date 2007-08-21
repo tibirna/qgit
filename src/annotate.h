@@ -8,10 +8,7 @@
 #define ANNOTATE_H
 
 #include <QObject>
-#include <QPair>
-#include <QPointer>
 #include <QTime>
-#include <QTimer>
 #include "exceptionmanager.h"
 #include "common.h"
 
