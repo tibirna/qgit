@@ -172,9 +172,7 @@ void FileList::insertFiles(const RevFile* files) {
 		}
 		QString extSt(files->extendedStatus(i));
 		if (extSt.isEmpty()) {
-			if (files->statusCmp(i, RevFile::MODIFIED))
-				; // common case
-			else if (files->statusCmp(i, RevFile::NEW))
+			if (files->statusCmp(i, RevFile::NEW))
 				clr = Qt::darkGreen;
 			else if (files->statusCmp(i, RevFile::DELETED))
 				clr = Qt::red;
