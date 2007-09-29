@@ -104,7 +104,7 @@ SHA_HASH_DEF(RangeInfo)
 
 
 // minimum git version required
-const QString QGit::GIT_VERSION = "1.4.4";
+const QString QGit::GIT_VERSION = "1.5.3";
 
 // colors
 const QColor QGit::BROWN        = QColor(150, 75, 0);

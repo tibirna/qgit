@@ -480,7 +480,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --no-color --parents --boundary --pretty=raw -z");
+	const QString baseCmd("git log --log-size --parents --boundary --pretty=raw -z");
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh))
 	/*
@@ -1335,7 +1335,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 	- one line with "commit" + sha + an arbitrary amount of parent's sha, in case
 	  of a merge in file history the line terminates with "(from <sha of parent>)"
-	- one line with "size" + len of this record
+	- one line with "log size" + len of this record
 	- one line with "tree"
 	- an arbitrary amount of "parent" lines
 	- one line with "author"
