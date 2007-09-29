@@ -1,7 +1,7 @@
 /*
 	Description: start-up repository opening and reading
 
-	Author: Marco Costalba (C) 2005-2006
+	Author: Marco Costalba (C) 2005-2007
 
 	Copyright: See COPYING file that comes with this distribution
 

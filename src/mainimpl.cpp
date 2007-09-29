@@ -1,7 +1,7 @@
 /*
 	Description: qgit main view
 
-	Author: Marco Costalba (C) 2005-2006
+	Author: Marco Costalba (C) 2005-2007
 
 	Copyright: See COPYING file that comes with this distribution
 
@@ -1648,7 +1648,7 @@ void MainImpl::ActAbout_activated() {
 
 	static const char* aboutMsg =
 	"<center><p><b>QGit version " PACKAGE_VERSION "</b></p><br>"
-	"<p>Copyright (c) 2005, 2006 Marco Costalba</p>"
+	"<p>Copyright (c) 2005, 2007 Marco Costalba</p>"
 	"<p>Use and redistribute under the terms of the "
 	"GNU General Public License</p></center>";
 	QMessageBox::about(this, "About QGit", QString::fromLatin1(aboutMsg));
