@@ -480,7 +480,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --log-size --parents --boundary --pretty=raw -z");
+	const QString baseCmd("git log --no-color --log-size --parents --boundary --pretty=raw -z");
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh))
 	/*
@@ -505,7 +505,7 @@ bool Git::startUnappliedList() {
 
 	// WARNING: with this command 'git log' could send spurious
 	// revs so we need some filter out logic during loading
-	QStringList cmd(QString("git log --parents --pretty=raw -z ^HEAD").split(' '));
+	QStringList cmd(QString("git log --no-color --parents --pretty=raw -z ^HEAD").split(' '));
 	cmd << unAppliedShaList;
 	return startParseProc(cmd, revData, QString());
 }
@@ -835,7 +835,7 @@ void Git::loadFileNames() {
 	}
 	if (!diffTreeBuf.isEmpty()) {
 		filesLoadingPending = filesLoadingCurSha = "";
-		const QString runCmd("git diff-tree -r -C --stdin");
+		const QString runCmd("git diff-tree --no-color -r -C --stdin");
 		runAsync(runCmd, this, diffTreeBuf);
 	}
 	indexTree();

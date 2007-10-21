@@ -776,18 +776,18 @@ MyProcess* Git::getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool comb
 
 	QString runCmd;
 	if (sha != ZERO_SHA) {
-		runCmd = "git diff-tree -r --patch-with-stat ";
+		runCmd = "git diff-tree --no-color -r --patch-with-stat ";
 		runCmd.append(combined ? "-c " : "-C -m "); // TODO rename for combined
 		runCmd.append(diffToSha + " " + sha); // diffToSha could be empty
 	} else
-		runCmd = "git diff-index -r -m --patch-with-stat HEAD";
+		runCmd = "git diff-index --no-color -r -m --patch-with-stat HEAD";
 
 	return runAsync(runCmd, receiver);
 }
 
 const QString Git::getWorkDirDiff(SCRef fileName) {
 
-	QString runCmd("git diff-index -r -z -m -p --full-index --no-commit-id HEAD"), runOutput;
+	QString runCmd("git diff-index --no-color -r -z -m -p --full-index --no-commit-id HEAD"), runOutput;
 	if (!fileName.isEmpty())
 		runCmd.append(" -- " + quote(fileName));
 
@@ -998,7 +998,7 @@ bool Git::isSameFiles(SCRef tree1Sha, SCRef tree2Sha) {
 	if (isParentOf(tree2Sha, tree1Sha))
 		return !isTreeModified(tree1Sha);
 
-	const QString runCmd("git diff-tree -r " + tree1Sha + " " + tree2Sha);
+	const QString runCmd("git diff-tree --no-color -r " + tree1Sha + " " + tree2Sha);
 	QString runOutput;
 	if (!run(runCmd, &runOutput))
 		return false;
@@ -1209,7 +1209,7 @@ const RevFile* Git::getAllMergeFiles(const Rev* r) {
 	if (revsFiles.contains(mySha))
 		return revsFiles[mySha];
 
-	QString runCmd("git diff-tree -r -m -C " + r->sha()), runOutput;
+	QString runCmd("git diff-tree --no-color -r -m -C " + r->sha()), runOutput;
 	if (!run(runCmd, &runOutput))
 		return NULL;
 
@@ -1230,7 +1230,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 
 	if (!diffToSha.isEmpty() && (sha != ZERO_SHA)) {
 
-		QString runCmd("git diff-tree -r -m -C ");
+		QString runCmd("git diff-tree --no-color -r -m -C ");
 		runCmd.append(diffToSha + " " + sha);
 		if (!path.isEmpty())
 			runCmd.append(" " + path);
@@ -1250,7 +1250,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 		dbs("ASSERT in Git::getFiles, ZERO_SHA not found");
 		return NULL;
 	}
-	QString runCmd("git diff-tree -r -c -C " + sha), runOutput;
+	QString runCmd("git diff-tree --no-color -r -c -C " + sha), runOutput;
 	if (!run(runCmd, &runOutput))
 		return NULL;
 
@@ -1337,7 +1337,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 	if (buf.isEmpty())
 		return true;
 
-	QString runCmd("git diff-tree -r -s --stdin "), runOutput;
+	QString runCmd("git diff-tree --no-color -r -s --stdin "), runOutput;
 	if (isRegExp)
 		runCmd.append("--pickaxe-regex ");
 
@@ -1386,7 +1386,7 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 	QSettings settings;
 	const QString FPArgs(settings.value(PATCH_ARGS_KEY).toString());
 
-	QString runCmd("git format-patch");
+	QString runCmd("git format-patch --no-color");
 	if (testFlag(NUMBERS_F) && !remote)
 		runCmd.append(" -n");
 
