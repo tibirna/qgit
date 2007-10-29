@@ -475,6 +475,11 @@ void MainImpl::ActViewDiff_activated() {
 	}
 	rv->viewPatch(false);
 	ActViewDiffNewTab->setEnabled(true);
+
+	if (ActSearchAndFilter->isChecked() || ActSearchAndHighlight->isChecked()) {
+		bool isRegExp = (cmbSearch->currentIndex() == 6);
+		emit highlightPatch(lineEditFilter->text(), isRegExp);
+	}
 }
 
 void MainImpl::ActViewDiffNewTab_activated() {
