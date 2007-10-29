@@ -75,6 +75,9 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
 	connect(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
+
+	connect(m(), SIGNAL(highlightPatch(const QString&, bool)),
+	        tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));
 }
 
 RevsView::~RevsView() {
