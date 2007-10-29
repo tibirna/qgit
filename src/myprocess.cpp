@@ -50,25 +50,8 @@ bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
 
 	busy = true; // we have to wait here until we exit
 
-	// we are now leaving our safe domain context and
-	// jump right in to processEvents() hyperspace
-	Domain* d = git->curContext();
-	git->setCurContext(NULL);
-
-	EM_BEFORE_PROCESS_EVENTS;
-
-	while (busy) {
+	while (busy)
 		waitForFinished(20); // suspend 20ms to let OS reschedule
-		qApp->processEvents();
-	}
-
-	EM_AFTER_PROCESS_EVENTS;
-
-	if (git->curContext())
-		qDebug("ASSERT in MyProcess::runSync, context is %p "
-		       "instead of NULL", (void*)git->curContext());
-
-	git->setCurContext(d); // restore our context
 
 	return !isErrorExit;
 }
