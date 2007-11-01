@@ -1269,6 +1269,8 @@ bool Git::startFileHistory(SCRef sha, SCRef startingFileName, FileHistory* fh) {
 
 	QString newestFileName = getNewestFileName(args, startingFileName);
 	fh->resetFileNames(newestFileName);
+
+	args.clear(); // branches will be added in startRevList()
 	args << "--" << newestFileName;
 	return startRevList(args, fh);
 }

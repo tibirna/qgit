@@ -482,8 +482,11 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	const QString baseCmd("git log --no-color --log-size --parents --boundary --pretty=raw -z");
 	QStringList initCmd(baseCmd.split(' '));
-	if (!isMainHistory(fh))
+	if (!isMainHistory(fh)) {
 	/*
+	   fetch history from all branches so any revision in
+	   main view that changes the file is always found
+
 	   NOTE: we don't use '--remove-empty' option because
 	   in case a file is deleted and then a new file with
 	   the same name is created again in the same directory
@@ -491,7 +494,8 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   the file deletion revision.
 	*/
 		initCmd << QString("-r -m -p --full-index").split(' ');
-	else
+		initCmd << getAllRefSha(BRANCH | RMT_BRANCH);
+	} else
 		initCmd << "--topo-order";
 
 	return startParseProc(initCmd + args, fh, QString());
