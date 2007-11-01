@@ -480,7 +480,8 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --no-color --log-size --parents --boundary --pretty=raw -z");
+	const QString baseCmd("git log --topo-order --no-color --log-size "
+	                      "--parents --boundary --pretty=raw -z");
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh)) {
 	/*
@@ -495,9 +496,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	*/
 		initCmd << QString("-r -m -p --full-index").split(' ');
 		initCmd << getAllRefSha(BRANCH | RMT_BRANCH);
-	} else
-		initCmd << "--topo-order";
-
+	}
 	return startParseProc(initCmd + args, fh, QString());
 }
 
