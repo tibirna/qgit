@@ -1288,6 +1288,7 @@ const QString Git::getNewestFileName(SCList branches, SCRef fileName) {
 
 		QString msg("Retrieving file renames, now at '" + curFileName + "'...");
 		QApplication::postEvent(parent(), new MessageEvent(msg));
+		EM_PROCESS_EVENTS_NO_INPUT;
 
 		if (!run("git rev-list -n1 " + args, &runOutput))
 			break;

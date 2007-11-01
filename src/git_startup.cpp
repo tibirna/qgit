@@ -20,7 +20,7 @@
 #include "dataloader.h"
 #include "git.h"
 
-#define POST_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x))
+#define SHOW_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x)); EM_PROCESS_EVENTS_NO_INPUT;
 
 using namespace QGit;
 
@@ -531,8 +531,7 @@ void Git::stop(bool saveCache) {
 			revsFiles.remove(filesLoadingCurSha); // remove partial data
 
 		if (!revsFiles.isEmpty()) {
-			POST_MSG("Saving cache. Please wait...");
-			EM_PROCESS_EVENTS_NO_INPUT; // to paint the message
+			SHOW_MSG("Saving cache. Please wait...");
 			if (!Cache::save(gitDir, revsFiles, dirNamesVec, fileNamesVec))
 				dbs("ERROR unable to save file names cache");
 		}
@@ -601,12 +600,12 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			QTextCodec::setCodecForCStrings(getTextCodec(&dummy));
 
 			// load references
-			POST_MSG(msg1 + "refs...");
+			SHOW_MSG(msg1 + "refs...");
 			if (!getRefs())
 				dbs("WARNING: no tags or heads found");
 
 			// startup input range dialog
-			POST_MSG("");
+			SHOW_MSG("");
 			_sp.args = getArgs(askForRange, quit); // must be called with refs loaded
 			if (*quit) {
 				setThrowOnStop(false);
@@ -617,7 +616,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 				loadingUnAppliedPatches = startUnappliedList();
 				if (loadingUnAppliedPatches) {
 
-					POST_MSG(msg1 + "StGIT unapplied patches...");
+					SHOW_MSG(msg1 + "StGIT unapplied patches...");
 					setThrowOnStop(false);
 
 					// we will continue with init2() at
@@ -656,10 +655,10 @@ void Git::init2() {
 
 		// load working dir files
 		if (!_sp.filteredLoading && testFlag(DIFF_INDEX_F)) {
-			POST_MSG(msg1 + "working directory changed files...");
+			SHOW_MSG(msg1 + "working directory changed files...");
 			getDiffIndex(); // blocking, we could be in setRepository() now
 		}
-		POST_MSG(msg1 + "revisions...");
+		SHOW_MSG(msg1 + "revisions...");
 		if (!startRevList(_sp.args, revData))
 			dbs("ERROR: unable to start 'git log'");
 

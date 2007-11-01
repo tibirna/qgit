@@ -89,7 +89,7 @@ bool Annotate::start(const FileHistory* _fh) {
 
 	// annotating the file history could be time consuming,
 	// so return now and use a timer to start annotation
-	QTimer::singleShot(10, this, SLOT(slotComputeDiffs()));
+	QTimer::singleShot(100, this, SLOT(slotComputeDiffs()));
 	return true;
 }
 

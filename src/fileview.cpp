@@ -320,7 +320,9 @@ void FileView::on_loadCompleted(const FileHistory* f, const QString& msg) {
 	fileTab->toolButtonPin->setEnabled(true);
 	fileTab->spinBoxRevision->setEnabled(true);
 
-	UPDATE();
+	// update histListView now to avoid to miss
+	// following status bar messages
+	doUpdate(false);
 
 	QString histTime = msg.section(" ms", 0, 0).section(" ", -1);
 	if (fileTab->textEditFile->startAnnotate(model(), histTime))
