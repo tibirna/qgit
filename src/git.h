@@ -27,11 +27,12 @@ Q_OBJECT
 public:
 	FileHistory(QObject* parent, Git* git);
 	~FileHistory();
-	void clear();
+	void clear(bool complete = true);
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
 	const QStringList fileNames() const { return fNames; }
 	void resetFileNames(SCRef fn);
+	void setEarlyOutputState(bool b = true) { earlyOutputCnt = (b ? earlyOutputCntBase : -1); }
 	void setAnnIdValid(bool b = true) { _annIdValid = b; }
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
@@ -52,6 +53,7 @@ private:
 	friend class DataLoader;
 	friend class Git;
 
+	void flushTail();
 	const QString timeDiff(unsigned long secs) const;
 
 	Git* git;
@@ -65,6 +67,8 @@ private:
 	bool _annIdValid;
 	unsigned long _secs;
 	int loadTime;
+	int earlyOutputCnt;
+	int earlyOutputCntBase;
 	QStringList fNames;
 	QStringList curFNames;
 	QStringList renamedRevs;
@@ -251,6 +255,7 @@ private:
 	bool startParseProc(SCList initCmd, FileHistory* fh, SCRef buf);
 	bool tryFollowRenames(FileHistory* fh);
 	bool populateRenamedPatches(SCRef sha, SCList nn, FileHistory* fh, QStringList* on, bool bt);
+	bool filterEarlyOutputRev(FileHistory* fh, Rev* rev);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
 	void parseDiffFormat(RevFile& rf, SCRef buf);
 	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);

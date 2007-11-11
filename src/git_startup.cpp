@@ -351,6 +351,7 @@ void Git::getDiffIndex() {
 	const Rev* r = fakeWorkDirRev(parent, log, status, revData->revOrder.count(), revData);
 	revData->revs.insert(ZERO_SHA, r);
 	revData->revOrder.append(ZERO_SHA);
+	revData->earlyOutputCntBase = revData->revOrder.count();
 
 	// finally send it to GUI
 	emit newRevsAdded(revData, revData->revOrder);
@@ -492,7 +493,9 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	   the file deletion revision.
 	*/
 		initCmd << QString("-r -m -p --full-index").split(' ');
-	}
+	} else
+		{} // initCmd << QString("--early-output"); currently disabled
+
 	return startParseProc(initCmd + args, fh, QString());
 }
 
@@ -644,6 +647,11 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 void Git::init2() {
 
 	const QString msg1("Path is '" + workDir + "'    Loading ");
+
+	// after loading unapplied patch update base early output offset to
+	// avoid losing unapplied patches at first early output event
+	if (isStGIT)
+		revData->earlyOutputCntBase = revData->revOrder.count();
 
 	try {
 		setThrowOnStop(true);
@@ -839,13 +847,44 @@ void Git::loadFileNames() {
 	indexTree();
 }
 
+bool Git::filterEarlyOutputRev(FileHistory* fh, Rev* rev) {
+
+	if (fh->earlyOutputCnt < fh->revOrder.count()) {
+
+		SCRef sha = fh->revOrder[fh->earlyOutputCnt++];
+		const Rev* c = revLookup(sha, fh);
+		if (c) {
+			if (rev->sha() != sha || rev->parents() != c->parents()) {
+				// mismatch found! set correct value, 'rev' will
+				// overwrite 'c' upon returning
+				rev->orderIdx = c->orderIdx;
+				revData->clear(false); // flush the tail
+			} else
+				return true; // filter out 'rev'
+		}
+	}
+	// we have new revisions, exit from early output state
+	fh->setEarlyOutputState(false);
+	return false;
+}
+
 int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 
 	RevMap& r = fh->revs;
 	int nextStart;
+	Rev* rev;
 
-	// only here we create a new rev
-	Rev* rev = new Rev(ba, start, fh->revOrder.count(), &nextStart, !isMainHistory(fh));
+	do {
+		// only here we create a new rev
+		rev = new Rev(ba, start, fh->revOrder.count(), &nextStart, !isMainHistory(fh));
+
+		if (nextStart == -2) {
+			delete rev;
+			fh->setEarlyOutputState(true);
+			start = ba.indexOf('\n', start) + 1;
+		}
+
+	} while (nextStart == -2);
 
 	if (nextStart == -1) { // half chunk detected
 		delete rev;
@@ -853,6 +892,11 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 	}
 
 	SCRef sha = rev->sha();
+
+	if (fh->earlyOutputCnt != -1 && filterEarlyOutputRev(fh, rev)) {
+		delete rev;
+		return nextStart;
+	}
 
 	if (isStGIT) {
 		if (loadingUnAppliedPatches) { // filter out possible spurious revs
@@ -1331,6 +1375,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 /*
   This is what 'git log' produces:
 
+	- a possible one line with "Final output:\n" in case of --early-output option
 	- one line with "commit" + sha + an arbitrary amount of parent's sha, in case
 	  of a merge in file history the line terminates with "(from <sha of parent>)"
 	- one line with "log size" + len of this record
@@ -1346,8 +1391,11 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	- a terminating '\0'
 */
 	int last = ba.size() - 1;
-	if (start > last)
+	if (start > last) // offset 'start' points to the char after "commit "
 		return -1;
+
+	if (uint(ba.at(start) == 'u')) // "Final output:", let caller handle this
+		return (ba.indexOf('\n', start) != -1 ? -2 : -1);
 
 	// take in account --boundary and --left-right options
 	startOfs = uint(ba.at(start) == '-' || ba.at(start) == '<' || ba.at(start) == '>');

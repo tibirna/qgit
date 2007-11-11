@@ -73,13 +73,46 @@ const QString FileHistory::sha(int row) const {
 	return (row < 0 || row >= _rowCnt ? "" : revOrder.at(row));
 }
 
-void FileHistory::clear() {
+void FileHistory::flushTail() {
 
+	if (earlyOutputCnt < 0 || earlyOutputCnt >= revOrder.count()) {
+		dbp("ASSERT in FileHistory::flushTail(), earlyOutputCnt is %1", earlyOutputCnt);
+		return;
+	}
+	int cnt = revOrder.count() - earlyOutputCnt + 1;
+	while (cnt > 0) {
+		SCRef sha = revOrder.last();
+		const Rev* c = revs[sha];
+		delete c;
+		revs.remove(sha);
+		revOrder.pop_back();
+		cnt--;
+	}
+	// reset all lanes, will be redrawn
+	for (int i = earlyOutputCntBase; i < revOrder.count(); i++) {
+		Rev* c = const_cast<Rev*>(revs[revOrder[i]]);
+		c->lanes.clear();
+	}
+	firstFreeLane = earlyOutputCntBase;
+	lns->clear();
+	_rowCnt = revOrder.count();
+	reset();
+}
+
+void FileHistory::clear(bool complete) {
+
+	if (!complete) {
+		if (revOrder.count() > 0)
+			flushTail();
+		return;
+	}
 	git->cancelDataLoading(this);
+
 	qDeleteAll(revs);
 	revs.clear();
 	revOrder.clear();
-	firstFreeLane = loadTime = 0;
+	firstFreeLane = loadTime = earlyOutputCntBase = 0;
+	setEarlyOutputState(false);
 	lns->clear();
 	fNames.clear();
 	curFNames.clear();
