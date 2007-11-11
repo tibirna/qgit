@@ -54,27 +54,32 @@ void RangeSelectImpl::orderTags(const QStringList& src, QStringList& dst) {
 	const QString rcMark(" $$%%");   // an impossible to find string starting with a space
 	const QString noRcMark("!$$%%"); // an impossible to find string starting with a '!'
 
-	QStringList tmpLs;
+	typedef QMap<QString, QString> OrderedMap;
+	QRegExp verRE("([^\\d])(\\d{1,2})(?=[^\\d])");
+	OrderedMap map;
+
 	FOREACH_SL (it, src) {
-		const QString& s = *it;
-		if (re.indexIn(s) != -1) {
-			QString t(s);
-			tmpLs.append(t.insert(re.pos(1), rcMark));
-		} else
-			tmpLs.append(s + noRcMark);
-	}
-	tmpLs.sort();
-	dst.clear();
-	FOREACH_SL (it, tmpLs) {
 
-		QString t(*it);
-		if (t.endsWith(noRcMark))
-			t.chop(noRcMark.length());
+		QString tmpStr(*it);
+
+		if (re.indexIn(tmpStr) != -1)
+			tmpStr.insert(re.pos(1), rcMark);
 		else
-			t.remove(rcMark);
+			tmpStr += noRcMark;
 
-		dst.prepend(t);
+		// Normalize all numbers to 3 digits with leading zeros, so one-digit
+		// version numbers are always smaller than two-digit version numbers
+		//     [v1.10.3, v1.5.1, v1.7.2] --> [v.1.10.3, v1.7.2, v1.5.1]
+		// QMap automatically sorts by keys, so we only have to iterate over it
+		// and return the original strings (stored as the data() in the map)
+		while (tmpStr.contains(verRE))
+			tmpStr.replace(verRE, "\\10\\2");
+
+		map[tmpStr] = *it;
 	}
+	dst.clear();
+	FOREACH (OrderedMap, it, map)
+		dst.prepend(it.value());
 }
 
 void RangeSelectImpl::checkBoxDiffCache_toggled(bool b) {
