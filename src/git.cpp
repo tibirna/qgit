@@ -1242,6 +1242,8 @@ const RevFile* Git::getAllMergeFiles(const Rev* r) {
 	if (revsFiles.contains(mySha))
 		return revsFiles[mySha];
 
+	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
+
 	QString runCmd("git diff-tree --no-color -r -m -C " + r->sha()), runOutput;
 	if (!run(runCmd, &runOutput))
 		return NULL;
@@ -1268,6 +1270,8 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 		if (!path.isEmpty())
 			runCmd.append(" " + path);
 
+		EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
+
 		QString runOutput;
 		if (!run(runCmd, &runOutput))
 			return NULL;
@@ -1283,6 +1287,9 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 		dbs("ASSERT in Git::getFiles, ZERO_SHA not found");
 		return NULL;
 	}
+
+	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
+
 	QString runCmd("git diff-tree --no-color -r -c -C " + sha), runOutput;
 	if (!run(runCmd, &runOutput))
 		return NULL;
@@ -1375,12 +1382,14 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 	if (buf.isEmpty())
 		return true;
 
+	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
+
 	QString runCmd("git diff-tree --no-color -r -s --stdin "), runOutput;
 	if (isRegExp)
 		runCmd.append("--pickaxe-regex ");
 
 	runCmd.append(quote("-S" + exp));
-	if (!run(runCmd, &runOutput, NULL, buf)) // could be slow
+	if (!run(runCmd, &runOutput, NULL, buf))
 		return false;
 
 	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
