@@ -7,6 +7,7 @@
 
 */
 #include <QApplication>
+#include <QTime>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "domain.h"
@@ -48,11 +49,19 @@ bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
 	if (!launchMe(runCmd, buf))
 		return false;
 
+	QTime t;
+	t.start();
+
 	busy = true; // we have to wait here until we exit
 
-	while (busy)
+	while (busy) {
 		waitForFinished(20); // suspend 20ms to let OS reschedule
 
+		if (t.elapsed() > 200) {
+			EM_PROCESS_EVENTS;
+			t.restart();
+		}
+	}
 	return !isErrorExit;
 }
 
@@ -178,6 +187,7 @@ void MyProcess::on_cancel() {
 #else
 	terminate(); // uses SIGTERM signal
 #endif
+	waitForFinished();
 }
 
 const QStringList MyProcess::splitArgList(SCRef cmd) {
