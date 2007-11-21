@@ -1355,7 +1355,7 @@ const QString Rev::midSha(int start, int len) const {
 
 const QString Rev::parent(int idx) const {
 
-	return midSha(start + startOfs + 41 + 41 * idx, 40);
+	return midSha(shaStart + 41 + 41 * idx, 40);
 }
 
 const QStringList Rev::parents() const {
@@ -1363,8 +1363,7 @@ const QStringList Rev::parents() const {
 	if (parentsCnt == 0)
 		return QStringList();
 
-	int ofs = start + startOfs + 41;
-	return midSha(ofs, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
+	return midSha(shaStart + 41, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
 int Rev::indexData(bool quick, bool withDiff) const {
@@ -1407,15 +1406,13 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	if (idx + 42 > last)
 		return -1;
 
-	int msgStart = ++idx;
-	startOfs = idx - start;
+	shaStart = ++idx;
 	idx += 40;
-	boundary = ba.at(idx) == '-';
 	parentsCnt = 0;
 
-	// ok, now msgStart and msgSize are valid,
+	// ok, now shaStart and msgSize are valid,
 	// msgSize could be 0 if not available
-	int msgEnd = msgStart + msgSize;
+	int msgEnd = shaStart + msgSize;
 	if (msgEnd > last + 1) // FIXME off by one
 		return -1;
 
@@ -1426,7 +1423,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		idx += 41;
 	} while (idx < last && ba.at(idx) != '\n');
 
-	if (withDiff && parentsCnt > 1) {
+	if (withDiff && parentsCnt > 1) { // FIXME test
 	/* In this case the at end of the line is appended
 	   the following info "(from <sha of parent>)" that we
 	   have to skip.
@@ -1465,10 +1462,8 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		dbs("ASSERT in indexData: unexpected end of data");
 		return -1;
 	}
-	autLen = idx - autStart;
 	autDateStart = ++idx;
-	autDateLen = 10;
-	idx += autDateLen + 1;
+	idx += 11; // date length + trailing '\n'
 
 	diffStart = diffLen = 0;
 	if (withDiff) {

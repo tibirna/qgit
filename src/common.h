@@ -299,13 +299,13 @@ public:
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
 		*next = indexData(true, withDiff);
 	}
-	bool isBoundary() const { return boundary; }
+	bool isBoundary() const { return (ba.at(shaStart + 40) == '-'); }
 	uint parentsCount() const { return parentsCnt; }
 	const QString parent(int idx) const;
 	const QStringList parents() const;
-	const QString sha() const { return midSha(start + startOfs, 40); }
-	const QString author() const { setup(); return mid(autStart, autLen); }
-	const QString authorDate() const { setup(); return mid(autDateStart, autDateLen); }
+	const QString sha() const { return midSha(shaStart, 40); }
+	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
+	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
 	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
 	const QString longLog() const { setup(); return mid(lLogStart, lLogLen); }
 	const QString diff() const { setup(); return mid(diffStart, diffLen); }
@@ -321,16 +321,15 @@ public:
 	int descBrnMaster;  // by corresponding index xxxMaster
 
 private:
-	inline void setup() const { if (!indexed) indexData(); }
-	int indexData(bool quick = false, bool withDiff = false) const;
+	inline void setup() const { if (!indexed) indexData(false, false); }
+	int indexData(bool quick, bool withDiff) const;
 	const QString mid(int start, int len) const;
 	const QString midSha(int start, int len) const;
 
 	const QByteArray& ba; // reference here!
-	mutable bool indexed, boundary;
+	mutable bool indexed;
 	const int start;
-	mutable uint parentsCnt, startOfs;
-	mutable int autStart, autLen, autDateStart, autDateLen;
+	mutable int parentsCnt, shaStart, autStart, autDateStart;
 	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 };
 typedef QHash<QString, const Rev*> RevMap;  // faster then a map
