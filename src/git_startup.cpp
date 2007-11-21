@@ -263,16 +263,11 @@ const QStringList Git::getOthersFiles() {
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
                       SCRef patch, int idx, FileHistory* fh) {
 
-	QString header("commit " + sha + ' ' + parents.join(" "));
-	QString data("\ntree " + sha);
+	QString data(sha + '>' + parents.join(" ") + '\n');
+	data.append(author + '\n' + date + '\n');
+	data.append(log + '\n' + longLog);
 
-	data.append("\nparent " + parents.join("\nparent "));
-	data.append("\nauthor " + author + " " + date);
-	data.append("\ncommitter " + author + " " + date);
-	data.append("\n\n    " + log + '\n');
-	data.append(longLog);
-
-	header.append("\nlog size " + QString::number(data.size() - 1));
+	QString header("log size " + QString::number(data.size() - 1) + '\n');
 	data.prepend(header);
 	if (!patch.isEmpty())
 		data.append('\n' + patch);
@@ -292,7 +287,7 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 	if (!isMainHistory(fh))
 		patch = getWorkDirDiff(fh->fileNames().first());
 
-	QString date(QString::number(QDateTime::currentDateTime().toTime_t()) + " +0200");
+	QString date(QString::number(QDateTime::currentDateTime().toTime_t()));
 	QString author("Working Dir");
 	QStringList parents(parent);
 	Rev* c = fakeRevData(ZERO_SHA, parents, author, date, log, longLog, patch, idx, fh);
@@ -481,8 +476,10 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --topo-order --no-color --log-size "
-	                      "--parents --boundary --pretty=raw -z");
+	const QString baseCmd("git log --topo-order --no-color "
+	                      "--log-size --parents --boundary -z "
+	                      "--pretty=format:%H%m%P%n%an<%ae>%n%at%n%s%n%b");
+
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh)) {
 	/*
@@ -945,9 +942,8 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		// this is the new rev with renamed file, the rev is correct but
 		// the patch, create a new rev with proper patch and use that instead
 		const Rev* prevSha = revLookup(sha, fh);
-		QString date(rev->authorDate() + " +0200");
 		Rev* c = fakeRevData(rev->sha(), rev->parents(), rev->author(),
-		                     date, rev->shortLog(), rev->longLog(),
+		                     rev->authorDate(), rev->shortLog(), rev->longLog(),
 		                     fh->renamedPatches[sha], prevSha->orderIdx, fh);
 
 		r.insert(rev->sha(), c); // overwrite old content
@@ -1376,37 +1372,60 @@ int Rev::indexData(bool quick, bool withDiff) const {
   This is what 'git log' produces:
 
 	- a possible one line with "Final output:\n" in case of --early-output option
-	- one line with "commit" + sha + an arbitrary amount of parent's sha, in case
-	  of a merge in file history the line terminates with "(from <sha of parent>)"
 	- one line with "log size" + len of this record
-	- one line with "tree"
-	- an arbitrary amount of "parent" lines
-	- one line with "author"
-	- one line with "committer"
-	- zero or more non blank lines with other info, as the encoding
+	- one line with sha + an arbitrary amount of parent's sha, in case
+	  of a merge in file history the line terminates with "(from <sha of parent>)"
+	- one line with author name + e-mail
+	- one line with author date as unix timestamp
+	- zero or more non blank lines with other info, as the encoding FIXME
 	- one blank line
 	- zero or one line with log title
 	- zero or more lines with log message
-	- zero or more lines with diff content (only for file history)
+	- zero or more lines with diff content (only for file history) FIXME
 	- a terminating '\0'
 */
 	int last = ba.size() - 1;
-	if (start > last) // offset 'start' points to the char after "commit "
+	if (start + 41 > last)
 		return -1;
 
 	if (uint(ba.at(start) == 'u')) // "Final output:", let caller handle this
 		return (ba.indexOf('\n', start) != -1 ? -2 : -1);
 
-	// take in account --boundary and --left-right options
-	startOfs = uint(ba.at(start) == '-' || ba.at(start) == '<' || ba.at(start) == '>');
-	boundary = startOfs && ba.at(start) == '-';
+	// parse log size
+	int msgSize = 0;
+	int idx = start;
 
-	parentsCnt = 0;
-	int idx = start + startOfs + 40;
-	while (idx < last && ba.at(idx) == ' ') {
-		idx += 41;
-		parentsCnt++;
+	if (ba.at(idx) == 'l') { // 'log size xxx\n'
+
+		idx += 9; // move idx to beginning of log size
+
+		while (idx < last && ba.at(idx) != '\n')
+			msgSize = msgSize * 10 + ba.at(idx++) - 48;
 	}
+
+	// after parsing boundary idx points to the beginning of sha
+	if (idx + 42 > last)
+		return -1;
+
+	int msgStart = ++idx;
+	startOfs = idx - start;
+	idx += 40;
+	boundary = ba.at(idx) == '-';
+	parentsCnt = 0;
+
+	// ok, now msgStart and msgSize are valid,
+	// msgSize could be 0 if not available
+	int msgEnd = msgStart + msgSize;
+	if (msgEnd > last + 1) // FIXME off by one
+		return -1;
+
+	if (ba.at(idx + 1) == '\n') // initial revision
+		idx++;
+	else do {
+		parentsCnt++;
+		idx += 41;
+	} while (idx < last && ba.at(idx) != '\n');
+
 	if (withDiff && parentsCnt > 1) {
 	/* In this case the at end of the line is appended
 	   the following info "(from <sha of parent>)" that we
@@ -1415,32 +1434,10 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		parentsCnt--;
 		idx += 7;
 	}
-
 	if (idx + 1 > last)
 		return -1;
 
-	int msgSize = 0;
-
-	if (ba.at(idx + 1) == 'l') { // 'log size xxx\n'
-
-		idx += 10; // move idx from first line '\n' to beginning of log size
-
-		while (idx < last && ba.at(idx) != '\n')
-			msgSize = msgSize * 10 + ba.at(idx++) - 48;
-
-	}
-	int msgStart = idx + 1;
-	idx += 47; // idx points to the line before "tree" at '\n', so skip tree line
-
-	if (idx > last)
-		return -1;
-
-	// ok, now msgStart and msgSize are valid,
-	// msgSize could be 0 if not available
-	int msgEnd = msgStart + msgSize;
-	if (msgEnd > last)
-		return -1;
-
+	// check for !msgSize
 	int end;
 	if (withDiff || !msgSize) {
 
@@ -1462,30 +1459,17 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	if (quick && !withDiff)
 		return ++end;
 
-	while (idx < last && ba.at(idx) == 'p') // skip parents
-		idx += 48;
-
-	idx += 23;
-	int lineEnd = ba.indexOf('\n', idx); // author line end
-	if (lineEnd == -1) {
-		dbs("ASSERT in indexData: unexpected end of data");
-		return -1;
-	}
-	lineEnd += 23;
-	if (lineEnd > last) {
-		dbs("ASSERT in indexData: unexpected end of data");
-		return -1;
-	}
-	autStart = idx - 16;
-	autLen = lineEnd - idx - 24;
-	autDateStart = lineEnd - 39;
-	autDateLen = 10;
-
-	idx = ba.indexOf('\n', lineEnd); // committer line end
+	autStart = ++idx;
+	idx = ba.indexOf('\n', idx); // author line end
 	if (idx == -1) {
 		dbs("ASSERT in indexData: unexpected end of data");
 		return -1;
 	}
+	autLen = idx - autStart;
+	autDateStart = ++idx;
+	autDateLen = 10;
+	idx += autDateLen + 1;
+
 	diffStart = diffLen = 0;
 	if (withDiff) {
 		diffStart = msgSize ? msgEnd : ba.indexOf("\ndiff ", idx);
@@ -1499,11 +1483,8 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		msgEnd = diffStart ? diffStart : end;
 
 	// ok, now msgEnd is valid and we can handle the log
+	sLogStart = idx;
 
-	while (++idx < msgEnd && ba.at(idx) != '\n') // check for the first blank line
-		idx = ba.indexOf('\n', idx);
-
-	sLogStart = idx + 5;
 	if (msgEnd < sLogStart) { // no shortlog no longLog
 
 		sLogStart = sLogLen = 0;
@@ -1513,7 +1494,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		if (lLogStart != -1 && lLogStart < msgEnd - 1) {
 
 			sLogLen = lLogStart - sLogStart; // skip sLog trailing '\n'
-			lLogLen = msgEnd - ++lLogStart;
+			lLogLen = msgEnd - lLogStart; // include heading '\n' in long log
 
 		} else { // no longLog
 			sLogLen = msgEnd - sLogStart;

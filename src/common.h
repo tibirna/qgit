@@ -293,7 +293,7 @@ class Rev {
 	Rev& operator=(const Rev&);
 public:
 	Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff)
-	    : orderIdx(idx), ba(b), start(s + 7) {
+	    : orderIdx(idx), ba(b), start(s) {
 
 		indexed = isDiffCache = isApplied = isUnApplied = false;
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;

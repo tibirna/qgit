@@ -1195,7 +1195,8 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 				ts << formatList(getNearTags(optGoDown, sha), "Precedes");
 			}
 		}
-		const QString log(colorMatch(c->longLog(), longLogRE));
+		QString log(colorMatch(c->longLog(), longLogRE));
+		log.replace("\n", "\n    ").prepend('\n');
 		ts << "</table></div><div class='l'>" << log << "</div></body></html>";
 	}
 	// highlight SHA's
