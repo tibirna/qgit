@@ -1380,14 +1380,14 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	- one blank line
 	- zero or one line with log title
 	- zero or more lines with log message
-	- zero or more lines with diff content (only for file history) FIXME
+	- zero or more lines with diff content (only for file history)
 	- a terminating '\0'
 */
-	int last = ba.size() - 1;
+	const int last = ba.size() - 1;
 	if (start + 41 > last)
 		return -1;
 
-	if (uint(ba.at(start) == 'u')) // "Final output:", let caller handle this
+	if (ba.at(start) == 'u') // "Final output:", let caller handle this
 		return (ba.indexOf('\n', start) != -1 ? -2 : -1);
 
 	// parse log size
@@ -1401,7 +1401,6 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		while (idx < last && ba.at(idx) != '\n')
 			msgSize = msgSize * 10 + ba.at(idx++) - 48;
 	}
-
 	// after parsing boundary idx points to the beginning of sha
 	if (idx + 42 > last)
 		return -1;
@@ -1423,14 +1422,6 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		idx += 41;
 	} while (idx < last && ba.at(idx) != '\n');
 
-	if (withDiff && parentsCnt > 1) { // FIXME test
-	/* In this case the at end of the line is appended
-	   the following info "(from <sha of parent>)" that we
-	   have to skip.
-	*/
-		parentsCnt--;
-		idx += 7;
-	}
 	if (idx + 1 > last)
 		return -1;
 
