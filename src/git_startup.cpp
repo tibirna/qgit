@@ -1388,7 +1388,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	- a terminating '\0'
 */
 	const int last = ba.size() - 1;
-	if (start + 41 > last)
+	if (start + 41 >= last)
 		return -1;
 
 	if (ba.at(start) == 'u') // "Final output:", let caller handle this
@@ -1408,7 +1408,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		idx++;
 	}
 	// idx points to the beginning of sha
-	if (idx + 41 > last)
+	if (idx + 41 >= last)
 		return -1;
 
 	shaStart = idx;
@@ -1428,7 +1428,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		idx += 41;
 	} while (idx < last && ba.at(idx) != '\n');
 
-	if (idx + 1 > last)
+	if (idx + 1 >= last)
 		return -1;
 
 	// check for !msgSize
