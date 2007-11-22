@@ -504,9 +504,12 @@ bool Git::startUnappliedList() {
 
 	// WARNING: with this command 'git log' could send spurious
 	// revs so we need some filter out logic during loading
-	QStringList cmd(QString("git log --no-color --parents --pretty=raw -z ^HEAD").split(' '));
-	cmd << unAppliedShaList;
-	return startParseProc(cmd, revData, QString());
+	QString cmd("git log --no-color --log-size --parents -z "
+	            "--pretty=format:%H%m%P%n%an<%ae>%n%at%n%s%n%b ^HEAD");
+
+	QStringList sl(cmd.split(' '));
+	sl << unAppliedShaList;
+	return startParseProc(sl, revData, QString());
 }
 
 void Git::stop(bool saveCache) {
@@ -897,6 +900,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 
 	if (isStGIT) {
 		if (loadingUnAppliedPatches) { // filter out possible spurious revs
+
 			Reference* rf = lookupReference(sha);
 			if (!(rf && (rf->type & UN_APPLIED))) {
 				delete rev;
@@ -1400,12 +1404,14 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 		while (idx < last && ba.at(idx) != '\n')
 			msgSize = msgSize * 10 + ba.at(idx++) - 48;
+
+		idx++;
 	}
-	// after parsing boundary idx points to the beginning of sha
-	if (idx + 42 > last)
+	// idx points to the beginning of sha
+	if (idx + 41 > last)
 		return -1;
 
-	shaStart = ++idx;
+	shaStart = idx;
 	idx += 40;
 	parentsCnt = 0;
 
