@@ -476,9 +476,13 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-	const QString baseCmd("git log --topo-order --no-color "
-	                      "--log-size --parents --boundary -z "
-	                      "--pretty=format:%H%m%P%n%an<%ae>%n%at%n%s%n%b");
+	QString baseCmd("git log --topo-order --no-color "
+	                "--log-size --parents --boundary -z "
+	                "--pretty=format:%H%m%P%n%an<%ae>%n%at%n%s%n");
+
+	// we don't need log message body for file history
+	if (isMainHistory(fh))
+		baseCmd.append("%b");
 
 	QStringList initCmd(baseCmd.split(' '));
 	if (!isMainHistory(fh)) {
