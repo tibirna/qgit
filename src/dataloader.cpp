@@ -115,6 +115,16 @@ void DataLoader::parseSingleBuffer(const QByteArray& ba) {
 		return;
 
 	int ofs = 0, newOfs, bz = ba.size();
+
+	/* Due to unknown reasons randomly first byte
+	 * of 'ba' is 0, this seems to happen only when
+	 * using QFile::read(), i.e. with temporary file
+	 * interface. Until we discover the real reason
+	 * workaround this skipping the bogus byte
+	 */
+	if (ba.at(0) == 0 && bz > 1)
+		ofs++;
+
 	while (bz - ofs > 0) {
 
 		if (!halfChunk) {
