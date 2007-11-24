@@ -122,7 +122,7 @@ void DataLoader::parseSingleBuffer(const QByteArray& ba) {
 	 * interface. Until we discover the real reason
 	 * workaround this skipping the bogus byte
 	 */
-	if (ba.at(0) == 0 && bz > 1)
+	if (ba.at(0) == 0 && bz > 1 && !halfChunk)
 		ofs++;
 
 	while (bz - ofs > 0) {
