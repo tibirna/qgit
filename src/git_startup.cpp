@@ -950,11 +950,11 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		// this is the new rev with renamed file, the rev is correct but
 		// the patch, create a new rev with proper patch and use that instead
 		const Rev* prevSha = revLookup(sha, fh);
-		Rev* c = fakeRevData(rev->sha(), rev->parents(), rev->author(),
+		Rev* c = fakeRevData(sha, rev->parents(), rev->author(),
 		                     rev->authorDate(), rev->shortLog(), rev->longLog(),
 		                     fh->renamedPatches[sha], prevSha->orderIdx, fh);
 
-		r.insert(rev->sha(), c); // overwrite old content
+		r.insert(sha, c); // overwrite old content
 		fh->renamedPatches.remove(sha);
 		return nextStart;
 	}
@@ -1380,8 +1380,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 	- a possible one line with "Final output:\n" in case of --early-output option
 	- one line with "log size" + len of this record
-	- one line with sha + an arbitrary amount of parent's sha, in case
-	  of a merge in file history the line terminates with "(from <sha of parent>)"
+	- one line with sha + an arbitrary amount of parent's sha
 	- one line with author name + e-mail
 	- one line with author date as unix timestamp
 	- zero or more non blank lines with other info, as the encoding FIXME
