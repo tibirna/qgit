@@ -1400,21 +1400,22 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	if (start + 41 >= last)
 		return -1;
 
-	if (ba.at(start) == 'F') // "Final output", let caller handle this
+	// direct access is faster then QByteArray.at()
+	const char* data = ba.constData();
+
+	if (data[start] == 'F') // "Final output", let caller handle this
 		return (ba.indexOf('\n', start) != -1 ? -2 : -1);
 
 	// parse log size
 	int msgSize = 0;
 	int idx = start;
 
-	if (ba.at(idx) == 'l') { // 'log size xxx\n'
+	if (data[idx] == 'l') { // 'log size xxx\n'
 
 		idx += 9; // move idx to beginning of log size
-
-		while (idx < last && ba.at(idx) != '\n')
-			msgSize = msgSize * 10 + ba.at(idx++) - 48;
-
-		idx++;
+		int tmp;
+		while ((tmp = data[idx++]) != '\n')
+			msgSize = msgSize * 10 + tmp - 48;
 	}
 	// idx points to the beginning of sha
 	if (idx + 41 >= last)
@@ -1430,12 +1431,12 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	if (msgEnd > last + 1) // FIXME off by one
 		return -1;
 
-	if (ba.at(idx + 1) == '\n') // initial revision
+	if (data[idx + 1] == '\n') // initial revision
 		idx++;
 	else do {
 		parentsCnt++;
 		idx += 41;
-	} while (idx < last && ba.at(idx) != '\n');
+	} while (idx < last && data[idx] != '\n');
 
 	if (idx + 1 >= last)
 		return -1;
@@ -1451,7 +1452,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 			if (end == -1)
 				return -1;
 
-		} while (ba.at(end - 1) != '\n');
+		} while (data[end - 1] != '\n');
 
 	} else
 		end = msgEnd;
@@ -1499,7 +1500,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 		} else { // no longLog
 			sLogLen = msgEnd - sLogStart;
-			if (ba.at(sLogStart + sLogLen - 1) == '\n')
+			if (data[sLogStart + sLogLen - 1] == '\n')
 				sLogLen--; // skip trailing '\n' if any
 
 			lLogStart = lLogLen = 0;
