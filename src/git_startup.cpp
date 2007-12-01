@@ -356,9 +356,15 @@ void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
 
 	if (line[1] == ':') { // it's a combined merge
 
-		// TODO rename/copy is not supported for combined merges
+		/* For combined merges rename/copy information is useless
+		 * because nor the original file name, nor similarity info
+		 * is given, just the status tracks that in the left/right
+		 * branch a renamed/copy occurred (as example status could
+		 * be RM or MR). For visualization purposes we could consider
+		 * the file as modified
+		 */
 		appendFileName(rf, line.section('\t', -1));
-		setStatus(rf, line.section('\t', 0, 0).section(' ', -1, -1).left(1));
+		setStatus(rf, "M");
 		rf.mergeParent.append(parNum);
 	} else { // faster parsing in normal case
 
@@ -1394,7 +1400,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	if (start + 41 >= last)
 		return -1;
 
-	if (ba.at(start) == 'u') // "Final output:", let caller handle this
+	if (ba.at(start) == 'F') // "Final output", let caller handle this
 		return (ba.indexOf('\n', start) != -1 ? -2 : -1);
 
 	// parse log size
