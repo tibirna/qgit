@@ -65,7 +65,7 @@ static inline uint hexVal(const uchar* ch) {
 
 uint qHash(const ShaString& s) { // fast path, called 6-7 times per revision
 
-	const uchar* ch = reinterpret_cast<const uchar*>(s.constData());
+	const uchar* ch = reinterpret_cast<const uchar*>(s.latin1());
 	return (hexVal(ch    )<<24)
 	     + (hexVal(ch + 2)<<20)
 	     + (hexVal(ch + 4)<<16)
@@ -108,6 +108,9 @@ const QString QGit::PATCHES_NAME = "qgit_import";
 const QString QGit::ZERO_SHA        = "0000000000000000000000000000000000000000";
 const QString QGit::CUSTOM_SHA      = "CUSTOM";
 const QString QGit::ALL_MERGE_FILES = "ALL_MERGE_FILES";
+
+const QByteArray QGit::ZERO_SHA_BA(QGit::ZERO_SHA.toLatin1());
+const ShaString  QGit::ZERO_SHA_RAW(QGit::ZERO_SHA_BA.constData());
 
 // settings keys
 const QString QGit::ORG_KEY         = "qgit";

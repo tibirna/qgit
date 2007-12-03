@@ -46,8 +46,8 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(m(), SIGNAL(flagChanged(uint)),
 	        sb, SLOT(flagChanged(uint)));
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -195,7 +195,7 @@ void RevsView::viewPatch(bool newTab) {
 	UPDATE_DM_MASTER(pv, false);
 }
 
-void RevsView::on_newRevsAdded(const FileHistory* fh, const QVector<QString>&) {
+void RevsView::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString>&) {
 
 	if (!git->isMainHistory(fh) || !st.sha().isEmpty())
 		return;

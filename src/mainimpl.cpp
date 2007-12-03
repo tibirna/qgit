@@ -124,8 +124,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	// disable all actions
 	updateGlobalActions(false);
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<QString>&)));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
 	connect(this, SIGNAL(typeWriterFontChanged()), this, SIGNAL(updateRevDesc()));
 
@@ -589,7 +589,7 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 
 // ******************************* Filter ******************************
 
-void MainImpl::newRevsAdded(const FileHistory* fh, const QVector<QString>&) {
+void MainImpl::newRevsAdded(const FileHistory* fh, const QVector<ShaString>&) {
 
 	if (!git->isMainHistory(fh))
 		return;

@@ -32,8 +32,8 @@ FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
 	revs.reserve(QGit::MAX_DICT_SIZE);
 	clear(); // after _headerInfo is set
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<QString>&)),
-	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<QString>&)));
+	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
@@ -70,7 +70,7 @@ int FileHistory::row(SCRef sha) const {
 
 const QString FileHistory::sha(int row) const {
 
-	return (row < 0 || row >= _rowCnt ? "" : revOrder.at(row));
+	return (row < 0 || row >= _rowCnt ? "" : QString(revOrder.at(row)));
 }
 
 void FileHistory::flushTail() {
@@ -131,7 +131,7 @@ void FileHistory::clear(bool complete) {
 	reset();
 }
 
-void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<QString>& shaVec) {
+void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString>& shaVec) {
 
 	if (fh != this) // signal newRevsAdded() is broadcast
 		return;
@@ -1357,7 +1357,7 @@ void Git::getFileFilter(SCRef path, ShaSet& shaSet) {
 
 	shaSet.clear();
 	QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);
-	FOREACH (StrVect, it, revData->revOrder) {
+	FOREACH (ShaVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it))
 			continue;
@@ -1376,7 +1376,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 
 	shaSet.clear();
 	QString buf;
-	FOREACH (StrVect, it, revData->revOrder)
+	FOREACH (ShaVect, it, revData->revOrder)
 		if (*it != ZERO_SHA)
 			buf.append(*it).append('\n');
 

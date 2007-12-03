@@ -263,7 +263,7 @@ const QStringList Git::getOthersFiles() {
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
                       SCRef patch, int idx, FileHistory* fh) {
 
-	QString data(sha + '>' + parents.join(" ") + '\n');
+	QString data(sha + "X>" + parents.join(" ") + '\n');
 	data.append(author + '\n' + date + '\n');
 	data.append(log + '\n' + longLog);
 
@@ -344,8 +344,8 @@ void Git::getDiffIndex() {
 	parent = parent.section('\n', 0, 0);
 	SCRef log = (isNothingToCommit() ? "Nothing to commit" : "Working dir changes");
 	const Rev* r = fakeWorkDirRev(parent, log, status, revData->revOrder.count(), revData);
-	revData->revs.insert(ZERO_SHA, r);
-	revData->revOrder.append(ZERO_SHA);
+	revData->revs.insert(ZERO_SHA_RAW, r);
+	revData->revOrder.append(ZERO_SHA_RAW);
 	revData->earlyOutputCntBase = revData->revOrder.count();
 
 	// finally send it to GUI
@@ -484,7 +484,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	QString baseCmd("git log --topo-order --no-color "
 	                "--log-size --parents --boundary -z "
-	                "--pretty=format:%H%m%P%n%an<%ae>%n%at%n%s%n");
+	                "--pretty=format:%HX%m%P%n%an<%ae>%n%at%n%s%n");
 
 	// we don't need log message body for file history
 	if (isMainHistory(fh))
@@ -515,7 +515,7 @@ bool Git::startUnappliedList() {
 	// WARNING: with this command 'git log' could send spurious
 	// revs so we need some filter out logic during loading
 	QString cmd("git log --no-color --log-size --parents -z "
-	            "--pretty=format:%H%m%P%n%an<%ae>%n%at%n%s%n%b ^HEAD");
+	            "--pretty=format:%HX%m%P%n%an<%ae>%n%at%n%s%n%b ^HEAD");
 
 	QStringList sl(cmd.split(' '));
 	sl << unAppliedShaList;
@@ -842,7 +842,8 @@ void Git::loadFileNames() {
 	EM_PROCESS_EVENTS; // after cache loading and before indexing
 
 	QString diffTreeBuf;
-	FOREACH (StrVect, it, revData->revOrder) {
+	FOREACH (ShaVect, it, revData->revOrder) {
+
 		if (!revsFiles.contains(*it)) {
 			const Rev* c = revLookup(*it);
 			if (c->parentsCount() == 1) // skip initials and merges
@@ -901,7 +902,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		return -1;
 	}
 
-	SCRef sha = rev->sha();
+	const ShaString& sha = rev->sha();
 
 	if (fh->earlyOutputCnt != -1 && filterEarlyOutputRev(fh, rev)) {
 		delete rev;
@@ -976,10 +977,13 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		do
 			mergeSha = QString::number(++i) + " m " + sha;
 		while (r.contains(mergeSha));
-		r.insert(mergeSha, rev);
+
+		QByteArray* ba = new QByteArray(mergeSha.toLatin1()); // FIXME memleak here
+		r.insert(ShaString(ba->constData()), rev);
 	} else {
 		r.insert(sha, rev);
 		fh->revOrder.append(sha);
+
 		if (rev->parentsCount() == 0 && !isMainHistory(fh))
 			fh->renamedRevs.append(sha);
 	}
@@ -1029,8 +1033,8 @@ bool Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
 
 	// insert a custom ZERO_SHA rev with proper parent
 	const Rev* rf = fakeWorkDirRev(parent, "Working dir changes", "long log\n", 0, fh);
-	fh->revs.insert(ZERO_SHA, rf);
-	fh->revOrder.append(ZERO_SHA);
+	fh->revs.insert(ZERO_SHA_RAW, rf);
+	fh->revOrder.append(ZERO_SHA_RAW);
 	return true;
 }
 
@@ -1038,7 +1042,7 @@ void Git::setLane(SCRef sha, FileHistory* fh) {
 
 	Lanes* l = fh->lns;
 	uint i = fh->firstFreeLane;
-	const QVector<QString>& shaVec(fh->revOrder);
+	const ShaVect& shaVec(fh->revOrder);
 	for (uint cnt = shaVec.count(); i < cnt; ++i) {
 		SCRef curSha = shaVec[i];
 		Rev* r = const_cast<Rev*>(revLookup(curSha, fh));
@@ -1232,7 +1236,7 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint,
 
 	// we want the nearest tag only, so remove any tag
 	// that is ancestor of any other tag in p U r
-	const StrVect& ro = revData->revOrder;
+	const ShaVect& ro = revData->revOrder;
 	SCRef sha1 = down ? ro[p->descRefsMaster] : ro[p->ancRefsMaster];
 	SCRef sha2 = down ? ro[r_descRefsMaster] : ro[r_ancRefsMaster];
 	const QVector<int>& src1 = down ? revLookup(sha1)->descRefs : revLookup(sha1)->ancRefs;
@@ -1276,7 +1280,7 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint,
 
 void Git::indexTree() {
 
-	const StrVect& ro = revData->revOrder;
+	const ShaVect& ro = revData->revOrder;
 	if (ro.count() == 0)
 		return;
 
@@ -1369,7 +1373,7 @@ const QString Rev::midSha(int start, int len) const {
 
 const QString Rev::parent(int idx) const {
 
-	return midSha(shaStart + 41 + 41 * idx, 40);
+	return midSha(shaStart + 42 + 41 * idx, 40);
 }
 
 const QStringList Rev::parents() const {
@@ -1377,7 +1381,7 @@ const QStringList Rev::parents() const {
 	if (parentsCnt == 0)
 		return QStringList();
 
-	return midSha(shaStart + 41, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
+	return midSha(shaStart + 42, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
 }
 
 int Rev::indexData(bool quick, bool withDiff) const {
@@ -1418,11 +1422,16 @@ int Rev::indexData(bool quick, bool withDiff) const {
 			msgSize = msgSize * 10 + tmp - 48;
 	}
 	// idx points to the beginning of sha
-	if (idx + 41 >= last)
+	if (idx + 42 >= last)
 		return -1;
 
 	shaStart = idx;
-	idx += 40;
+	idx += 40; // now points to 'X' place holder
+
+	char* fixup = (char*)data;
+	fixup[idx] = '\0'; // we want sha to be a '\0' terminated ascii string
+
+	idx++;
 	parentsCnt = 0;
 
 	// ok, now shaStart and msgSize are valid,

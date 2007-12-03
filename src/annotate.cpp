@@ -82,7 +82,7 @@ bool Annotate::start(const FileHistory* _fh) {
 	annFilesNum = 0;
 	annId = histRevOrder.count();
 	annNumLen = QString::number(histRevOrder.count()).length();
-	StrVect::const_iterator it(histRevOrder.constBegin());
+	ShaVect::const_iterator it(histRevOrder.constBegin());
 	do
 		ah.insert(*it, FileAnnotation(annId--));
 	while (++it != histRevOrder.constEnd());
@@ -116,7 +116,7 @@ void Annotate::annotateFileHistory() {
 
 	// sweep from the oldest to newest so that parent
 	// annotations are calculated before children
-	StrVect::const_iterator it(histRevOrder.constEnd());
+	ShaVect::const_iterator it(histRevOrder.constEnd());
 	do {
 		--it;
 		doAnnotate(*it);

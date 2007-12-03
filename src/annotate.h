@@ -34,7 +34,7 @@ public:
 	int start, end; // ranges count file lines from 1 like patches diffs
 	bool modified;
 };
-typedef QHash<ShaString, RangeInfo> Ranges;
+typedef QHash<QString, RangeInfo> Ranges;
 
 class Annotate : public QObject {
 Q_OBJECT
@@ -84,7 +84,7 @@ private:
 	int annNumLen;
 	int annId;
 	int annFilesNum;
-	StrVect histRevOrder; // TODO use reference
+	ShaVect histRevOrder; // TODO use reference
 	bool valid;
 	bool canceled;
 	QTime processingTime;

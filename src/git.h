@@ -45,7 +45,7 @@ public:
 	virtual int columnCount(const QModelIndex&) const { return 5; }
 
 private slots:
-	void on_newRevsAdded(const FileHistory*, const QVector<QString>&);
+	void on_newRevsAdded(const FileHistory*, const QVector<ShaString>&);
 	void on_loadCompleted(const FileHistory*, const QString&);
 
 private:
@@ -58,7 +58,7 @@ private:
 
 	Git* git;
 	RevMap revs;
-	StrVect revOrder;
+	ShaVect revOrder;
 	Lanes* lns;
 	uint firstFreeLane;
 	QList<QByteArray*> rowData;
@@ -87,7 +87,7 @@ struct Reference { // stores tag information associated to a revision
 	QString     tagMsg;
 	QString     stgitPatch;
 };
-typedef QHash<ShaString, Reference> RefMap;
+typedef QHash<QString, Reference> RefMap;
 
 
 class Git : public QObject {
@@ -202,7 +202,7 @@ public:
 	Domain* curContext() const { return curDomain; }
 
 signals:
-	void newRevsAdded(const FileHistory*, const QVector<QString>&);
+	void newRevsAdded(const FileHistory*, const QVector<ShaString>&);
 	void loadCompleted(const FileHistory*, const QString&);
 	void cancelLoading(const FileHistory*);
 	void cancelAllProcesses();

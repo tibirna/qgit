@@ -53,7 +53,7 @@ signals:
 
 private slots:
 	void tabWdg_currentChanged(int);
-	void newRevsAdded(const FileHistory*, const QVector<QString>&);
+	void newRevsAdded(const FileHistory*, const QVector<ShaString>&);
 	void revisionsDragged(const QStringList&);
 	void revisionsDropped(const QStringList&);
 	void shortCutActivated();

@@ -50,6 +50,7 @@ typedef const QString&              SCRef;
 typedef QStringList&                SList;
 typedef const QStringList&          SCList;
 typedef QVector<QString>            StrVect;
+typedef QVector<ShaString>          ShaVect;
 typedef QSet<QString>               ShaSet;
 
 class QProcess;
@@ -58,9 +59,6 @@ class QWidget;
 
 
 namespace QGit {
-
-	// optimized sha hash function
-	uint shaHash(const QString& s);
 
 	// minimum git version required
 	extern const QString GIT_VERSION;
@@ -186,6 +184,9 @@ namespace QGit {
 	extern const QString PATCHES_NAME;
 
 	// git index parameters
+	extern const QByteArray ZERO_SHA_BA;
+	extern const ShaString  ZERO_SHA_RAW;
+
 	extern const QString ZERO_SHA;
 	extern const QString CUSTOM_SHA;
 	extern const QString ALL_MERGE_FILES;
@@ -289,11 +290,11 @@ public:
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
 		*next = indexData(true, withDiff);
 	}
-	bool isBoundary() const { return (ba.at(shaStart + 40) == '-'); }
+	bool isBoundary() const { return (ba.at(shaStart + 41) == '-'); }
 	uint parentsCount() const { return parentsCnt; }
 	const QString parent(int idx) const;
 	const QStringList parents() const;
-	const QString sha() const { return midSha(shaStart, 40); }
+	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
 	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
 	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
 	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
@@ -380,7 +381,7 @@ public:
 		return (!extStatus.isEmpty() && idx < extStatus.count() ? extStatus.at(idx) : "");
 	}
 };
-typedef QHash<ShaString, const RevFile*> RevFileMap;
+typedef QHash<QString, const RevFile*> RevFileMap;
 
 
 class FileAnnotation {
