@@ -1,6 +1,6 @@
 # Only for Windows installation set correct directory
 # of git exe files. Then uncomment following line
-# GIT_EXEC_DIR = C:\path\to\git\installation\directory
+GIT_EXEC_DIR = "D:\Program Files\Git\bin"
 
 
 # Platform dependent stuff

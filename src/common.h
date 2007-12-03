@@ -13,6 +13,7 @@
 #include <QColor>
 #include <QFont>
 #include <QVariant>
+#include "ShaString.h"
 
 /*
    QVariant does not support size_t type used in Qt containers, this is
@@ -54,6 +55,7 @@ typedef QSet<QString>               ShaSet;
 class QProcess;
 class QSplitter;
 class QWidget;
+
 
 namespace QGit {
 
@@ -273,18 +275,6 @@ namespace QGit {
 	extern const QString SCRIPT_EXT;
 }
 
-/* For a class stored in a QHash with key of type 'sha' string it is
-   possible to overload the default qHash() function to use a faster one,
-   optimized for sha values.
-
-   To enable this feature use SHA_HASH_DECL to declare a template
-   specialization for your class. The corresponding definition must be
-   added in namespace_def.cpp
-*/
-#define SHA_HASH_DECL(class_name) template<> Q_OUTOFLINE_TEMPLATE     \
-        QHash<QString, class_name>::Node** QHash<QString, class_name> \
-        ::findNode(const QString &akey, uint *ahp) const
-
 
 class Rev {
 	// prevent implicit C++ compiler defaults
@@ -332,8 +322,7 @@ private:
 	mutable int parentsCnt, shaStart, autStart, autDateStart;
 	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 };
-typedef QHash<QString, const Rev*> RevMap;  // faster then a map
-SHA_HASH_DECL(const Rev*);
+typedef QHash<ShaString, const Rev*> RevMap;  // faster then a map
 
 
 class RevFile {
@@ -391,8 +380,7 @@ public:
 		return (!extStatus.isEmpty() && idx < extStatus.count() ? extStatus.at(idx) : "");
 	}
 };
-typedef QHash<QString, const RevFile*> RevFileMap;
-SHA_HASH_DECL(const RevFile*);
+typedef QHash<ShaString, const RevFile*> RevFileMap;
 
 
 class FileAnnotation {
@@ -404,8 +392,7 @@ public:
 	int annId;
 	QString fileSha;
 };
-typedef QHash<QString, FileAnnotation> AnnotateHistory;
-SHA_HASH_DECL(FileAnnotation);
+typedef QHash<ShaString, FileAnnotation> AnnotateHistory;
 
 
 class BaseEvent: public QEvent {

@@ -87,8 +87,7 @@ struct Reference { // stores tag information associated to a revision
 	QString     tagMsg;
 	QString     stgitPatch;
 };
-typedef QHash<QString, Reference> RefMap;
-SHA_HASH_DECL(Reference);
+typedef QHash<ShaString, Reference> RefMap;
 
 
 class Git : public QObject {
