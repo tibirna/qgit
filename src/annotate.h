@@ -34,8 +34,7 @@ public:
 	int start, end; // ranges count file lines from 1 like patches diffs
 	bool modified;
 };
-typedef QHash<QString, RangeInfo> Ranges;
-SHA_HASH_DECL(RangeInfo);
+typedef QHash<ShaString, RangeInfo> Ranges;
 
 class Annotate : public QObject {
 Q_OBJECT

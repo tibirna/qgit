@@ -74,33 +74,11 @@ uint QGit::shaHash(const QString& s) { // fast path, called 6-7 times per revisi
 	     + (hexVal(ch +10)<< 4)
 	     +  hexVal(ch +12);
 }
+uint qHash(const ShaString& s)
+{
+	return QGit::shaHash(s);
+}
 
-#define SHA_HASH_DEF(class_name)                                                        \
-                                                                                        \
-	template<> Q_OUTOFLINE_TEMPLATE QHash<QString, class_name>::Node                \
-	**QHash<QString, class_name>::findNode(const QString &akey, uint *ahp) const {  \
-	Node **node;                                                                    \
-	uint h = QGit::shaHash(akey);                                                   \
-	if (d->numBuckets) {                                                            \
-		node = reinterpret_cast<Node **>(&d->buckets[h % d->numBuckets]);       \
-	Q_ASSERT(*node == e || (*node)->next);                                          \
-	while (*node != e && !(*node)->same_key(h, akey))                               \
-		node = &(*node)->next;                                                  \
-	} else {                                                                        \
-		node = const_cast<Node **>(reinterpret_cast<const Node * const *>(&e)); \
-	}                                                                               \
-	if (ahp)                                                                        \
-		*ahp = h;                                                               \
-	return node; }
-
-
-// Add here definitions for template specializations
-// previously declared with SHA_HASH_DECL
-SHA_HASH_DEF(const Rev*)
-SHA_HASH_DEF(const RevFile*)
-SHA_HASH_DEF(FileAnnotation)
-SHA_HASH_DEF(Reference)
-SHA_HASH_DEF(RangeInfo)
 
 
 // minimum git version required
