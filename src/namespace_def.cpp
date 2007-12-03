@@ -63,7 +63,7 @@ static inline uint hexVal(const uchar* ch) {
 	return (*ch < 64 ? *ch - 48 : *ch - 87);
 }
 
-uint QGit::shaHash(const QString& s) { // fast path, called 6-7 times per revision
+uint qHash(const ShaString& s) { // fast path, called 6-7 times per revision
 
 	const uchar* ch = reinterpret_cast<const uchar*>(s.constData());
 	return (hexVal(ch    )<<24)
@@ -74,11 +74,6 @@ uint QGit::shaHash(const QString& s) { // fast path, called 6-7 times per revisi
 	     + (hexVal(ch +10)<< 4)
 	     +  hexVal(ch +12);
 }
-uint qHash(const ShaString& s)
-{
-	return QGit::shaHash(s);
-}
-
 
 
 // minimum git version required
