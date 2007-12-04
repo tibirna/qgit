@@ -87,7 +87,7 @@ struct Reference { // stores tag information associated to a revision
 	QString     tagMsg;
 	QString     stgitPatch;
 };
-typedef QHash<QString, Reference> RefMap;
+typedef QHash<ShaString, Reference> RefMap;
 
 
 class Git : public QObject {
@@ -172,6 +172,7 @@ public:
 	const QString getTagMsg(SCRef sha);
 	const Rev* revLookup(const ShaString& sha, const FileHistory* fh = NULL) const;
 	const Rev* revLookup(SCRef sha, const FileHistory* fh = NULL) const { return revLookup(toSha(sha), fh); }
+	uint checkRef(const ShaString& sha, uint mask = ANY_REF) const;
 	uint checkRef(SCRef sha, uint mask = ANY_REF) const;
 	const QString getRevInfo(SCRef sha);
 	const QString getRefSha(SCRef refName, RefType type = ANY_REF, bool askGit = true);
@@ -292,7 +293,7 @@ private:
 	void setStatus(RevFile& rf, SCRef rowSt);
 	void setExtStatus(RevFile& rf, SCRef rowSt, int parNum);
 	void appendNamesWithId(QStringList& names, SCRef sha, SCList data, bool onlyLoaded);
-	Reference* lookupReference(SCRef sha, bool create = false);
+	Reference* lookupReference(const ShaString& sha, bool create = false);
 
 	EM_DECLARE(exGitStopped);
 
@@ -314,6 +315,7 @@ private:
 	QString firstNonStGitPatch;
 	RevFileMap revsFiles;
 	RefMap refsShaMap;
+	QVector<QByteArray> shaBackupBuf;
 	StrVect fileNamesVec;
 	StrVect dirNamesVec;
 	QHash<QString, int> fileNamesMap; // quick lookup file name

@@ -415,18 +415,26 @@ const QString Git::quote(SCList sl) {
 	return q;
 }
 
-uint Git::checkRef(SCRef sha, uint mask) const {
+uint Git::checkRef(const ShaString& sha, uint mask) const {
 
 	RefMap::const_iterator it(refsShaMap.constFind(sha));
 	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 
+uint Git::checkRef(SCRef sha, uint mask) const {
+
+	RefMap::const_iterator it(refsShaMap.constFind(toSha(sha)));
+	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
+}
+
 const QStringList Git::getRefName(SCRef sha, RefType type, QString* curBranch) const {
 
-	if (!checkRef(sha, type))
+	const ShaString& ss = toSha(sha);
+
+	if (!checkRef(ss, type))
 		return QStringList();
 
-	const Reference& rf = refsShaMap[sha];
+	const Reference& rf = refsShaMap[ss];
 
 	if (curBranch)
 		*curBranch = rf.currentBranch;
@@ -538,7 +546,7 @@ const QStringList Git::getAllRefNames(uint mask, bool onlyLoaded) {
 
 const QString Git::getRevInfo(SCRef sha) {
 
-	uint type = checkRef(toSha(sha));
+	uint type = checkRef(sha);
 	if (type == 0)
 		return "";
 
@@ -576,7 +584,7 @@ const QString Git::getTagMsg(SCRef sha) {
 		dbs("ASSERT in Git::getTagMsg, tag not found");
 		return "";
 	}
-	Reference& rf = refsShaMap[sha];
+	Reference& rf = refsShaMap[toSha(sha)];
 
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
@@ -1051,7 +1059,7 @@ const QStringList Git::getDescendantBranches(SCRef sha, bool shaOnly) {
 
 	for (int i = 0; i < nr.count(); i++) {
 
-		SCRef sha = revData->revOrder[nr[i]];
+		const ShaString& sha = revData->revOrder[nr[i]];
 		if (shaOnly) {
 			tl.append(sha);
 			continue;
@@ -1086,7 +1094,7 @@ const QStringList Git::getNearTags(bool goDown, SCRef sha) {
 
 	for (int i = 0; i < nr.count(); i++) {
 
-		SCRef sha = revData->revOrder[nr[i]];
+		const ShaString& sha = revData->revOrder[nr[i]];
 		SCRef cap = " (" + sha + ")";
 		RefMap::const_iterator it(refsShaMap.find(sha));
 		if (it != refsShaMap.constEnd())

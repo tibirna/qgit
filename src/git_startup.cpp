@@ -97,7 +97,8 @@ const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
 	return d.absolutePath();
 }
 
-Reference* Git::lookupReference(SCRef sha, bool create) {
+Reference* Git::lookupReference(const ShaString& sha, bool create) {
+/* Note: if create flag is set then sha MUST point to persistent data */
 
 	RefMap::iterator it(refsShaMap.find(sha));
 	if (it == refsShaMap.end() && create)
@@ -138,6 +139,8 @@ bool Git::getRefs() {
 		return false;
 
 	refsShaMap.clear();
+	shaBackupBuf.clear(); // revs are already empty now
+
 	QString prevRefSha;
 	QStringList patchNames, patchShas;
 	const QStringList rLst(runOutput.split('\n', QString::SkipEmptyParts));
@@ -160,7 +163,7 @@ bool Git::getRefs() {
 			continue;
 		}
 		// one rev could have many tags
-		Reference* cur = lookupReference(revSha, optCreate);
+		Reference* cur = lookupReference(toPersistentSha(revSha, shaBackupBuf), optCreate);
 
 		if (refName.startsWith("refs/tags/")) {
 
@@ -176,7 +179,7 @@ bool Git::getRefs() {
 				cur->tagObj = prevRefSha;
 
 				// tagObj must be removed from ref map
-				refsShaMap.remove(prevRefSha);
+				refsShaMap.remove(toSha(prevRefSha));
 
 			} else
 				cur->tags.append(refName.mid(10));
@@ -231,7 +234,8 @@ void Git::parseStGitPatches(SCList patchNames, SCList patchShas) {
 			    "not found in references list.", patchName);
 			continue;
 		}
-		Reference* cur = lookupReference(patchShas.at(pos), optCreate);
+		const ShaString& ss = toPersistentSha(patchShas.at(pos), shaBackupBuf);
+		Reference* cur = lookupReference(ss, optCreate);
 		cur->stgitPatch = patchName;
 		cur->type |= (applied ? APPLIED : UN_APPLIED);
 
@@ -978,8 +982,8 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 			mergeSha = QString::number(++i) + " m " + sha;
 		while (r.contains(toSha(mergeSha)));
 
-		QByteArray* ba = new QByteArray(mergeSha.toLatin1()); // FIXME memleak here
-		r.insert(ShaString(ba->constData()), rev);
+		const ShaString& ss = toPersistentSha(mergeSha, shaBackupBuf);
+		r.insert(ss, rev);
 	} else {
 		r.insert(sha, rev);
 		fh->revOrder.append(sha);
@@ -1208,7 +1212,7 @@ void Git::updateDescMap(const Rev* r,uint idx, QHash<QPair<uint, uint>, bool>& d
 
 void Git::mergeBranches(Rev* p, const Rev* r) {
 
-	int r_descBrnMaster = (checkRef(toSha(r->sha()), BRANCH | RMT_BRANCH) ? r->orderIdx : r->descBrnMaster);
+	int r_descBrnMaster = (checkRef(r->sha(), BRANCH | RMT_BRANCH) ? r->orderIdx : r->descBrnMaster);
 
 	if (p->descBrnMaster == r_descBrnMaster || r_descBrnMaster == -1)
 		return;
@@ -1227,7 +1231,7 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
 
 void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint, uint>, bool>& dm) {
 
-	bool isTag = checkRef(toSha(r->sha()), TAG);
+	bool isTag = checkRef(r->sha(), TAG);
 	int r_descRefsMaster = isTag ? r->orderIdx : r->descRefsMaster;
 	int r_ancRefsMaster = isTag ? r->orderIdx : r->ancRefsMaster;
 
@@ -1296,7 +1300,7 @@ void Git::indexTree() {
 	// compute children and nearest descendants
 	for (uint i = 0, cnt = ro.count(); i < cnt; i++) {
 
-		uint type = checkRef(toSha(ro[i]));
+		uint type = checkRef(ro[i]);
 		bool isB = (type & (BRANCH | RMT_BRANCH));
 		bool isT = (type & TAG);
 
@@ -1338,7 +1342,7 @@ void Git::indexTree() {
 	for (int i = ro.count() - 1; i >= 0; i--) {
 
 		const Rev* r = revLookup(ro[i]);
-		bool isTag = checkRef(toSha(ro[i]), TAG);
+		bool isTag = checkRef(ro[i], TAG);
 
 		if (isTag) {
 			Rev* rr = const_cast<Rev*>(r);
