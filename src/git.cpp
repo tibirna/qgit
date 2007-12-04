@@ -81,7 +81,7 @@ void FileHistory::flushTail() {
 	}
 	int cnt = revOrder.count() - earlyOutputCnt + 1;
 	while (cnt > 0) {
-		SCRef sha = revOrder.last();
+		const ShaString& sha = revOrder.last();
 		const Rev* c = revs[sha];
 		delete c;
 		revs.remove(sha);
@@ -538,7 +538,7 @@ const QStringList Git::getAllRefNames(uint mask, bool onlyLoaded) {
 
 const QString Git::getRevInfo(SCRef sha) {
 
-	uint type = checkRef(sha);
+	uint type = checkRef(toSha(sha));
 	if (type == 0)
 		return "";
 
@@ -667,7 +667,7 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 	emit cancelLoading(fh); // non blocking
 }
 
-const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
+const Rev* Git::revLookup(const ShaString& sha, const FileHistory* fh) const {
 
 	const RevMap& r = (fh ? fh->revs : revData->revs);
 	return r.value(sha);

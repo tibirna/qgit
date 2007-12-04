@@ -976,7 +976,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		int i = 0;
 		do
 			mergeSha = QString::number(++i) + " m " + sha;
-		while (r.contains(mergeSha));
+		while (r.contains(toSha(mergeSha)));
 
 		QByteArray* ba = new QByteArray(mergeSha.toLatin1()); // FIXME memleak here
 		r.insert(ShaString(ba->constData()), rev);
@@ -1042,14 +1042,17 @@ void Git::setLane(SCRef sha, FileHistory* fh) {
 
 	Lanes* l = fh->lns;
 	uint i = fh->firstFreeLane;
+	const ShaString& ss(toSha(sha));
 	const ShaVect& shaVec(fh->revOrder);
+
 	for (uint cnt = shaVec.count(); i < cnt; ++i) {
-		SCRef curSha = shaVec[i];
+
+		const ShaString& curSha = shaVec[i];
 		Rev* r = const_cast<Rev*>(revLookup(curSha, fh));
 		if (r->lanes.count() == 0)
 			updateLanes(*r, *l, curSha);
 
-		if (curSha == sha)
+		if (curSha == ss)
 			break;
 	}
 	fh->firstFreeLane = ++i;
@@ -1205,7 +1208,7 @@ void Git::updateDescMap(const Rev* r,uint idx, QHash<QPair<uint, uint>, bool>& d
 
 void Git::mergeBranches(Rev* p, const Rev* r) {
 
-	int r_descBrnMaster = (checkRef(r->sha(), BRANCH | RMT_BRANCH) ? r->orderIdx : r->descBrnMaster);
+	int r_descBrnMaster = (checkRef(toSha(r->sha()), BRANCH | RMT_BRANCH) ? r->orderIdx : r->descBrnMaster);
 
 	if (p->descBrnMaster == r_descBrnMaster || r_descBrnMaster == -1)
 		return;
@@ -1224,7 +1227,7 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
 
 void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint, uint>, bool>& dm) {
 
-	bool isTag = checkRef(r->sha(), TAG);
+	bool isTag = checkRef(toSha(r->sha()), TAG);
 	int r_descRefsMaster = isTag ? r->orderIdx : r->descRefsMaster;
 	int r_ancRefsMaster = isTag ? r->orderIdx : r->ancRefsMaster;
 
@@ -1293,7 +1296,7 @@ void Git::indexTree() {
 	// compute children and nearest descendants
 	for (uint i = 0, cnt = ro.count(); i < cnt; i++) {
 
-		uint type = checkRef(ro[i]);
+		uint type = checkRef(toSha(ro[i]));
 		bool isB = (type & (BRANCH | RMT_BRANCH));
 		bool isT = (type & TAG);
 
@@ -1302,7 +1305,7 @@ void Git::indexTree() {
 		if (isB) {
 			Rev* rr = const_cast<Rev*>(r);
 			if (r->descBrnMaster != -1) {
-				SCRef sha = ro[r->descBrnMaster];
+				const ShaString& sha = ro[r->descBrnMaster];
 				rr->descBranches = revLookup(sha)->descBranches;
 			}
 			rr->descBranches.append(i);
@@ -1335,7 +1338,7 @@ void Git::indexTree() {
 	for (int i = ro.count() - 1; i >= 0; i--) {
 
 		const Rev* r = revLookup(ro[i]);
-		bool isTag = checkRef(ro[i], TAG);
+		bool isTag = checkRef(toSha(ro[i]), TAG);
 
 		if (isTag) {
 			Rev* rr = const_cast<Rev*>(r);

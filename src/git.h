@@ -170,7 +170,8 @@ public:
 	const QStringList getDescendantBranches(SCRef sha, bool shaOnly = false);
 	const QString getShortLog(SCRef sha);
 	const QString getTagMsg(SCRef sha);
-	const Rev* revLookup(SCRef sha, const FileHistory* fh = NULL) const;
+	const Rev* revLookup(const ShaString& sha, const FileHistory* fh = NULL) const;
+	const Rev* revLookup(SCRef sha, const FileHistory* fh = NULL) const { return revLookup(toSha(sha), fh); }
 	uint checkRef(SCRef sha, uint mask = ANY_REF) const;
 	const QString getRevInfo(SCRef sha);
 	const QString getRefSha(SCRef refName, RefType type = ANY_REF, bool askGit = true);

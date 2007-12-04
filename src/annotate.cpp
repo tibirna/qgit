@@ -32,7 +32,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	if (!valid)
 		return NULL;
 
-	AnnotateHistory::const_iterator it = ah.constFind(sha);
+	AnnotateHistory::const_iterator it = ah.constFind(toSha(sha));
 	if (it != ah.constEnd())
 		return &(it.value());
 
@@ -40,7 +40,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	int shaIdx;
 	const QString ancestorSha = getAncestor(sha, &shaIdx);
 	if (!ancestorSha.isEmpty()) {
-		it = ah.constFind(ancestorSha);
+		it = ah.constFind(toSha(ancestorSha));
 		if (it != ah.constEnd())
 			return &(it.value());
 	}
@@ -138,7 +138,7 @@ void Annotate::doAnnotate(SCRef sha) {
 	}
 	const QString& diff(getPatch(sha)); // set FileAnnotation::fileSha
 	if (r->parentsCount() == 0) { // initial revision
-		setInitialAnnotation(ah[sha].fileSha, fa); // calls Qt event loop
+		setInitialAnnotation(ah[toSha(sha)].fileSha, fa); // calls Qt event loop
 		fa->isValid = true;
 		return;
 	}
@@ -183,7 +183,7 @@ void Annotate::doAnnotate(SCRef sha) {
 
 FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 
-	AnnotateHistory::iterator it(ah.find(sha));
+	AnnotateHistory::iterator it(ah.find(toSha(sha)));
 	if (it == ah.end()) {
 		dbp("ASSERT getFileAnnotation: no revision %1", sha);
 		isError = true;
@@ -348,14 +348,15 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 		return QString();
 
 	const QString diff(r->diff());
+	const ShaString ss(toSha(sha));
 
-	if (ah[sha].fileSha.isEmpty() && !parentNum) {
+	if (ah[ss].fileSha.isEmpty() && !parentNum) {
 
 		int idx = diff.indexOf("..");
 		if (idx != -1)
-			ah[sha].fileSha = diff.mid(idx + 2, 40);
+			ah[ss].fileSha = diff.mid(idx + 2, 40);
 		else // file mode change only, same sha of parent
-			ah[sha].fileSha = ah[r->parent(0)].fileSha;
+			ah[ss].fileSha = ah[toSha(r->parent(0))].fileSha;
 	}
 	return diff;
 }
