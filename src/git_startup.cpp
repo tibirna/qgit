@@ -20,6 +20,8 @@
 #include "dataloader.h"
 #include "git.h"
 
+#include <valgrind/callgrind.h>
+
 #define SHOW_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x)); EM_PROCESS_EVENTS_NO_INPUT;
 
 using namespace QGit;
@@ -267,7 +269,7 @@ const QStringList Git::getOthersFiles() {
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
                       SCRef patch, int idx, FileHistory* fh) {
 
-	QString data(sha + "X>" + parents.join(" ") + '\n');
+	QString data('>' + sha + 'X' + parents.join(" ") + " \n");
 	data.append(author + '\n' + date + '\n');
 	data.append(log + '\n' + longLog);
 
@@ -488,7 +490,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	QString baseCmd("git log --topo-order --no-color "
 	                "--log-size --parents --boundary -z "
-	                "--pretty=format:%HX%m%P%n%an<%ae>%n%at%n%s%n");
+	                "--pretty=format:%m%HX%PX%n%an<%ae>%n%at%n%s%n");
 
 	// we don't need log message body for file history
 	if (isMainHistory(fh))
@@ -519,7 +521,7 @@ bool Git::startUnappliedList() {
 	// WARNING: with this command 'git log' could send spurious
 	// revs so we need some filter out logic during loading
 	QString cmd("git log --no-color --log-size --parents -z "
-	            "--pretty=format:%HX%m%P%n%an<%ae>%n%at%n%s%n%b ^HEAD");
+	            "--pretty=format:%m%HX%PX%n%an<%ae>%n%at%n%s%n%b ^HEAD");
 
 	QStringList sl(cmd.split(' '));
 	sl << unAppliedShaList;
@@ -859,14 +861,18 @@ void Git::loadFileNames() {
 		const QString runCmd("git diff-tree --no-color -r -C --stdin");
 		runAsync(runCmd, this, diffTreeBuf);
 	}
+// CALLGRIND_START_INSTRUMENTATION;
+
 	indexTree();
+
+// CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 bool Git::filterEarlyOutputRev(FileHistory* fh, Rev* rev) {
 
 	if (fh->earlyOutputCnt < fh->revOrder.count()) {
 
-		SCRef sha = fh->revOrder[fh->earlyOutputCnt++];
+		const ShaString& sha = fh->revOrder[fh->earlyOutputCnt++];
 		const Rev* c = revLookup(sha, fh);
 		if (c) {
 			if (rev->sha() != sha || rev->parents() != c->parents()) {
@@ -1090,7 +1096,8 @@ void Git::updateLanes(Rev& c, Lanes& lns, SCRef sha) {
 
 	lns.getLanes(c.lanes); // here lanes are snapshotted
 
-	SCRef nextSha = (isInitial) ? "" : c.parent(0);
+	SCRef nextSha = (isInitial) ? "" : QString(c.parent(0));
+
 	lns.nextParent(nextSha);
 
 	if (c.isApplied)
@@ -1244,8 +1251,8 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint,
 	// we want the nearest tag only, so remove any tag
 	// that is ancestor of any other tag in p U r
 	const ShaVect& ro = revData->revOrder;
-	SCRef sha1 = down ? ro[p->descRefsMaster] : ro[p->ancRefsMaster];
-	SCRef sha2 = down ? ro[r_descRefsMaster] : ro[r_ancRefsMaster];
+	const ShaString& sha1 = down ? ro[p->descRefsMaster] : ro[p->ancRefsMaster];
+	const ShaString& sha2 = down ? ro[r_descRefsMaster] : ro[r_ancRefsMaster];
 	const QVector<int>& src1 = down ? revLookup(sha1)->descRefs : revLookup(sha1)->ancRefs;
 	const QVector<int>& src2 = down ? revLookup(sha2)->descRefs : revLookup(sha2)->ancRefs;
 	QVector<int> dst(src1);
@@ -1378,17 +1385,21 @@ const QString Rev::midSha(int start, int len) const {
 	return QString::fromLatin1(data + start, len); // faster then formAscii
 }
 
-const QString Rev::parent(int idx) const {
+const ShaString Rev::parent(int idx) const {
 
-	return midSha(shaStart + 42 + 41 * idx, 40);
+	return ShaString(ba.constData() + shaStart + 41 + 41 * idx);
 }
 
 const QStringList Rev::parents() const {
 
-	if (parentsCnt == 0)
-		return QStringList();
+	QStringList p;
+	int idx = shaStart + 41;
 
-	return midSha(shaStart + 42, 41 * parentsCnt - 1).split(' ', QString::SkipEmptyParts);
+	for (int i = 0; i < parentsCnt; i++) {
+		p.append(midSha(idx, 40));
+		idx += 41;
+	}
+	return p;
 }
 
 int Rev::indexData(bool quick, bool withDiff) const {
@@ -1397,7 +1408,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 	- a possible one line with "Final output:\n" in case of --early-output option
 	- one line with "log size" + len of this record
-	- one line with sha + an arbitrary amount of parent's sha
+	- one line with boundary info + sha + an arbitrary amount of parent's sha
 	- one line with author name + e-mail
 	- one line with author date as unix timestamp
 	- zero or more non blank lines with other info, as the encoding FIXME
@@ -1428,40 +1439,41 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		while ((tmp = data[idx++]) != '\n')
 			msgSize = msgSize * 10 + tmp - 48;
 	}
-	// idx points to the beginning of sha
-	if (idx + 42 >= last)
+	// idx points to the boundary information
+	if (++idx + 42 >= last)
 		return -1;
 
 	shaStart = idx;
+
+	// ok, now shaStart and msgSize are valid,
+	// msgSize could be 0 if not available
+	int msgEnd = shaStart - 1 + msgSize;
+	if (msgEnd > last + 1) // FIXME off by one (see dataloader.cpp)
+		return -1;
+
 	idx += 40; // now points to 'X' place holder
 
 	char* fixup = (char*)data;
 	fixup[idx] = '\0'; // we want sha to be a '\0' terminated ascii string
 
-	idx++;
 	parentsCnt = 0;
 
-	// ok, now shaStart and msgSize are valid,
-	// msgSize could be 0 if not available
-	int msgEnd = shaStart + msgSize;
-	if (msgEnd > last + 1) // FIXME off by one
-		return -1;
-
-	if (data[idx + 1] == '\n') // initial revision
-		idx++;
+	if (data[idx + 2] == '\n') // initial revision
+		++idx;
 	else do {
 		parentsCnt++;
 		idx += 41;
-	} while (idx < last && data[idx] != '\n');
+		fixup[idx] = '\0'; // we want parents '\0' terminated
 
-	if (idx + 1 >= last)
-		return -1;
+	} while (idx + 1 < last && data[idx + 1] != '\n');
+
+	++idx; // now idx points to the '\n' of sha line
 
 	// check for !msgSize
 	int end;
 	if (withDiff || !msgSize) {
 
-		end = msgEnd - 1;
+		end = (msgEnd > idx) ? msgEnd - 1: idx;
 		do { // search for "\n\0" to handle (rare) cases of '\0'
 		     // in content, see c42012 and bb8d8a6 in Linux tree
 			end = ba.indexOf('\0', end + 1);
@@ -1472,6 +1484,9 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 	} else
 		end = msgEnd;
+
+	if (end > last + 1)
+		return -1;
 
 	// ok, now end is valid but msgEnd could be not if !msgSize
 	// in case of diff we are sure content will be consumed so

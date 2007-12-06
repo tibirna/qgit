@@ -713,8 +713,9 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 
 	QString ancestor(sha);
 	int shaIdx;
+	const ShaString& ss = toSha(sha);
 	for (shaIdx = 0; shaIdx < histRevOrder.count(); shaIdx++)
-		if (histRevOrder[shaIdx] == sha)
+		if (histRevOrder[shaIdx] == ss)
 			break;
 
 	if (shaIdx == histRevOrder.count()) { // not in history, find an ancestor

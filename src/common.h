@@ -290,9 +290,9 @@ public:
 		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
 		*next = indexData(true, withDiff);
 	}
-	bool isBoundary() const { return (ba.at(shaStart + 41) == '-'); }
+	bool isBoundary() const { return (ba.at(shaStart - 1) == '-'); }
 	uint parentsCount() const { return parentsCnt; }
-	const QString parent(int idx) const;
+	const ShaString parent(int idx) const;
 	const QStringList parents() const;
 	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
 	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }

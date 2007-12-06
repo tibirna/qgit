@@ -236,7 +236,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 	if (col == QGit::AUTH_COL)
 		return r->author();
 
-	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA) {
+	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA_RAW) {
 
 		if (_secs != 0) // secs is 0 for absolute date
 			return timeDiff(_secs - r->authorDate().toULong());
@@ -1025,7 +1025,7 @@ bool Git::isTreeModified(SCRef sha) {
 bool Git::isParentOf(SCRef par, SCRef child) {
 
 	const Rev* c = revLookup(child);
-	return (c && c->parentsCount() == 1 && c->parent(0) == par); // no merges
+	return (c && c->parentsCount() == 1 && QString(c->parent(0)) == par); // no merges
 }
 
 bool Git::isSameFiles(SCRef tree1Sha, SCRef tree2Sha) {
@@ -1385,7 +1385,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 	shaSet.clear();
 	QString buf;
 	FOREACH (ShaVect, it, revData->revOrder)
-		if (*it != ZERO_SHA)
+		if (*it != ZERO_SHA_RAW)
 			buf.append(*it).append('\n');
 
 	if (buf.isEmpty())
