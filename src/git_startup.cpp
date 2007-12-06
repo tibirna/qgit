@@ -20,7 +20,7 @@
 #include "dataloader.h"
 #include "git.h"
 
-#include <valgrind/callgrind.h>
+// #include <valgrind/callgrind.h>
 
 #define SHOW_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x)); EM_PROCESS_EVENTS_NO_INPUT;
 
@@ -489,7 +489,11 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
 	QString baseCmd("git log --topo-order --no-color "
-	                "--log-size --parents --boundary -z "
+
+#ifndef Q_OS_WIN32
+	                "--log-size " // FIXME broken on Windows
+#endif
+	                "--parents --boundary -z "
 	                "--pretty=format:%m%HX%PX%n%an<%ae>%n%at%n%s%n");
 
 	// we don't need log message body for file history
@@ -520,7 +524,11 @@ bool Git::startUnappliedList() {
 
 	// WARNING: with this command 'git log' could send spurious
 	// revs so we need some filter out logic during loading
-	QString cmd("git log --no-color --log-size --parents -z "
+	QString cmd("git log --no-color --parents -z "
+
+#ifndef Q_OS_WIN32
+	            "--log-size " // FIXME broken on Windows
+#endif
 	            "--pretty=format:%m%HX%PX%n%an<%ae>%n%at%n%s%n%b ^HEAD");
 
 	QStringList sl(cmd.split(' '));
@@ -862,9 +870,7 @@ void Git::loadFileNames() {
 		runAsync(runCmd, this, diffTreeBuf);
 	}
 // CALLGRIND_START_INSTRUMENTATION;
-
 	indexTree();
-
 // CALLGRIND_STOP_INSTRUMENTATION;
 }
 
@@ -1463,9 +1469,12 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	else do {
 		parentsCnt++;
 		idx += 41;
+		if (idx + 1 >= last)
+		    break;
+
 		fixup[idx] = '\0'; // we want parents '\0' terminated
 
-	} while (idx + 1 < last && data[idx + 1] != '\n');
+	} while (data[idx + 1] != '\n');
 
 	++idx; // now idx points to the '\n' of sha line
 

@@ -356,7 +356,7 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 		if (idx != -1)
 			ah[ss].fileSha = diff.mid(idx + 2, 40);
 		else // file mode change only, same sha of parent
-			ah[ss].fileSha = ah[toSha(r->parent(0))].fileSha;
+			ah[ss].fileSha = ah[r->parent(0)].fileSha;
 	}
 	return diff;
 }
@@ -797,7 +797,7 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 				dbp("ASSERT in rangeFilter 2: diff for %1 not found", sha);
 				return "";
 			}
-			SCRef parSha(curRev->parent(0));
+			QString parSha(curRev->parent(0));
 
 			if (!ranges.contains(parSha)) {
 
