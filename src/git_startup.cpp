@@ -20,8 +20,6 @@
 #include "dataloader.h"
 #include "git.h"
 
-// #include <valgrind/callgrind.h>
-
 #define SHOW_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x)); EM_PROCESS_EVENTS_NO_INPUT;
 
 using namespace QGit;
@@ -869,9 +867,7 @@ void Git::loadFileNames() {
 		const QString runCmd("git diff-tree --no-color -r -C --stdin");
 		runAsync(runCmd, this, diffTreeBuf);
 	}
-// CALLGRIND_START_INSTRUMENTATION;
 	indexTree();
-// CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 bool Git::filterEarlyOutputRev(FileHistory* fh, Rev* rev) {
@@ -1425,41 +1421,41 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	- a terminating '\0'
 */
 	const int last = ba.size() - 1;
-	if (start + 41 >= last)
-		return -1;
+	int logSize = 0, idx = start;
+	int logEnd, revEnd;
 
 	// direct access is faster then QByteArray.at()
 	const char* data = ba.constData();
+	char* fixup = const_cast<char*>(data); // to build '\0' terminating strings
+
+	if (start + 42 > last) // at least sha + 'X' + 'X' + '\n' + must be present
+		return -1;
 
 	if (data[start] == 'F') // "Final output", let caller handle this
 		return (ba.indexOf('\n', start) != -1 ? -2 : -1);
 
-	// parse log size
-	int msgSize = 0;
-	int idx = start;
-
+	// parse log size if present
 	if (data[idx] == 'l') { // 'log size xxx\n'
 
 		idx += 9; // move idx to beginning of log size
 		int tmp;
 		while ((tmp = data[idx++]) != '\n')
-			msgSize = msgSize * 10 + tmp - 48;
+			logSize = logSize * 10 + tmp - 48;
 	}
 	// idx points to the boundary information
-	if (++idx + 42 >= last)
+	if (++idx + 42 > last)
 		return -1;
 
 	shaStart = idx;
 
-	// ok, now shaStart and msgSize are valid,
-	// msgSize could be 0 if not available
-	int msgEnd = shaStart - 1 + msgSize;
-	if (msgEnd > last + 1) // FIXME off by one (see dataloader.cpp)
+	// ok, now shaStart is valid but msgSize
+	// could be still 0 if not available
+	logEnd = shaStart - 1 + logSize;
+	if (logEnd > last)
 		return -1;
 
 	idx += 40; // now points to 'X' place holder
 
-	char* fixup = (char*)data;
 	fixup[idx] = '\0'; // we want sha to be a '\0' terminated ascii string
 
 	parentsCnt = 0;
@@ -1469,6 +1465,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	else do {
 		parentsCnt++;
 		idx += 41;
+
 		if (idx + 1 >= last)
 		    break;
 
@@ -1476,32 +1473,31 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 	} while (data[idx + 1] != '\n');
 
-	++idx; // now idx points to the '\n' of sha line
+	++idx; // now points to the trailing '\n' of sha line
 
 	// check for !msgSize
-	int end;
-	if (withDiff || !msgSize) {
+	if (withDiff || !logSize) {
 
-		end = (msgEnd > idx) ? msgEnd - 1: idx;
+		revEnd = (logEnd > idx) ? logEnd - 1: idx;
 		do { // search for "\n\0" to handle (rare) cases of '\0'
 		     // in content, see c42012 and bb8d8a6 in Linux tree
-			end = ba.indexOf('\0', end + 1);
-			if (end == -1)
+			revEnd = ba.indexOf('\0', revEnd + 1);
+			if (revEnd == -1)
 				return -1;
 
-		} while (data[end - 1] != '\n');
+		} while (data[revEnd - 1] != '\n');
 
 	} else
-		end = msgEnd;
+		revEnd = logEnd;
 
-	if (end > last + 1)
+	if (revEnd > last) // after this point we know to have the whole record
 		return -1;
 
-	// ok, now end is valid but msgEnd could be not if !msgSize
+	// ok, now revEnd is valid but logEnd could be not if !logSize
 	// in case of diff we are sure content will be consumed so
 	// we go all the way
 	if (quick && !withDiff)
-		return ++end;
+		return ++revEnd;
 
 	autStart = ++idx;
 	idx = ba.indexOf('\n', idx); // author line end
@@ -1514,32 +1510,32 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
 	diffStart = diffLen = 0;
 	if (withDiff) {
-		diffStart = msgSize ? msgEnd : ba.indexOf("\ndiff ", idx);
+		diffStart = logSize ? logEnd : ba.indexOf("\ndiff ", idx);
 
-		if (diffStart != -1 && diffStart < end)
-			diffLen = end - ++diffStart;
+		if (diffStart != -1 && diffStart < revEnd)
+			diffLen = revEnd - ++diffStart;
 		else
 			diffStart = 0;
 	}
-	if (!msgSize)
-		msgEnd = diffStart ? diffStart : end;
+	if (!logSize)
+		logEnd = diffStart ? diffStart : revEnd;
 
-	// ok, now msgEnd is valid and we can handle the log
+	// ok, now logEnd is valid and we can handle the log
 	sLogStart = idx;
 
-	if (msgEnd < sLogStart) { // no shortlog no longLog
+	if (logEnd < sLogStart) { // no shortlog no longLog
 
 		sLogStart = sLogLen = 0;
 		lLogStart = lLogLen = 0;
 	} else {
 		lLogStart = ba.indexOf('\n', sLogStart);
-		if (lLogStart != -1 && lLogStart < msgEnd - 1) {
+		if (lLogStart != -1 && lLogStart < logEnd - 1) {
 
 			sLogLen = lLogStart - sLogStart; // skip sLog trailing '\n'
-			lLogLen = msgEnd - lLogStart; // include heading '\n' in long log
+			lLogLen = logEnd - lLogStart; // include heading '\n' in long log
 
 		} else { // no longLog
-			sLogLen = msgEnd - sLogStart;
+			sLogLen = logEnd - sLogStart;
 			if (data[sLogStart + sLogLen - 1] == '\n')
 				sLogLen--; // skip trailing '\n' if any
 
@@ -1547,5 +1543,5 @@ int Rev::indexData(bool quick, bool withDiff) const {
 		}
 	}
 	indexed = true;
-	return ++end;
+	return ++revEnd;
 }

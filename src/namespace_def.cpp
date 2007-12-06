@@ -66,13 +66,13 @@ static inline uint hexVal(const uchar* ch) {
 uint qHash(const ShaString& s) { // fast path, called 6-7 times per revision
 
 	const uchar* ch = reinterpret_cast<const uchar*>(s.latin1());
-	return (hexVal(ch    )<<24)
-	     + (hexVal(ch + 2)<<20)
-	     + (hexVal(ch + 4)<<16)
-	     + (hexVal(ch + 6)<<12)
-	     + (hexVal(ch + 8)<< 8)
-	     + (hexVal(ch +10)<< 4)
-	     +  hexVal(ch +12);
+	return (hexVal(ch     ) << 24)
+	     + (hexVal(ch +  2) << 20)
+	     + (hexVal(ch +  4) << 16)
+	     + (hexVal(ch +  6) << 12)
+	     + (hexVal(ch +  8) <<  8)
+	     + (hexVal(ch + 10) <<  4)
+	     +  hexVal(ch + 12);
 }
 
 
