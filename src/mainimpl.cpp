@@ -210,8 +210,8 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 		prevRevSha = (r && r->parentsCount() > 0 ? r->parent(0) : rv->st.sha());
 	}
 	QFileInfo fi(f);
-	QString fName1(curDir + "/" + rv->st.sha().left(6) + "_" + fi.completeBaseName());
-	QString fName2(curDir + "/" + prevRevSha.left(6) + "_" + fi.completeBaseName());
+	QString fName1(curDir + "/" + rv->st.sha().left(6) + "_" + fi.fileName());
+	QString fName2(curDir + "/" + prevRevSha.left(6) + "_" + fi.fileName());
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
