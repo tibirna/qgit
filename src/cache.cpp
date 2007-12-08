@@ -101,7 +101,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 			stream << rf->extStatus;
 	}
 	dbs("Compressing data...");
-	f.write(qCompress(data)); // no need to encode with compressed data
+	f.write(qCompress(data, 1)); // no need to encode with compressed data
 	f.close();
 
 	// rename C_DAT_FILE + BAK_EXT -> C_DAT_FILE
