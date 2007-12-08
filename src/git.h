@@ -215,6 +215,7 @@ public slots:
 	void procFinished() { filesLoadingPending = filesLoadingCurSha = ""; }
 
 private slots:
+	void loadFileCache();
 	void loadFileNames();
 	void on_runAsScript_eof();
 	void on_getHighlightedFile_eof();

@@ -687,6 +687,10 @@ void Git::init2() {
 		if (!startRevList(_sp.args, revData))
 			dbs("ERROR: unable to start 'git log'");
 
+		// return to event loop before to start the
+		// possibly slow file cache loading
+		QTimer::singleShot(10, this, SLOT(loadFileCache()));
+
 		setThrowOnStop(false);
 
 	} catch (int i) {
@@ -735,9 +739,8 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
 				emit loadCompleted(fh, tmp);
 
 			if (isMainHistory(fh))
-				// check for revisions modified files out of fast path
-				// let the dust to settle down, so that the first
-				// revision is shown to user without noticeable delay
+				// wait the dust to settle down before to start
+				// background file names loading for new revisions
 				QTimer::singleShot(500, this, SLOT(loadFileNames()));
 		}
 	}
@@ -832,11 +835,9 @@ void Git::populateFileNamesMap() {
 		fileNamesMap.insert(fileNamesVec[i], i);
 }
 
-void Git::loadFileNames() {
-// warning this function is not re-entrant, background
-// activity after repository has been loaded
+void Git::loadFileCache() {
 
-	if (!fileCacheAccessed) { // deferred file names cache load
+	if (!fileCacheAccessed) {
 
 		fileCacheAccessed = true;
 		bool isWorkingDirRevFile = (getFiles(ZERO_SHA) != NULL);
@@ -850,8 +851,11 @@ void Git::loadFileNames() {
 		if (isWorkingDirRevFile) // re-add ZERO_SHA with new file names indices
 			revsFiles.insert(ZERO_SHA, fakeWorkDirRevFile(_wd));
 	}
+}
 
-	EM_PROCESS_EVENTS; // after cache loading and before indexing
+void Git::loadFileNames() {
+
+	indexTree(); // we are sure data loading is finished at this point
 
 	QString diffTreeBuf;
 	FOREACH (ShaVect, it, revData->revOrder) {
@@ -867,7 +871,6 @@ void Git::loadFileNames() {
 		const QString runCmd("git diff-tree --no-color -r -C --stdin");
 		runAsync(runCmd, this, diffTreeBuf);
 	}
-	indexTree();
 }
 
 bool Git::filterEarlyOutputRev(FileHistory* fh, Rev* rev) {
