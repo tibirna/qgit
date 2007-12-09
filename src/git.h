@@ -315,6 +315,7 @@ private:
 	int patchesStillToFind;
 	QString firstNonStGitPatch;
 	RevFileMap revsFiles;
+	QVector<QByteArray> revsFilesShaBackupBuf;
 	RefMap refsShaMap;
 	QVector<QByteArray> shaBackupBuf;
 	StrVect fileNamesVec;

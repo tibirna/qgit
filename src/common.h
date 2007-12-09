@@ -264,7 +264,7 @@ namespace QGit {
 
 	// cache file
 	const uint C_MAGIC  = 0xA0B0C0D0;
-	const int C_VERSION = 13;
+	const int C_VERSION = 14;
 
 	extern const QString BAK_EXT;
 	extern const QString C_DAT_FILE;
@@ -384,7 +384,7 @@ public:
 	const RevFile& operator>>(QDataStream&) const;
 	RevFile& operator<<(QDataStream&);
 };
-typedef QHash<QString, const RevFile*> RevFileMap;
+typedef QHash<ShaString, const RevFile*> RevFileMap;
 
 
 class FileAnnotation {

@@ -1002,10 +1002,10 @@ void Git::getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status) {
 
 bool Git::isNothingToCommit() {
 
-	if (!revsFiles.contains(ZERO_SHA))
+	if (!revsFiles.contains(ZERO_SHA_RAW))
 		return true;
 
-	const RevFile* rf = revsFiles[ZERO_SHA];
+	const RevFile* rf = revsFiles[ZERO_SHA_RAW];
 	return (rf->count() == _wd.otherFiles.count());
 }
 
@@ -1241,15 +1241,15 @@ const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 
 	RevFile* rf = new RevFile();
 	parseDiffFormat(*rf, data);
-	revsFiles.insert(sha, rf);
+	revsFiles.insert(toPersistentSha(sha, revsFilesShaBackupBuf), rf);
 	return rf;
 }
 
 const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	SCRef mySha(ALL_MERGE_FILES + r->sha());
-	if (revsFiles.contains(mySha))
-		return revsFiles[mySha];
+	if (revsFiles.contains(toSha(mySha)))
+		return revsFiles[toSha(mySha)];
 
 	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
 
@@ -1289,8 +1289,8 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 		// overwritten at each request but we don't care.
 		return insertNewFiles(CUSTOM_SHA, runOutput);
 	}
-	if (revsFiles.contains(sha))
-		return revsFiles[sha]; // ZERO_SHA search arrives here
+	if (revsFiles.contains(r->sha()))
+		return revsFiles[r->sha()]; // ZERO_SHA search arrives here
 
 	if (sha == ZERO_SHA) {
 		dbs("ASSERT in Git::getFiles, ZERO_SHA not found");
@@ -1303,8 +1303,8 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 	if (!run(runCmd, &runOutput))
 		return NULL;
 
-	if (revsFiles.contains(sha)) // has been created in the mean time?
-		return revsFiles[sha];
+	if (revsFiles.contains(r->sha())) // has been created in the mean time?
+		return revsFiles[r->sha()];
 
 	cacheNeedsUpdate = true;
 	return insertNewFiles(sha, runOutput);

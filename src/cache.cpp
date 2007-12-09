@@ -53,26 +53,35 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	// each one. With this trick we gain a 15% size reduction
 	// in the final compressed file. The save/load speed is
 	// almost the same.
-	uint bufSize = rf.count() * 40 + 1000; // a little bit more space then required
-	stream << (qint32)bufSize;
+	uint bufSize = rf.count() * 41 + 1000; // a little bit more space then required
 
-	QString buf;
+	QByteArray buf;
 	buf.reserve(bufSize);
 
 	QVector<const RevFile*> v;
 	v.reserve(rf.count());
 
+	ShaString CUSTOM_SHA_RAW(toSha(CUSTOM_SHA));
+	unsigned int newSize = 0;
+
 	FOREACH (RevFileMap, it, rf) {
 
-		SCRef sha = it.key();
-		if (   sha == ZERO_SHA
-		    || sha == CUSTOM_SHA
-		    || sha.startsWith("A")) // ALL_MERGE_FILES + rev sha
+		const ShaString& sha = it.key();
+		if (   sha == ZERO_SHA_RAW
+		    || sha == CUSTOM_SHA_RAW
+		    || sha.latin1()[0] == 'A') // ALL_MERGE_FILES + rev sha
 			continue;
 
-		buf.append(sha);
 		v.append(it.value());
+		buf.append(sha.latin1()).append('\0');
+		newSize += 41;
+		if (newSize > bufSize) {
+			dbs("ASSERT in Cache::save, out of allocated space");
+			return false;
+		}
 	}
+	buf.resize(newSize);
+	stream << (qint32)newSize;
 	stream << buf;
 
 	for (int i = 0; i < v.size(); ++i)
@@ -95,7 +104,8 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	return true;
 }
 
-bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect& files) {
+bool Cache::load(const QString& gitDir, RevFileMap& rfm,
+                 StrVect& dirs, StrVect& files, QByteArray& revsFilesShaBuf) {
 
 	// check for cache file
 	QString path(gitDir + C_DAT_FILE);
@@ -128,26 +138,34 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect&
 		stream >> files[i];
 
 	stream >> bufSize;
-	QString buf;
-	buf.reserve(bufSize);
-	stream >> buf;
+	revsFilesShaBuf.clear();
+	revsFilesShaBuf.reserve(bufSize);
+	stream >> revsFilesShaBuf;
 
-	uint bufIdx = 0;
+	const char* data = revsFilesShaBuf.constData();
+
 	while (!stream.atEnd()) {
 
 		RevFile* rf = new RevFile();
 		*rf << stream;
 
-		SCRef sha(buf.mid(bufIdx, 40));
+		ShaString sha(data);
 		rfm.insert(sha, rf);
-		bufIdx += 40;
+
+		data += 40;
+		if (*data != '\0') {
+			dbp("ASSERT in Cache::load, corrupted SHA after %1", sha);
+			return false;
+		}
+		data++;
 	}
 	f.close();
 	return true;
 }
 
-
-
+/*
+ * RevFile class streaming functions
+ */
 const RevFile& RevFile::operator>>(QDataStream& stream) const {
 
 	stream << names;

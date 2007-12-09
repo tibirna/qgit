@@ -179,7 +179,8 @@ bool Git::getRefs() {
 				cur->tagObj = prevRefSha;
 
 				// tagObj must be removed from ref map
-				refsShaMap.remove(toSha(prevRefSha));
+				if (!prevRefSha.isEmpty())
+					refsShaMap.remove(toSha(prevRefSha));
 
 			} else
 				cur->tags.append(refName.mid(10));
@@ -338,7 +339,7 @@ void Git::getDiffIndex() {
 	_wd.otherFiles = getOthersFiles();
 
 	// now mockup a RevFile
-	revsFiles.insert(ZERO_SHA, fakeWorkDirRevFile(_wd));
+	revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(_wd));
 
 	// then mockup the corresponding Rev
 	QString parent;
@@ -548,7 +549,7 @@ void Git::stop(bool saveCache) {
 
 		cacheNeedsUpdate = false;
 		if (!filesLoadingCurSha.isEmpty()) // we are in the middle of a loading
-			revsFiles.remove(filesLoadingCurSha); // remove partial data
+			revsFiles.remove(toSha(filesLoadingCurSha)); // remove partial data
 
 		if (!revsFiles.isEmpty()) {
 			SHOW_MSG("Saving cache. Please wait...");
@@ -564,7 +565,7 @@ void Git::clearRevs() {
 	patchesStillToFind = 0; // TODO TEST WITH FILTERING
 	firstNonStGitPatch = "";
 	_wd.clear();
-	revsFiles.remove(ZERO_SHA);
+	revsFiles.remove(ZERO_SHA_RAW);
 }
 
 void Git::clearFileNames() {
@@ -575,6 +576,7 @@ void Git::clearFileNames() {
 	dirNamesMap.clear();
 	dirNamesVec.clear();
 	fileNamesVec.clear();
+	revsFilesShaBackupBuf.clear();
 	cacheNeedsUpdate = false;
 }
 
@@ -843,13 +845,15 @@ void Git::loadFileCache() {
 		bool isWorkingDirRevFile = (getFiles(ZERO_SHA) != NULL);
 		clearFileNames(); // any already created RevFile will be lost
 
-		if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec))
+		QByteArray shaBuf;
+		if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec, shaBuf)) {
+			revsFilesShaBackupBuf.append(shaBuf);
 			populateFileNamesMap();
-		else
+		} else
 			dbs("ERROR: unable to load file names cache");
 
 		if (isWorkingDirRevFile) // re-add ZERO_SHA with new file names indices
-			revsFiles.insert(ZERO_SHA, fakeWorkDirRevFile(_wd));
+			revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(_wd));
 	}
 }
 
@@ -1130,8 +1134,8 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
 		filesLoadingPending.append(fileChunk); // add to previous half lines
 
 	RevFile* rf = NULL;
-	if (revsFiles.contains(filesLoadingCurSha))
-		rf = const_cast<RevFile*>(revsFiles[filesLoadingCurSha]);
+	if (!filesLoadingCurSha.isEmpty() && revsFiles.contains(toSha(filesLoadingCurSha)))
+		rf = const_cast<RevFile*>(revsFiles[toSha(filesLoadingCurSha)]);
 
 	int nextEOL = filesLoadingPending.indexOf('\n');
 	int lastEOL = -1;
@@ -1142,7 +1146,7 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
 			SCRef sha = line.left(40);
 			if (!rf || sha != filesLoadingCurSha) { // new commit
 				rf = new RevFile();
-				revsFiles.insert(sha, rf);
+				revsFiles.insert(toPersistentSha(sha, revsFilesShaBackupBuf), rf);
 				filesLoadingCurSha = sha;
 				cacheNeedsUpdate = true;
 			} else
