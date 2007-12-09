@@ -58,6 +58,10 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 
 	QString buf;
 	buf.reserve(bufSize);
+
+	QVector<const RevFile*> v;
+	v.reserve(rf.count());
+
 	FOREACH (RevFileMap, it, rf) {
 
 		SCRef sha = it.key();
@@ -67,18 +71,13 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 			continue;
 
 		buf.append(sha);
+		v.append(it.value());
 	}
 	stream << buf;
 
-	FOREACH (RevFileMap, it, rf) {
+	for (int i = 0; i < v.size(); ++i) {
 
-		SCRef sha = it.key();
-		if (   sha == ZERO_SHA
-		    || sha == CUSTOM_SHA
-		    || sha.startsWith("A")) // ALL_MERGE_FILES + rev sha
-			continue;
-
-		const RevFile* rf = it.value();
+		const RevFile* rf = v.at(i);
 		stream << rf->names;
 		stream << rf->dirs;
 
