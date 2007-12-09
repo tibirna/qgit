@@ -75,30 +75,9 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	}
 	stream << buf;
 
-	for (int i = 0; i < v.size(); ++i) {
+	for (int i = 0; i < v.size(); ++i)
+		*(v.at(i)) >> stream;
 
-		const RevFile* rf = v.at(i);
-		stream << rf->names;
-		stream << rf->dirs;
-
-		// skip common case of only modified files
-		bool isEmpty = rf->onlyModified;
-		stream << (quint32)isEmpty;
-		if (!isEmpty)
-			stream << rf->status;
-
-		// skip common case of just one parent
-		isEmpty = (rf->mergeParent.isEmpty() || rf->mergeParent.last() == 1);
-		stream << (quint32)isEmpty;
-		if (!isEmpty)
-			stream << rf->mergeParent;
-
-		// skip common case of no rename/copies
-		isEmpty = rf->extStatus.isEmpty();
-		stream << (quint32)isEmpty;
-		if (!isEmpty)
-			stream << rf->extStatus;
-	}
 	dbs("Compressing data...");
 	f.write(qCompress(data, 1)); // no need to encode with compressed data
 	f.close();
@@ -127,62 +106,96 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect&
 	if (!f.open(QIODevice::ReadOnly))
 		return false;
 
-	QDataStream* stream = new QDataStream(qUncompress(f.readAll()));
+	QDataStream stream(qUncompress(f.readAll()));
 	quint32 magic;
 	qint32 version;
 	qint32 dirsNum, filesNum, bufSize;
-	*stream >> magic;
-	*stream >> version;
+	stream >> magic;
+	stream >> version;
 	if (magic != C_MAGIC || version != C_VERSION) {
 		f.close();
-		delete stream;
 		return false;
 	}
 	// read the data
-	*stream >> dirsNum;
+	stream >> dirsNum;
 	dirs.resize(dirsNum);
 	for (int i = 0; i < dirsNum; ++i)
-		*stream >> dirs[i];
+		stream >> dirs[i];
 
-	*stream >> filesNum;
+	stream >> filesNum;
 	files.resize(filesNum);
 	for (int i = 0; i < filesNum; ++i)
-		*stream >> files[i];
+		stream >> files[i];
 
-	*stream >> bufSize;
+	stream >> bufSize;
 	QString buf;
 	buf.reserve(bufSize);
-	*stream >> buf;
+	stream >> buf;
 
 	uint bufIdx = 0;
-	bool isEmpty;
-	quint32 tmp;
-	while (!stream->atEnd()) {
+	while (!stream.atEnd()) {
 
 		RevFile* rf = new RevFile();
-		*stream >> rf->names;
-		*stream >> rf->dirs;
-
-		*stream >> tmp;
-		rf->onlyModified = (bool)tmp;
-		if (!rf->onlyModified)
-			*stream >> rf->status;
-
-		*stream >> tmp;
-		isEmpty = (bool)tmp;
-		if (!isEmpty)
-			*stream >> rf->mergeParent;
-
-		*stream >> tmp;
-		isEmpty = (bool)tmp;
-		if (!isEmpty)
-			*stream >> rf->extStatus;
+		*rf << stream;
 
 		SCRef sha(buf.mid(bufIdx, 40));
 		rfm.insert(sha, rf);
 		bufIdx += 40;
 	}
 	f.close();
-	delete stream;
 	return true;
+}
+
+
+
+const RevFile& RevFile::operator>>(QDataStream& stream) const {
+
+	stream << names;
+	stream << dirs;
+
+	// skip common case of only modified files
+	bool isEmpty = onlyModified;
+	stream << (quint32)isEmpty;
+	if (!isEmpty)
+		stream << status;
+
+	// skip common case of just one parent
+	isEmpty = (mergeParent.isEmpty() || mergeParent.last() == 1);
+	stream << (quint32)isEmpty;
+	if (!isEmpty)
+		stream << mergeParent;
+
+	// skip common case of no rename/copies
+	isEmpty = extStatus.isEmpty();
+	stream << (quint32)isEmpty;
+	if (!isEmpty)
+		stream << extStatus;
+
+	return *this;
+}
+
+RevFile& RevFile::operator<<(QDataStream& stream) {
+
+	stream >> names;
+	stream >> dirs;
+
+	bool isEmpty;
+	quint32 tmp;
+
+	stream >> tmp;
+	onlyModified = (bool)tmp;
+	if (!onlyModified)
+		stream >> status;
+
+	stream >> tmp;
+	isEmpty = (bool)tmp;
+	if (!isEmpty)
+		stream >> mergeParent;
+
+	stream >> tmp;
+	isEmpty = (bool)tmp;
+	if (!isEmpty)
+		stream >> extStatus;
+
+	return *this;
 }

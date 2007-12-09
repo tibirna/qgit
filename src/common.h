@@ -53,6 +53,7 @@ typedef QVector<QString>            StrVect;
 typedef QVector<ShaString>          ShaVect;
 typedef QSet<QString>               ShaSet;
 
+class QDataStream;
 class QProcess;
 class QSplitter;
 class QWidget;
@@ -380,6 +381,8 @@ public:
 	*/
 		return (!extStatus.isEmpty() && idx < extStatus.count() ? extStatus.at(idx) : "");
 	}
+	const RevFile& operator>>(QDataStream&) const;
+	RevFile& operator<<(QDataStream&);
 };
 typedef QHash<QString, const RevFile*> RevFileMap;
 
