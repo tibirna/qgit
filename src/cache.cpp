@@ -168,8 +168,7 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm,
  */
 const RevFile& RevFile::operator>>(QDataStream& stream) const {
 
-	stream << names;
-	stream << dirs;
+	stream << pathsIdx;
 
 	// skip common case of only modified files
 	bool isEmpty = onlyModified;
@@ -194,8 +193,7 @@ const RevFile& RevFile::operator>>(QDataStream& stream) const {
 
 RevFile& RevFile::operator<<(QDataStream& stream) {
 
-	stream >> names;
-	stream >> dirs;
+	stream >> pathsIdx;
 
 	bool isEmpty;
 	quint32 tmp;

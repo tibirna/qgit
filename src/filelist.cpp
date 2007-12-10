@@ -153,7 +153,7 @@ void FileList::insertFiles(const RevFile* files) {
 		      "Click to view only interesting files" : "Click to view all merge files");
 		addItem(header, Qt::blue);
 	}
-	if (files->names.empty())
+	if (files->count() == 0)
 		return;
 
 	bool isMergeParents = !files->mergeParent.isEmpty();

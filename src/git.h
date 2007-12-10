@@ -198,7 +198,7 @@ public:
 	int findFileIndex(const RevFile& rf, SCRef name);
 	const QString filePath(const RevFile& rf, uint i) const {
 
-		return dirNamesVec[rf.dirs[i]] + fileNamesVec[rf.names[i]];
+		return dirNamesVec[rf.dirAt(i)] + fileNamesVec[rf.nameAt(i)];
 	}
 	void setCurContext(Domain* d) { curDomain = d; }
 	Domain* curContext() const { return curDomain; }
@@ -212,7 +212,10 @@ signals:
 
 public slots:
 	void procReadyRead(const QByteArray&);
-	void procFinished() { filesLoadingPending = filesLoadingCurSha = ""; }
+	void procFinished() {
+		flushFileNames(fileLoader);
+		filesLoadingPending = filesLoadingCurSha = "";
+    }
 
 private slots:
 	void loadFileCache();
@@ -242,6 +245,15 @@ private:
 	};
 	StartParmeters _sp;
 
+	struct FileNamesLoader {
+		FileNamesLoader() : rf(NULL) {}
+
+		RevFile* rf;
+		QVector<int> rfDirs;
+		QVector<int> rfNames;
+	};
+	FileNamesLoader fileLoader;
+
 	void init2();
 	bool run(SCRef cmd, QString* out = NULL, QObject* rcv = NULL, SCRef buf = "");
 	bool run(QByteArray* runOutput, SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
@@ -259,8 +271,8 @@ private:
 	bool populateRenamedPatches(SCRef sha, SCList nn, FileHistory* fh, QStringList* on, bool bt);
 	bool filterEarlyOutputRev(FileHistory* fh, Rev* rev);
 	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
-	void parseDiffFormat(RevFile& rf, SCRef buf);
-	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum);
+	void parseDiffFormat(RevFile& rf, SCRef buf, FileNamesLoader& fl);
+	void parseDiffFormatLine(RevFile& rf, SCRef line, int parNum, FileNamesLoader& fl);
 	void getDiffIndex();
 	Rev* fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log,
                          SCRef longLog, SCRef patch, int idx, FileHistory* fh);
@@ -284,7 +296,8 @@ private:
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
 	const QString getNewestFileName(SCList args, SCRef fileName);
 	static const QString colorMatch(SCRef txt, QRegExp& regExp);
-	void appendFileName(RevFile& rf, SCRef name);
+	void appendFileName(RevFile& rf, SCRef name, FileNamesLoader& fl);
+	void flushFileNames(FileNamesLoader& fl);
 	void populateFileNamesMap();
 	const QString formatList(SCList sl, SCRef name, bool inOneLine = true);
 	static const QString quote(SCRef nm);
@@ -292,7 +305,7 @@ private:
 	static const QStringList noSpaceSepHack(SCRef cmd);
 	void removeDeleted(SCList selFiles);
 	void setStatus(RevFile& rf, SCRef rowSt);
-	void setExtStatus(RevFile& rf, SCRef rowSt, int parNum);
+	void setExtStatus(RevFile& rf, SCRef rowSt, int parNum, FileNamesLoader& fl);
 	void appendNamesWithId(QStringList& names, SCRef sha, SCList data, bool onlyLoaded);
 	Reference* lookupReference(const ShaString& sha, bool create = false);
 

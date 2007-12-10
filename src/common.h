@@ -264,7 +264,7 @@ namespace QGit {
 
 	// cache file
 	const uint C_MAGIC  = 0xA0B0C0D0;
-	const int C_VERSION = 14;
+	const int C_VERSION = 15;
 
 	extern const QString BAK_EXT;
 	extern const QString C_DAT_FILE;
@@ -363,12 +363,26 @@ public:
 	};
 
 	RevFile() : onlyModified(true) {}
-	QVector<int> dirs; // index of a string vector
-	QVector<int> names;
+
+	/* This QByteArray keeps indices in some dir and names vectors,
+	 * defined outside RevFile. Paths are splitted in dir and file
+	 * name, first all the dirs are listed then the file names to
+	 * achieve a better compression when saved to disk.
+	 * A single QByteArray is used instead of two vectors because it's
+	 * much faster to load from disk when using a QDataStream
+	 */
+	QByteArray pathsIdx;
+
+	int dirAt(uint idx) const { return ((int*)pathsIdx.constData())[idx]; }
+	int nameAt(uint idx) const { return ((int*)pathsIdx.constData())[count() + idx]; }
+
 	QVector<int> mergeParent;
 
 	// helper functions
-	int count() const { return dirs.count(); }
+	int count() const {
+
+		return pathsIdx.size() / (sizeof(int) * 2);
+	}
 	bool statusCmp(int idx, StatusFlag sf) const {
 
 		return ((onlyModified ? MODIFIED : status.at(idx)) & sf);

@@ -678,7 +678,7 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 const Rev* Git::revLookup(const ShaString& sha, const FileHistory* fh) const {
 
 	const RevMap& r = (fh ? fh->revs : revData->revs);
-	return r.value(sha);
+	return (sha.latin1() ? r.value(sha) : NULL);
 }
 
 bool Git::run(SCRef runCmd, QString* runOutput, QObject* receiver, SCRef buf) {
@@ -747,7 +747,7 @@ int Git::findFileIndex(const RevFile& rf, SCRef name) {
 	SCRef nm = name.mid(idx);
 
 	for (uint i = 0, cnt = rf.count(); i < cnt; ++i) {
-		if (fileNamesVec[rf.names[i]] == nm && dirNamesVec[rf.dirs[i]] == dr)
+		if (fileNamesVec[rf.nameAt(i)] == nm && dirNamesVec[rf.dirAt(i)] == dr)
 			return i;
 	}
 	return -1;
@@ -1239,8 +1239,15 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 
+	/* we use an indipendent FileNamesLoader to avoid data
+	 * corruption if we are loading file names in background
+	 */
+	FileNamesLoader fl;
+
 	RevFile* rf = new RevFile();
-	parseDiffFormat(*rf, data);
+	parseDiffFormat(*rf, data, fl);
+	flushFileNames(fl);
+
 	revsFiles.insert(toPersistentSha(sha, revsFilesShaBackupBuf), rf);
 	return rf;
 }

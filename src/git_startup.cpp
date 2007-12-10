@@ -303,18 +303,21 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
 
 const RevFile* Git::fakeWorkDirRevFile(const WorkingDirInfo& wd) {
 
+	FileNamesLoader fl;
 	RevFile* rf = new RevFile();
-	parseDiffFormat(*rf, wd.diffIndex);
+	parseDiffFormat(*rf, wd.diffIndex, fl);
 	rf->onlyModified = false;
 
 	FOREACH_SL (it, wd.otherFiles) {
 
-		appendFileName(*rf, *it);
+		appendFileName(*rf, *it, fl);
 		rf->status.append(RevFile::UNKNOWN);
 		rf->mergeParent.append(1);
 	}
 	RevFile cachedFiles;
-	parseDiffFormat(cachedFiles, wd.diffIndexCached);
+	parseDiffFormat(cachedFiles, wd.diffIndexCached, fl);
+	flushFileNames(fl);
+
 	for (int i = 0; i < rf->count(); i++)
 		if (findFileIndex(cachedFiles, filePath(*rf, i)) != -1)
 			rf->status[i] |= RevFile::IN_INDEX;
@@ -357,7 +360,7 @@ void Git::getDiffIndex() {
 	emit newRevsAdded(revData, revData->revOrder);
 }
 
-void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
+void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum, FileNamesLoader& fl) {
 
 	if (line[1] == ':') { // it's a combined merge
 
@@ -368,18 +371,18 @@ void Git::parseDiffFormatLine(RevFile& rf, SCRef line, int parNum) {
 		 * be RM or MR). For visualization purposes we could consider
 		 * the file as modified
 		 */
-		appendFileName(rf, line.section('\t', -1));
+		appendFileName(rf, line.section('\t', -1), fl);
 		setStatus(rf, "M");
 		rf.mergeParent.append(parNum);
 	} else { // faster parsing in normal case
 
 		if (line.at(98) == '\t') {
-			appendFileName(rf, line.mid(99));
+			appendFileName(rf, line.mid(99), fl);
 			setStatus(rf, line.at(97));
 			rf.mergeParent.append(parNum);
 		} else
 			// it's a rename or a copy, we are not in fast path now!
-			setExtStatus(rf, line.mid(97), parNum);
+			setExtStatus(rf, line.mid(97), parNum, fl);
 	}
 }
 
@@ -411,7 +414,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 	}
 }
 
-void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
+void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum, FileNamesLoader& fl) {
 
 	const QStringList sl(rowSt.split('\t', QString::SkipEmptyParts));
 	if (sl.count() != 3) {
@@ -434,7 +437,7 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 	*/
 
 	// simulate new file
-	appendFileName(rf, dest);
+	appendFileName(rf, dest, fl);
 	rf.mergeParent.append(parNum);
 	rf.status.append(RevFile::NEW);
 	rf.extStatus.resize(rf.status.size());
@@ -442,7 +445,7 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 
 	// simulate deleted orig file only in case of rename
 	if (type.at(0) == 'R') { // renamed file
-		appendFileName(rf, orig);
+		appendFileName(rf, orig, fl);
 		rf.mergeParent.append(parNum);
 		rf.status.append(RevFile::DELETED);
 		rf.extStatus.resize(rf.status.size());
@@ -451,14 +454,14 @@ void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum) {
 	rf.onlyModified = false;
 }
 
-void Git::parseDiffFormat(RevFile& rf, SCRef buf) {
+void Git::parseDiffFormat(RevFile& rf, SCRef buf, FileNamesLoader& fl) {
 
 	int parNum = 1, startPos = 0, endPos = buf.indexOf('\n');
 	while (endPos != -1) {
 
 		SCRef line = buf.mid(startPos, endPos - startPos);
 		if (line[0] == ':') // avoid sha's in merges output
-			parseDiffFormatLine(rf, line, parNum);
+			parseDiffFormatLine(rf, line, parNum, fl);
 		else
 			parNum++;
 
@@ -1152,7 +1155,7 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
 			} else
 				dbp("ASSERT: repeated sha %1 in file names loading", sha);
 		} else // line.constref(0) == ':'
-			parseDiffFormatLine(*rf, line, 1);
+			parseDiffFormatLine(*rf, line, 1, fileLoader);
 
 		lastEOL = nextEOL;
 		nextEOL = filesLoadingPending.indexOf('\n', lastEOL + 1);
@@ -1161,8 +1164,35 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
 		filesLoadingPending.remove(0, lastEOL + 1);
 }
 
-void Git::appendFileName(RevFile& rf, SCRef name) {
+void Git::flushFileNames(FileNamesLoader& fl) {
 
+	if (!fl.rf)
+		return;
+
+	QByteArray& b = fl.rf->pathsIdx;
+	QVector<int>& dirs = fl.rfDirs;
+
+	b.clear();
+	b.resize(2 * dirs.size() * sizeof(int));
+
+	int* d = (int*)(b.data());
+
+	for (int i = 0; i < dirs.size(); i++) {
+
+		d[i] = dirs.at(i);
+		d[dirs.size() + i] = fl.rfNames.at(i);
+	}
+	dirs.clear();
+	fl.rfNames.clear();
+	fl.rf = NULL;
+}
+
+void Git::appendFileName(RevFile& rf, SCRef name, FileNamesLoader& fl) {
+
+	if (fl.rf != &rf) {
+		flushFileNames(fl);
+		fl.rf = &rf;
+	}
 	int idx = name.lastIndexOf('/') + 1;
 	SCRef dr = name.left(idx);
 	SCRef nm = name.mid(idx);
@@ -1172,18 +1202,18 @@ void Git::appendFileName(RevFile& rf, SCRef name) {
 		int idx = dirNamesVec.count();
 		dirNamesMap.insert(dr, idx);
 		dirNamesVec.append(dr);
-		rf.dirs.append(idx);
+		fl.rfDirs.append(idx);
 	} else
-		rf.dirs.append(*it);
+		fl.rfDirs.append(*it);
 
 	it = fileNamesMap.constFind(nm);
 	if (it == fileNamesMap.constEnd()) {
 		int idx = fileNamesVec.count();
 		fileNamesMap.insert(nm, idx);
 		fileNamesVec.append(nm);
-		rf.names.append(idx);
+		fl.rfNames.append(idx);
 	} else
-		rf.names.append(*it);
+		fl.rfNames.append(*it);
 }
 
 void Git::updateDescMap(const Rev* r,uint idx, QHash<QPair<uint, uint>, bool>& dm,
