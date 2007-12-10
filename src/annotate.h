@@ -58,11 +58,11 @@ private slots:
 
 private:
 	void annotateFileHistory();
-	void doAnnotate(SCRef sha);
+	void doAnnotate(const ShaString& sha);
 	FileAnnotation* getFileAnnotation(SCRef sha);
 	void setInitialAnnotation(SCRef fileSha, FileAnnotation* fa);
 	const QString setupAuthor(SCRef origAuthor, int annId);
-	void setAnnotation(SCRef diff, SCRef aut, SCList pAnn, SList nAnn, int ofs = 0);
+	bool setAnnotation(SCRef diff, SCRef aut, SCList pAnn, SList nAnn, int ofs = 0);
 	bool getNextLine(SCRef d, int& idx, QString& line);
 	static void unify(SList dst, SCList src);
 	const QString getPatch(SCRef sha, int parentNum = 0);

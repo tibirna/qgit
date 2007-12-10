@@ -29,7 +29,7 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 
 const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 
-	if (!valid)
+	if (!valid || sha.isEmpty())
 		return NULL;
 
 	AnnotateHistory::const_iterator it = ah.constFind(toSha(sha));
@@ -123,14 +123,15 @@ void Annotate::annotateFileHistory() {
 	} while (it != histRevOrder.constBegin() && !isError && !cancelingAnnotate);
 }
 
-void Annotate::doAnnotate(SCRef sha) {
+void Annotate::doAnnotate(const ShaString& ss) {
 // all the parents annotations must be valid here
 
+	const QString sha(ss);
 	FileAnnotation* fa = getFileAnnotation(sha);
 	if (fa == NULL || fa->isValid || isError || cancelingAnnotate)
 		return;
 
-	const Rev* r = git->revLookup(sha, fh); // historyRevs
+	const Rev* r = git->revLookup(ss, fh); // historyRevs
 	if (r == NULL) {
 		dbp("ASSERT doAnnotate: no revision %1", sha);
 		isError = true;
@@ -138,7 +139,7 @@ void Annotate::doAnnotate(SCRef sha) {
 	}
 	const QString& diff(getPatch(sha)); // set FileAnnotation::fileSha
 	if (r->parentsCount() == 0) { // initial revision
-		setInitialAnnotation(ah[toSha(sha)].fileSha, fa); // calls Qt event loop
+		setInitialAnnotation(ah[ss].fileSha, fa); // calls Qt event loop
 		fa->isValid = true;
 		return;
 	}
@@ -240,7 +241,7 @@ void Annotate::unify(SList dst, SCList src) {
 	}
 }
 
-void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList newAnn, int ofs) {
+bool Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList newAnn, int ofs) {
 
 	newAnn.clear();
 	QStringList::const_iterator cur(prevAnn.constBegin());
@@ -288,7 +289,7 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 			if (num < 0 || num > prevAnn.size()) {
 				dbp("ASSERT setAnnotation: start line number is %1", num);
 				isError = true;
-				return;
+				return false;
 			}
 			for ( ; curLineNum < num; ++curLineNum) {
 				newAnn.append(*cur);
@@ -303,7 +304,7 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 				dbp("ASSERT setAnnotation: remove end of "
 				    "file, diff is %1", diff);
 				isError = true;
-				return;
+				return false;
 			} else {
 				++cur;
 				++curLineNum;
@@ -321,7 +322,7 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 				dbp("ASSERT setAnnotation: end of "
 				    "file reached, diff is %1", diff);
 				isError = true;
-				return;
+				return false;
 			} else {
 				newAnn.append(*cur);
 				++cur;
@@ -335,6 +336,7 @@ void Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 		newAnn.append(*cur);
 		++cur;
 	}
+	return true;
 }
 
 const QString Annotate::getPatch(SCRef sha, int parentNum) {
@@ -348,7 +350,9 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 		return QString();
 
 	const QString diff(r->diff());
-	const ShaString ss(toSha(sha));
+
+	const QByteArray ba(sha.toLatin1()); // give stable ground to 'ss'
+	const ShaString ss(ba.constData());
 
 	if (ah[ss].fileSha.isEmpty() && !parentNum) {
 
@@ -703,7 +707,7 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 
 	ranges.clear();
 
-	if (!valid || canceled) {
+	if (!valid || canceled || sha.isEmpty()) {
 		dbp("ASSERT in computeRanges: annotation from %1 not valid", sha);
 		return "";
 	}
