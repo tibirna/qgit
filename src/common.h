@@ -7,13 +7,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <QHash>
-#include <QVector>
-#include <QEvent>
 #include <QColor>
+#include <QEvent>
 #include <QFont>
+#include <QHash>
+#include <QLatin1String>
 #include <QVariant>
-#include "ShaString.h"
+#include <QVector>
 
 /*
    QVariant does not support size_t type used in Qt containers, this is
@@ -45,6 +45,12 @@ inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 
 #define FOREACH_SL(i, c)    FOREACH(QStringList, i, c)
 
+class QDataStream;
+class QProcess;
+class QSplitter;
+class QWidget;
+class ShaString;
+
 // type shortcuts
 typedef const QString&              SCRef;
 typedef QStringList&                SList;
@@ -53,11 +59,7 @@ typedef QVector<QString>            StrVect;
 typedef QVector<ShaString>          ShaVect;
 typedef QSet<QString>               ShaSet;
 
-class QDataStream;
-class QProcess;
-class QSplitter;
-class QWidget;
-
+uint qHash(const ShaString&); // optimized custom hash for sha strings
 
 namespace QGit {
 
@@ -240,6 +242,10 @@ namespace QGit {
 	};
 	const int FLAGS_DEF = 9033;
 
+	// ShaString helpers
+	const ShaString toTempSha(const QString&); // use as argument only, see definition
+	const ShaString toPersistentSha(const QString&, QVector<QByteArray>&);
+
 	// settings helpers
 	uint flags(SCRef flagsVariable);
 	bool testFlag(uint f, SCRef fv = FLAGS_KEY);
@@ -277,6 +283,18 @@ namespace QGit {
 	extern const QString SCRIPT_EXT;
 }
 
+class ShaString : public QLatin1String {
+public:
+	inline ShaString() : QLatin1String(NULL) {}
+	inline ShaString(const ShaString& sha) : QLatin1String(sha.latin1()) {}
+	inline explicit ShaString(const char* sha) : QLatin1String(sha) {}
+
+	inline bool operator!=(const ShaString& o) const { return !operator==(o); }
+	inline bool operator==(const ShaString& o) const {
+
+		return (latin1() == o.latin1()) || !qstrcmp(latin1(), o.latin1());
+	}
+};
 
 class Rev {
 	// prevent implicit C++ compiler defaults

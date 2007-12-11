@@ -673,6 +673,11 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 	emit cancelLoading(fh); // non blocking
 }
 
+const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
+
+	return revLookup(toTempSha(sha), fh);
+}
+
 const Rev* Git::revLookup(const ShaString& sha, const FileHistory* fh) const {
 
 	const RevMap& r = (fh ? fh->revs : revData->revs);

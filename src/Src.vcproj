@@ -279,10 +279,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\shastring.h"
-				>
-			</File>
-			<File
 				RelativePath=".\smartbrowse.h"
 				>
 			</File>

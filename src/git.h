@@ -171,7 +171,7 @@ public:
 	const QString getShortLog(SCRef sha);
 	const QString getTagMsg(SCRef sha);
 	const Rev* revLookup(const ShaString& sha, const FileHistory* fh = NULL) const;
-	const Rev* revLookup(SCRef sha, const FileHistory* fh = NULL) const { return revLookup(toTempSha(sha), fh); }
+	const Rev* revLookup(SCRef sha, const FileHistory* fh = NULL) const;
 	uint checkRef(const ShaString& sha, uint mask = ANY_REF) const;
 	uint checkRef(SCRef sha, uint mask = ANY_REF) const;
 	const QString getRevInfo(SCRef sha);

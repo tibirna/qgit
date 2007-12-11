@@ -75,6 +75,22 @@ uint qHash(const ShaString& s) { // fast path, called 6-7 times per revision
 	     +  hexVal(ch + 12);
 }
 
+/* Value returned by this function should be used only as function argument,
+ * and not stored in a variable because 'ba' value is overwritten at each
+ * call so the returned ShaString could became stale very quickly
+ */
+const ShaString QGit::toTempSha(const QString& sha) {
+
+	static QByteArray ba;
+	ba = sha.toLatin1();
+	return ShaString(sha.isEmpty() ? NULL : ba.constData());
+}
+
+const ShaString QGit::toPersistentSha(const QString& sha, QVector<QByteArray>& v) {
+
+	v.append(sha.toLatin1());
+	return ShaString(v.last().constData());
+}
 
 // minimum git version required
 const QString QGit::GIT_VERSION = "1.5.3";
