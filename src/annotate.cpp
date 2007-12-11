@@ -32,7 +32,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	if (!valid || sha.isEmpty())
 		return NULL;
 
-	AnnotateHistory::const_iterator it = ah.constFind(toSha(sha));
+	AnnotateHistory::const_iterator it = ah.constFind(toTempSha(sha));
 	if (it != ah.constEnd())
 		return &(it.value());
 
@@ -40,7 +40,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	int shaIdx;
 	const QString ancestorSha = getAncestor(sha, &shaIdx);
 	if (!ancestorSha.isEmpty()) {
-		it = ah.constFind(toSha(ancestorSha));
+		it = ah.constFind(toTempSha(ancestorSha));
 		if (it != ah.constEnd())
 			return &(it.value());
 	}
@@ -184,7 +184,7 @@ void Annotate::doAnnotate(const ShaString& ss) {
 
 FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 
-	AnnotateHistory::iterator it(ah.find(toSha(sha)));
+	AnnotateHistory::iterator it(ah.find(toTempSha(sha)));
 	if (it == ah.end()) {
 		dbp("ASSERT getFileAnnotation: no revision %1", sha);
 		isError = true;
@@ -351,8 +351,8 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 
 	const QString diff(r->diff());
 
-	const QByteArray ba(sha.toLatin1()); // give stable ground to 'ss'
-	const ShaString ss(ba.constData());
+	QVector<QByteArray> ba;
+	const ShaString& ss = toPersistentSha(sha, ba);
 
 	if (ah[ss].fileSha.isEmpty() && !parentNum) {
 
@@ -717,7 +717,8 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 
 	QString ancestor(sha);
 	int shaIdx;
-	const ShaString& ss = toSha(sha);
+	QVector<QByteArray> ba;
+	const ShaString& ss = toPersistentSha(sha, ba);
 	for (shaIdx = 0; shaIdx < histRevOrder.count(); shaIdx++)
 		if (histRevOrder[shaIdx] == ss)
 			break;

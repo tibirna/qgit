@@ -180,7 +180,7 @@ bool Git::getRefs() {
 
 				// tagObj must be removed from ref map
 				if (!prevRefSha.isEmpty())
-					refsShaMap.remove(toSha(prevRefSha));
+					refsShaMap.remove(toTempSha(prevRefSha));
 
 			} else
 				cur->tags.append(refName.mid(10));
@@ -552,7 +552,7 @@ void Git::stop(bool saveCache) {
 
 		cacheNeedsUpdate = false;
 		if (!filesLoadingCurSha.isEmpty()) // we are in the middle of a loading
-			revsFiles.remove(toSha(filesLoadingCurSha)); // remove partial data
+			revsFiles.remove(toTempSha(filesLoadingCurSha)); // remove partial data
 
 		if (!revsFiles.isEmpty()) {
 			SHOW_MSG("Saving cache. Please wait...");
@@ -998,7 +998,7 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
 		int i = 0;
 		do
 			mergeSha = QString::number(++i) + " m " + sha;
-		while (r.contains(toSha(mergeSha)));
+		while (r.contains(toTempSha(mergeSha)));
 
 		const ShaString& ss = toPersistentSha(mergeSha, shaBackupBuf);
 		r.insert(ss, rev);
@@ -1064,7 +1064,8 @@ void Git::setLane(SCRef sha, FileHistory* fh) {
 
 	Lanes* l = fh->lns;
 	uint i = fh->firstFreeLane;
-	const ShaString& ss(toSha(sha));
+	QVector<QByteArray> ba;
+	const ShaString& ss = toPersistentSha(sha, ba);
 	const ShaVect& shaVec(fh->revOrder);
 
 	for (uint cnt = shaVec.count(); i < cnt; ++i) {
@@ -1137,8 +1138,8 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
 		filesLoadingPending.append(fileChunk); // add to previous half lines
 
 	RevFile* rf = NULL;
-	if (!filesLoadingCurSha.isEmpty() && revsFiles.contains(toSha(filesLoadingCurSha)))
-		rf = const_cast<RevFile*>(revsFiles[toSha(filesLoadingCurSha)]);
+	if (!filesLoadingCurSha.isEmpty() && revsFiles.contains(toTempSha(filesLoadingCurSha)))
+		rf = const_cast<RevFile*>(revsFiles[toTempSha(filesLoadingCurSha)]);
 
 	int nextEOL = filesLoadingPending.indexOf('\n');
 	int lastEOL = -1;

@@ -423,18 +423,16 @@ uint Git::checkRef(const ShaString& sha, uint mask) const {
 
 uint Git::checkRef(SCRef sha, uint mask) const {
 
-	RefMap::const_iterator it(refsShaMap.constFind(toSha(sha)));
+	RefMap::const_iterator it(refsShaMap.constFind(toTempSha(sha)));
 	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 
 const QStringList Git::getRefName(SCRef sha, RefType type, QString* curBranch) const {
 
-	const ShaString& ss = toSha(sha);
-
-	if (!checkRef(ss, type))
+	if (!checkRef(sha, type))
 		return QStringList();
 
-	const Reference& rf = refsShaMap[ss];
+	const Reference& rf = refsShaMap[toTempSha(sha)];
 
 	if (curBranch)
 		*curBranch = rf.currentBranch;
@@ -584,7 +582,7 @@ const QString Git::getTagMsg(SCRef sha) {
 		dbs("ASSERT in Git::getTagMsg, tag not found");
 		return "";
 	}
-	Reference& rf = refsShaMap[toSha(sha)];
+	Reference& rf = refsShaMap[toTempSha(sha)];
 
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
@@ -1255,8 +1253,8 @@ const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	SCRef mySha(ALL_MERGE_FILES + r->sha());
-	if (revsFiles.contains(toSha(mySha)))
-		return revsFiles[toSha(mySha)];
+	if (revsFiles.contains(toTempSha(mySha)))
+		return revsFiles[toTempSha(mySha)];
 
 	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
 

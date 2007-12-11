@@ -17,9 +17,15 @@ public:
 	}
 };
 
-inline const ShaString toSha(const QString& sha) {
+/* Value returned by this function should be used only as function argument,
+ * and not stored in a variable because 'ba' value is overwritten at each
+ * call so the returned ShaString could became stale very quickly
+ */
+inline const ShaString toTempSha(const QString& sha) {
 
-	return ShaString(sha.isEmpty() ? NULL : sha.toLatin1().constData());
+	static QByteArray ba;
+	ba = sha.toLatin1();
+	return ShaString(sha.isEmpty() ? NULL : ba.constData());
 }
 
 inline const ShaString toPersistentSha(const QString& sha, QVector<QByteArray>& v) {

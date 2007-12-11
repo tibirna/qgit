@@ -61,7 +61,8 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	QVector<const RevFile*> v;
 	v.reserve(rf.count());
 
-	ShaString CUSTOM_SHA_RAW(toSha(CUSTOM_SHA));
+	QVector<QByteArray> ba;
+	ShaString CUSTOM_SHA_RAW(toPersistentSha(CUSTOM_SHA, ba));
 	unsigned int newSize = 0;
 
 	FOREACH (RevFileMap, it, rf) {
