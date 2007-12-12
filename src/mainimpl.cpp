@@ -13,6 +13,7 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QProgressBar>
 #include <QScrollBar>
 #include <QSettings>
 #include <QShortcut>
@@ -64,6 +65,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	ODD_LINE_COL = palette().color(QPalette::Base);
 	EVEN_LINE_COL = ODD_LINE_COL.dark(103);
 
+	// our interface to git world
 	git = new Git(this);
 	setupShortcuts();
 	qApp->installEventFilter(this);
@@ -103,6 +105,13 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	connect(ct, SIGNAL(clicked()), this, SLOT(pushButtonCloseTab_clicked()));
 	connect(this, SIGNAL(closeTabButtonEnabled(bool)), ct, SLOT(setEnabled(bool)));
 
+	// set-up file names loading progress bar
+	pbFileNamesLoading = new QProgressBar(statusBar());
+	pbFileNamesLoading->setTextVisible(false);
+	pbFileNamesLoading->setToolTip("Background file names loading");
+	pbFileNamesLoading->hide();
+	statusBar()->addPermanentWidget(pbFileNamesLoading);
+
 	QVector<QSplitter*> v(1, treeSplitter);
 	QGit::restoreGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
 	treeView->hide();
@@ -123,6 +132,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 	// disable all actions
 	updateGlobalActions(false);
+
+	connect(git, SIGNAL(fileNamesLoad(int, int)), this, SLOT(fileNamesLoad(int, int)));
 
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
 	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
@@ -966,6 +977,25 @@ void MainImpl::adjustFontSize(int delta) {
 
 	listViewFont.setPointSize(ps);
 	emit repaintListViews(listViewFont);
+}
+
+void MainImpl::fileNamesLoad(int status, int value) {
+
+	switch (status) {
+	case 1: // stop
+		pbFileNamesLoading->hide();
+		break;
+	case 2: // update
+		pbFileNamesLoading->setValue(value);
+		break;
+	case 3: // start
+		if (value > 200) { // don't show for few revisions
+			pbFileNamesLoading->reset();
+			pbFileNamesLoading->setMaximum(value);
+			pbFileNamesLoading->show();
+		}
+		break;
+	}
 }
 
 // ****************************** Menu *********************************

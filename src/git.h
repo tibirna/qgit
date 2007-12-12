@@ -209,13 +209,11 @@ signals:
 	void cancelLoading(const FileHistory*);
 	void cancelAllProcesses();
 	void annotateReady(Annotate*, bool, const QString&);
+	void fileNamesLoad(int, int);
 
 public slots:
 	void procReadyRead(const QByteArray&);
-	void procFinished() {
-		flushFileNames(fileLoader);
-		filesLoadingPending = filesLoadingCurSha = "";
-    }
+	void procFinished();
 
 private slots:
 	void loadFileCache();
@@ -316,6 +314,7 @@ private:
 	QString gitDir;
 	QString filesLoadingPending;
 	QString filesLoadingCurSha;
+	int filesLoadingStartOfs;
 	QString curRange;
 	bool cacheNeedsUpdate;
 	bool errorReportingEnabled;

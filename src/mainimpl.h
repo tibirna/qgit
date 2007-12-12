@@ -20,6 +20,7 @@ class QComboBox;
 class QEvent;
 class QListWidgetItem;
 class QModelIndex;
+class QProgressBar;
 class QShortcutEvent;
 class QTextEdit;
 
@@ -54,6 +55,7 @@ signals:
 private slots:
 	void tabWdg_currentChanged(int);
 	void newRevsAdded(const FileHistory*, const QVector<ShaString>&);
+	void fileNamesLoad(int, int);
 	void revisionsDragged(const QStringList&);
 	void revisionsDropped(const QStringList&);
 	void shortCutActivated();
@@ -147,6 +149,7 @@ private:
 
 	Git* git;
 	RevsView* rv;
+	QProgressBar* pbFileNamesLoading;
 
 	// curDir is the repository working dir, could be different from qgit running
 	// directory QDir::current(). Note that qgit could be run from subdirectory

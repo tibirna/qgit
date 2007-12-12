@@ -548,6 +548,11 @@ void Git::stop(bool saveCache) {
 	// running for a while although silently
 	emit cancelAllProcesses(); // non blocking
 
+	// after cancelAllProcesses() procFinished() is not called anymore
+	// TODO perhaps is better to call procFinished() also if process terminated
+	// incorrectly as QProcess does. BUt first we need to fix FileView::on_loadCompleted()
+	emit fileNamesLoad(1, revsFiles.count() - filesLoadingStartOfs);
+
 	if (cacheNeedsUpdate && saveCache) {
 
 		cacheNeedsUpdate = false;
@@ -859,17 +864,23 @@ void Git::loadFileNames() {
 
 	indexTree(); // we are sure data loading is finished at this point
 
+	int revCnt = 0;
 	QString diffTreeBuf;
 	FOREACH (ShaVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it)) {
 			const Rev* c = revLookup(*it);
-			if (c->parentsCount() == 1) // skip initials and merges
+			if (c->parentsCount() == 1) { // skip initials and merges
 				diffTreeBuf.append(*it).append('\n');
+				revCnt++;
+			}
 		}
 	}
 	if (!diffTreeBuf.isEmpty()) {
 		filesLoadingPending = filesLoadingCurSha = "";
+		filesLoadingStartOfs = revsFiles.count();
+		emit fileNamesLoad(3, revCnt);
+
 		const QString runCmd("git diff-tree --no-color -r -C --stdin");
 		runAsync(runCmd, this, diffTreeBuf);
 	}
@@ -1125,6 +1136,13 @@ void Git::updateLanes(Rev& c, Lanes& lns, SCRef sha) {
 //	qDebug("%s %s",tmp.latin1(), c.sha.latin1());
 }
 
+void Git::procFinished() {
+
+	flushFileNames(fileLoader);
+	filesLoadingPending = filesLoadingCurSha = "";
+	emit fileNamesLoad(1, revsFiles.count() - filesLoadingStartOfs);
+}
+
 void Git::procReadyRead(const QByteArray& fileChunk) {
 
 	if (filesLoadingPending.isEmpty())
@@ -1158,6 +1176,8 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
 	}
 	if (lastEOL != -1)
 		filesLoadingPending.remove(0, lastEOL + 1);
+
+	emit fileNamesLoad(2, revsFiles.count() - filesLoadingStartOfs);
 }
 
 void Git::flushFileNames(FileNamesLoader& fl) {
