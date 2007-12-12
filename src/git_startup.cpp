@@ -604,6 +604,8 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 	try {
 		setThrowOnStop(true);
 
+		const QString msg1("Path is '" + workDir + "'    Loading ");
+
 		// check if repository is valid
 		bool repoChanged;
 		workDir = getBaseDir(&repoChanged, wd, &isGIT, &gitDir);
@@ -612,12 +614,15 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			localDates.clear();
 			clearFileNames();
 			fileCacheAccessed = false;
+
+			SHOW_MSG(msg1 + "file names cache...");
+			loadFileCache();
+			SHOW_MSG("");
 		}
 		if (!isGIT) {
 			setThrowOnStop(false);
 			return false;
 		}
-		const QString msg1("Path is '" + workDir + "'    Loading ");
 		if (!_sp.filteredLoading) {
 
 			// update text codec according to repo settings
@@ -691,10 +696,6 @@ void Git::init2() {
 		SHOW_MSG(msg1 + "revisions...");
 		if (!startRevList(_sp.args, revData))
 			dbs("ERROR: unable to start 'git log'");
-
-		// return to event loop before to start the
-		// possibly slow file cache loading
-		QTimer::singleShot(10, this, SLOT(loadFileCache()));
 
 		setThrowOnStop(false);
 
@@ -845,18 +846,12 @@ void Git::loadFileCache() {
 	if (!fileCacheAccessed) {
 
 		fileCacheAccessed = true;
-		bool isWorkingDirRevFile = (getFiles(ZERO_SHA) != NULL);
-		clearFileNames(); // any already created RevFile will be lost
-
 		QByteArray shaBuf;
 		if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec, shaBuf)) {
 			revsFilesShaBackupBuf.append(shaBuf);
 			populateFileNamesMap();
 		} else
 			dbs("ERROR: unable to load file names cache");
-
-		if (isWorkingDirRevFile) // re-add ZERO_SHA with new file names indices
-			revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(_wd));
 	}
 }
 
