@@ -14,6 +14,12 @@
 #define GUI_UPDATE_INTERVAL 500
 #define READ_BLOCK_SIZE     65535
 
+class UnbufferedTemporaryFile : public QTemporaryFile {
+public:
+	explicit UnbufferedTemporaryFile(QObject* p) : QTemporaryFile(p) {}
+	bool unbufOpen() { return open(QIODevice::ReadOnly | QIODevice::Unbuffered); }
+};
+
 DataLoader::DataLoader(Git* g, FileHistory* f) : QProcess(g), git(g), fh(f) {
 
 	canceling = parsing = false;
@@ -219,7 +225,9 @@ bool DataLoader::createTemporaryFile() { return true; }
 
 ulong DataLoader::readNewData(bool lastBuffer) {
 
-	bool ok = dataFile && (dataFile->isOpen() || (dataFile->exists() && dataFile->open()));
+	bool ok = dataFile &&
+	         (dataFile->isOpen() || (dataFile->exists() && dataFile->unbufOpen()));
+
 	if (!ok)
 		return 0;
 
@@ -266,7 +274,7 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 bool DataLoader::createTemporaryFile() {
 
 	// redirect 'git log' output to a temporary file
-	dataFile = new QTemporaryFile(this);
+	dataFile = new UnbufferedTemporaryFile(this);
 
 #ifndef Q_OS_WIN32
 	/*
@@ -291,7 +299,7 @@ bool DataLoader::createTemporaryFile() {
 			if (!dataFile->open()) { // test for write access
 
 				delete dataFile;
-				dataFile = new QTemporaryFile(this);
+				dataFile = new UnbufferedTemporaryFile(this);
 				dbs("WARNING: directory '/tmp' is not writable, "
 				    "fallback on Qt default one, there could "
 				    "be a performance penalty.");

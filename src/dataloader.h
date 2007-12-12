@@ -11,10 +11,10 @@
 #include <QTime>
 #include <QTimer>
 
-class QString;
-class QTemporaryFile;
 class Git;
 class FileHistory;
+class QString;
+class UnbufferedTemporaryFile;
 
 // data exchange facility with 'git log' could be based on QProcess or on
 // a temporary file (default). Uncomment following line to use QProcess
@@ -47,7 +47,7 @@ private:
 	Git* git;
 	FileHistory* fh;
 	QByteArray* halfChunk;
-	QTemporaryFile* dataFile;
+	UnbufferedTemporaryFile* dataFile;
 	QTime loadTime;
 	QTimer guiUpdateTimer;
 	ulong loadedBytes;
