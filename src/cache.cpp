@@ -27,7 +27,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 		return false;
 	}
 	QFile f(tmpPath);
-	if (!f.open(QIODevice::WriteOnly))
+	if (!f.open(QIODevice::WriteOnly | QIODevice::Unbuffered))
 		return false;
 
 	dbs("Saving cache. Please wait...");
@@ -114,7 +114,7 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm,
 	if (!f.exists())
 		return true; // no cache file is not an error
 
-	if (!f.open(QIODevice::ReadOnly))
+	if (!f.open(QIODevice::ReadOnly | QIODevice::Unbuffered))
 		return false;
 
 	QDataStream stream(qUncompress(f.readAll()));
