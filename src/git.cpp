@@ -1711,18 +1711,10 @@ bool Git::stgPush(SCRef sha) {
 
 bool Git::stgPop(SCRef sha) {
 
-	QString top;
-	if (!run("stg top", &top))
-		return false;
-
 	const QStringList patch(getRefName(sha, APPLIED));
 	if (patch.count() != 1) {
 		dbp("ASSERT in Git::stgPop, found %1 patches instead of 1", patch.count());
 		return false;
 	}
-	if (patch.first() != top.trimmed())
-		if (!run("stg pop " + quote(patch)))
-			return false;
-
-	return run("stg pop"); // finally remove selected one
+	return run("stg pop " + quote(patch));
 }
