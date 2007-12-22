@@ -129,6 +129,7 @@ void FileHistory::clear(bool complete) {
 	_rowCnt = revOrder.count();
 	_annIdValid = false;
 	reset();
+	emit headerDataChanged(Qt::Horizontal, 0, 4);
 }
 
 void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString>& shaVec) {
@@ -155,6 +156,17 @@ void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 	beginInsertRows(QModelIndex(), _rowCnt, revOrder.count());
 	_rowCnt = revOrder.count();
 	endInsertRows();
+
+	int padding = qMax(QString::number(_rowCnt).length() - QString("Id").length(), 0) ;
+
+	/* adjust for non-monospace fonts where space size is different from digit
+	 * font size. Real solution would be to access list view font metric, but
+	 * from here is easier to implement this hacky heuristic that seems good enough.
+	 */
+	padding += 1 + int(_rowCnt > 999) - int(_rowCnt < 10);
+
+	_headerInfo[1] = QString("Id").append(QString(padding, ' '));
+	emit headerDataChanged(Qt::Horizontal, 1, 1);
 }
 
 Qt::ItemFlags FileHistory::flags(const QModelIndex&) const {
