@@ -2,14 +2,16 @@
 # of git exe files. Then uncomment following line
 # GIT_EXEC_DIR = C:\path\to\git\installation\directory
 
+# Uncomment if compile with gcc and family (minGw)
+# CONFIG += HAVE_GCC
 
 # Platform dependent stuff
-win32{
+win32 {
     TARGET = qgit
     target.path = $$GIT_EXEC_DIR
 }
 
-unix{
+unix {
     TARGET = qgit
     target.path = ~/bin
 }
@@ -20,8 +22,12 @@ CONFIG += qt console warn_on exceptions debug_and_release
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
-QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
-QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
+
+HAVE_GCC {
+	QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
+	QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
+}
+
 INSTALLS += target
 
 # Directories
@@ -62,8 +68,8 @@ DISTFILES += ../exception_manager.txt resources/qgit.png ../COPYING ../README
 #
 # Remember to set proper GIT_EXEC_DIR value at the beginning of this file
 #
-win32{
-    !exists($${GIT_EXEC_DIR}/git.exe){
+win32 { 
+    !exists($${GIT_EXEC_DIR}/git.exe) {
         error("I cannot found git files, please set GIT_EXEC_DIR in 'src.pro' file")
     }
     QGIT_BAT = ../start_qgit.bat
