@@ -95,16 +95,15 @@ Q_OBJECT
 public:
 	explicit Git(QObject* parent);
 
-	enum BoolOption { // used as self-documenting boolean parameters
-		optFalse,
-		optSaveCache,
-		optGoDown,
-		optOnlyLoaded,
-		optDragDrop,
-		optFold,
-		optOnlyInIndex,
-		optCreate
-	};
+	// used as self-documenting boolean parameters
+	static const bool optFalse       = false;
+	static const bool optSaveCache   = true;
+	static const bool optGoDown      = true;
+	static const bool optOnlyLoaded  = true;
+	static const bool optDragDrop    = true;
+	static const bool optFold        = true;
+	static const bool optOnlyInIndex = true;
+	static const bool optCreate      = true;
 
 	enum RefType {
 		TAG        = 1,
