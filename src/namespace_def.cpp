@@ -11,6 +11,7 @@
  data in each file where QGit namespace is included.
 
 */
+#include <QDir>
 #include <QHash>
 #include <QPixmap>
 #include <QProcess>
@@ -32,14 +33,17 @@ static bool addShellWrapper(QStringList& args) {
    To run an application/script under Windows you need
    to wrap the command line in the shell interpreter.
    You need this also to start native commands as 'dir'.
-   An exception is if application is in path as 'git' must
-   always be.
+
+   In the common case of a git command then prepend the path of
+   git.exe directory, to be sure to find it also if not in PATH
 */
 	if (!args.first().startsWith("git-") && args.first() != "git") {
 		args.prepend("/c");
 		args.prepend("cmd.exe");
 		return true;
-	}
+	} else if (!QGit::GIT_DIR.isEmpty())
+		args.first().prepend(QGit::GIT_DIR + QDir::separator());
+
 	return false;
 }
 
