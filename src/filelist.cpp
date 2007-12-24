@@ -18,6 +18,8 @@ void FileList::setup(Domain* dm, Git* g) {
 	git = g;
 	st = &(d->st);
 
+	setFont(QGit::STD_FONT);
+
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
 

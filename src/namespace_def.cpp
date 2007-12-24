@@ -115,6 +115,7 @@ QString QGit::GIT_DIR;
    be still NOT initialized at this time, so set a dummy font family instead,
    it will be properly changed later, at startup
 */
+QFont QGit::STD_FONT("Helvetica");
 QFont QGit::TYPE_WRITER_FONT("Helvetica");
 
 // patches drag and drop
@@ -134,6 +135,7 @@ const QString QGit::ORG_KEY         = "qgit";
 const QString QGit::APP_KEY         = "qgit4";
 const QString QGit::EXT_DIFF_KEY    = "external_diff_viewer";
 const QString QGit::REC_REP_KEY     = "recent_open_repos";
+const QString QGit::STD_FNT_KEY     = "standard_font";
 const QString QGit::TYPWRT_FNT_KEY  = "typewriter_font";
 const QString QGit::FLAGS_KEY       = "flags";
 const QString QGit::PATCH_DIR_KEY   = "Patch/last_dir";

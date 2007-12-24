@@ -79,9 +79,15 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	longLogRE.setMinimal(true);
 	longLogRE.setCaseSensitivity(Qt::CaseInsensitive);
 
-	// set-up typewriter (fixed width) font
+	// set-up standard revisions and files list font
 	QSettings settings;
-	QString font(settings.value(TYPWRT_FNT_KEY).toString());
+	QString font(settings.value(STD_FNT_KEY).toString());
+	if (font.isEmpty())
+		font = QApplication::font().toString();
+	QGit::STD_FONT.fromString(font);
+
+	// set-up typewriter (fixed width) font
+	font = settings.value(TYPWRT_FNT_KEY).toString();
 	if (font.isEmpty()) { // choose a sensible default
 		QFont fnt = QApplication::font();
 		fnt.setStyleHint(QFont::TypeWriter, QFont::PreferDefault);
@@ -971,12 +977,15 @@ void MainImpl::scrollTextEdit(int delta) {
 void MainImpl::adjustFontSize(int delta) {
 // font size is changed on a 'per instance' base and only on list views
 
-	int ps = listViewFont.pointSize() + delta;
+	int ps = QGit::STD_FONT.pointSize() + delta;
 	if (ps < 2)
 		return;
 
-	listViewFont.setPointSize(ps);
-	emit changeFont(listViewFont);
+	QGit::STD_FONT.setPointSize(ps);
+
+	QSettings settings;
+	settings.setValue(QGit::STD_FNT_KEY, QGit::STD_FONT.toString());
+	emit changeFont(QGit::STD_FONT);
 }
 
 void MainImpl::fileNamesLoad(int status, int value) {

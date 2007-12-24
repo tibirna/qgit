@@ -158,7 +158,6 @@ private:
 	QString curDir;
 	QString startUpDir;
 	QString textToFind;
-	QFont listViewFont;
 	QRegExp shortLogRE;
 	QRegExp longLogRE;
 	bool setRepositoryBusy;

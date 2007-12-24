@@ -179,6 +179,7 @@ namespace QGit {
 	// initialized at startup according to system wide settings
 	extern QColor  ODD_LINE_COL;
 	extern QColor  EVEN_LINE_COL;
+	extern QFont   STD_FONT;
 	extern QFont   TYPE_WRITER_FONT;
 	extern QString GIT_DIR;
 
@@ -199,6 +200,7 @@ namespace QGit {
 	extern const QString APP_KEY;
 	extern const QString PATCH_DIR_KEY;
 	extern const QString PATCH_ARGS_KEY;
+	extern const QString STD_FNT_KEY;
 	extern const QString TYPWRT_FNT_KEY;
 	extern const QString FLAGS_KEY;
 	extern const QString CON_GEOM_KEY;

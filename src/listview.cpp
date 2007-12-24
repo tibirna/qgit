@@ -28,6 +28,8 @@ void ListView::setup(Domain* dm, Git* g) {
 	st = &(d->st);
 	filterNextContextMenuRequest = false;
 
+	setFont(QGit::STD_FONT);
+
 	// create ListViewProxy unplugged, will be plug
 	// to the model only when filtering is needed
 	lp = new ListViewProxy(this, d, git);
