@@ -33,17 +33,14 @@ static bool addShellWrapper(QStringList& args) {
    To run an application/script under Windows you need
    to wrap the command line in the shell interpreter.
    You need this also to start native commands as 'dir'.
-
-   In the common case of a git command then prepend the path of
-   git.exe directory, to be sure to find it also if not in PATH
+   An exception is if application is in path as 'git' must
+   always be.
 */
 	if (!args.first().startsWith("git-") && args.first() != "git") {
 		args.prepend("/c");
 		args.prepend("cmd.exe");
 		return true;
-	} else if (!QGit::GIT_DIR.isEmpty())
-		args.first().prepend(QGit::GIT_DIR + QDir::separator());
-
+	}
 	return false;
 }
 

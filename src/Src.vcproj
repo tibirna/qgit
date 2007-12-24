@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Src"
 	ProjectGUID="{0FFD95AC-65F7-4974-B165-DAE8B473B487}"
+	RootNamespace="Src"
 	Keyword="MakeFileProj"
 	TargetFrameworkVersion="196613"
 	>
@@ -43,10 +44,10 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="nmake debug"
-				ReBuildCommandLine="nmake clean debug"
-				CleanCommandLine="nmake clean"
-				Output="Bin\QGit.exe"
+				BuildCommandLine="nmake /f Makefile.release"
+				ReBuildCommandLine="nmake /f Makefile.release clean"
+				CleanCommandLine="nmake /f Makefile.release clean"
+				Output="..\Bin\QGit.exe"
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				IncludeSearchPath=""
 				ForcedIncludes=""

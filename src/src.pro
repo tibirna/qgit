@@ -1,6 +1,6 @@
-# Only for Windows installation set correct directory
-# of git exe files. Then uncomment following line
-# GIT_EXEC_DIR = C:\path\to\git\installation\directory
+# Under Windows launch script start_qgit.bat needs the
+# value GIT_EXEC_DIR to be set to the git bin directory 
+GIT_EXEC_DIR = "C:\Program Files\Git\bin"
 
 # Uncomment if compile with gcc and family (minGw)
 # CONFIG += HAVE_GCC
@@ -79,7 +79,7 @@ win32 {
 
     qgit_launcher.commands =    @echo @echo OFF > $$QGIT_BAT
     qgit_launcher.commands += && @echo $$LINE_1 >> $$QGIT_BAT
-    qgit_launcher.commands += && @echo $$TARGET >> $$QGIT_BAT
+    qgit_launcher.commands += && @echo bin\\$$TARGET >> $$QGIT_BAT
     qgit_launcher.commands += && @echo $$LINE_2 >> $$QGIT_BAT
 
     QMAKE_EXTRA_TARGETS += qgit_launcher
