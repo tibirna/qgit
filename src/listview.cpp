@@ -129,7 +129,7 @@ void ListView::on_keyDown() {
 		setCurrentIndex(idx);
 }
 
-void ListView::on_repaintListViews(const QFont& f) {
+void ListView::on_changeFont(const QFont& f) {
 
 	setFont(f);
 	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());

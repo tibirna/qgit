@@ -33,8 +33,8 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	connect(m(), SIGNAL(repaintListViews(const QFont&)),
-	        fileTab->histListView, SLOT(on_repaintListViews(const QFont&)));
+	connect(m(), SIGNAL(changeFont(const QFont&)),
+	        fileTab->histListView, SLOT(on_changeFont(const QFont&)));
 
 	connect(fileTab->histListView, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));

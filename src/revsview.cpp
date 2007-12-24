@@ -52,8 +52,8 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	connect(m(), SIGNAL(repaintListViews(const QFont&)),
-	        tab()->listViewLog, SLOT(on_repaintListViews(const QFont&)));
+	connect(m(), SIGNAL(changeFont(const QFont&)),
+	        tab()->listViewLog, SLOT(on_changeFont(const QFont&)));
 
 	connect(m(), SIGNAL(updateRevDesc()), this, SLOT(on_updateRevDesc()));
 
@@ -75,6 +75,9 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
 	connect(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
+
+	connect(m(), SIGNAL(changeFont(const QFont&)),
+	       tab()->fileList, SLOT(on_changeFont(const QFont&)));
 
 	connect(m(), SIGNAL(highlightPatch(const QString&, bool)),
 	        tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));

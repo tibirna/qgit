@@ -47,7 +47,7 @@ signals:
 	void updateRevDesc();
 	void closeAllWindows();
 	void closeAllTabs();
-	void repaintListViews(const QFont&);
+	void changeFont(const QFont&);
 	void closeTabButtonEnabled(bool);
 	void typeWriterFontChanged();
 	void flagChanged(uint);

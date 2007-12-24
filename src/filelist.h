@@ -25,6 +25,9 @@ public:
 signals:
 	void contextMenu(const QString&, int);
 
+public slots:
+	void on_changeFont(const QFont& f);
+
 protected:
 	virtual void focusInEvent(QFocusEvent*);
 	virtual void mousePressEvent(QMouseEvent*);

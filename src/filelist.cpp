@@ -37,6 +37,11 @@ QString FileList::currentText() {
 	return (item ? item->data(Qt::DisplayRole).toString() : "");
 }
 
+void FileList::on_changeFont(const QFont& f) {
+
+	setFont(f);
+}
+
 void FileList::focusInEvent(QFocusEvent*) {
 
 	// Workaround a Qt4.2 bug

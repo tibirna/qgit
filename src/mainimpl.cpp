@@ -976,7 +976,7 @@ void MainImpl::adjustFontSize(int delta) {
 		return;
 
 	listViewFont.setPointSize(ps);
-	emit repaintListViews(listViewFont);
+	emit changeFont(listViewFont);
 }
 
 void MainImpl::fileNamesLoad(int status, int value) {

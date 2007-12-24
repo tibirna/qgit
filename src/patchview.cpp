@@ -33,6 +33,9 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	connect(m(), SIGNAL(typeWriterFontChanged()),
 	        patchTab->textEditDiff, SLOT(typeWriterFontChanged()));
 
+	connect(m(), SIGNAL(changeFont(const QFont&)),
+	       patchTab->fileList, SLOT(on_changeFont(const QFont&)));
+
 	connect(patchTab->lineEditDiff, SIGNAL(returnPressed()),
 	        this, SLOT(lineEditDiff_returnPressed()));
 

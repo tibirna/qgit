@@ -44,7 +44,7 @@ signals:
 	void diffTargetChanged(int); // used by new model_view integration
 
 public slots:
-	void on_repaintListViews(const QFont& f);
+	void on_changeFont(const QFont& f);
 	void on_keyUp();
 	void on_keyDown();
 
