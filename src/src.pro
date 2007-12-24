@@ -2,18 +2,9 @@
 # value GIT_EXEC_DIR to be set to the git bin directory 
 GIT_EXEC_DIR = "C:\Program Files\Git\bin"
 
-# Uncomment if compile with gcc and family (minGw)
-# CONFIG += HAVE_GCC
-
-# Platform dependent stuff
-win32 {
-    TARGET = qgit
-    target.path = $$GIT_EXEC_DIR
-}
-
-unix {
-    TARGET = qgit
-    target.path = ~/bin
+# check for g++ compiler
+contains(QMAKE_CC,.*g\+\+.*) {
+	CONFIG += HAVE_GCC
 }
 
 # General stuff
@@ -22,6 +13,18 @@ CONFIG += qt console warn_on exceptions debug_and_release
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
+
+# Platform dependent stuff
+win32 {
+    TARGET = qgit
+    target.path = $$GIT_EXEC_DIR
+    CONFIG += embed_manifest_exe
+}
+
+unix {
+    TARGET = qgit
+    target.path = ~/bin
+}
 
 HAVE_GCC {
 	QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
