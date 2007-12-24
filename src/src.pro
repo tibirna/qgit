@@ -1,11 +1,10 @@
 # Under Windows launch script start_qgit.bat needs the
-# value GIT_EXEC_DIR to be set to the git bin directory 
+# value GIT_EXEC_DIR to be set to the git bin directory
 GIT_EXEC_DIR = "C:\Program Files\Git\bin"
 
 # check for g++ compiler
-contains(QMAKE_CC,.*g\+\+.*) {
-	CONFIG += HAVE_GCC
-}
+contains(QMAKE_CC,.*g\+\+.*) { CONFIG += HAVE_GCC }
+contains(QMAKE_CC,.*gcc.*)   { CONFIG += HAVE_GCC }
 
 # General stuff
 TEMPLATE = app
@@ -71,7 +70,7 @@ DISTFILES += ../exception_manager.txt resources/qgit.png ../COPYING ../README
 #
 # Remember to set proper GIT_EXEC_DIR value at the beginning of this file
 #
-win32 { 
+win32 {
     !exists($${GIT_EXEC_DIR}/git.exe) {
         error("I cannot found git files, please set GIT_EXEC_DIR in 'src.pro' file")
     }
