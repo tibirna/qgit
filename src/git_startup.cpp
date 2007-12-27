@@ -392,6 +392,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 	switch (status) {
 	case 'M':
 	case 'T':
+	case 'U':
 		rf.status.append(RevFile::MODIFIED);
 		break;
 	case 'D':
