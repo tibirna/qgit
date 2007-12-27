@@ -18,6 +18,7 @@ win32 {
     TARGET = qgit
     target.path = $$GIT_EXEC_DIR
     CONFIG += embed_manifest_exe
+    RC_FILE = app_icon.rc
 }
 
 unix {
