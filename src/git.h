@@ -44,6 +44,9 @@ public:
 	virtual bool hasChildren(const QModelIndex& par = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex&) const { return 5; }
 
+public slots:
+	void on_changeFont(const QFont&);
+
 private slots:
 	void on_newRevsAdded(const FileHistory*, const QVector<ShaString>&);
 	void on_loadCompleted(const FileHistory*, const QString&);
@@ -209,6 +212,7 @@ signals:
 	void cancelAllProcesses();
 	void annotateReady(Annotate*, bool, const QString&);
 	void fileNamesLoad(int, int);
+	void changeFont(const QFont&);
 
 public slots:
 	void procReadyRead(const QByteArray&);

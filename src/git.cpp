@@ -8,20 +8,21 @@
 */
 #include <QApplication>
 #include <QDateTime>
-#include <QRegExp>
-#include <QFile>
 #include <QDir>
-#include <QTextStream>
+#include <QFile>
+#include <QFontMetrics>
+#include <QImageReader>
+#include <QRegExp>
 #include <QSet>
 #include <QSettings>
-#include <QTextDocument>
 #include <QTextCodec>
-#include <QImageReader>
-#include "lanes.h"
-#include "myprocess.h"
+#include <QTextDocument>
+#include <QTextStream>
 #include "annotate.h"
 #include "cache.h"
 #include "git.h"
+#include "lanes.h"
+#include "myprocess.h"
 
 using namespace QGit;
 
@@ -37,6 +38,8 @@ FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
 
 	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
+
+	connect(git, SIGNAL(changeFont(const QFont&)), this, SLOT(on_changeFont(const QFont&)));
 }
 
 FileHistory::~FileHistory() {
@@ -157,18 +160,27 @@ void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 	_rowCnt = revOrder.count();
 	endInsertRows();
 
-	int padding = qMax(QString::number(_rowCnt).length() - QString("Id").length(), 0) ;
-
-	/* adjust for non-monospace fonts where space size is different from digit
-	 * font size. Real solution would be to access list view font metric, but
-	 * from here is easier to implement this hacky heuristic that seems good enough.
-	 */
-	padding += 1 + int(_rowCnt > 999) - int(_rowCnt < 10);
-
-	_headerInfo[1] = QString("Id").append(QString(padding, ' '));
-	emit headerDataChanged(Qt::Horizontal, 1, 1);
+	// adjust Id column width according to the numbers of revisions we have
+	if (!git->isMainHistory(this))
+		on_changeFont(QGit::STD_FONT);
 
 	reset(); // force a reset to avoid artifacts in file history graph under Windows
+}
+
+void FileHistory::on_changeFont(const QFont& f) {
+
+	QString maxStr(QString::number(_rowCnt).length() + 1, '8');
+	QFontMetrics fmRows(f);
+	int neededWidth = fmRows.boundingRect(maxStr).width();
+
+	QString id("Id");
+	QFontMetrics fmId(qApp->font());
+
+	while (fmId.boundingRect(id).width() < neededWidth)
+		id += ' ';
+
+	_headerInfo[1] = id;
+	emit headerDataChanged(Qt::Horizontal, 1, 1);
 }
 
 Qt::ItemFlags FileHistory::flags(const QModelIndex&) const {

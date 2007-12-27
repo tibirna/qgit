@@ -131,8 +131,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
 
 	// manual adjust lineEditSHA width
-	QString tmp;
-	tmp.fill('8', 41);
+	QString tmp(41, '8');
 	int wd = lineEditSHA->fontMetrics().boundingRect(tmp).width();
 	lineEditSHA->setMinimumWidth(wd);
 
@@ -145,6 +144,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
 	connect(this, SIGNAL(typeWriterFontChanged()), this, SIGNAL(updateRevDesc()));
+
+	connect(this, SIGNAL(changeFont(const QFont&)), git, SIGNAL(changeFont(const QFont&)));
 
 	// connect cross-domain update signals
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
