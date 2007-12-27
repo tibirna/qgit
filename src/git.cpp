@@ -57,7 +57,7 @@ int FileHistory::rowCount(const QModelIndex& parent) const {
 	return (!parent.isValid() ? _rowCnt : 0);
 }
 
-bool FileHistory::hasChildren(const QModelIndex & parent) const {
+bool FileHistory::hasChildren(const QModelIndex& parent) const {
 
 	return !parent.isValid();
 }
@@ -167,6 +167,8 @@ void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 
 	_headerInfo[1] = QString("Id").append(QString(padding, ' '));
 	emit headerDataChanged(Qt::Horizontal, 1, 1);
+
+	reset(); // force a reset to avoid artifacts in file history graph under Windows
 }
 
 Qt::ItemFlags FileHistory::flags(const QModelIndex&) const {
