@@ -701,7 +701,7 @@ void Git::init2() {
 		}
 		SHOW_MSG(msg1 + "revisions...");
 		if (!startRevList(_sp.args, revData))
-			dbs("ERROR: unable to start 'git log'");
+			SHOW_MSG("ERROR: unable to start 'git log'");
 
 		setThrowOnStop(false);
 
