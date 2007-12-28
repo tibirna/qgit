@@ -156,9 +156,7 @@ void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 		return;
 
 	// now we can process last revision
-	beginInsertRows(QModelIndex(), _rowCnt, revOrder.count());
 	_rowCnt = revOrder.count();
-	endInsertRows();
 
 	// adjust Id column width according to the numbers of revisions we have
 	if (!git->isMainHistory(this))
@@ -569,6 +567,9 @@ const QStringList Git::getAllRefNames(uint mask, bool onlyLoaded) {
 }
 
 const QString Git::getRevInfo(SCRef sha) {
+
+	if (sha.isEmpty())
+		return "";
 
 	uint type = checkRef(sha);
 	if (type == 0)
