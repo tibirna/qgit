@@ -3,8 +3,12 @@
 GIT_EXEC_DIR = "C:\Program Files\Git\bin"
 
 # check for g++ compiler
-contains(QMAKE_CC,.*g\+\+.*) { CONFIG += HAVE_GCC }
-contains(QMAKE_CC,.*gcc.*)   { CONFIG += HAVE_GCC }
+contains(QMAKE_CC,.*g\+\+.*) {
+	CONFIG += HAVE_GCC
+}
+contains(QMAKE_CC,.*gcc.*) {
+	CONFIG += HAVE_GCC
+}
 
 # General stuff
 TEMPLATE = app
