@@ -1,4 +1,9 @@
 ; QGit installation script for Inno Setup compiler
+;
+; QGit should be compiled with MSVC 2008, statically linked
+; to Qt4.3 or better Trolltech libraries and directory of
+; Visual C++ redistributable dll files copied under 'bin\'
+; directory
 
 [Setup]
 AppName=QGit
@@ -8,18 +13,20 @@ DefaultGroupName=QGit
 UninstallDisplayIcon={app}\qgit.exe
 Compression=lzma
 SolidCompression=yes
-LicenseFile=COPYING.txt
-SetupIconFile=qgit.ico
-SourceDir=C:\Users\Marco\Documenti\qgit\bin
-OutputDir=.
+LicenseFile=COPYING
+SetupIconFile=src\resources\qgit.ico
+SourceDir=C:\Users\Marco\Documenti\qgit
+OutputDir=bin
 OutputBaseFilename=qgit2.1_win.exe
 
 [Files]
-Source: "qgit.exe"; DestDir: "{app}"
-Source: "start_qgit.bat"; DestDir: "{app}"; AfterInstall: UpdateMsysGitPath;
-Source: "qgit.exe.manifest"; DestDir: "{app}"
-Source: "Microsoft.VC90.CRT\*"; DestDir: "{app}\Microsoft.VC90.CRT"
-Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
+Source: "bin\qgit.exe"; DestDir: "{app}"
+Source: "bin\qgit.exe.manifest"; DestDir: "{app}"
+Source: "README_WIN.txt"; DestDir: "{app}"; Flags: isreadme
+
+; Directory of MSVC redistributable files must be copied under 'bin\'
+; before to run Inno Setup compiler or following line will error out
+Source: "bin\Microsoft.VC90.CRT\*"; DestDir: "{app}\Microsoft.VC90.CRT"
 
 [Registry]
 Root: HKCU; Subkey: "Software\qgit"; Flags: uninsdeletekeyifempty
@@ -32,9 +39,9 @@ Name: {code:GetMSysGitExecDir}; Flags: uninsneveruninstall
 Name: desktopicon; Description: "Create a &desktop icon";
 
 [Icons]
-Name: "{group}\QGit"; Filename: "{app}\start_qgit.bat"; IconFilename: "{app}\qgit.exe"; WorkingDir: "{app}"
+Name: "{group}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall QGit"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\QGit"; Filename: "{app}\start_qgit.bat"; IconFilename: "{app}\qgit.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Code]
 var
@@ -83,27 +90,5 @@ end;
 function GetMSysGitExecDir(Param: String): String;
 begin
   Result := MSysGitDirPage.Values[0] + '\bin'; // already validated
-end;
-
-// called after install to update start_qgit.bat with correct msysgit path
-procedure UpdateMsysGitPath();
-var
-  Buf: String;
-  NewPath: String;
-  OldPath: String;
-  s1: Integer;
-  s2: Integer;
-begin
-  NewPath := 'SET MSYSGIT_EXEC_DIR=' + GetMSysGitExecDir('dummy');
-  LoadStringFromFile(ExpandConstant('{app}\start_qgit.bat'), Buf);
-  s1 := Pos('SET MSYSGIT_EXEC_DIR=', Buf);
-  if s1 > 0 then begin
-      s2 := Pos('SET PATH=%PATH%;', Buf);
-      if s2 - 4 > s1 then begin // count some line feeds
-          OldPath := Copy(Buf, s1, s2 - 4 - s1);
-          StringChangeEx(Buf, OldPath, NewPath, true);
-          SaveStringToFile(ExpandConstant('{app}\start_qgit.bat'), Buf, False);
-    end;
-  end;
 end;
 
