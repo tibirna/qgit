@@ -198,6 +198,7 @@ namespace QGit {
 	// settings keys
 	extern const QString ORG_KEY;
 	extern const QString APP_KEY;
+	extern const QString GIT_DIR_KEY;
 	extern const QString PATCH_DIR_KEY;
 	extern const QString PATCH_ARGS_KEY;
 	extern const QString STD_FNT_KEY;

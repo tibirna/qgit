@@ -28,20 +28,27 @@
 
 const QString QGit::SCRIPT_EXT = ".bat";
 
-static bool addShellWrapper(QStringList& args) {
+static void adjustPath(QStringList& args, bool* winShell) {
 /*
    To run an application/script under Windows you need
    to wrap the command line in the shell interpreter.
    You need this also to start native commands as 'dir'.
-   An exception is if application is in path as 'git' must
-   always be.
+   An exception is if application is 'git' in that case we
+   call with absolute path to be sure to find it.
 */
-	if (!args.first().startsWith("git-") && args.first() != "git") {
+	if (args.first() == "git" || args.first().startsWith("git-")) {
+
+		if (!QGit::GIT_DIR.isEmpty()) // application built from sources
+			args.first().prepend(QGit::GIT_DIR + '/');
+
+		if (winShell)
+			*winShell = false;
+
+	} else if (winShell) {
 		args.prepend("/c");
 		args.prepend("cmd.exe");
-		return true;
+		*winShell = true;
 	}
-	return false;
 }
 
 #else
@@ -51,10 +58,7 @@ static bool addShellWrapper(QStringList& args) {
 
 const QString QGit::SCRIPT_EXT = ".sh";
 
-static bool addShellWrapper(QStringList&) {
-
-	return false;
-}
+static void adjustPath(QStringList&) {}
 
 #endif // *********  end of platform dependent code ******
 
@@ -133,6 +137,7 @@ const ShaString  QGit::ZERO_SHA_RAW(QGit::ZERO_SHA_BA.constData());
 // settings keys
 const QString QGit::ORG_KEY         = "qgit";
 const QString QGit::APP_KEY         = "qgit4";
+const QString QGit::GIT_DIR_KEY     = "msysgit_exec_dir";
 const QString QGit::EXT_DIFF_KEY    = "external_diff_viewer";
 const QString QGit::REC_REP_KEY     = "recent_open_repos";
 const QString QGit::STD_FNT_KEY     = "standard_font";
@@ -425,8 +430,7 @@ bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) 
 		return false;
 
 	QStringList arguments(args);
-	if (winShell)
-		*winShell = addShellWrapper(arguments);
+	adjustPath(arguments, winShell);
 
 	QString prog(arguments.first());
 	arguments.removeFirst();
