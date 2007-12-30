@@ -58,7 +58,7 @@ static void adjustPath(QStringList& args, bool* winShell) {
 
 const QString QGit::SCRIPT_EXT = ".sh";
 
-static void adjustPath(QStringList&) {}
+static void adjustPath(QStringList&, bool*) {}
 
 #endif // *********  end of platform dependent code ******
 

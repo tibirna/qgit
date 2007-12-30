@@ -157,12 +157,11 @@ void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 
 	// now we can process last revision
 	_rowCnt = revOrder.count();
+	reset(); // force a reset to avoid artifacts in file history graph under Windows
 
 	// adjust Id column width according to the numbers of revisions we have
 	if (!git->isMainHistory(this))
 		on_changeFont(QGit::STD_FONT);
-
-	reset(); // force a reset to avoid artifacts in file history graph under Windows
 }
 
 void FileHistory::on_changeFont(const QFont& f) {
