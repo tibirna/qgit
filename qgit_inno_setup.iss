@@ -29,7 +29,7 @@ Source: "README_WIN.txt"; DestDir: "{app}"; Flags: isreadme
 Source: "bin\Microsoft.VC90.CRT\*"; DestDir: "{app}\Microsoft.VC90.CRT"
 
 [Registry]
-Root: HKCU; Subkey: "Software\qgit"; Flags: uninsdeletekeyifempty
+Root: HKCU; Subkey: "Software\qgit"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\qgit\qgit4"; ValueType: string; ValueName: "msysgit_exec_dir"; ValueData: "{code:GetMSysGitExecDir}";
 
 [Dirs]
