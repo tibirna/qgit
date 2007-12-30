@@ -316,8 +316,6 @@ void QGit::restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 		QVariant v = settings.value(nm);
 		if (v.isValid())
 			w->restoreGeometry(v.toByteArray());
-		else
-			dbp("WARNING in restoreGeometrySetting(), %1 not found", nm);
 	}
 	if (!svPtr)
 		return;
@@ -328,10 +326,9 @@ void QGit::restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 		cnt++;
 		nm = name + "_splitter_" + QString::number(cnt);
 		QVariant v = settings.value(nm);
-		if (!v.isValid()) {
-			dbp("WARNING in restoreGeometrySetting(), %1 not found", nm);
+		if (!v.isValid())
 			continue;
-		}
+
 		(*it)->restoreState(v.toByteArray());
 	}
 }
