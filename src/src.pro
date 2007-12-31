@@ -63,8 +63,9 @@ SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
            patchcontent.cpp patchview.cpp qgit.cpp rangeselectimpl.cpp \
            revdesc.cpp revsview.cpp settingsimpl.cpp smartbrowse.cpp treeview.cpp
 
-DISTFILES += helpgen.sh resources/* todo.txt
-DISTFILES += ../exception_manager.txt resources/qgit.png ../COPYING ../README
+DISTFILES += app_icon.rc helpgen.sh resources/* Src.vcproj todo.txt
+DISTFILES += ../COPYING ../exception_manager.txt ../README ../README_WIN.txt
+DISTFILES += ../qgit_inno_setup.iss ../QGit4.sln
 
 # Here we generate a batch called start_qgit.bat used, under Windows only,
 # to start qgit with proper PATH set.
