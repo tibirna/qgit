@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 	 */
 	QSettings set;
 	GIT_DIR = set.value(GIT_DIR_KEY).toString();
-	
+
 	initMimePix();
 
 	MainImpl* mainWin = new MainImpl;
