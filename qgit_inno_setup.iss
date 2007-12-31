@@ -17,7 +17,7 @@ LicenseFile=COPYING
 SetupIconFile=src\resources\qgit.ico
 SourceDir=C:\Users\Marco\Documenti\qgit
 OutputDir=bin
-OutputBaseFilename=qgit2.1_win.exe
+OutputBaseFilename=qgit2.1_win
 
 [Files]
 Source: "bin\qgit.exe"; DestDir: "{app}"
