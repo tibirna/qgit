@@ -2,6 +2,14 @@
 # value GIT_EXEC_DIR to be set to the git bin directory
 GIT_EXEC_DIR = "C:\Program Files\Git\bin"
 
+# check for Qt >= 4.3.0
+CUR_QT = $$[QT_VERSION]
+
+# WARNING greaterThan is an undocumented function
+!greaterThan(CUR_QT, 4.3) {
+	error("Sorry I need Qt 4.3.0 or later, you seem to have Qt $$CUR_QT instead")
+}
+
 # check for g++ compiler
 contains(QMAKE_CC,.*g\+\+.*) {
 	CONFIG += HAVE_GCC
