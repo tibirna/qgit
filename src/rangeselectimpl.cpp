@@ -19,16 +19,29 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, bool repoChanged, Git
 
 	setupUi(this);
 
-	QStringList orl;
-	orderRefs(git->getAllRefNames(Git::TAG, !Git::optOnlyLoaded), orl);
+	QStringList orl, tmp;
+	orderRefs(git->getAllRefNames(Git::BRANCH, !Git::optOnlyLoaded), tmp);
+	if (!tmp.isEmpty())
+		orl << tmp << "";
 
-	// check if top tag is current HEAD
-	if (!orl.empty()) {
-		SCRef tagSha(git->getRefSha(orl.first(), Git::TAG, false));
-		if (git->checkRef(tagSha, Git::CUR_BRANCH))
-			// in this case remove from list to avoid an empty view
-			orl.pop_front();
-	}
+	orderRefs(git->getAllRefNames(Git::RMT_BRANCH, !Git::optOnlyLoaded), tmp);
+	if (!tmp.isEmpty())
+		orl << tmp << "";
+
+	orderRefs(git->getAllRefNames(Git::TAG, !Git::optOnlyLoaded), tmp);
+	if (!tmp.isEmpty())
+		orl << tmp;
+
+	if (!orl.isEmpty() && orl.last().isEmpty())
+		orl.pop_back();
+
+// 	// check if top tag is current HEAD
+// 	if (!orl.empty()) {
+// 		SCRef tagSha(git->getRefSha(orl.first(), Git::ANY_REF, false));
+// 		if (!tagSha.isEmpty() && git->checkRef(tagSha, Git::CUR_BRANCH))
+// 			// in this case remove from list to avoid an empty view
+// 			orl.pop_front();
+// 	}
 	QString from, to, options;
 
 	if (!repoChanged) {
