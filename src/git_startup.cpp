@@ -595,17 +595,12 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 	*quit = false;
 	clearRevs();
 
-	/*
-	  In _sp we store calling parameters for init2(), because we
-	  could call init2() also outside init() in later time.
-
-	  If loading is canceled before init2() starts, then DataLoader
-	  does not emit loaded() signal, on_loaded() is not called and
-	  init2() does never start, so we don't bother to overwrite any
-	  exsisting previous value here.
-	*/
-	_sp.args.clear();
-	_sp.filteredLoading = (filterList != NULL);
+	/* we only update filtering info here, original arguments
+         * are not overwritten. Only getArgs() can update arguments
+         */
+	loadArguments.filteredLoading = (filterList != NULL);
+	if (loadArguments.filteredLoading)
+		loadArguments.filterList = *filterList;
 
 	try {
 		setThrowOnStop(true);
@@ -629,7 +624,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			setThrowOnStop(false);
 			return false;
 		}
-		if (!_sp.filteredLoading) {
+		if (!loadArguments.filteredLoading) {
 
 			// update text codec according to repo settings
 			bool dummy;
@@ -642,7 +637,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 
 			// startup input range dialog
 			SHOW_MSG("");
-			_sp.args = getArgs(askForRange, quit); // must be called with refs loaded
+			loadArguments.args = getArgs(askForRange, quit); // must be called with refs loaded
 			if (*quit) {
 				setThrowOnStop(false);
 				return false;
@@ -660,9 +655,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 					return true;
 				}
 			}
-		} else // filteredLoading
-			_sp.args << getAllRefSha(BRANCH | RMT_BRANCH) << "--" << *filterList;
-
+		}
 		init2();
 		setThrowOnStop(false);
 		return true;
@@ -695,12 +688,21 @@ void Git::init2() {
 		setThrowOnStop(true);
 
 		// load working dir files
-		if (!_sp.filteredLoading && testFlag(DIFF_INDEX_F)) {
+		if (!loadArguments.filteredLoading && testFlag(DIFF_INDEX_F)) {
 			SHOW_MSG(msg1 + "working directory changed files...");
 			getDiffIndex(); // blocking, we could be in setRepository() now
 		}
 		SHOW_MSG(msg1 + "revisions...");
-		if (!startRevList(_sp.args, revData))
+
+		// build up command line arguments
+		QStringList args(loadArguments.args);
+		if (loadArguments.filteredLoading) {
+			if (!args.contains("--"))
+				args << "--";
+
+			args << loadArguments.filterList;
+		}
+		if (!startRevList(args, revData))
 			SHOW_MSG("ERROR: unable to start 'git log'");
 
 		setThrowOnStop(false);

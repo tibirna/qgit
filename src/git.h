@@ -240,11 +240,12 @@ private:
 	};
 	WorkingDirInfo _wd;
 
-	struct StartParmeters { // used to pass arguments to init2()
+	struct LoadArguments { // used to pass arguments to init2()
 		QStringList args;
 		bool filteredLoading;
+		QStringList filterList;
 	};
-	StartParmeters _sp;
+	LoadArguments loadArguments;
 
 	struct FileNamesLoader {
 		FileNamesLoader() : rf(NULL) {}

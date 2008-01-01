@@ -121,7 +121,14 @@ void RangeSelectImpl::pushButtonOk_clicked() {
 
 		range->append(comboBoxTo->currentText());
 	}
-	range->prepend(lineEditOptions->text() + " ");
+	// all stuff after "--" should go after range
+	if (lineEditOptions->text().contains("--")) {
+		QString tmp(lineEditOptions->text());
+		tmp.insert(tmp.indexOf("--"), *range + " ");
+		*range = tmp;
+	} else
+		range->prepend(lineEditOptions->text() + " ");
+
 	*range = range->trimmed();
 	done(QDialog::Accepted);
 }
