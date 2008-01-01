@@ -261,7 +261,7 @@ private:
 	bool run(QByteArray* runOutput, SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
 	MyProcess* runAsync(SCRef cmd, QObject* rcv, SCRef buf = "");
 	MyProcess* runAsScript(SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
-	const QStringList getArgs(bool askForRange, bool* quit);
+	const QStringList getArgs(bool askForRange, bool* quit, bool repoChanged);
 	bool getRefs();
 	void parseStGitPatches(SCList patchNames, SCList patchShas);
 	void clearRevs();
@@ -319,7 +319,6 @@ private:
 	QString filesLoadingPending;
 	QString filesLoadingCurSha;
 	int filesLoadingStartOfs;
-	QString curRange;
 	bool cacheNeedsUpdate;
 	bool errorReportingEnabled;
 	bool isMergeHead;

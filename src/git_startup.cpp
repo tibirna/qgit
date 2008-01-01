@@ -40,11 +40,11 @@ const QString Git::getLocalDate(SCRef gitDate) {
 	return localDate;
 }
 
-const QStringList Git::getArgs(bool askForRange, bool* quit) {
+const QStringList Git::getArgs(bool askForRange, bool* quit, bool repoChanged) {
 
+	QString args;
 	static bool startup = true; // it's OK to be unique among qgit windows
 	if (startup) {
-		curRange = "";
 		for (int i = 1; i < qApp->argc(); i++) {
 			// in arguments with spaces double quotes
 			// are stripped by Qt, so re-add them
@@ -52,21 +52,21 @@ const QStringList Git::getArgs(bool askForRange, bool* quit) {
 			if (arg.contains(' '))
 				arg.prepend('\"').append('\"');
 
-			curRange.append(arg + ' ');
+			args.append(arg + ' ');
 		}
 	}
 	if (    askForRange
 	    &&  testFlag(RANGE_SELECT_F)
-	    && (!startup || curRange.isEmpty())) {
+	    && (!startup || args.isEmpty())) {
 
 		SCList names = getAllRefNames(TAG, !optOnlyLoaded);
-		RangeSelectImpl rs((QWidget*)parent(), &curRange, names, this);
+		RangeSelectImpl rs((QWidget*)parent(), &args, names, repoChanged, this);
 		*quit = (rs.exec() == QDialog::Rejected); // modal execution
 		if (*quit)
 			return QStringList();
 	}
 	startup = false;
-	return MyProcess::splitArgList(curRange);
+	return MyProcess::splitArgList(args);
 }
 
 const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
@@ -637,7 +637,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 
 			// startup input range dialog
 			SHOW_MSG("");
-			loadArguments.args = getArgs(askForRange, quit); // must be called with refs loaded
+			loadArguments.args = getArgs(askForRange, quit, repoChanged); // must be called with refs loaded
 			if (*quit) {
 				setThrowOnStop(false);
 				return false;

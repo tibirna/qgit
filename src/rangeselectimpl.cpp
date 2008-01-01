@@ -15,7 +15,8 @@
 using namespace QGit;
 
 RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl,
-                                 Git* g) : QDialog(par), git(g), range(r) {
+                 bool repoChanged, Git* g) : QDialog(par), git(g), range(r) {
+
 	setupUi(this);
 	QStringList otl;
 	orderTags(tl, otl);
@@ -27,10 +28,33 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl
 			// in this case remove from list to avoid an empty view
 			otl.pop_front();
 	}
+	QString from, to, options;
+
+	if (!repoChanged) {
+		// range values are sensible only when reloading the same repo
+		QSettings settings;
+		from = settings.value(RANGE_FROM_KEY).toString();
+		to = settings.value(RANGE_TO_KEY).toString();
+		options = settings.value(RANGE_OPT_KEY).toString();
+	}
 	comboBoxTo->insertItem(0, "HEAD");
 	comboBoxTo->insertItems(1, otl);
+	int idx = repoChanged ? 0 : comboBoxTo->findText(to);
+	if (idx != -1)
+		comboBoxTo->setCurrentIndex(idx);
+	else
+		comboBoxTo->setEditText(to);
+
 	comboBoxFrom->insertItems(0, otl);
+	idx = repoChanged ? 0 : comboBoxFrom->findText(from);
+	if (idx != -1)
+		comboBoxFrom->setCurrentIndex(idx);
+	else
+		comboBoxFrom->setEditText(from);
+
 	comboBoxFrom->setFocus();
+
+	lineEditOptions->setText(options);
 
 	int f = flags(FLAGS_KEY);
 	checkBoxDiffCache->setChecked(f & DIFF_INDEX_F);
@@ -130,5 +154,12 @@ void RangeSelectImpl::pushButtonOk_clicked() {
 		range->prepend(lineEditOptions->text() + " ");
 
 	*range = range->trimmed();
+
+	// save settings before leaving
+	QSettings settings;
+	settings.setValue(RANGE_FROM_KEY, comboBoxFrom->currentText());
+	settings.setValue(RANGE_TO_KEY, comboBoxTo->currentText());
+	settings.setValue(RANGE_OPT_KEY, lineEditOptions->text());
+
 	done(QDialog::Accepted);
 }
