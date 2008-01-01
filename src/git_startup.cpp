@@ -24,6 +24,8 @@
 
 using namespace QGit;
 
+static bool startup = true; // it's OK to be unique among qgit windows
+
 static QHash<QString, QString> localDates;
 
 const QString Git::getLocalDate(SCRef gitDate) {
@@ -40,10 +42,9 @@ const QString Git::getLocalDate(SCRef gitDate) {
 	return localDate;
 }
 
-const QStringList Git::getArgs(bool askForRange, bool* quit, bool repoChanged) {
+const QStringList Git::getArgs(bool* quit, bool repoChanged) {
 
 	QString args;
-	static bool startup = true; // it's OK to be unique among qgit windows
 	if (startup) {
 		for (int i = 1; i < qApp->argc(); i++) {
 			// in arguments with spaces double quotes
@@ -55,12 +56,9 @@ const QStringList Git::getArgs(bool askForRange, bool* quit, bool repoChanged) {
 			args.append(arg + ' ');
 		}
 	}
-	if (    askForRange
-	    &&  testFlag(RANGE_SELECT_F)
-	    && (!startup || args.isEmpty())) {
+	if (testFlag(RANGE_SELECT_F) && (!startup || args.isEmpty())) {
 
-		SCList names = getAllRefNames(TAG, !optOnlyLoaded);
-		RangeSelectImpl rs((QWidget*)parent(), &args, names, repoChanged, this);
+		RangeSelectImpl rs((QWidget*)parent(), &args, repoChanged, this);
 		*quit = (rs.exec() == QDialog::Rejected); // modal execution
 		if (*quit)
 			return QStringList();
@@ -589,18 +587,22 @@ void Git::clearFileNames() {
 	cacheNeedsUpdate = false;
 }
 
-bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) {
+bool Git::init(SCRef wd, bool askForRange, const QStringList* passedArgs, bool overwriteArgs, bool* quit) {
 // normally called when changing git directory. Must be called after stop()
 
 	*quit = false;
 	clearRevs();
 
 	/* we only update filtering info here, original arguments
-         * are not overwritten. Only getArgs() can update arguments
-         */
-	loadArguments.filteredLoading = (filterList != NULL);
+	 * are not overwritten. Only getArgs() can update arguments,
+	 * an exception is if flag overwriteArgs is set
+	 */
+	loadArguments.filteredLoading = (!overwriteArgs && passedArgs != NULL);
 	if (loadArguments.filteredLoading)
-		loadArguments.filterList = *filterList;
+		loadArguments.filterList = *passedArgs;
+
+	if (overwriteArgs) // in this case must be passedArgs != NULL
+		loadArguments.args = *passedArgs;
 
 	try {
 		setThrowOnStop(true);
@@ -624,7 +626,7 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 			setThrowOnStop(false);
 			return false;
 		}
-		if (!loadArguments.filteredLoading) {
+		if (!passedArgs) {
 
 			// update text codec according to repo settings
 			bool dummy;
@@ -637,10 +639,12 @@ bool Git::init(SCRef wd, bool askForRange, QStringList* filterList, bool* quit) 
 
 			// startup input range dialog
 			SHOW_MSG("");
-			loadArguments.args = getArgs(askForRange, quit, repoChanged); // must be called with refs loaded
-			if (*quit) {
-				setThrowOnStop(false);
-				return false;
+			if (startup || askForRange) {
+				loadArguments.args = getArgs(quit, repoChanged); // must be called with refs loaded
+				if (*quit) {
+					setThrowOnStop(false);
+					return false;
+				}
 			}
 			// load StGit unapplied patches, must be after getRefs()
 			if (isStGIT) {

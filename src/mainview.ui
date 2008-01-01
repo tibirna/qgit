@@ -20,11 +20,20 @@
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QHBoxLayout" >
-    <property name="margin" >
-     <number>9</number>
-    </property>
     <property name="spacing" >
      <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
     </property>
     <item>
      <widget class="QSplitter" name="treeSplitter" >
@@ -72,7 +81,10 @@
     </size>
    </property>
    <attribute name="toolBarArea" >
-    <number>4</number>
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
    </attribute>
    <addaction name="ActOpenRepo" />
    <addaction name="ActBack" />
@@ -93,7 +105,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>28</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="Help" >
@@ -148,6 +160,8 @@
     </property>
     <addaction name="ActBack" />
     <addaction name="ActForward" />
+    <addaction name="separator" />
+    <addaction name="ActRangeDlg" />
     <addaction name="separator" />
     <addaction name="ActCheckWorkDir" />
     <addaction name="separator" />
@@ -691,6 +705,14 @@
    </property>
    <property name="shortcut" >
     <string>M</string>
+   </property>
+  </action>
+  <action name="ActRangeDlg" >
+   <property name="icon" >
+    <iconset resource="icons.qrc" >:/icons/resources/wizard.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Open range dialog...</string>
    </property>
   </action>
  </widget>
@@ -1271,6 +1293,22 @@
    <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActToggleLogsDiff_activated()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>452</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActRangeDlg</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActRangeDlg_activated()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

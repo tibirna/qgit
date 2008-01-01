@@ -14,19 +14,20 @@
 
 using namespace QGit;
 
-RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl,
-                 bool repoChanged, Git* g) : QDialog(par), git(g), range(r) {
+RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, bool repoChanged, Git* g)
+                : QDialog(par), git(g), range(r) {
 
 	setupUi(this);
-	QStringList otl;
-	orderTags(tl, otl);
+
+	QStringList orl;
+	orderRefs(git->getAllRefNames(Git::TAG, !Git::optOnlyLoaded), orl);
 
 	// check if top tag is current HEAD
-	if (!otl.empty()) {
-		SCRef tagSha(git->getRefSha(otl.first(), Git::TAG, false));
+	if (!orl.empty()) {
+		SCRef tagSha(git->getRefSha(orl.first(), Git::TAG, false));
 		if (git->checkRef(tagSha, Git::CUR_BRANCH))
 			// in this case remove from list to avoid an empty view
-			otl.pop_front();
+			orl.pop_front();
 	}
 	QString from, to, options;
 
@@ -38,14 +39,14 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl
 		options = settings.value(RANGE_OPT_KEY).toString();
 	}
 	comboBoxTo->insertItem(0, "HEAD");
-	comboBoxTo->insertItems(1, otl);
+	comboBoxTo->insertItems(1, orl);
 	int idx = repoChanged ? 0 : comboBoxTo->findText(to);
 	if (idx != -1)
 		comboBoxTo->setCurrentIndex(idx);
 	else
 		comboBoxTo->setEditText(to);
 
-	comboBoxFrom->insertItems(0, otl);
+	comboBoxFrom->insertItems(0, orl);
 	idx = repoChanged ? 0 : comboBoxFrom->findText(from);
 	if (idx != -1)
 		comboBoxFrom->setCurrentIndex(idx);
@@ -63,7 +64,7 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, const QStringList& tl
 	checkBoxShowDialog->setChecked(f & RANGE_SELECT_F);
 }
 
-void RangeSelectImpl::orderTags(const QStringList& src, QStringList& dst) {
+void RangeSelectImpl::orderRefs(const QStringList& src, QStringList& dst) {
 // we use an heuristic to list release candidates before corresponding
 // releases as example v.2.6.18-rc4 before v.2.6.18
 

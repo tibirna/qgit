@@ -83,6 +83,7 @@ protected slots:
 	void ActForward_activated();
 	void ActFind_activated();
 	void ActFindNext_activated();
+	void ActRangeDlg_activated();
 	void ActViewRev_activated();
 	void ActViewFile_activated();
 	void ActViewFileNewTab_activated();
@@ -125,7 +126,7 @@ private:
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
 	bool isMatch(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
-	void setRepository(SCRef wd, bool r, bool ks, QStringList* fl = NULL);
+	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
 	void getExternalDiffArgs(QStringList* args);
 	void lineEditSHASetText(SCRef text);
 	void updateCommitMenu(bool isStGITStack);

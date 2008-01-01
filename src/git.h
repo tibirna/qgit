@@ -132,7 +132,7 @@ public:
 	void checkEnvironment();
 	void userInfo(SList info);
 	const QString getBaseDir(bool* c, SCRef wd, bool* ok = NULL, QString* gd = NULL);
-	bool init(SCRef workDir, bool askForRange, QStringList* filterList, bool* quit);
+	bool init(SCRef wd, bool range, const QStringList* args, bool overwrite, bool* quit);
 	void stop(bool saveCache);
 	void setThrowOnStop(bool b);
 	bool isThrowOnStopRaised(int excpId, SCRef curContext);
@@ -261,7 +261,7 @@ private:
 	bool run(QByteArray* runOutput, SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
 	MyProcess* runAsync(SCRef cmd, QObject* rcv, SCRef buf = "");
 	MyProcess* runAsScript(SCRef cmd, QObject* rcv = NULL, SCRef buf = "");
-	const QStringList getArgs(bool askForRange, bool* quit, bool repoChanged);
+	const QStringList getArgs(bool* quit, bool repoChanged);
 	bool getRefs();
 	void parseStGitPatches(SCList patchNames, SCList patchShas);
 	void clearRevs();

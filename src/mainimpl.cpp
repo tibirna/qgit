@@ -21,24 +21,25 @@
 #include <QTimer>
 #include <QWheelEvent>
 #include "config.h" // defines PACKAGE_VERSION
-#include "help.h"
-#include "ui_help.h"
 #include "consoleimpl.h"
+#include "commitimpl.h"
+#include "common.h"
 #include "customactionimpl.h"
+#include "fileview.h"
+#include "git.h"
+#include "help.h"
+#include "listview.h"
+#include "mainimpl.h"
+#include "patchview.h"
+#include "rangeselectimpl.h"
+#include "revdesc.h"
+#include "revsview.h"
 #include "settingsimpl.h"
+#include "treeview.h"
+#include "ui_help.h"
 #include "ui_revsview.h"
 #include "ui_fileview.h"
 #include "ui_patchview.h"
-#include "common.h"
-#include "git.h"
-#include "listview.h"
-#include "treeview.h"
-#include "patchview.h"
-#include "fileview.h"
-#include "commitimpl.h"
-#include "revsview.h"
-#include "revdesc.h"
-#include "mainimpl.h"
 
 using namespace QGit;
 
@@ -166,7 +167,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 void MainImpl::initWithEventLoopActive() {
 
 	git->checkEnvironment();
-	setRepository(startUpDir, false, false);
+	setRepository(startUpDir);
 	startUpDir = ""; // one shot
 }
 
@@ -259,7 +260,7 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 // ********************** Repository open or changed *************************
 
 void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
-                             QStringList* filterList) {
+                             const QStringList* passedArgs, bool overwriteArgs) {
 
 	/*
 	   Because Git::init calls processEvents(), if setRepository() is called in
@@ -278,7 +279,7 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 	setRepositoryBusy = true;
 
 	// check for a refresh or open of a new repository while in filtered view
-	if (ActFilterTree->isChecked() && filterList == NULL)
+	if (ActFilterTree->isChecked() && passedArgs == NULL)
 		// toggle() triggers a refresh and a following setRepository()
 		// call that is filtered out by setRepositoryBusy guard flag
 		ActFilterTree->toggle(); // triggers ActFilterTree_toggled()
@@ -308,7 +309,7 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 
 		if (ActFilterTree->isChecked())
 			setWindowTitle(windowTitle() + " - FILTER ON < " +
-			               filterList->join(" ") + " >");
+			               passedArgs->join(" ") + " >");
 
 		// tree name should be set before init because in case of
 		// StGIT archives the first revs are sent before init returns
@@ -316,7 +317,7 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 		treeView->setTreeName(n.prepend('/').section('/', -1, -1));
 
 		bool quit;
-		bool ok = git->init(curDir, !refresh, filterList, &quit); // blocking call
+		bool ok = git->init(curDir, !refresh, passedArgs, overwriteArgs, &quit); // blocking call
 		if (quit)
 			goto exit;
 
@@ -443,6 +444,17 @@ void MainImpl::pushButtonCloseTab_clicked() {
 	default:
 		dbs("ASSERT in pushButtonCloseTab_clicked: unknown current page");
 		break;
+	}
+}
+
+void MainImpl::ActRangeDlg_activated() {
+
+	QString args;
+	RangeSelectImpl rs(this, &args, false, git);
+	bool quit = (rs.exec() == QDialog::Rejected); // modal execution
+	if (!quit) {
+		const QStringList l(args.split(" "));
+		setRepository(curDir, true, true, &l, true);
 	}
 }
 
@@ -1276,7 +1288,7 @@ void MainImpl::openRecent_triggered(QAction* act) {
 
 	const QString workDir(act->text().section(' ', 1));
 	if (!workDir.isEmpty())
-		setRepository(workDir, false, false);
+		setRepository(workDir);
 }
 
 void MainImpl::ActOpenRepo_activated() {
@@ -1284,7 +1296,7 @@ void MainImpl::ActOpenRepo_activated() {
 	const QString dirName(QFileDialog::getExistingDirectory(this, "Choose a directory", curDir));
 	if (!dirName.isEmpty()) {
 		QDir d(dirName);
-		setRepository(d.absolutePath(), false, false);
+		setRepository(d.absolutePath());
 	}
 }
 
