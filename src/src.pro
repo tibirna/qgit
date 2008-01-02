@@ -20,7 +20,7 @@ contains(QMAKE_CC,.*gcc.*) {
 
 # General stuff
 TEMPLATE = app
-CONFIG += qt console warn_on exceptions debug_and_release
+CONFIG += qt warn_on exceptions debug_and_release
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
@@ -29,13 +29,14 @@ RESOURCES += icons.qrc
 win32 {
     TARGET = qgit
     target.path = $$GIT_EXEC_DIR
-    CONFIG += embed_manifest_exe
+    CONFIG += windows embed_manifest_exe
     RC_FILE = app_icon.rc
 }
 
 unix {
     TARGET = qgit
     target.path = ~/bin
+    CONFIG += x11
 }
 
 HAVE_GCC {
