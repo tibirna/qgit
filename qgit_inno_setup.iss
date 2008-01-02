@@ -46,43 +46,53 @@ Name: "{commondesktop}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "{app}"; T
 [Code]
 var
   MSysGitDirPage: TInputDirWizardPage;
-  
+
 procedure InitializeWizard;
+var
+  Key, Val: String;
+
 begin
   // Create msysgit directory find page
   MSysGitDirPage := CreateInputDirPage(wpSelectProgramGroup,
       'Select MSYSGIT Location', 'Where is MSYSGIT directory located?',
       'Select where MSYSGIT directory is located, then click Next.',
       False, '');
-  
+
   // Add item (with an empty caption)
   MSysGitDirPage.Add('');
-  
+
   // Set initial value
-  MSysGitDirPage.Values[0] := ExpandConstant('{pf}\Git');
+  Key := 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1';
+
+  if RegQueryStringValue(HKEY_LOCAL_MACHINE, Key, 'InstallLocation', Val) then begin
+    MSysGitDirPage.Values[0] := Val;
+  end else
+    MSysGitDirPage.Values[0] := ExpandConstant('{pf}\Git');
+
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
   BaseDir: String;
+
 begin
   // Validate pages before allowing the user to proceed }
   if CurPageID = MSysGitDirPage.ID then begin
-  
+
       BaseDir := MSysGitDirPage.Values[0];
-    
+
       if FileExists(ExpandFileName(BaseDir + '\bin\git.exe')) then begin
         Result := True;
-        
+
       end else if FileExists(ExpandFileName(BaseDir + '\..\bin\git.exe')) then begin // sub dir selected
         MSysGitDirPage.Values[0] := ExpandFileName(BaseDir + '\..');
         Result := True;
-        
+
       end else begin
         MsgBox('Directory ''' + BaseDir + ''' does not seem the msysgit one, retry', mbError, MB_OK);
         Result := False;
       end;
-      
+
   end else
     Result := True;
 end;
@@ -91,4 +101,3 @@ function GetMSysGitExecDir(Param: String): String;
 begin
   Result := MSysGitDirPage.Values[0] + '\bin'; // already validated
 end;
-
