@@ -28,20 +28,26 @@ Source: "README_WIN.txt"; DestDir: "{app}"; Flags: isreadme
 ; before to run Inno Setup compiler or following line will error out
 Source: "bin\Microsoft.VC90.CRT\*"; DestDir: "{app}\Microsoft.VC90.CRT"
 
+[Tasks]
+Name: desktopicon; Description: "Create a &desktop icon";
+Name: winexplorer; Description: "Add ""QGit Here"" in Windows Explorer context menu";
+
 [Registry]
 Root: HKCU; Subkey: "Software\qgit"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\qgit\qgit4"; ValueType: string; ValueName: "msysgit_exec_dir"; ValueData: "{code:GetMSysGitExecDir}";
 
+; Windows Explorer integration
+Root: HKCU; Subkey: "SOFTWARE\Classes\Directory\shell\qgit"; Flags: uninsdeletekey; Tasks: winexplorer
+Root: HKCU; Subkey: "SOFTWARE\Classes\Directory\shell\qgit"; ValueType: string; ValueName: ""; ValueData: "&QGit Here"; Tasks: winexplorer
+Root: HKCU; Subkey: "SOFTWARE\Classes\Directory\shell\qgit\command"; ValueType: string; ValueName: ""; ValueData: "{app}\qgit.exe"; Tasks: winexplorer
+
 [Dirs]
 Name: {code:GetMSysGitExecDir}; Flags: uninsneveruninstall
 
-[Tasks]
-Name: desktopicon; Description: "Create a &desktop icon";
-
 [Icons]
-Name: "{group}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "{app}"
+Name: "{group}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "%USERPROFILE%";
 Name: "{group}\Uninstall QGit"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\QGit"; Filename: "{app}\qgit.exe"; WorkingDir: "%USERPROFILE%"; Tasks: desktopicon
 
 [Code]
 var
