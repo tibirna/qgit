@@ -348,14 +348,14 @@ void Git::userInfo(SList info) {
 	info.clear();
 	info << "Environment" << user << email;
 
-	errorReportingEnabled = false; // 'git repo-config' could fail, see docs
+	errorReportingEnabled = false; // 'git config' could fail, see docs
 
-	run("git repo-config user.name", &user);
-	run("git repo-config user.email", &email);
+	run("git config user.name", &user);
+	run("git config user.email", &email);
 	info << "Local config" << user << email;
 
-	run("git repo-config --global user.name", &user);
-	run("git repo-config --global user.email", &email);
+	run("git config --global user.name", &user);
+	run("git config --global user.email", &email);
 	info << "Global config" << user << email;
 
 	errorReportingEnabled = true;
