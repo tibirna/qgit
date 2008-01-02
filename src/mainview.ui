@@ -708,11 +708,11 @@
    </property>
   </action>
   <action name="ActRangeDlg" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/wizard.png</iconset>
-   </property>
    <property name="text" >
-    <string>Open range dialog...</string>
+    <string>Select range...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Show 'Select range' dialog</string>
    </property>
   </action>
  </widget>
