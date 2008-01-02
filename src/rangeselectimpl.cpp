@@ -32,16 +32,18 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, bool repoChanged, Git
 	if (!tmp.isEmpty())
 		orl << tmp;
 
+	// as default select first tag that is not also the current HEAD
+	int defIdx = orl.count() - tmp.count();
+	if (!tmp.empty()) {
+		SCRef tagSha(git->getRefSha(tmp.first(), Git::TAG, false));
+		if (!tagSha.isEmpty() && git->checkRef(tagSha, Git::CUR_BRANCH))
+			// in this case set as default tag the next one if any
+			defIdx += (tmp.count() > 1 ? 1 : 0);
+	}
+
 	if (!orl.isEmpty() && orl.last().isEmpty())
 		orl.pop_back();
 
-// 	// check if top tag is current HEAD
-// 	if (!orl.empty()) {
-// 		SCRef tagSha(git->getRefSha(orl.first(), Git::ANY_REF, false));
-// 		if (!tagSha.isEmpty() && git->checkRef(tagSha, Git::CUR_BRANCH))
-// 			// in this case remove from list to avoid an empty view
-// 			orl.pop_front();
-// 	}
 	QString from, to, options;
 
 	if (!repoChanged) {
@@ -60,7 +62,7 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, bool repoChanged, Git
 		comboBoxTo->setEditText(to);
 
 	comboBoxFrom->insertItems(0, orl);
-	idx = repoChanged ? 0 : comboBoxFrom->findText(from);
+	idx = repoChanged ? defIdx : comboBoxFrom->findText(from);
 	if (idx != -1)
 		comboBoxFrom->setCurrentIndex(idx);
 	else
