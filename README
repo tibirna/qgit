@@ -253,19 +253,19 @@ With the 'filter' button at the right of the tool bar it is possible to
 toggle the display of removed code lines. This can be useful to easy
 reading of the patch.
 
-External diff viewer
+External diff tool
 --------------------
 
-From 'View->External diff' it is possible to invoke an external diff viewer,
+From 'View->External diff' it is possible to invoke an external diff tool,
 as example to view the diffs in a two vertical tiled windows.
 
-External diff viewer shows the diffs between two files.
+External diff tool shows the diffs between two files.
 First file is the current selected file of current revision.
 Second file is the same file of the parent revision or of a specific revision
 if 'diff to sha' feature is enabled (diff target is highlighted, see above).
 
 Default external viewer is kompare, but it is possible to set a preferred one
-from 'Edit->Settings->External Diff Viewer'.
+from 'Edit->Settings->External Diff Tool'.
 
 
 File viewer
