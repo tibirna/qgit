@@ -708,6 +708,9 @@
    </property>
   </action>
   <action name="ActRangeDlg" >
+   <property name="icon" >
+    <iconset resource="icons.qrc" >:/icons/resources/range_select.png</iconset>
+   </property>
    <property name="text" >
     <string>Select range...</string>
    </property>
