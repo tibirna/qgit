@@ -1287,8 +1287,14 @@ void MainImpl::openRecent_triggered(QAction* act) {
 		return;
 
 	const QString workDir(act->text().section(' ', 1));
-	if (!workDir.isEmpty())
-		setRepository(workDir);
+	if (!workDir.isEmpty()) {
+		QDir d(workDir);
+		if (d.exists())
+			setRepository(workDir);
+		else
+			statusBar()->showMessage("Directory '" + workDir +
+			                         "' does not seem to exsist anymore");
+	}
 }
 
 void MainImpl::ActOpenRepo_activated() {
