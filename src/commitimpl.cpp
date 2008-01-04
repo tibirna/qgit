@@ -53,13 +53,11 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 
 		QTreeWidgetItem* item = new QTreeWidgetItem(treeWidgetFiles);
 		item->setText(0, git->filePath(*f, i));
-		item->setText(1, inIndex ? "In sync" : "Out of sync");
+		item->setText(1, inIndex ? "Updated in index" : "Not updated in index");
 		item->setCheckState(0, inIndex || !isNew ? Qt::Checked : Qt::Unchecked);
 		item->setForeground(0, myColor);
-		item->setTextAlignment(1, Qt::AlignHCenter);
 	}
 	treeWidgetFiles->resizeColumnToContents(0);
-	treeWidgetFiles->resizeColumnToContents(1);
 
 	// compute cursor offsets. Take advantage of fixed width font
 	textEditMsg->setPlainText("\nx\nx"); // cursor doesn't move on empty text
