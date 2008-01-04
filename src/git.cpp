@@ -1509,6 +1509,20 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 	return ret;
 }
 
+const QStringList Git::getOtherFiles(SCList selFiles, bool onlyInIndex) {
+
+	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
+	QStringList notSelFiles;
+	for (int i = 0; i < files->count(); ++i) {
+		SCRef fp = filePath(*files, i);
+		if (selFiles.indexOf(fp) == -1) { // not selected...
+			if (!onlyInIndex || files->statusCmp(i, RevFile::IN_INDEX))
+				notSelFiles.append(fp);
+		}
+	}
+	return notSelFiles;
+}
+
 bool Git::updateIndex(SCList selFiles) {
 
 	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
@@ -1554,16 +1568,14 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 
 	bool ret = false;
 
-	// extract not selected files already updated
-	// in index, save them to restore at the end
+	// get not selected files but updated in index to restore at the end
 	const QStringList notSel(getOtherFiles(selFiles, optOnlyInIndex));
 
-	// test if we need a git reset to temporary
-	// remove not selected files from index
+	// call git reset to remove not selected files from index
 	if (!notSel.empty() && !run("git reset -q -- " + quote(notSel)))
 		goto fail;
 
-	// update index with selected files before to commit
+	// update index with selected files
 	if (!updateIndex(selFiles))
 		goto fail;
 
@@ -1571,8 +1583,7 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 	if (!run("git commit" + cmtOptions + " -F " + quote(msgFile)))
 		goto fail;
 
-	// at the end restore not selected files
-	// that were already in index
+	// restore not selected files that were already in index
 	if (!notSel.empty() && !updateIndex(notSel))
 		goto fail;
 
@@ -1593,117 +1604,102 @@ bool Git::mkPatchFromIndex(SCRef msg, SCRef patchFile) {
 	return writeToFile(patchFile, patch);
 }
 
-const QStringList Git::getOtherFiles(SCList selFiles, bool onlyInIndex) {
-
-	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
-	QStringList notSelFiles;
-	for (int i = 0; i < files->count(); ++i) {
-		SCRef fp = filePath(*files, i);
-		if (selFiles.indexOf(fp) == -1) { // not selected...
-			if (!onlyInIndex)
-				notSelFiles.append(fp);
-			else if (files->statusCmp(i, RevFile::IN_INDEX))
-				notSelFiles.append(fp);
-		}
-	}
-	return notSelFiles;
-}
-
-void Git::removeFiles(SCList selFiles, SCRef workDir, SCRef ext) {
-
-	QDir d(workDir);
-	FOREACH_SL (it, selFiles)
-		d.rename(*it, *it + ext);
-}
-
-void Git::restoreFiles(SCList selFiles, SCRef workDir, SCRef ext) {
-
-	QDir d(workDir);
-	FOREACH_SL (it, selFiles)
-		d.rename(*it + ext, *it); // overwrites any existent file
-}
-
-void Git::removeDeleted(SCList selFiles) {
-
-	QDir dir(workDir);
-	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
-	FOREACH_SL (it, selFiles) {
-		int idx = findFileIndex(*files, *it);
-		if (files->statusCmp(idx, RevFile::DELETED))
-			dir.remove(*it);
-	}
-}
-
 bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 
-	// here the deal is to create a patch with the diffs between the
-	// updated index and HEAD, then resetting the index and working
-	// dir to HEAD so to have a clean tree, then import/fold the patch
-	bool retval = true;
-	const QString patchFile(gitDir + "/qgit_tmp_patch");
-	const QString extNS(".qgit_removed_not_selected");
-	const QString extS(".qgit_removed_selected");
+	/* Here the deal is to use 'stg import' and 'stg fold' to add a new
+	 * patch or refresh the current one respectively. Unfortunatly refresh
+	 * does not work with partial selection of files and also does not take
+	 * patch message from a file that is needed to avoid artifacts with '\n'
+	 * and friends.
+	 *
+	 * So steps are:
+	 *
+	 * - Create a patch file with the changhes you want to import/fold in stgit
+	 * - Stash working dir files because import/fold wants a clean directory
+	 * - Import/fold the patch
+	 * - Unstash and merge working dir modified files
+	 * - Restore index with not selected files
+	 */
 
-	// we have selected modified files in selFiles, we still need
-	// to know the modified but not selected files and, among
-	// these the cached ones to properly restore state at the end.
-	const QStringList notSelFiles = getOtherFiles(selFiles, !optOnlyInIndex);
-	const QStringList notSelInIndexFiles = getOtherFiles(selFiles, optOnlyInIndex);
+	/* Step 1: Create a patch file with the changhes you want to import/fold */
+	bool ret = false;
+	const QString patchFile(gitDir + "/qgit_tmp_patch.txt");
+
+	// in case we don't have files to restore we can shortcut various commands
+	bool partialSelection = !getOtherFiles(selFiles, !optOnlyInIndex).isEmpty();
+
+	// get not selected files but updated in index to restore at the end
+	QStringList notSel;
+	if (partialSelection) // otherwise notSelInIndex is for sure empty
+		notSel = getOtherFiles(selFiles, optOnlyInIndex);
+
+	// call git reset to remove not selected files from index
+	if (!notSel.empty() && !run("git reset -q -- " + quote(notSel)))
+		goto fail;
 
 	// update index with selected files
-	if (!run("git read-tree --reset HEAD"))
-		goto error;
 	if (!updateIndex(selFiles))
-		goto error;
+		goto fail;
 
 	// create a patch with diffs between index and HEAD
 	if (!mkPatchFromIndex(msg, patchFile))
-		goto error;
+		goto fail;
 
-	// temporary remove files according to their type
-	removeFiles(selFiles, workDir, extS); // to use in case of rollback
-	removeFiles(notSelFiles, workDir, extNS); // to restore at the end
-
-	// checkout index to have a clean tree
-	if (!run("git read-tree --reset HEAD"))
-		goto error;
-	if (!run("git checkout-index -q -f -u -a"))
-		goto rollback;
-
-	// finally import/fold the patch
-	if (fold) {
-		// update patch message before to fold so to use refresh only as a rename tool
-		if (!msg.isEmpty()) {
-			if (!run("stg refresh --message \"" + msg.trimmed() + "\""))
-				goto rollback;
-		}
-		if (!run("stg fold " + quote(patchFile)))
-			goto rollback;
-		if (!run("stg refresh")) // refresh needed after fold
-			goto rollback;
-	} else {
-		if (!run("stg import --mail --name " + quote(patchName) + " " + quote(patchFile)))
-			goto rollback;
+	/* Step 2: Stash working dir modified files */
+	if (partialSelection) {
+		errorReportingEnabled = false;
+		run("git stash"); // unfortunatly 'git stash' is noisy on stderr
+		errorReportingEnabled = true;
 	}
+
+	/* Step 3: Call stg import/fold */
+
+	// setup a clean state
+	if (!run("stg status --reset"))
+		goto fail_and_unstash;
+
+	if (fold) {
+// 		// update patch message before to fold so to use refresh only as a rename tool
+// 		if (!msg.isEmpty() && !run("stg refresh --annotate " + quote(msg.trimmed())))
+// 			goto fail_and_unstash;
+
+		if (!run("stg fold " + quote(patchFile)))
+			goto fail_and_unstash;
+
+		if (!run("stg refresh")) // refresh needed after fold
+			goto fail_and_unstash;
+
+	} else if (!run("stg import --mail --name " + quote(patchName) + " " + quote(patchFile)))
+		goto fail_and_unstash;
+
+	if (partialSelection) { // otherwise we can skip this steps
+
+		/* Step 4: Unstash and merge working dir modified files */
+		errorReportingEnabled = false;
+		run("git stash apply"); // unfortunatly 'git stash' is noisy on stderr
+		run("git stash clear"); // FIXME would be better to remove only the last stash
+		errorReportingEnabled = true;
+
+		/* Step 5: restore not selected files that were already in index */
+		if (!notSel.empty() && !updateIndex(notSel))
+			goto fail;
+	}
+
+	ret = true;
 	goto exit;
 
-rollback:
-	restoreFiles(selFiles, workDir, extS);
-	removeDeleted(selFiles); // remove files to be deleted from working tree
+fail_and_unstash:
 
-error:
-	retval = false;
-
+	if (partialSelection) {
+		run("git reset -q");
+		run("git stash apply");
+		run("git stash clear"); // FIXME would be better to remove only the last stash
+	}
+fail:
 exit:
-	// it is safe to call restore() also if back-up files don't
-	// exist, so we can 'goto exit' from anywhere.
-	restoreFiles(notSelFiles, workDir, extNS);
-	updateIndex(notSelInIndexFiles);
 	QDir dir(workDir);
 	dir.remove(patchFile);
-	FOREACH_SL (it, selFiles)
-		dir.remove(*it + extS); // remove temporary backup rollback files
-	return retval;
+	return ret;
 }
 
 bool Git::makeTag(SCRef sha, SCRef tagName, SCRef msg) {
