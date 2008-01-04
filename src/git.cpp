@@ -1521,7 +1521,7 @@ bool Git::updateIndex(SCList selFiles) {
 		else
 			toAdd << *it;
 	}
-	if (!toRemove.isEmpty() && !run("git rm -- " + quote(toRemove)))
+	if (!toRemove.isEmpty() && !run("git rm --ignore-unmatch -q -- " + quote(toRemove)))
 		return false;
 
 	if (!toAdd.isEmpty() && !run("git add -- " + quote(toAdd)))
@@ -1560,7 +1560,7 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 
 	// test if we need a git reset to temporary
 	// remove not selected files from index
-	if (!notSel.empty() && !run("git reset -- " + quote(notSel)))
+	if (!notSel.empty() && !run("git reset -q -- " + quote(notSel)))
 		goto fail;
 
 	// update index with selected files before to commit
