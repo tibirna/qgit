@@ -1511,19 +1511,30 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 
 bool Git::updateIndex(SCList selFiles) {
 
-	if (selFiles.empty())
-		return true;
+	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
 
-	QString runCmd("git update-index --add --remove --replace -- ");
-	runCmd.append(quote(selFiles));
-	return run(runCmd);
+	QStringList toAdd, toRemove;
+	FOREACH_SL (it, selFiles) {
+		int idx = findFileIndex(*files, *it);
+		if (files->statusCmp(idx, RevFile::DELETED))
+			toRemove << *it;
+		else
+			toAdd << *it;
+	}
+	if (!toRemove.isEmpty() && !run("git rm -- " + quote(toRemove)))
+		return false;
+
+	if (!toAdd.isEmpty() && !run("git add -- " + quote(toAdd)))
+		return false;
+
+	return true;
 }
 
 bool Git::commitFiles(SCList selFiles, SCRef msg) {
 /*
 	Part of this code is taken from Fredrik Kuivinen "Gct" tool
 */
-	const QString msgFile(gitDir + "/qgit_cmt_msg");
+	const QString msgFile(gitDir + "/qgit_cmt_msg.txt");
 	if (!writeToFile(msgFile, msg)) // early skip
 		return false;
 
@@ -1541,48 +1552,35 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 	if (testFlag(VERIFY_CMT_F))
 		cmtOptions.append(" -v");
 
+	bool ret = false;
+
 	// extract not selected files already updated
 	// in index, save them to restore at the end
-	const QStringList notSelInIndexFiles(getOtherFiles(selFiles, optOnlyInIndex));
+	const QStringList notSel(getOtherFiles(selFiles, optOnlyInIndex));
 
-	// extract selected NOT to be deleted files to
-	// later feed git commit. Files to be deleted
-	// should avoid going through 'git commit'
-	QStringList selNotDelFiles;
-	const RevFile* files = getFiles(ZERO_SHA); // files != NULL
-	FOREACH_SL (it, selFiles) {
-		int idx = findFileIndex(*files, *it);
-		if (!files->statusCmp(idx, RevFile::DELETED))
-			selNotDelFiles.append(*it);
-	}
-	// test if we need a git read-tree to temporary
+	// test if we need a git reset to temporary
 	// remove not selected files from index
-	if (!notSelInIndexFiles.empty())
-		if (!run("git read-tree --reset HEAD"))
-			return false;
+	if (!notSel.empty() && !run("git reset -- " + quote(notSel)))
+		goto fail;
 
-	// before to commit we have to update index with all
-	// the selected files because git commit doesn't
-	// use --add flag
-	updateIndex(selFiles);
+	// update index with selected files before to commit
+	if (!updateIndex(selFiles))
+		goto fail;
 
-	// now we can commit, 'git commit' will update index
-	// with selected (not to be deleted) files for us
-	QString runCmd("git commit" + cmtOptions + " -F " + msgFile);
-	if (!selNotDelFiles.empty())
-		runCmd.append(" -i " + quote(selNotDelFiles));
+	// now we can finally commit..
+	if (!run("git commit" + cmtOptions + " -F " + quote(msgFile)))
+		goto fail;
 
-	if (!run(runCmd))
-		return false;
+	// at the end restore not selected files
+	// that were already in index
+	if (!notSel.empty() && !updateIndex(notSel))
+		goto fail;
 
-	// finally restore not selected files in index
-	if (!notSelInIndexFiles.empty())
-		if (!updateIndex(notSelInIndexFiles))
-			return false;
-
+	ret = true;
+fail:
 	QDir dir(workDir);
 	dir.remove(msgFile);
-	return true;
+	return ret;
 }
 
 bool Git::mkPatchFromIndex(SCRef msg, SCRef patchFile) {
