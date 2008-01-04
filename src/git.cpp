@@ -1659,9 +1659,10 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 		goto fail_and_unstash;
 
 	if (fold) {
-// 		// update patch message before to fold so to use refresh only as a rename tool
-// 		if (!msg.isEmpty() && !run("stg refresh --annotate " + quote(msg.trimmed())))
-// 			goto fail_and_unstash;
+		// update patch message before to fold, note that
+		// command 'stg edit' requires stg version 0.14 or later
+		if (!msg.isEmpty() && !run("stg edit --message " + quote(msg.trimmed())))
+			goto fail_and_unstash;
 
 		if (!run("stg fold " + quote(patchFile)))
 			goto fail_and_unstash;
