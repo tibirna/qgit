@@ -1535,7 +1535,7 @@ bool Git::updateIndex(SCList selFiles) {
 		else
 			toAdd << *it;
 	}
-	if (!toRemove.isEmpty() && !run("git rm --ignore-unmatch -q -- " + quote(toRemove)))
+	if (!toRemove.isEmpty() && !run("git rm --cached --ignore-unmatch -- " + quote(toRemove)))
 		return false;
 
 	if (!toAdd.isEmpty() && !run("git add -- " + quote(toAdd)))
@@ -1545,9 +1545,7 @@ bool Git::updateIndex(SCList selFiles) {
 }
 
 bool Git::commitFiles(SCList selFiles, SCRef msg) {
-/*
-	Part of this code is taken from Fredrik Kuivinen "Gct" tool
-*/
+
 	const QString msgFile(gitDir + "/qgit_cmt_msg.txt");
 	if (!writeToFile(msgFile, msg)) // early skip
 		return false;
@@ -1572,7 +1570,7 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 	const QStringList notSel(getOtherFiles(selFiles, optOnlyInIndex));
 
 	// call git reset to remove not selected files from index
-	if (!notSel.empty() && !run("git reset -q -- " + quote(notSel)))
+	if (!notSel.empty() && !run("git reset -- " + quote(notSel)))
 		goto fail;
 
 	// update index with selected files
@@ -1594,10 +1592,17 @@ fail:
 	return ret;
 }
 
-bool Git::mkPatchFromIndex(SCRef msg, SCRef patchFile) {
+bool Git::mkPatchFromWorkDir(SCRef msg, SCRef patchFile, SCList files) {
+
+ 	/* unfortunatly 'git diff' sees only files already
+	 * known to git or already in index, so update index first
+	 * to be sure also unknown files are correctly found
+	 */
+ 	if (!updateIndex(files))
+ 		return false;
 
 	QString runOutput;
-	if (!run("git diff-index --cached -p HEAD", &runOutput))
+	if (!run("git diff -C HEAD -- " + quote(files), &runOutput))
 		return false;
 
 	const QString patch("Subject: " + msg + "\n---\n" + runOutput);
@@ -1630,19 +1635,11 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 
 	// get not selected files but updated in index to restore at the end
 	QStringList notSel;
-	if (partialSelection) // otherwise notSelInIndex is for sure empty
+	if (partialSelection) // otherwise notSel is for sure empty
 		notSel = getOtherFiles(selFiles, optOnlyInIndex);
 
-	// call git reset to remove not selected files from index
-	if (!notSel.empty() && !run("git reset -q -- " + quote(notSel)))
-		goto fail;
-
-	// update index with selected files
-	if (!updateIndex(selFiles))
-		goto fail;
-
-	// create a patch with diffs between index and HEAD
-	if (!mkPatchFromIndex(msg, patchFile))
+	// create a patch with diffs between working dir and HEAD
+	if (!mkPatchFromWorkDir(msg, patchFile, selFiles))
 		goto fail;
 
 	/* Step 2: Stash working dir modified files */
@@ -1673,12 +1670,12 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 	} else if (!run("stg import --mail --name " + quote(patchName) + " " + quote(patchFile)))
 		goto fail_and_unstash;
 
-	if (partialSelection) { // otherwise we can skip this steps
+	if (partialSelection) {
 
 		/* Step 4: Unstash and merge working dir modified files */
 		errorReportingEnabled = false;
 		run("git stash apply"); // unfortunatly 'git stash' is noisy on stderr
-		run("git stash clear"); // FIXME would be better to remove only the last stash
+// 		run("git stash clear"); // FIXME would be better to remove only the last stash
 		errorReportingEnabled = true;
 
 		/* Step 5: restore not selected files that were already in index */
@@ -1692,9 +1689,11 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 fail_and_unstash:
 
 	if (partialSelection) {
-		run("git reset -q");
+		run("git reset");
+		errorReportingEnabled = false;
 		run("git stash apply");
-		run("git stash clear"); // FIXME would be better to remove only the last stash
+// 		run("git stash clear"); // FIXME would be better to remove only the last stash
+		errorReportingEnabled = true;
 	}
 fail:
 exit:

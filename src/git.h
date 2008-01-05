@@ -291,7 +291,7 @@ private:
 	void mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint, uint>, bool>&dm);
 	void mergeBranches(Rev* p, const Rev* r);
 	void updateLanes(Rev& c, Lanes& lns, SCRef sha);
-	bool mkPatchFromIndex(SCRef msg, SCRef patchFile);
+	bool mkPatchFromWorkDir(SCRef msg, SCRef patchFile, SCList files);
 	const QStringList getOthersFiles();
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
 	const QString getNewestFileName(SCList args, SCRef fileName);
