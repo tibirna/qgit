@@ -29,7 +29,7 @@ public:
 	FileContent(QWidget* parent);
 	~FileContent();
 	void setup(Domain* parent, Git* git, QListWidget* lwa);
-	void update(bool force = false);
+	void doUpdate(bool force = false);
 	void clearAll(bool emitSignal = true);
 	void copySelection();
 	void goToAnnotation(int id, int direction);

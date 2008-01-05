@@ -177,10 +177,10 @@ void FileContent::setHighlightSource(bool b) {
 		return;
 	}
 	isHtmlSource = b;
-	update(true);
+	doUpdate(true);
 }
 
-void FileContent::update(bool force) {
+void FileContent::doUpdate(bool force) {
 
 	bool shaChanged = (st->sha(true) != st->sha(false));
 	bool fileNameChanged = (st->fileName(true) != st->fileName(false));
@@ -548,6 +548,7 @@ void FileContent::setAnnList() {
 		endIt = curAnn->lines.constEnd();
 		curId = curAnn->annId;
 	}
+	listWidgetAnn->setFont(currentFont());
 
 	QString tmp;
 	tmp.fill('8', annoMaxLen + 1 + linesNumDigits + 2);
@@ -573,7 +574,6 @@ void FileContent::setAnnList() {
 	}
 	listWidgetAnn->setUpdatesEnabled(false);
 	listWidgetAnn->clear();
-	listWidgetAnn->setFont(currentFont());
 	listWidgetAnn->addItems(sl);
 
 	QBrush b(Qt::darkGray);

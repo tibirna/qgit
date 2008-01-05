@@ -179,7 +179,7 @@ bool FileView::doUpdate(bool force) {
 		showStatusBarMessage(git->getRevInfo(st.sha()));
 	}
 	if (!fileTab->toolButtonPin->isChecked())
-		fileTab->textEditFile->update();
+		fileTab->textEditFile->doUpdate();
 
 	return true; // always accept new state
 }
@@ -263,7 +263,7 @@ void FileView::on_toolButtonPin_toggled(bool b) {
 
 	if (!b) {
 		updateSpinBoxValue(); // UPDATE() call is filtered in this case
-		fileTab->textEditFile->update(true);
+		fileTab->textEditFile->doUpdate(true);
 	}
 }
 
