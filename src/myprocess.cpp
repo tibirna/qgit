@@ -151,8 +151,7 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	// application its value is still NormalExit
 	//
 	// Checking exit code for a failing command is unreliable too, as
-	// exmple 'git status' returns -1 also without errors, and
-	// 'git repo-config' returns 1 in normal case.
+	// exmple 'git status' returns 1 also without errors.
 	//
 	// On Windows exit code seems reliable in case of a command wrapped
 	// in Window shell interpreter.
