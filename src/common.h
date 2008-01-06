@@ -327,15 +327,13 @@ public:
 	const QString diff() const { setup(); return mid(diffStart, diffLen); }
 
 	QVector<int> lanes, childs;
-	bool isDiffCache, isApplied, isUnApplied;
-	int orderIdx;
 	QVector<int> descRefs;     // list of descendant refs index, normally tags
 	QVector<int> ancRefs;      // list of ancestor refs index, normally tags
 	QVector<int> descBranches; // list of descendant branches index
 	int descRefsMaster; // in case of many Rev have the same descRefs, ancRefs or
 	int ancRefsMaster;  // descBranches these are stored only once in a Rev pointed
 	int descBrnMaster;  // by corresponding index xxxMaster
-
+	int orderIdx;
 private:
 	inline void setup() const { if (!indexed) indexData(false, false); }
 	int indexData(bool quick, bool withDiff) const;
@@ -343,10 +341,12 @@ private:
 	const QString midSha(int start, int len) const;
 
 	const QByteArray& ba; // reference here!
-	mutable bool indexed;
 	const int start;
 	mutable int parentsCnt, shaStart, autStart, autDateStart;
 	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
+	mutable bool indexed;
+public:
+	bool isDiffCache, isApplied, isUnApplied; // put here to optimize padding
 };
 typedef QHash<ShaString, const Rev*> RevMap;  // faster then a map
 
