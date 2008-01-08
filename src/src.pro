@@ -2,6 +2,9 @@
 # value GIT_EXEC_DIR to be set to the git bin directory
 GIT_EXEC_DIR = "C:\Program Files\Git\bin"
 
+# Under Windows uncomment following line to enable console messages
+#CONFIG += ENABLE_CONSOLE_MSG
+
 # check for Qt >= 4.3.0
 CUR_QT = $$[QT_VERSION]
 
@@ -42,6 +45,11 @@ unix {
 HAVE_GCC {
 	QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 	QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
+}
+
+ENABLE_CONSOLE_MSG {
+	CONFIG -= windows
+	CONFIG += console
 }
 
 INSTALLS += target
