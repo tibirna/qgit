@@ -513,7 +513,7 @@ const QString Git::getRefSha(SCRef refName, RefType type, bool askGit) {
 	// if a ref was not found perhaps is an abbreviated form
 	QString runOutput;
 	errorReportingEnabled = false;
-	bool ok = run("git rev-parse " + refName, &runOutput);
+	bool ok = run("git rev-parse --revs-only " + refName, &runOutput);
 	errorReportingEnabled = true;
 	return (ok ? runOutput.trimmed() : "");
 }
@@ -981,9 +981,15 @@ bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 		getWorkDirFiles(deleted, dummy, RevFile::DELETED);
 	}
 	// if needed fake a working directory tree starting from HEAD tree
-	const QString tree(treeSha == ZERO_SHA ? "HEAD" : treeSha);
-	QString runOutput;
-	if (!run("git ls-tree " + tree, &runOutput))
+	QString runOutput, tree(treeSha);
+	if (treeSha == ZERO_SHA) {
+		// HEAD could be empty for just inited repositories
+		if (!run("git rev-parse --revs-only HEAD", &tree))
+			return false;
+
+		tree = tree.trimmed();
+	}
+	if (!tree.isEmpty() && !run("git ls-tree " + tree, &runOutput))
 		return false;
 
 	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));

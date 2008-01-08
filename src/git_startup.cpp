@@ -121,7 +121,7 @@ bool Git::getRefs() {
 	// check for a merge and read current branch sha
 	isMergeHead = d.exists("MERGE_HEAD");
 	QString curBranchSHA, curBranchName;
-	if (!run("git rev-parse HEAD", &curBranchSHA))
+	if (!run("git rev-parse --revs-only HEAD", &curBranchSHA))
 		return false;
 
 	if (!run("git branch", &curBranchName))
@@ -328,14 +328,21 @@ void Git::getDiffIndex() {
 	if (!run("git status", &status)) // git status refreshes the index, run as first
 		return;
 
-	if (!run("git diff-index HEAD", &_wd.diffIndex))
+	QString head;
+	if (!run("git rev-parse --revs-only HEAD", &head))
 		return;
 
-	// check for files already updated in cache, we will
-	// save this information in status third field
-	if (!run("git diff-index --cached HEAD", &_wd.diffIndexCached))
-		return;
+	head = head.trimmed();
+	if (!head.isEmpty()) { // repository initialized but still no history
 
+		if (!run("git diff-index " + head, &_wd.diffIndex))
+			return;
+
+		// check for files already updated in cache, we will
+		// save this information in status third field
+		if (!run("git diff-index --cached " + head, &_wd.diffIndexCached))
+			return;
+	}
 	// get any file not in tree
 	_wd.otherFiles = getOthersFiles();
 
@@ -343,13 +350,8 @@ void Git::getDiffIndex() {
 	revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(_wd));
 
 	// then mockup the corresponding Rev
-	QString parent;
-	if (!run("git rev-parse HEAD", &parent))
-		return;
-
-	parent = parent.section('\n', 0, 0);
 	SCRef log = (isNothingToCommit() ? "Nothing to commit" : "Working dir changes");
-	const Rev* r = fakeWorkDirRev(parent, log, status, revData->revOrder.count(), revData);
+	const Rev* r = fakeWorkDirRev(head, log, status, revData->revOrder.count(), revData);
 	revData->revs.insert(ZERO_SHA_RAW, r);
 	revData->revOrder.append(ZERO_SHA_RAW);
 	revData->earlyOutputCntBase = revData->revOrder.count();
