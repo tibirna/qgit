@@ -15,7 +15,6 @@ Compression=lzma
 SolidCompression=yes
 LicenseFile=COPYING.rtf
 SetupIconFile=src\resources\qgit.ico
-SourceDir=C:\Users\Marco\Documenti\qgit
 OutputDir=bin
 OutputBaseFilename=qgit-2.1.1_win
 
