@@ -302,12 +302,6 @@ Git::Git(QObject* p) : QObject(p) {
 void Git::checkEnvironment() {
 
 	QString version;
-	if (!run("git --exec-path", &version)) {
-		dbs("Cannot found git files");
-		return;
-	}
-	QGit::GIT_DIR = version.trimmed();
-
 	if (run("git --version", &version)) {
 
 		version = version.section(' ', -1, -1).section('.', 0, 2);
@@ -324,6 +318,9 @@ void Git::checkEnvironment() {
 			MainExecErrorEvent* e = new MainExecErrorEvent(cmd, errorDesc);
 			QApplication::postEvent(parent(), e);
 		}
+	} else {
+		dbs("Cannot found git files");
+		return;
 	}
 	errorReportingEnabled = false;
 	isTextHighlighterFound = run("source-highlight -V", &version);
