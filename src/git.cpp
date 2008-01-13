@@ -1498,22 +1498,14 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 	if (!FPOpt.isEmpty())
 		runCmd.append(" " + FPOpt.trimmed());
 
-	runCmd.append(" --start-number=");
-
 	const QString tmp(workDir);
 	if (remote)
 		workDir = remoteDir; // run() uses workDir value
 
-	int n = shaList.count();
-	bool ret = false;
-	FOREACH_SL (it, shaList) { // shaList is ordered by newest to oldest
-		const QString cmd(runCmd + QString::number(n) + " " +
-		                  *it + QString::fromLatin1("^..") + *it);
-		n--;
-		ret = run(cmd);
-		if (!ret)
-			break;
-	}
+	// shaList is ordered by newest to oldest
+	runCmd.append(" " + shaList.last());
+	runCmd.append(QString::fromLatin1("^..") + shaList.first());
+	bool ret = run(runCmd);
 	workDir = tmp;
 	return ret;
 }
