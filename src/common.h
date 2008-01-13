@@ -200,7 +200,8 @@ namespace QGit {
 	extern const QString APP_KEY;
 	extern const QString GIT_DIR_KEY;
 	extern const QString PATCH_DIR_KEY;
-	extern const QString PATCH_ARGS_KEY;
+	extern const QString FMT_P_OPT_KEY;
+	extern const QString AM_P_OPT_KEY;
 	extern const QString STD_FNT_KEY;
 	extern const QString TYPWRT_FNT_KEY;
 	extern const QString FLAGS_KEY;

@@ -1466,6 +1466,12 @@ bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 			return run("stg import --mail " + quote(patchPath));
 	}
 	QString runCmd("git am --utf8 --3way ");
+
+	QSettings settings;
+	const QString APOpt(settings.value(AM_P_OPT_KEY).toString());
+	if (!APOpt.isEmpty())
+		runCmd.append(APOpt.trimmed() + " ");
+
 	if (isDragDrop)
 		runCmd.append("--keep ");
 
@@ -1479,7 +1485,7 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 
 	bool remote = !remoteDir.isEmpty();
 	QSettings settings;
-	const QString FPArgs(settings.value(PATCH_ARGS_KEY).toString());
+	const QString FPOpt(settings.value(FMT_P_OPT_KEY).toString());
 
 	QString runCmd("git format-patch --no-color");
 	if (testFlag(NUMBERS_F) && !remote)
@@ -1489,8 +1495,8 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 		runCmd.append(" --keep-subject");
 
 	runCmd.append(" -o " + dirPath);
-	if (!FPArgs.isEmpty())
-		runCmd.append(" " + FPArgs);
+	if (!FPOpt.isEmpty())
+		runCmd.append(" " + FPOpt.trimmed());
 
 	runCmd.append(" --start-number=");
 

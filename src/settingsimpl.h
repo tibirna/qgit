@@ -33,7 +33,8 @@ protected slots:
 	void checkBoxCommitSign_toggled(bool b);
 	void checkBoxCommitVerify_toggled(bool b);
 	void lineEditExternalDiffViewer_textChanged(const QString& s);
-	void lineEditExtraOptions_textChanged(const QString& s);
+	void lineEditApplyPatchExtraOptions_textChanged(const QString& s);
+	void lineEditFormatPatchExtraOptions_textChanged(const QString& s);
 	void lineEditExcludeFile_textChanged(const QString& s);
 	void lineEditExcludePerDir_textChanged(const QString& s);
 	void lineEditTemplate_textChanged(const QString& s);
