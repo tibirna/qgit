@@ -28,7 +28,7 @@ using namespace QGit;
 
 FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
 
-	_headerInfo << "Graph" << "Id" << "Short Log" << "Author" << "Author Date";
+	headerInfo << "Graph" << "Id" << "Short Log" << "Author" << "Author Date";
 	lns = new Lanes();
 	revs.reserve(QGit::MAX_DICT_SIZE);
 	clear(); // after _headerInfo is set
@@ -57,7 +57,7 @@ void FileHistory::resetFileNames(SCRef fn) {
 
 int FileHistory::rowCount(const QModelIndex& parent) const {
 
-	return (!parent.isValid() ? _rowCnt : 0);
+	return (!parent.isValid() ? rowCnt : 0);
 }
 
 bool FileHistory::hasChildren(const QModelIndex& parent) const {
@@ -73,7 +73,7 @@ int FileHistory::row(SCRef sha) const {
 
 const QString FileHistory::sha(int row) const {
 
-	return (row < 0 || row >= _rowCnt ? "" : QString(revOrder.at(row)));
+	return (row < 0 || row >= rowCnt ? "" : QString(revOrder.at(row)));
 }
 
 void FileHistory::flushTail() {
@@ -98,7 +98,7 @@ void FileHistory::flushTail() {
 	}
 	firstFreeLane = earlyOutputCntBase;
 	lns->clear();
-	_rowCnt = revOrder.count();
+	rowCnt = revOrder.count();
 	reset();
 }
 
@@ -123,14 +123,14 @@ void FileHistory::clear(bool complete) {
 	rowData.clear();
 
 	if (testFlag(REL_DATE_F)) {
-		_secs = QDateTime::currentDateTime().toTime_t();
-		_headerInfo[4] = "Last Change";
+		secs = QDateTime::currentDateTime().toTime_t();
+		headerInfo[4] = "Last Change";
 	} else {
-		_secs = 0;
-		_headerInfo[4] = "Author Date";
+		secs = 0;
+		headerInfo[4] = "Author Date";
 	}
-	_rowCnt = revOrder.count();
-	_annIdValid = false;
+	rowCnt = revOrder.count();
+	annIdValid = false;
 	reset();
 	emit headerDataChanged(Qt::Horizontal, 0, 4);
 }
@@ -145,18 +145,18 @@ void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString
 	if (!renamedRevs.isEmpty() || !renamedPatches.isEmpty())
 		return;
 
-	beginInsertRows(QModelIndex(), _rowCnt, shaVec.count());
-	_rowCnt = shaVec.count();
+	beginInsertRows(QModelIndex(), rowCnt, shaVec.count());
+	rowCnt = shaVec.count();
 	endInsertRows();
 }
 
 void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 
-	if (fh != this || _rowCnt >= revOrder.count())
+	if (fh != this || rowCnt >= revOrder.count())
 		return;
 
 	// now we can process last revision
-	_rowCnt = revOrder.count();
+	rowCnt = revOrder.count();
 	reset(); // force a reset to avoid artifacts in file history graph under Windows
 
 	// adjust Id column width according to the numbers of revisions we have
@@ -166,7 +166,7 @@ void FileHistory::on_loadCompleted(const FileHistory* fh, const QString&) {
 
 void FileHistory::on_changeFont(const QFont& f) {
 
-	QString maxStr(QString::number(_rowCnt).length() + 1, '8');
+	QString maxStr(QString::number(rowCnt).length() + 1, '8');
 	QFontMetrics fmRows(f);
 	int neededWidth = fmRows.boundingRect(maxStr).width();
 
@@ -176,7 +176,7 @@ void FileHistory::on_changeFont(const QFont& f) {
 	while (fmId.boundingRect(id).width() < neededWidth)
 		id += ' ';
 
-	_headerInfo[1] = id;
+	headerInfo[1] = id;
 	emit headerDataChanged(Qt::Horizontal, 1, 1);
 }
 
@@ -188,7 +188,7 @@ Qt::ItemFlags FileHistory::flags(const QModelIndex&) const {
 QVariant FileHistory::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-		return _headerInfo.at(section);
+		return headerInfo.at(section);
 
 	return QVariant();
 }
@@ -201,7 +201,7 @@ QModelIndex FileHistory::index(int row, int column, const QModelIndex&) const {
 	Because row and column info are	stored anyway in QModelIndex we
 	don't need to add any additional data.
 */
-	if (row < 0 || row >= _rowCnt)
+	if (row < 0 || row >= rowCnt)
 		return QModelIndex();
 
 	return createIndex(row, column, 0);
@@ -251,7 +251,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 		git->setLane(r->sha(), const_cast<FileHistory*>(this));
 
 	if (col == QGit::ANN_ID_COL)
-		return (_annIdValid ? _rowCnt - index.row() : QVariant());
+		return (annIdValid ? rowCnt - index.row() : QVariant());
 
 	if (col == QGit::LOG_COL)
 		return r->shortLog();
@@ -261,8 +261,8 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 
 	if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA_RAW) {
 
-		if (_secs != 0) // secs is 0 for absolute date
-			return timeDiff(_secs - r->authorDate().toULong());
+		if (secs != 0) // secs is 0 for absolute date
+			return timeDiff(secs - r->authorDate().toULong());
 		else
 			return git->getLocalDate(r->authorDate());
 	}
@@ -1038,7 +1038,7 @@ bool Git::isNothingToCommit() {
 		return true;
 
 	const RevFile* rf = revsFiles[ZERO_SHA_RAW];
-	return (rf->count() == _wd.otherFiles.count());
+	return (rf->count() == workingDirInfo.otherFiles.count());
 }
 
 bool Git::isTreeModified(SCRef sha) {

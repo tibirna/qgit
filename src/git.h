@@ -33,7 +33,7 @@ public:
 	const QStringList fileNames() const { return fNames; }
 	void resetFileNames(SCRef fn);
 	void setEarlyOutputState(bool b = true) { earlyOutputCnt = (b ? earlyOutputCntBase : -1); }
-	void setAnnIdValid(bool b = true) { _annIdValid = b; }
+	void setAnnIdValid(bool b = true) { annIdValid = b; }
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual Qt::ItemFlags flags(const QModelIndex& index) const;
@@ -65,10 +65,10 @@ private:
 	Lanes* lns;
 	uint firstFreeLane;
 	QList<QByteArray*> rowData;
-	QList<QVariant> _headerInfo;
-	int _rowCnt;
-	bool _annIdValid;
-	unsigned long _secs;
+	QList<QVariant> headerInfo;
+	int rowCnt;
+	bool annIdValid;
+	unsigned long secs;
 	int loadTime;
 	int earlyOutputCnt;
 	int earlyOutputCntBase;
@@ -150,7 +150,7 @@ public:
 	static bool isImageFile(SCRef file);
 	static bool isBinaryFile(SCRef file);
 	bool isNothingToCommit();
-	bool isUnknownFiles() const { return (_wd.otherFiles.count() > 0); }
+	bool isUnknownFiles() const { return (workingDirInfo.otherFiles.count() > 0); }
 	bool isTextHighlighter() const { return isTextHighlighterFound; }
 	bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
 	MyProcess* getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool combined);
@@ -238,7 +238,7 @@ private:
 		QString diffIndexCached;
 		QStringList otherFiles;
 	};
-	WorkingDirInfo _wd;
+	WorkingDirInfo workingDirInfo;
 
 	struct LoadArguments { // used to pass arguments to init2()
 		QStringList args;

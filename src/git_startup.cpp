@@ -335,19 +335,19 @@ void Git::getDiffIndex() {
 	head = head.trimmed();
 	if (!head.isEmpty()) { // repository initialized but still no history
 
-		if (!run("git diff-index " + head, &_wd.diffIndex))
+		if (!run("git diff-index " + head, &workingDirInfo.diffIndex))
 			return;
 
 		// check for files already updated in cache, we will
 		// save this information in status third field
-		if (!run("git diff-index --cached " + head, &_wd.diffIndexCached))
+		if (!run("git diff-index --cached " + head, &workingDirInfo.diffIndexCached))
 			return;
 	}
 	// get any file not in tree
-	_wd.otherFiles = getOthersFiles();
+	workingDirInfo.otherFiles = getOthersFiles();
 
 	// now mockup a RevFile
-	revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(_wd));
+	revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(workingDirInfo));
 
 	// then mockup the corresponding Rev
 	SCRef log = (isNothingToCommit() ? "Nothing to commit" : "Working dir changes");
@@ -573,7 +573,7 @@ void Git::clearRevs() {
 	revData->clear();
 	patchesStillToFind = 0; // TODO TEST WITH FILTERING
 	firstNonStGitPatch = "";
-	_wd.clear();
+	workingDirInfo.clear();
 	revsFiles.remove(ZERO_SHA_RAW);
 }
 
