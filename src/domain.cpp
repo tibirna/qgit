@@ -96,9 +96,9 @@ Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 	EM_INIT(exDeleteRequest, "Deleting domain");
 	EM_INIT(exCancelRequest, "Canceling update");
 
-	_model = new FileHistory(this, git);
+	fileHistory = new FileHistory(this, git);
 	if (isMain)
-		git->setDefaultModel(_model);
+		git->setDefaultModel(fileHistory);
 
 	st.clear();
 	busy = readyToDrag = dragging = dropping = linked = false;
@@ -121,7 +121,7 @@ void Domain::clear(bool complete) {
 	if (complete)
 		st.clear();
 
-	_model->clear();
+	fileHistory->clear();
 }
 
 void Domain::on_closeAllTabs() {

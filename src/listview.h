@@ -82,8 +82,8 @@ public:
 
 	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
-	int laneWidth() const { return 3 * _laneHeight / 4; }
-	void setLaneHeight(int h) { _laneHeight = h; }
+	int laneWidth() const { return 3 * laneHeight / 4; }
+	void setLaneHeight(int h) { laneHeight = h; }
 
 signals:
 	void updateView();
@@ -103,8 +103,8 @@ private:
 
 	Git* git;
 	ListViewProxy* lp;
-	int _laneHeight;
-	int _diffTargetRow;
+	int laneHeight;
+	int diffTargetRow;
 };
 
 class ListViewProxy : public QSortFilterProxyModel {

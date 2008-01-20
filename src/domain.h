@@ -110,7 +110,7 @@ public:
 	void setThrowOnDelete(bool b);
 	bool isThrowOnDeleteRaised(int excpId, SCRef curContext);
 	MainImpl* m() const;
-	FileHistory* model() const { return _model; }
+	FileHistory* model() const { return fileHistory; }
 	bool isReadyToDrag() const { return readyToDrag; }
 	bool setReadyToDrag(bool b);
 	bool isDragging() const { return dragging; }
@@ -156,7 +156,7 @@ private:
 	EM_DECLARE(exDeleteRequest);
 	EM_DECLARE(exCancelRequest);
 
-	FileHistory* _model;
+	FileHistory* fileHistory;
 	bool readyToDrag;
 	bool dragging;
 	bool dropping;

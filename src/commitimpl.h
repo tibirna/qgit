@@ -43,7 +43,7 @@ private:
 
 	Git* git;
 	QString origMsg;
-	int _ofsX, _ofsY;
+	int ofsX, ofsY;
 };
 
 #endif

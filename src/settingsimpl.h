@@ -52,7 +52,6 @@ private:
 	void changeFlag(uint f, bool b);
 
 	Git* git;
-	static const char* en[];
 	QStringList _uInfo;
 };
 

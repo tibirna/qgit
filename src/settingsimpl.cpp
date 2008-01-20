@@ -22,7 +22,7 @@ By default, there are two entries in the search path:
    2. $HOME/.qt/ - where $HOME is the user's home directory.
 */
 
-const char* SettingsImpl::en[] = { "Latin1", "Big5 -- Chinese", "EUC-JP -- Japanese",
+static const char* en[] = { "Latin1", "Big5 -- Chinese", "EUC-JP -- Japanese",
 	"EUC-KR -- Korean", "GB18030 -- Chinese", "ISO-2022-JP -- Japanese",
 	"Shift_JIS -- Japanese", "UTF-8 -- Unicode, 8-bit",
 	"KOI8-R -- Russian", "KOI8-U -- Ukrainian", "ISO-8859-1 -- Western",

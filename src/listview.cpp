@@ -373,19 +373,19 @@ ListViewDelegate::ListViewDelegate(Git* g, ListViewProxy* px, QObject* p) : QIte
 
 	git = g;
 	lp = px;
-	_laneHeight = 0;
-	_diffTargetRow = -1;
+	laneHeight = 0;
+	diffTargetRow = -1;
 }
 
 QSize ListViewDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const {
 
-	return QSize(laneWidth(), _laneHeight);
+	return QSize(laneWidth(), laneHeight);
 }
 
 void ListViewDelegate::diffTargetChanged(int row) {
 
-	if (_diffTargetRow != row) {
-		_diffTargetRow = row;
+	if (diffTargetRow != row) {
+		diffTargetRow = row;
 		emit updateView();
 	}
 }
@@ -407,7 +407,7 @@ const Rev* ListViewDelegate::revLookup(int row, FileHistory** fhPtr) const {
 void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
                                       const QColor& col, const QBrush& back) const {
 
-	int h = _laneHeight / 2;
+	int h = laneHeight / 2;
 	int m = (x1 + x2) / 2;
 	int r = (x2 - x1) / 3;
 	int d =  2 * r;
@@ -602,7 +602,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 	if (r->isDiffCache)
 		p->fillRect(opt.rect, changedFiles(ZERO_SHA) ? ORANGE : DARK_ORANGE);
 
-	if (_diffTargetRow == row)
+	if (diffTargetRow == row)
 		p->fillRect(opt.rect, LIGHT_BLUE);
 
 	bool isHighlighted = lp->isHighlighted(row);

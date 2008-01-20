@@ -71,8 +71,8 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	textEditMsg->verticalScrollBar()->setValue(0);
 	int y1 = textEditMsg->cursorRect().y();
 	int x1 = textEditMsg->cursorRect().x();
-	_ofsX = x1 - x0;
-	_ofsY = y1 - y0;
+	ofsX = x1 - x0;
+	ofsY = y1 - y0;
 	textEditMsg->moveCursor(QTextCursor::Start);
 	textEditMsg_cursorPositionChanged();
 
@@ -296,6 +296,6 @@ void CommitImpl::computePosition(int &col_pos, int &line_pos) {
 	int hs = textEditMsg->horizontalScrollBar()->value();
 
 	// when in start position r.x() = -r.width() / 2
-	col_pos = (r.x() + hs + r.width() / 2) / _ofsX;
-	line_pos = (r.y() + vs) / _ofsY;
+	col_pos = (r.x() + hs + r.width() / 2) / ofsX;
+	line_pos = (r.y() + vs) / ofsY;
 }
