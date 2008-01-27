@@ -219,6 +219,8 @@ void QGit::initMimePix() {
 	mimePixMap.insert("cpp", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_h.png"));
 	mimePixMap.insert("h", pm);
+	pm = new QPixmap(*pm);
+	mimePixMap.insert("hpp", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/txt.png"));
 	mimePixMap.insert("txt", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/shellscript.png"));
