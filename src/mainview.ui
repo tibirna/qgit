@@ -512,6 +512,9 @@
    <property name="iconText" >
     <string>Launch external diff viewer</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="ActViewRev" >
    <property name="enabled" >
