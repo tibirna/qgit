@@ -227,6 +227,10 @@ In commit dialog select the files to commit or, simply, to sync with index
 (call 'git update-index' on them). A proper commit message may be entered and,
 after confirmation, changes are committed and a new revision is created.
 +
+It is also possible to amend last commit. The Edit->Amend commit opens the
+same dialog, but changes are added to the head commit instead of creating new
+commit.
++
 The core commit function is performed by 'git commit'.
 +
 TIP: It is possible to use a template for commit message, use
@@ -381,8 +385,8 @@ Integration with StGIT is implemented both by new and modified functions.
 
 .Existing functions change behavior:
 
- - Commit dialog refreshes top stack patch with modified files instead
-   of sync the cache.
+ - Amend commit dialog refreshes top stack patch with modified files instead
+   of amending the commit. It is appropriately renamed in the menu.
  - Commit dialog creates a new patch on the top of the stack filled with
    modified working directory content instead of commit a new revision to
    git repository.

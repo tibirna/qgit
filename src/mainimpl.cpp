@@ -1024,17 +1024,8 @@ void MainImpl::fileNamesLoad(int status, int value) {
 
 void MainImpl::updateCommitMenu(bool isStGITStack) {
 
-	QAction* act = NULL;
-	QList<QAction*> al(Edit->actions());
-	FOREACH (QList<QAction*>, it, al) {
-		SCRef txt = (*it)->text();
-		if (txt == "&Commit..." || txt == "Commit St&GIT patch...") {
-			act = *it;
-			break;
-		}
-	}
-	if (act)
-		act->setText(isStGITStack ? "Commit St&GIT patch..." : "&Commit...");
+	ActCommit->setText(isStGITStack ? "Commit St&GIT patch..." : "&Commit...");
+	ActAmend->setText(isStGITStack ? "Refresh St&GIT patch..." : "&Amend commit...");
 }
 
 void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
@@ -1506,7 +1497,15 @@ void MainImpl::customAction_exited(const QString& name) {
 
 void MainImpl::ActCommit_activated() {
 
-	CommitImpl* c = new CommitImpl(git); // has Qt::WA_DeleteOnClose attribute
+	CommitImpl* c = new CommitImpl(git, false); // has Qt::WA_DeleteOnClose attribute
+	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
+	connect(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
+	c->show();
+}
+
+void MainImpl::ActAmend_activated() {
+
+	CommitImpl* c = new CommitImpl(git, true); // has Qt::WA_DeleteOnClose attribute
 	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
 	connect(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
 	c->show();

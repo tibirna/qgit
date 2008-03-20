@@ -105,6 +105,7 @@ public:
 	static const bool optOnlyLoaded  = true;
 	static const bool optDragDrop    = true;
 	static const bool optFold        = true;
+	static const bool optAmend       = true;
 	static const bool optOnlyInIndex = true;
 	static const bool optCreate      = true;
 
@@ -165,7 +166,8 @@ public:
 	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
 	static const QString getLocalDate(SCRef gitDate);
 	const QString getDesc(SCRef sha, QRegExp& slogRE, QRegExp& lLogRE, bool showH, FileHistory* fh);
-	const QString getDefCommitMsg();
+	const QString getLastCommitMsg();
+	const QString getNewCommitMsg();
 	const QString getLaneParent(SCRef fromSHA, int laneNum);
 	const QStringList getChilds(SCRef parent);
 	const QStringList getNearTags(bool goDown, SCRef sha);
@@ -185,7 +187,7 @@ public:
 	QTextCodec* getTextCodec(bool* isGitArchive);
 	bool formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir = "");
 	bool updateIndex(SCList selFiles);
-	bool commitFiles(SCList files, SCRef msg);
+	bool commitFiles(SCList files, SCRef msg, bool amend);
 	bool makeTag(SCRef sha, SCRef tag, SCRef msg);
 	bool deleteTag(SCRef sha);
 	bool applyPatchFile(SCRef patchPath, bool fold, bool sign);

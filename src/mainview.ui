@@ -133,17 +133,12 @@
     <addaction name="ActExit" />
     <addaction name="separator" />
    </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
-     <string>&amp;Actions</string>
-    </property>
-    <addaction name="ActCustomActionSetup" />
-   </widget>
    <widget class="QMenu" name="Edit" >
     <property name="title" >
      <string>&amp;Edit</string>
     </property>
     <addaction name="ActCommit" />
+    <addaction name="ActAmend" />
     <addaction name="ActTag" />
     <addaction name="ActTagDelete" />
     <addaction name="ActPush" />
@@ -153,6 +148,12 @@
     <addaction name="ActFindNext" />
     <addaction name="separator" />
     <addaction name="ActSettings" />
+   </widget>
+   <widget class="QMenu" name="Actions" >
+    <property name="title" >
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="ActCustomActionSetup" />
    </widget>
    <widget class="QMenu" name="View" >
     <property name="title" >
@@ -719,6 +720,14 @@
    </property>
    <property name="toolTip" >
     <string>Show 'Select range' dialog</string>
+   </property>
+  </action>
+  <action name="ActAmend" >
+   <property name="text" >
+    <string>Amend comit...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Amend previous comit</string>
    </property>
   </action>
  </widget>
@@ -1315,6 +1324,22 @@
    <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActRangeDlg_activated()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>452</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActAmend</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActAmend_activated()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>-1</x>

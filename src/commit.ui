@@ -286,22 +286,6 @@
  </resources>
  <connections>
   <connection>
-   <sender>pushButtonOk</sender>
-   <signal>clicked()</signal>
-   <receiver>CommitBase</receiver>
-   <slot>pushButtonOk_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButtonCancel</sender>
    <signal>clicked()</signal>
    <receiver>CommitBase</receiver>

@@ -101,6 +101,7 @@ protected slots:
 	void ActMailApplyPatch_activated();
 	void ActSettings_activated();
 	void ActCommit_activated();
+	void ActAmend_activated();
 	void ActTag_activated();
 	void ActTagDelete_activated();
 	void ActPush_activated();

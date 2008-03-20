@@ -1135,23 +1135,40 @@ const QStringList Git::getNearTags(bool goDown, SCRef sha) {
 	return tl;
 }
 
-const QString Git::getDefCommitMsg() {
+const QString Git::getLastCommitMsg() {
 
-	QString sha(ZERO_SHA);
-	if (isStGIT && !getAllRefSha(APPLIED).isEmpty()) {
-		QString top;
-		if (run("stg top", &top))
-			sha = getRefSha(top.trimmed(), APPLIED, false);
-	}
-	const Rev* c = revLookup(sha);
-	if (!c) {
-		dbp("ASSERT: getDefCommitMsg sha <%1> not found", sha);
+	// FIXME: Make sure the amend action is not called when there is
+	// nothing to amend. That is in empty repository or over stgit stack
+	// with nothing applied.
+	QString sha;
+	QString top;
+	if (run("git rev-parse --verify HEAD", &top))
+	    sha = top.trimmed();
+	else {
+		dbs("ASSERT: getLastCommitMsg head is not valid");
 		return "";
 	}
-	if (sha == ZERO_SHA)
-		return c->longLog();
+	
+	const Rev* c = revLookup(sha);
+	if (!c) {
+		dbp("ASSERT: getLastCommitMsg sha <%1> not found", sha);
+		return "";
+	}
 
-	return c->shortLog() + '\n' + c->longLog().trimmed();
+	return c->shortLog() + '\n' + c->longLog().trimmed() + getNewCommitMsg();
+}
+
+const QString Git::getNewCommitMsg() {
+
+	const Rev* c = revLookup(ZERO_SHA);
+	if (!c) {
+		dbs("ASSERT: getNewCommitMsg zero_sha not found");
+		return "";
+	}
+
+	QString status = c->longLog();
+	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	return status;
 }
 
 const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
@@ -1545,7 +1562,7 @@ bool Git::updateIndex(SCList selFiles) {
 	return true;
 }
 
-bool Git::commitFiles(SCList selFiles, SCRef msg) {
+bool Git::commitFiles(SCList selFiles, SCRef msg, bool amend) {
 
 	const QString msgFile(gitDir + "/qgit_cmt_msg.txt");
 	if (!writeToFile(msgFile, msg)) // early skip
@@ -1564,6 +1581,9 @@ bool Git::commitFiles(SCList selFiles, SCRef msg) {
 
 	if (testFlag(VERIFY_CMT_F))
 		cmtOptions.append(" -v");
+
+	if (amend)
+		cmtOptions.append(" --amend");
 
 	bool ret = false;
 

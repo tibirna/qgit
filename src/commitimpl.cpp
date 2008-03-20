@@ -22,7 +22,7 @@
 
 using namespace QGit;
 
-CommitImpl::CommitImpl(Git* g) : git(g) {
+CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 
 	// adjust GUI
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -77,8 +77,8 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	textEditMsg_cursorPositionChanged();
 
 	// setup textEditMsg with default value
-	QString status(git->getDefCommitMsg());
-	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	QString status;
+	status = amend ? git->getLastCommitMsg() : git->getNewCommitMsg();
 	msg.append(status.trimmed());
 	textEditMsg->setPlainText(msg);
 
@@ -87,13 +87,26 @@ CommitImpl::CommitImpl(Git* g) : git(g) {
 	origMsg = msg;
 
 	// setup button functions
-	if (git->isStGITStack()) {
-		pushButtonOk->setText("&New patch");
-		pushButtonOk->setShortcut(QKeySequence("Alt+N"));
-		pushButtonOk->setToolTip("Create a new patch");
-		pushButtonUpdateCache->setText("&Add to top");
-		pushButtonOk->setShortcut(QKeySequence("Alt+A"));
-		pushButtonUpdateCache->setToolTip("Refresh top stack patch");
+	if (amend) {
+		if (git->isStGITStack()) {
+			pushButtonOk->setText("&Add to top");
+			pushButtonOk->setShortcut(QKeySequence("Alt+A"));
+			pushButtonOk->setToolTip("Refresh top stack patch");
+		} else {
+			pushButtonOk->setText("&Amend");
+			pushButtonOk->setShortcut(QKeySequence("Alt+A"));
+			pushButtonOk->setToolTip("Amend latest commit");
+		}
+		connect(pushButtonOk, SIGNAL(clicked()),
+			this, SLOT(pushButtonAmend_clicked()));
+	} else {
+		if (git->isStGITStack()) {
+			pushButtonOk->setText("&New patch");
+			pushButtonOk->setShortcut(QKeySequence("Alt+N"));
+			pushButtonOk->setToolTip("Create a new patch");
+		}
+		connect(pushButtonOk, SIGNAL(clicked()),
+			this, SLOT(pushButtonCommit_clicked()));
 	}
 	connect(treeWidgetFiles, SIGNAL(customContextMenuRequested(const QPoint&)),
 	        this, SLOT(contextMenuPopup(const QPoint&)));
@@ -129,7 +142,7 @@ void CommitImpl::checkUncheck(bool checkAll) {
 	}
 }
 
-bool CommitImpl::checkFiles(SList selFiles) {
+bool CommitImpl::getFiles(SList selFiles) {
 
 	// check for files to commit
 	selFiles.clear();
@@ -139,11 +152,24 @@ bool CommitImpl::checkFiles(SList selFiles) {
 			selFiles.append((*it)->text(0));
 		++it;
 	}
-	if (selFiles.isEmpty())
-		QMessageBox::warning(this, "Commit changes - QGit",
-		                     "Sorry, no files are selected for updating.",
-		                     QMessageBox::Ok, QMessageBox::NoButton);
+
 	return !selFiles.isEmpty();
+}
+
+void CommitImpl::warnNoFiles() {
+
+	QMessageBox::warning(this, "Commit changes - QGit",
+			     "Sorry, no files are selected for updating.",
+			     QMessageBox::Ok, QMessageBox::NoButton);
+}
+
+bool CommitImpl::checkFiles(SList selFiles) {
+
+	if (getFiles(selFiles))
+		return true;
+
+	warnNoFiles();
+	return false;
 }
 
 bool CommitImpl::checkMsg(QString& msg) {
@@ -189,12 +215,16 @@ bool CommitImpl::checkPatchName(QString& patchName) {
 	return false;
 }
 
-bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles) {
+bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool amend) {
 
 	QTextCodec* tc = QTextCodec::codecForCStrings();
 	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1
 
-	QString whatToDo = (git->isStGITStack() ? "create a new patch with" : "commit");
+	// NOTEME: i18n-ugly
+	QString whatToDo = amend ? 
+	    (git->isStGITStack() ? "refresh top patch with" :
+	     			   "amend last commit with") :
+	    (git->isStGITStack() ? "create a new patch with" : "commit");
 	QString text("Do you want to " + whatToDo + " the following file(s)?\n\n" +
 	             selFiles.join("\n") + "\n\nwith the message:\n\n");
 	text.append(msg);
@@ -219,7 +249,7 @@ void CommitImpl::pushButtonCancel_clicked() {
 	close();
 }
 
-void CommitImpl::pushButtonOk_clicked() {
+void CommitImpl::pushButtonCommit_clicked() {
 
 	QStringList selFiles; // retrieve selected files
 	if (!checkFiles(selFiles))
@@ -233,7 +263,8 @@ void CommitImpl::pushButtonOk_clicked() {
 	if (git->isStGITStack() && !checkPatchName(patchName))
 		return;
 
-	if (!checkConfirm(msg, patchName, selFiles)) // ask for confirmation
+	// ask for confirmation
+	if (!checkConfirm(msg, patchName, selFiles, !Git::optAmend))
 		return;
 
 	// ok, let's go
@@ -243,7 +274,46 @@ void CommitImpl::pushButtonOk_clicked() {
 	if (git->isStGITStack())
 		ok = git->stgCommit(selFiles, msg, patchName, !Git::optFold);
 	else
-		ok = git->commitFiles(selFiles, msg);
+		ok = git->commitFiles(selFiles, msg, !Git::optAmend);
+
+	QApplication::restoreOverrideCursor();
+	hide();
+	emit changesCommitted(ok);
+	close();
+}
+
+void CommitImpl::pushButtonAmend_clicked() {
+
+	QStringList selFiles; // retrieve selected files
+	getFiles(selFiles);
+	// FIXME: If there are no files AND no changes to message, we should not
+	// commit. Disabling the commit button in such case might be preferable.
+
+	QString msg(textEditMsg->toPlainText());
+	if (msg == origMsg && selFiles.isEmpty()) {
+		warnNoFiles();
+		return;
+	}
+
+	if (msg == origMsg && git->isStGITStack())
+		msg = "";
+	else if (!checkMsg(msg))
+		// We are going to replace the message, so it better isn't empty
+		return;
+
+	// ask for confirmation
+	// FIXME: We don't need patch name for refresh, do we?
+	if (!checkConfirm(msg, "", selFiles, Git::optAmend))
+		return;
+
+	// ok, let's go
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	EM_PROCESS_EVENTS; // to close message box
+	bool ok;
+	if (git->isStGITStack())
+		ok = git->stgCommit(selFiles, msg, "", Git::optFold);
+	else
+		ok = git->commitFiles(selFiles, msg, Git::optAmend);
 
 	QApplication::restoreOverrideCursor();
 	hide();
@@ -257,23 +327,7 @@ void CommitImpl::pushButtonUpdateCache_clicked() {
 	if (!checkFiles(selFiles))
 		return;
 
-	if (git->isStGITStack())
-		if (QMessageBox::question(this, "Refresh stack - QGit",
-			"Do you want to refresh current top stack patch?",
-			"&Yes", "&No", QString(), 0, 1) == 1)
-			return;
-
-	QString msg(textEditMsg->toPlainText());
-	if (msg == origMsg)
-		msg = ""; // to tell stgCommit() not to refresh patch name
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	EM_PROCESS_EVENTS; // to close message box
-	bool ok;
-	if (git->isStGITStack())
-		ok = git->stgCommit(selFiles, msg, "", Git::optFold);
-	else
-		ok = git->updateIndex(selFiles);
+	bool ok = git->updateIndex(selFiles);
 
 	QApplication::restoreOverrideCursor();
 	emit changesCommitted(ok);
