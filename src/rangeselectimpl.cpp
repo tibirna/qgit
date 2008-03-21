@@ -38,7 +38,7 @@ RangeSelectImpl::RangeSelectImpl(QWidget* par, QString* r, bool repoChanged, Git
 		SCRef tagSha(git->getRefSha(tmp.first(), Git::TAG, false));
 		if (!tagSha.isEmpty() && git->checkRef(tagSha, Git::CUR_BRANCH))
 			// in this case set as default tag the next one if any
-			defIdx += (tmp.count() > 1 ? 1 : 0);
+			defIdx += (tmp.count() > 1 ? 1 : -1);
 	}
 
 	if (!orl.isEmpty() && orl.last().isEmpty())
