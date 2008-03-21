@@ -285,6 +285,7 @@ private:
 	bool copyDiffIndex(FileHistory* fh, SCRef parent);
 	const RevFile* insertNewFiles(SCRef sha, SCRef data);
 	const RevFile* getAllMergeFiles(const Rev* r);
+	bool runDiffTreeWithRenameDetection(SCRef runCmd, QString* runOutput);
 	bool isParentOf(SCRef par, SCRef child);
 	bool isTreeModified(SCRef sha);
 	void indexTree();

@@ -1148,7 +1148,7 @@ const QString Git::getLastCommitMsg() {
 		dbs("ASSERT: getLastCommitMsg head is not valid");
 		return "";
 	}
-	
+
 	const Rev* c = revLookup(sha);
 	if (!c) {
 		dbp("ASSERT: getLastCommitMsg sha <%1> not found", sha);
@@ -1301,6 +1301,26 @@ const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 	return rf;
 }
 
+bool Git::runDiffTreeWithRenameDetection(SCRef runCmd, QString* runOutput) {
+/* Under some cases git could warn out:
+
+      "too many files, skipping inexact rename detection"
+
+   So if this occurs fallback on NO rename detection.
+*/
+	QString cmd(runCmd); // runCmd must be without -C option
+	cmd.replace("git diff-tree", "git diff-tree -C");
+
+	errorReportingEnabled = false;
+	bool renameDetectionOk = run(cmd, runOutput);
+	errorReportingEnabled = true;
+
+	if (!renameDetectionOk) // retry without rename detection
+		return run(runCmd, runOutput);
+
+	return true;
+}
+
 const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	SCRef mySha(ALL_MERGE_FILES + r->sha());
@@ -1309,8 +1329,8 @@ const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
 
-	QString runCmd("git diff-tree --no-color -r -m -C " + r->sha()), runOutput;
-	if (!run(runCmd, &runOutput))
+	QString runCmd("git diff-tree --no-color -r -m " + r->sha()), runOutput;
+	if (!runDiffTreeWithRenameDetection(runCmd, &runOutput))
 		return NULL;
 
 	return insertNewFiles(mySha, runOutput);
@@ -1330,7 +1350,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 
 	if (!diffToSha.isEmpty() && (sha != ZERO_SHA)) {
 
-		QString runCmd("git diff-tree --no-color -r -m -C ");
+		QString runCmd("git diff-tree --no-color -r -m ");
 		runCmd.append(diffToSha + " " + sha);
 		if (!path.isEmpty())
 			runCmd.append(" " + path);
@@ -1338,7 +1358,7 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 		EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
 
 		QString runOutput;
-		if (!run(runCmd, &runOutput))
+		if (!runDiffTreeWithRenameDetection(runCmd, &runOutput))
 			return NULL;
 
 		// we insert a dummy revision file object. It will be
@@ -1355,8 +1375,8 @@ const RevFile* Git::getFiles(SCRef sha, SCRef diffToSha, bool allFiles, SCRef pa
 
 	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
 
-	QString runCmd("git diff-tree --no-color -r -c -C " + sha), runOutput;
-	if (!run(runCmd, &runOutput))
+	QString runCmd("git diff-tree --no-color -r -c " + sha), runOutput;
+	if (!runDiffTreeWithRenameDetection(runCmd, &runOutput))
 		return NULL;
 
 	if (revsFiles.contains(r->sha())) // has been created in the mean time?
