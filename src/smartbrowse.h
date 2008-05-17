@@ -14,7 +14,8 @@
 class SmartLabel : public QLabel {
 Q_OBJECT
 public:
-	SmartLabel(const QString& text, QWidget* par) : QLabel(text, par) {}
+	SmartLabel(const QString& text, QWidget* par);
+	void paintEvent(QPaintEvent* event);
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent* e);

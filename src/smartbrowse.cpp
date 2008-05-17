@@ -6,6 +6,7 @@
 */
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QPainter>
 #include <QScrollBar>
 #include <QWheelEvent>
 #include "revsview.h"
@@ -18,6 +19,26 @@
 
 #define AT_TOP 1
 #define AT_BTM 2
+
+SmartLabel::SmartLabel(const QString& text, QWidget* par) : QLabel(text, par) {
+	this->setStyleSheet("SmartLabel { border: 1px solid LightGray;"
+	                                 "padding: 0px 2px 2px 2px; }");
+}
+
+void SmartLabel::paintEvent(QPaintEvent* event) {
+	// our QPainter must be destroyed before QLabel's paintEvent is called
+	{
+		QPainter painter(this);
+		QColor backgroundColor = Qt::white;
+
+		// give label a semi-transparent background
+		backgroundColor.setAlpha(200);
+		painter.fillRect(this->rect(), backgroundColor);
+	}
+
+	// let QLabel do the rest
+	QLabel::paintEvent(event);
+}
 
 void SmartLabel::contextMenuEvent(QContextMenuEvent* e) {
 
