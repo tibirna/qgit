@@ -206,19 +206,20 @@ void MainImpl::ActForward_activated() {
 void MainImpl::ActExternalDiff_activated() {
 
 	QStringList args;
-	getExternalDiffArgs(&args);
-	ExternalDiffProc* externalDiff = new ExternalDiffProc(args, this);
+	QStringList filenames;
+	getExternalDiffArgs(&args, &filenames);
+	ExternalDiffProc* externalDiff = new ExternalDiffProc(filenames, this);
 	externalDiff->setWorkingDirectory(curDir);
 
 	if (!QGit::startProcess(externalDiff, args)) {
 		QString text("Cannot start external viewer: ");
-		text.append(externalDiff->args[0]);
+		text.append(args[0]);
 		QMessageBox::warning(this, "Error - QGit", text);
 		delete externalDiff;
 	}
 }
 
-void MainImpl::getExternalDiffArgs(QStringList* args) {
+void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
 
 	// save files to diff in working directory,
 	// will be removed by ExternalDiffProc on exit
@@ -245,16 +246,37 @@ void MainImpl::getExternalDiffArgs(QStringList* args) {
 	if (!writeToFile(fName2, QString(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName2);
 
-	// get external diff viewer
+	// get external diff viewer command
 	QSettings settings;
-	SCRef extDiff(settings.value(EXT_DIFF_KEY, EXT_DIFF_DEF).toString());
+	QString extDiff(settings.value(EXT_DIFF_KEY, EXT_DIFF_DEF).toString());
 
 	QApplication::restoreOverrideCursor();
 
-	// finally set process arguments
-	args->append(extDiff);
-	args->append(fName2);
-	args->append(fName1);
+	// if command doesn't have %1 and %2 to denote filenames, add them to end
+	if (!extDiff.contains("%1")) {
+		extDiff.append(" %1");
+	}
+	if (!extDiff.contains("%2")) {
+		extDiff.append(" %2");
+	}
+
+	// set process arguments
+	QStringList extDiffArgs = extDiff.split(' ');
+	QString curArg;
+	for (int i = 0; i < extDiffArgs.count(); i++) {
+		curArg = extDiffArgs.value(i);
+
+		// perform any filename replacements that are necessary
+		// (done inside the loop to handle whitespace in paths properly)
+		curArg.replace("%1", fName2);
+		curArg.replace("%2", fName1);
+
+		args->append(curArg);
+	}
+
+	// set filenames so that they can be deleted when the process completes
+	filenames->append(fName1);
+	filenames->append(fName2);
 }
 
 // ********************** Repository open or changed *************************

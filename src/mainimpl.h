@@ -128,7 +128,7 @@ private:
 	void filterList(bool isOn, bool onlyHighlight);
 	bool isMatch(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
 	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
-	void getExternalDiffArgs(QStringList* args);
+	void getExternalDiffArgs(QStringList* args, QStringList* filenames);
 	void lineEditSHASetText(SCRef text);
 	void updateCommitMenu(bool isStGITStack);
 	void updateRecentRepoMenu(SCRef newEntry = "");
@@ -168,7 +168,8 @@ private:
 class ExternalDiffProc : public QProcess {
 Q_OBJECT
 public:
-	ExternalDiffProc(const QStringList& a, QObject* p) : QProcess(p), args(a) {
+	ExternalDiffProc(const QStringList& f, QObject* p)
+		: QProcess(p), filenames(f) {
 
 		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
 		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
@@ -178,7 +179,7 @@ public:
 		terminate();
 		removeFiles();
 	}
-	QStringList args;
+	QStringList filenames;
 
 private slots:
 	void on_finished(int, QProcess::ExitStatus) { deleteLater(); }
@@ -186,10 +187,10 @@ private slots:
 private:
 	void removeFiles() {
 
-		if (!args.empty()) {
+		if (!filenames.empty()) {
 			QDir d; // remove temporary files to diff on
-			d.remove(args[1]);
-			d.remove(args[2]);
+			d.remove(filenames[0]);
+			d.remove(filenames[1]);
 		}
 	}
 };
