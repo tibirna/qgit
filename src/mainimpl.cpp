@@ -618,10 +618,10 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 			break;
 		}
 		SCRef fn(dr.absoluteFilePath(dr[0]));
-		if (!git->applyPatchFile(fn, fold, Git::optDragDrop))
-			break;
-
+		bool is_applied = git->applyPatchFile(fn, fold, Git::optDragDrop);
 		dr.remove(fn);
+		if (!is_applied)
+			break;
 
 	} while (it != remoteRevs.constBegin());
 
