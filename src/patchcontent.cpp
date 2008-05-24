@@ -160,16 +160,16 @@ bool PatchContent::centerTarget(SCRef target) {
 	if (!find(target, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords))
 		return false;
 
-	// target found, remove selection
+	// move to the beginning of the line
+	moveCursor(QTextCursor::StartOfLine);
+
+	// grap copy of current cursor state
 	QTextCursor tc = textCursor();
-	tc.clearSelection();
+
+	// move the target line to the top
+	moveCursor(QTextCursor::End);
 	setTextCursor(tc);
 
-	int ps = verticalScrollBar()->pageStep();
-	if (tc.position() > ps) { // find() places cursor at the end of the page
-		int v = verticalScrollBar()->value();
-		verticalScrollBar()->setValue(v + ps - fontMetrics().height());
-	}
 	return true;
 }
 
