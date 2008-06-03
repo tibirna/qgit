@@ -627,6 +627,8 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 void ListViewDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt,
                              const QModelIndex& index) const {
 
+  p->setRenderHints(QPainter::Antialiasing);
+
 	if (index.column() == GRAPH_COL)
 		return paintGraph(p, opt, index);
 
