@@ -1743,10 +1743,19 @@ void MainImpl::ActHelp_activated() {
 void MainImpl::ActAbout_activated() {
 
 	static const char* aboutMsg =
-	"<center><p><b>QGit version " PACKAGE_VERSION "</b></p><br>"
-	"<p>Copyright (c) 2005, 2007 Marco Costalba</p>"
-	"<p>Use and redistribute under the terms of the "
-	"GNU General Public License</p></center>";
+	"<p><b>QGit version " PACKAGE_VERSION "</b></p>"
+	"<p>Copyright (c) 2005, 2007, 2008 Marco Costalba</p>"
+	"<p>Use and redistribute under the terms of the<br>"
+	"<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU General Public License Version 2</a></p>"
+	"<p>Contributors:<br>"
+	"Copyright (c) 2007 Andy Parkins<br>"
+	"Copyright (c) 2007 Pavel Roskin<br>"
+	"Copyright (c) 2007 Peter Oberndorfer<br>"
+	"Copyright (c) 2007 Yaacov Akiba<br>"
+	"Copyright (c) 2007 James McKaskill<br>"
+	"Copyright (c) 2008 Jan Hudec<br>"
+	"Copyright (c) 2008 Paul Gideon Dann<br>"
+	"Copyright (c) 2008 Oliver Bock</p>";
 	QMessageBox::about(this, "About QGit", QString::fromLatin1(aboutMsg));
 }
 
