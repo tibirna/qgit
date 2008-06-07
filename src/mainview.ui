@@ -16,23 +16,23 @@
    <string>QGit</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/icons/resources/qgit.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
   </property>
   <widget class="QWidget" name="widget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>62</y>
+     <width>905</width>
+     <height>415</height>
+    </rect>
+   </property>
    <layout class="QHBoxLayout" >
     <property name="spacing" >
      <number>6</number>
     </property>
-    <property name="leftMargin" >
-     <number>9</number>
-    </property>
-    <property name="topMargin" >
-     <number>9</number>
-    </property>
-    <property name="rightMargin" >
-     <number>9</number>
-    </property>
-    <property name="bottomMargin" >
+    <property name="margin" >
      <number>9</number>
     </property>
     <item>
@@ -61,6 +61,14 @@
       </widget>
       <widget class="QTabWidget" name="tabWdg" >
        <widget class="QWidget" name="TabWdg" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>204</width>
+          <height>368</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>Tab&amp;Wdg</string>
         </attribute>
@@ -71,6 +79,14 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="toolBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>31</y>
+     <width>905</width>
+     <height>31</height>
+    </rect>
+   </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
    </property>
@@ -105,7 +121,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>27</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="Help" >
@@ -187,7 +203,8 @@
   </widget>
   <action name="ActOpenRepo" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/folder_open.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/folder_open.png</normaloff>:/icons/resources/folder_open.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Open...</string>
@@ -226,7 +243,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/mail_send.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/mail_send.png</normaloff>:/icons/resources/mail_send.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save patch...</string>
@@ -240,7 +258,8 @@
   </action>
   <action name="ActHelp" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/help.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/help.png</normaloff>:/icons/resources/help.png</iconset>
    </property>
    <property name="text" >
     <string>QGit ha&amp;ndbook</string>
@@ -254,7 +273,8 @@
   </action>
   <action name="ActSettings" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/configure.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/configure.png</normaloff>:/icons/resources/configure.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Settings...</string>
@@ -268,7 +288,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/vcs_commit.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/vcs_commit.png</normaloff>:/icons/resources/vcs_commit.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Commit...</string>
@@ -278,6 +299,9 @@
    </property>
    <property name="toolTip" >
     <string>Commit changes</string>
+   </property>
+   <property name="shortcut" >
+    <string>#</string>
    </property>
   </action>
   <action name="ActTag" >
@@ -321,7 +345,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/mail_get.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/mail_get.png</normaloff>:/icons/resources/mail_get.png</iconset>
    </property>
    <property name="text" >
     <string>Apply patch...</string>
@@ -343,6 +368,9 @@
    <property name="toolTip" >
     <string>Push this patch on StGIT stack</string>
    </property>
+   <property name="shortcut" >
+    <string>PgUp</string>
+   </property>
   </action>
   <action name="ActPop" >
    <property name="enabled" >
@@ -357,13 +385,17 @@
    <property name="toolTip" >
     <string>Pop patches from StGIT stack until this one included</string>
    </property>
+   <property name="shortcut" >
+    <string>PgDown</string>
+   </property>
   </action>
   <action name="ActRefresh" >
    <property name="enabled" >
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/reload.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/reload.png</normaloff>:/icons/resources/reload.png</iconset>
    </property>
    <property name="iconText" >
     <string>Refresh</string>
@@ -440,7 +472,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/wizard.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/wizard.png</normaloff>:/icons/resources/wizard.png</iconset>
    </property>
    <property name="text" >
     <string>Toggle filter by tree</string>
@@ -451,6 +484,9 @@
    <property name="toolTip" >
     <string>Filter by tree selection, multple selection allowed</string>
    </property>
+   <property name="shortcut" >
+    <string>F</string>
+   </property>
   </action>
   <action name="ActShowTree" >
    <property name="checkable" >
@@ -460,7 +496,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/view_tree.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/view_tree.png</normaloff>:/icons/resources/view_tree.png</iconset>
    </property>
    <property name="text" >
     <string>Toggle tree view</string>
@@ -536,7 +573,8 @@
   </action>
   <action name="ActSplitView" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/view_top_bottom.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/view_top_bottom.png</normaloff>:/icons/resources/view_top_bottom.png</iconset>
    </property>
    <property name="text" >
     <string>Toggle split view</string>
@@ -581,13 +619,17 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/next.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/next.png</normaloff>:/icons/resources/next.png</iconset>
    </property>
    <property name="text" >
     <string>Forward</string>
    </property>
    <property name="iconText" >
     <string>Forward</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+Right</string>
    </property>
   </action>
   <action name="ActBack" >
@@ -595,7 +637,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/previous.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/previous.png</normaloff>:/icons/resources/previous.png</iconset>
    </property>
    <property name="text" >
     <string>Back</string>
@@ -603,10 +646,14 @@
    <property name="iconText" >
     <string>Back</string>
    </property>
+   <property name="shortcut" >
+    <string>Alt+Left</string>
+   </property>
   </action>
   <action name="ActCustomActionSetup" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/bookmark.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/bookmark.png</normaloff>:/icons/resources/bookmark.png</iconset>
    </property>
    <property name="text" >
     <string>Setup actions...</string>
@@ -651,7 +698,8 @@
     <bool>true</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/filter.png</normaloff>:/icons/resources/filter.png</iconset>
    </property>
    <property name="text" >
     <string>searchAndFilter</string>
@@ -668,7 +716,8 @@
     <bool>true</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/find.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/find.png</normaloff>:/icons/resources/find.png</iconset>
    </property>
    <property name="text" >
     <string>searchAndHighlight</string>
@@ -713,7 +762,8 @@
   </action>
   <action name="ActRangeDlg" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/resources/range_select.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/resources/range_select.png</normaloff>:/icons/resources/range_select.png</iconset>
    </property>
    <property name="text" >
     <string>Select range...</string>
