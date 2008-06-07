@@ -23,7 +23,7 @@ contains(QMAKE_CC,.*gcc.*) {
 
 # General stuff
 TEMPLATE = app
-CONFIG += qt warn_on exceptions debug_and_release
+CONFIG += qt warn_on exceptions
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
@@ -43,8 +43,8 @@ unix {
 }
 
 HAVE_GCC {
-	QMAKE_CXXFLAGS_RELEASE += -g3 -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
-	QMAKE_CXXFLAGS_DEBUG += -g3 -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
+	QMAKE_CXXFLAGS_RELEASE += -s -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
+	QMAKE_CXXFLAGS_DEBUG += -g3 -ggdb -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 }
 
 ENABLE_CONSOLE_MSG {
