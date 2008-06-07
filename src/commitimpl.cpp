@@ -76,11 +76,22 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 	textEditMsg->moveCursor(QTextCursor::Start);
 	textEditMsg_cursorPositionChanged();
 
-	// setup textEditMsg with default value
-	QString status;
-	status = amend ? git->getLastCommitMsg() : git->getNewCommitMsg();
+	// setup textEditMsg with old commit message to be amended
+	QString status("");
+	if (amend) {
+		status = git->getLastCommitMsg();
+	}
+	
+	// setup textEditMsg with default value if user opted to do so (default)
+	if (testFlag(USE_CMT_MSG_F, FLAGS_KEY)) {
+		status += git->getNewCommitMsg();
+	}
+
+	// prepend commit msg with template if available
+	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
 	msg.append(status.trimmed());
 	textEditMsg->setPlainText(msg);
+	textEditMsg->setFocus();
 
 	// if message is not changed we avoid calling refresh
 	// to change patch name in stgCommit()

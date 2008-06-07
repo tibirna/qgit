@@ -1155,7 +1155,7 @@ const QString Git::getLastCommitMsg() {
 		return "";
 	}
 
-	return c->shortLog() + '\n' + c->longLog().trimmed() + getNewCommitMsg();
+	return c->shortLog() + '\n' + c->longLog().trimmed();
 }
 
 const QString Git::getNewCommitMsg() {

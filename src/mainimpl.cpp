@@ -158,9 +158,21 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	connect(treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
 	        this, SLOT(treeView_doubleClicked(QTreeWidgetItem*, int)));
 
+	// use most recent repo as startup dir if it exists and user opted to do so	
+	QStringList recents(settings.value(REC_REP_KEY).toStringList());
+	QDir checkRepo;
+	if (	recents.size() >= 1
+		 && testFlag(REOPEN_REPO_F, FLAGS_KEY)
+		 && checkRepo.exists(recents.at(0)))
+	{
+		startUpDir = recents.at(0);
+	}
+	else {
+		startUpDir = (cd.isEmpty() ? QDir::current().absolutePath() : cd);
+	}
+
 	// MainImpl c'tor is called before to enter event loop,
 	// but some stuff requires event loop to init properly
-	startUpDir = (cd.isEmpty() ? QDir::current().absolutePath() : cd);
 	QTimer::singleShot(10, this, SLOT(initWithEventLoopActive()));
 }
 

@@ -245,9 +245,11 @@ namespace QGit {
 		REL_DATE_F      = 1024,
 		ALL_BRANCHES_F  = 2048,
 		WHOLE_HISTORY_F = 4096,
-		RANGE_SELECT_F  = 8192
+		RANGE_SELECT_F  = 8192,
+		REOPEN_REPO_F   = 16384,
+		USE_CMT_MSG_F   = 32768
 	};
-	const int FLAGS_DEF = 9033;
+	const int FLAGS_DEF = 41801;
 
 	// ShaString helpers
 	const ShaString toTempSha(const QString&); // use as argument only, see definition

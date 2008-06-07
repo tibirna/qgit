@@ -25,6 +25,7 @@ protected slots:
 	void checkBoxNumbers_toggled(bool b);
 	void checkBoxSign_toggled(bool b);
 	void checkBoxRangeSelectDialog_toggled(bool b);
+	void checkBoxReopenLastRepo_toggled(bool b);
 	void checkBoxRelativeDate_toggled(bool b);
 	void checkBoxLogDiffTab_toggled(bool b);
 	void checkBoxSmartLabels_toggled(bool b);
@@ -32,6 +33,7 @@ protected slots:
 	void checkBoxDiffCache_toggled(bool b);
 	void checkBoxCommitSign_toggled(bool b);
 	void checkBoxCommitVerify_toggled(bool b);
+	void checkBoxCommitUseDefMsg_toggled(bool b);
 	void lineEditExternalDiffViewer_textChanged(const QString& s);
 	void lineEditApplyPatchExtraOptions_textChanged(const QString& s);
 	void lineEditFormatPatchExtraOptions_textChanged(const QString& s);

@@ -47,7 +47,9 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxSign->setChecked(f & SIGN_PATCH_F);
 	checkBoxCommitSign->setChecked(f & SIGN_CMT_F);
 	checkBoxCommitVerify->setChecked(f & VERIFY_CMT_F);
+	checkBoxCommitUseDefMsg->setChecked(f & USE_CMT_MSG_F);
 	checkBoxRangeSelectDialog->setChecked(f & RANGE_SELECT_F);
+	checkBoxReopenLastRepo->setChecked(f & REOPEN_REPO_F);
 	checkBoxRelativeDate->setChecked(f & REL_DATE_F);
 	checkBoxLogDiffTab->setChecked(f & LOG_DIFF_TAB_F);
 	checkBoxSmartLabels->setChecked(f & SMART_LBL_F);
@@ -211,6 +213,11 @@ void SettingsImpl::checkBoxRangeSelectDialog_toggled(bool b) {
 	changeFlag(RANGE_SELECT_F, b);
 }
 
+void SettingsImpl::checkBoxReopenLastRepo_toggled(bool b) {
+
+	changeFlag(REOPEN_REPO_F, b);
+}
+
 void SettingsImpl::checkBoxRelativeDate_toggled(bool b) {
 
 	changeFlag(REL_DATE_F, b);
@@ -239,6 +246,11 @@ void SettingsImpl::checkBoxCommitSign_toggled(bool b) {
 void SettingsImpl::checkBoxCommitVerify_toggled(bool b) {
 
 	changeFlag(VERIFY_CMT_F, b);
+}
+
+void SettingsImpl::checkBoxCommitUseDefMsg_toggled(bool b) {
+
+	changeFlag(USE_CMT_MSG_F, b);
 }
 
 void SettingsImpl::lineEditExternalDiffViewer_textChanged(const QString& s) {

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>443</width>
-    <height>343</height>
+    <width>545</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -19,7 +19,8 @@
    <string>Settings</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/icons/resources/configure.png</iconset>
+   <iconset resource="icons.qrc" >
+    <normaloff>:/icons/resources/configure.png</normaloff>:/icons/resources/configure.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>
@@ -31,16 +32,7 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <property name="leftMargin" >
-    <number>9</number>
-   </property>
-   <property name="topMargin" >
-    <number>9</number>
-   </property>
-   <property name="rightMargin" >
-    <number>9</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin" >
     <number>9</number>
    </property>
    <item>
@@ -48,24 +40,23 @@
      <property name="spacing" >
       <number>6</number>
      </property>
-     <property name="leftMargin" >
-      <number>0</number>
-     </property>
-     <property name="topMargin" >
-      <number>0</number>
-     </property>
-     <property name="rightMargin" >
-      <number>0</number>
-     </property>
-     <property name="bottomMargin" >
+     <property name="margin" >
       <number>0</number>
      </property>
      <item>
       <widget class="QTabWidget" name="tabDialog" >
        <property name="currentIndex" >
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="General" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>521</width>
+          <height>274</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>&amp;General</string>
         </attribute>
@@ -73,16 +64,7 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin" >
           <number>9</number>
          </property>
          <item>
@@ -90,16 +72,7 @@
            <property name="spacing" >
             <number>6</number>
            </property>
-           <property name="leftMargin" >
-            <number>0</number>
-           </property>
-           <property name="topMargin" >
-            <number>0</number>
-           </property>
-           <property name="rightMargin" >
-            <number>0</number>
-           </property>
-           <property name="bottomMargin" >
+           <property name="margin" >
             <number>0</number>
            </property>
            <item>
@@ -114,16 +87,7 @@
               <property name="spacing" >
                <number>6</number>
               </property>
-              <property name="leftMargin" >
-               <number>9</number>
-              </property>
-              <property name="topMargin" >
-               <number>9</number>
-              </property>
-              <property name="rightMargin" >
-               <number>9</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin" >
                <number>9</number>
               </property>
               <item>
@@ -131,16 +95,7 @@
                 <property name="spacing" >
                  <number>6</number>
                 </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
+                <property name="margin" >
                  <number>0</number>
                 </property>
                 <item>
@@ -169,6 +124,13 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxReopenLastRepo" >
+                  <property name="text" >
+                   <string>Reopen last repository on startup</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
              </layout>
@@ -179,7 +141,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>21</height>
@@ -189,22 +151,10 @@
            </item>
            <item>
             <layout class="QGridLayout" >
-             <property name="leftMargin" >
+             <property name="margin" >
               <number>0</number>
              </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-             <property name="horizontalSpacing" >
-              <number>4</number>
-             </property>
-             <property name="verticalSpacing" >
+             <property name="spacing" >
               <number>4</number>
              </property>
              <item row="1" column="2" >
@@ -310,7 +260,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>20</height>
@@ -323,16 +273,7 @@
              <property name="spacing" >
               <number>4</number>
              </property>
-             <property name="leftMargin" >
-              <number>0</number>
-             </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
+             <property name="margin" >
               <number>0</number>
              </property>
              <item>
@@ -371,6 +312,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="Browse" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>521</width>
+          <height>274</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>&amp;Browse</string>
         </attribute>
@@ -378,16 +327,7 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin" >
           <number>9</number>
          </property>
          <item>
@@ -395,16 +335,7 @@
            <property name="spacing" >
             <number>0</number>
            </property>
-           <property name="leftMargin" >
-            <number>0</number>
-           </property>
-           <property name="topMargin" >
-            <number>0</number>
-           </property>
-           <property name="rightMargin" >
-            <number>0</number>
-           </property>
-           <property name="bottomMargin" >
+           <property name="margin" >
             <number>0</number>
            </property>
            <item>
@@ -419,16 +350,7 @@
               <property name="spacing" >
                <number>0</number>
               </property>
-              <property name="leftMargin" >
-               <number>2</number>
-              </property>
-              <property name="topMargin" >
-               <number>2</number>
-              </property>
-              <property name="rightMargin" >
-               <number>2</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin" >
                <number>2</number>
               </property>
               <item>
@@ -436,16 +358,7 @@
                 <property name="spacing" >
                  <number>4</number>
                 </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
+                <property name="margin" >
                  <number>0</number>
                 </property>
                 <item>
@@ -491,7 +404,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>71</height>
@@ -504,6 +417,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="Patch" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>521</width>
+          <height>274</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>Patc&amp;h</string>
         </attribute>
@@ -522,16 +443,7 @@
               <property name="spacing" >
                <number>0</number>
               </property>
-              <property name="leftMargin" >
-               <number>2</number>
-              </property>
-              <property name="topMargin" >
-               <number>2</number>
-              </property>
-              <property name="rightMargin" >
-               <number>2</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin" >
                <number>2</number>
               </property>
               <item>
@@ -539,16 +451,7 @@
                 <property name="spacing" >
                  <number>4</number>
                 </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
+                <property name="margin" >
                  <number>0</number>
                 </property>
                 <item>
@@ -587,7 +490,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>399</width>
                <height>91</height>
@@ -650,6 +553,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="WorkingDir" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>521</width>
+          <height>274</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>&amp;Working dir</string>
         </attribute>
@@ -657,16 +568,7 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin" >
           <number>9</number>
          </property>
          <item>
@@ -674,16 +576,7 @@
            <property name="spacing" >
             <number>0</number>
            </property>
-           <property name="leftMargin" >
-            <number>0</number>
-           </property>
-           <property name="topMargin" >
-            <number>0</number>
-           </property>
-           <property name="rightMargin" >
-            <number>0</number>
-           </property>
-           <property name="bottomMargin" >
+           <property name="margin" >
             <number>0</number>
            </property>
            <item>
@@ -698,16 +591,7 @@
               <property name="spacing" >
                <number>4</number>
               </property>
-              <property name="leftMargin" >
-               <number>5</number>
-              </property>
-              <property name="topMargin" >
-               <number>5</number>
-              </property>
-              <property name="rightMargin" >
-               <number>5</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin" >
                <number>5</number>
               </property>
               <item>
@@ -731,7 +615,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>40</height>
@@ -741,22 +625,10 @@
            </item>
            <item>
             <layout class="QGridLayout" >
-             <property name="leftMargin" >
+             <property name="margin" >
               <number>0</number>
              </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-             <property name="horizontalSpacing" >
-              <number>4</number>
-             </property>
-             <property name="verticalSpacing" >
+             <property name="spacing" >
               <number>4</number>
              </property>
              <item row="1" column="1" >
@@ -807,6 +679,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="Commit" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>521</width>
+          <height>274</height>
+         </rect>
+        </property>
         <attribute name="title" >
          <string>&amp;Commit</string>
         </attribute>
@@ -814,16 +694,7 @@
          <property name="spacing" >
           <number>6</number>
          </property>
-         <property name="leftMargin" >
-          <number>9</number>
-         </property>
-         <property name="topMargin" >
-          <number>9</number>
-         </property>
-         <property name="rightMargin" >
-          <number>9</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin" >
           <number>9</number>
          </property>
          <item>
@@ -831,16 +702,7 @@
            <property name="spacing" >
             <number>0</number>
            </property>
-           <property name="leftMargin" >
-            <number>0</number>
-           </property>
-           <property name="topMargin" >
-            <number>0</number>
-           </property>
-           <property name="rightMargin" >
-            <number>0</number>
-           </property>
-           <property name="bottomMargin" >
+           <property name="margin" >
             <number>0</number>
            </property>
            <item>
@@ -855,16 +717,7 @@
               <property name="spacing" >
                <number>0</number>
               </property>
-              <property name="leftMargin" >
-               <number>2</number>
-              </property>
-              <property name="topMargin" >
-               <number>2</number>
-              </property>
-              <property name="rightMargin" >
-               <number>2</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin" >
                <number>2</number>
               </property>
               <item>
@@ -872,16 +725,7 @@
                 <property name="spacing" >
                  <number>4</number>
                 </property>
-                <property name="leftMargin" >
-                 <number>3</number>
-                </property>
-                <property name="topMargin" >
-                 <number>3</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>3</number>
-                </property>
-                <property name="bottomMargin" >
+                <property name="margin" >
                  <number>3</number>
                 </property>
                 <item>
@@ -910,6 +754,13 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBoxCommitUseDefMsg" >
+                  <property name="text" >
+                   <string>Use default commit message</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
              </layout>
@@ -920,7 +771,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>21</height>
@@ -930,22 +781,10 @@
            </item>
            <item>
             <layout class="QGridLayout" >
-             <property name="leftMargin" >
+             <property name="margin" >
               <number>0</number>
              </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-             <property name="horizontalSpacing" >
-              <number>4</number>
-             </property>
-             <property name="verticalSpacing" >
+             <property name="spacing" >
               <number>4</number>
              </property>
              <item row="0" column="2" >
@@ -999,7 +838,7 @@
              <property name="orientation" >
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>20</width>
                <height>21</height>
@@ -1009,22 +848,10 @@
            </item>
            <item>
             <layout class="QGridLayout" >
-             <property name="leftMargin" >
+             <property name="margin" >
               <number>0</number>
              </property>
-             <property name="topMargin" >
-              <number>0</number>
-             </property>
-             <property name="rightMargin" >
-              <number>0</number>
-             </property>
-             <property name="bottomMargin" >
-              <number>0</number>
-             </property>
-             <property name="horizontalSpacing" >
-              <number>4</number>
-             </property>
-             <property name="verticalSpacing" >
+             <property name="spacing" >
               <number>4</number>
              </property>
              <item row="0" column="0" >
@@ -1083,16 +910,7 @@
        <property name="spacing" >
         <number>0</number>
        </property>
-       <property name="leftMargin" >
-        <number>0</number>
-       </property>
-       <property name="topMargin" >
-        <number>0</number>
-       </property>
-       <property name="rightMargin" >
-        <number>0</number>
-       </property>
-       <property name="bottomMargin" >
+       <property name="margin" >
         <number>0</number>
        </property>
        <item>
@@ -1100,7 +918,7 @@
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0" >
           <size>
            <width>181</width>
            <height>20</height>
@@ -1142,8 +960,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>479</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1158,8 +976,8 @@
    <slot>checkBoxNumbers_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1174,8 +992,8 @@
    <slot>lineEditFormatPatchExtraOptions_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1190,8 +1008,8 @@
    <slot>checkBoxDiffCache_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1206,8 +1024,8 @@
    <slot>lineEditExcludePerDir_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1222,8 +1040,8 @@
    <slot>lineEditExcludeFile_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1238,8 +1056,8 @@
    <slot>checkBoxSign_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1254,8 +1072,8 @@
    <slot>lineEditTemplate_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1270,8 +1088,8 @@
    <slot>lineEditCommitExtraOptions_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1286,8 +1104,8 @@
    <slot>checkBoxRelativeDate_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>45</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1302,8 +1120,8 @@
    <slot>checkBoxRangeSelectDialog_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>45</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1312,14 +1130,30 @@
    </hints>
   </connection>
   <connection>
+   <sender>checkBoxReopenLastRepo</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxReopenLastRepo_toggled(bool)</slot>
+    <hints>
+     <hint type="sourcelabel" >
+      <x>32</x>
+      <y>57</y>
+     </hint>
+     <hint type="destinationlabel" >
+      <x>20</x>
+      <y>20</y>
+     </hint>
+    </hints>
+  </connection>
+  <connection>
    <sender>comboBoxCodecs</sender>
    <signal>activated(int)</signal>
    <receiver>settingsBase</receiver>
    <slot>comboBoxCodecs_activated(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>112</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1334,8 +1168,8 @@
    <slot>checkBoxCommitVerify_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1350,8 +1184,40 @@
    <slot>checkBoxCommitSign_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
+     <x>32</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel" >
      <x>20</x>
      <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCommitUseDefMsg</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxCommitUseDefMsg_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>32</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCommitSign</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxCommitSign_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>32</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1366,8 +1232,8 @@
    <slot>lineEditExternalDiffViewer_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>147</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1382,8 +1248,8 @@
    <slot>pushButtonExtDiff_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>493</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1398,8 +1264,8 @@
    <slot>pushButtonFont_clicked()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+     <x>493</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel" >
      <x>20</x>
@@ -1414,8 +1280,8 @@
    <slot>comboBoxUserSrc_activated(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>408</x>
-     <y>217</y>
+     <x>120</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel" >
      <x>256</x>
@@ -1430,8 +1296,8 @@
    <slot>checkBoxMsgOnNewSHA_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>225</x>
-     <y>125</y>
+     <x>120</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel" >
      <x>225</x>
@@ -1446,8 +1312,8 @@
    <slot>checkBoxLogDiffTab_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>225</x>
-     <y>79</y>
+     <x>120</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel" >
      <x>225</x>
@@ -1462,8 +1328,8 @@
    <slot>checkBoxSmartLabels_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>225</x>
-     <y>102</y>
+     <x>120</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel" >
      <x>225</x>
@@ -1478,8 +1344,8 @@
    <slot>lineEditApplyPatchExtraOptions_textChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>312</x>
-     <y>233</y>
+     <x>120</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel" >
      <x>221</x>
