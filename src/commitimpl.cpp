@@ -41,7 +41,7 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 
 	// set-up files list
 	const RevFile* f = git->getFiles(ZERO_SHA);
-	for (int i = 0; i < f->count(); ++i) {
+	for (int i = 0; f && i < f->count(); ++i) { // in case of amend f could be null
 
 		bool inIndex = f->statusCmp(i, RevFile::IN_INDEX);
 		bool isNew = (f->statusCmp(i, RevFile::NEW) || f->statusCmp(i, RevFile::UNKNOWN));
@@ -81,7 +81,7 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 	if (amend) {
 		status = git->getLastCommitMsg();
 	}
-	
+
 	// setup textEditMsg with default value if user opted to do so (default)
 	if (testFlag(USE_CMT_MSG_F, FLAGS_KEY)) {
 		status += git->getNewCommitMsg();
@@ -232,7 +232,7 @@ bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool 
 	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1
 
 	// NOTEME: i18n-ugly
-	QString whatToDo = amend ? 
+	QString whatToDo = amend ?
 	    (git->isStGITStack() ? "refresh top patch with" :
 	     			   "amend last commit with") :
 	    (git->isStGITStack() ? "create a new patch with" : "commit");
