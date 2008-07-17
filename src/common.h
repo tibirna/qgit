@@ -408,7 +408,7 @@ public:
 	// helper functions
 	int count() const {
 
-		return pathsIdx.size() / (sizeof(int) * 2);
+		return pathsIdx.size() / ((int)sizeof(int) * 2);
 	}
 	bool statusCmp(int idx, StatusFlag sf) const {
 
