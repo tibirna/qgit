@@ -319,7 +319,7 @@ void Git::checkEnvironment() {
 			QApplication::postEvent(parent(), e);
 		}
 	} else {
-		dbs("Cannot found git files");
+		dbs("Cannot find git files");
 		return;
 	}
 	errorReportingEnabled = false;
@@ -983,7 +983,7 @@ bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 	// if needed fake a working directory tree starting from HEAD tree
 	QString runOutput, tree(treeSha);
 	if (treeSha == ZERO_SHA) {
-		// HEAD could be empty for just inited repositories
+		// HEAD could be empty for just init'ed repositories
 		if (!run("git rev-parse --revs-only HEAD", &tree))
 			return false;
 
@@ -1138,7 +1138,7 @@ const QStringList Git::getNearTags(bool goDown, SCRef sha) {
 const QString Git::getLastCommitMsg() {
 
 	// FIXME: Make sure the amend action is not called when there is
-	// nothing to amend. That is in empty repository or over stgit stack
+	// nothing to amend. That is in empty repository or over StGit stack
 	// with nothing applied.
 	QString sha;
 	QString top;
@@ -1288,7 +1288,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 
-	/* we use an indipendent FileNamesLoader to avoid data
+	/* we use an independent FileNamesLoader to avoid data
 	 * corruption if we are loading file names in background
 	 */
 	FileNamesLoader fl;
@@ -1635,7 +1635,7 @@ fail:
 
 bool Git::mkPatchFromWorkDir(SCRef msg, SCRef patchFile, SCList files) {
 
- 	/* unfortunatly 'git diff' sees only files already
+ 	/* unfortunately 'git diff' sees only files already
 	 * known to git or already in index, so update index first
 	 * to be sure also unknown files are correctly found
 	 */
@@ -1653,21 +1653,21 @@ bool Git::mkPatchFromWorkDir(SCRef msg, SCRef patchFile, SCList files) {
 bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 
 	/* Here the deal is to use 'stg import' and 'stg fold' to add a new
-	 * patch or refresh the current one respectively. Unfortunatly refresh
+	 * patch or refresh the current one respectively. Unfortunately refresh
 	 * does not work with partial selection of files and also does not take
 	 * patch message from a file that is needed to avoid artifacts with '\n'
 	 * and friends.
 	 *
 	 * So steps are:
 	 *
-	 * - Create a patch file with the changhes you want to import/fold in stgit
+	 * - Create a patch file with the changes you want to import/fold in StGit
 	 * - Stash working dir files because import/fold wants a clean directory
 	 * - Import/fold the patch
 	 * - Unstash and merge working dir modified files
 	 * - Restore index with not selected files
 	 */
 
-	/* Step 1: Create a patch file with the changhes you want to import/fold */
+	/* Step 1: Create a patch file with the changes you want to import/fold */
 	bool ret = false;
 	const QString patchFile(gitDir + "/qgit_tmp_patch.txt");
 
@@ -1686,7 +1686,7 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 	/* Step 2: Stash working dir modified files */
 	if (partialSelection) {
 		errorReportingEnabled = false;
-		run("git stash"); // unfortunatly 'git stash' is noisy on stderr
+		run("git stash"); // unfortunately 'git stash' is noisy on stderr
 		errorReportingEnabled = true;
 	}
 
@@ -1715,7 +1715,7 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 
 		/* Step 4: Unstash and merge working dir modified files */
 		errorReportingEnabled = false;
-		run("git stash apply"); // unfortunatly 'git stash' is noisy on stderr
+		run("git stash apply"); // unfortunately 'git stash' is noisy on stderr
 // 		run("git stash clear"); // FIXME would be better to remove only the last stash
 		errorReportingEnabled = true;
 
