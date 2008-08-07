@@ -5,3 +5,11 @@ build
 *kde*
 Doxy*
 qgit4.tag
+Debug/
+Release/
+*.ncb
+*.suo
+*.vcproj.*
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
