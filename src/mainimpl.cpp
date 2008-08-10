@@ -1755,7 +1755,8 @@ void MainImpl::ActAbout_activated() {
 	"Copyright (c) 2007 James McKaskill<br>"
 	"Copyright (c) 2008 Jan Hudec<br>"
 	"Copyright (c) 2008 Paul Gideon Dann<br>"
-	"Copyright (c) 2008 Oliver Bock</p>";
+	"Copyright (c) 2008 Oliver Bock</p>"
+	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
 	QMessageBox::about(this, "About QGit", QString::fromLatin1(aboutMsg));
 }
 
