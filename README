@@ -44,6 +44,8 @@ To compile, install and start qgit:
 
  - qmake qgit.pro (only the first time)
 
+ - (Windows only with VC2008 IDE) open qgit.sln solution file
+
  - make
 
  - make install
