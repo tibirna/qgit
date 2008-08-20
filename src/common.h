@@ -232,24 +232,24 @@ namespace QGit {
 
 	// settings booleans
 	enum FlagType {
-		MSG_ON_NEW_F    = 1,
-		ACT_REFRESH_F   = 2,
-		NUMBERS_F       = 4,
-		LOG_DIFF_TAB_F  = 8,
-		ACT_CMD_LINE_F  = 16,
-		DIFF_INDEX_F    = 32,
-		SIGN_PATCH_F    = 64,
-		SIGN_CMT_F      = 128,
-		VERIFY_CMT_F    = 256,
-		SMART_LBL_F     = 512,
-		REL_DATE_F      = 1024,
-		ALL_BRANCHES_F  = 2048,
-		WHOLE_HISTORY_F = 4096,
-		RANGE_SELECT_F  = 8192,
-		REOPEN_REPO_F   = 16384,
-		USE_CMT_MSG_F   = 32768
+		MSG_ON_NEW_F    = 1 << 0,
+		ACT_REFRESH_F   = 1 << 1,
+		NUMBERS_F       = 1 << 2,
+		LOG_DIFF_TAB_F  = 1 << 3,
+		ACT_CMD_LINE_F  = 1 << 4,
+		DIFF_INDEX_F    = 1 << 5,
+		SIGN_PATCH_F    = 1 << 6,
+		SIGN_CMT_F      = 1 << 7,
+		VERIFY_CMT_F    = 1 << 8,
+		SMART_LBL_F     = 1 << 9,
+		REL_DATE_F      = 1 << 10,
+		ALL_BRANCHES_F  = 1 << 11,
+		WHOLE_HISTORY_F = 1 << 12,
+		RANGE_SELECT_F  = 1 << 13,
+		REOPEN_REPO_F   = 1 << 14,
+		USE_CMT_MSG_F   = 1 << 15
 	};
-	const int FLAGS_DEF = 41801;
+	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F;
 
 	// ShaString helpers
 	const ShaString toTempSha(const QString&); // use as argument only, see definition
