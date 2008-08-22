@@ -397,6 +397,7 @@ bool Git::isThrowOnStopRaised(int excpId, SCRef curContext) {
 void Git::setTextCodec(QTextCodec* tc) {
 
 	QTextCodec::setCodecForCStrings(tc); // works also with tc == 0 (Latin1)
+	QTextCodec::setCodecForLocale(tc);
 	QString name(tc ? tc->name() : "Latin1");
 
 	// workaround Qt issue of mime name different from
