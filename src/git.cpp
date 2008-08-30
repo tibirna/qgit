@@ -1716,8 +1716,7 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 
 		/* Step 4: Unstash and merge working dir modified files */
 		errorReportingEnabled = false;
-		run("git stash apply"); // unfortunately 'git stash' is noisy on stderr
-// 		run("git stash clear"); // FIXME would be better to remove only the last stash
+		run("git stash pop"); // unfortunately 'git stash' is noisy on stderr
 		errorReportingEnabled = true;
 
 		/* Step 5: restore not selected files that were already in index */
@@ -1733,8 +1732,7 @@ fail_and_unstash:
 	if (partialSelection) {
 		run("git reset");
 		errorReportingEnabled = false;
-		run("git stash apply");
-// 		run("git stash clear"); // FIXME would be better to remove only the last stash
+		run("git stash pop");
 		errorReportingEnabled = true;
 	}
 fail:
