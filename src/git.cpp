@@ -1513,7 +1513,7 @@ bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 	if (isDragDrop)
 		runCmd.append("--keep ");
 
-	else if (testFlag(SIGN_PATCH_F))
+	if (testFlag(SIGN_PATCH_F))
 		runCmd.append("--signoff ");
 
 	return run(runCmd + quote(patchPath));
