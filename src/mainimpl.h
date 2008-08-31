@@ -40,6 +40,17 @@ public:
 	// not buildable with Qt designer, will be created manually
 	QLineEdit* lineEditSHA;
 	QLineEdit* lineEditFilter;
+
+	enum ComboSearch {
+		CS_SHORT_LOG,
+		CS_LOG_MSG,
+		CS_AUTHOR,
+		CS_SHA1,
+		CS_FILE,
+		CS_PATCH,
+		CS_PATCH_REGEXP
+	};
+
 	QComboBox* cmbSearch;
 
 signals:

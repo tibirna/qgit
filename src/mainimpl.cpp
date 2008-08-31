@@ -541,7 +541,7 @@ void MainImpl::ActViewDiff_activated() {
 	ActViewDiffNewTab->setEnabled(true);
 
 	if (ActSearchAndFilter->isChecked() || ActSearchAndHighlight->isChecked()) {
-		bool isRegExp = (cmbSearch->currentIndex() == 6);
+		bool isRegExp = (cmbSearch->currentIndex() == CS_PATCH_REGEXP);
 		emit highlightPatch(lineEditFilter->text(), isRegExp);
 	}
 }
@@ -707,30 +707,30 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	int idx = cmbSearch->currentIndex(), colNum = 0;
 	if (isOn) {
 		switch (idx) {
-		case 0:
+		case CS_SHORT_LOG:
 			colNum = LOG_COL;
 			shortLogRE.setPattern(filter);
 			break;
-		case 1:
+		case CS_LOG_MSG:
 			colNum = LOG_MSG_COL;
 			longLogRE.setPattern(filter);
 			break;
-		case 2:
+		case CS_AUTHOR:
 			colNum = AUTH_COL;
 			break;
-		case 3:
+		case CS_SHA1:
 			colNum = COMMIT_COL;
 			break;
-		case 4:
-		case 5:
-		case 6:
+		case CS_FILE:
+		case CS_PATCH:
+		case CS_PATCH_REGEXP:
 			colNum = SHA_MAP_COL;
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			EM_PROCESS_EVENTS; // to paint wait cursor
-			if (idx == 4)
+			if (idx == CS_FILE)
 				git->getFileFilter(filter, shaSet);
 			else {
-				isRegExp = (idx == 6);
+				isRegExp = (idx == CS_PATCH_REGEXP);
 				if (!git->getPatchFilter(filter, isRegExp, shaSet)) {
 					QApplication::restoreOverrideCursor();
 					ActSearchAndFilter->toggle();
@@ -742,7 +742,7 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 			break;
 		}
 	} else {
-		patchNeedsUpdate = (idx == 5 || idx == 6);
+		patchNeedsUpdate = (idx == CS_PATCH || idx == CS_PATCH_REGEXP);
 		shortLogRE.setPattern("");
 		longLogRE.setPattern("");
 	}
