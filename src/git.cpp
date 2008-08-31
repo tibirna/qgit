@@ -1438,7 +1438,7 @@ const QString Git::getNewestFileName(SCList branches, SCRef fileName) {
 	return curFileName;
 }
 
-void Git::getFileFilter(SCRef path, ShaSet& shaSet) {
+void Git::getFileFilter(SCRef path, ShaSet& shaSet) const {
 
 	shaSet.clear();
 	QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);

@@ -160,7 +160,7 @@ public:
 	MyProcess* getHighlightedFile(SCRef fileSha, QObject* receiver, QString* result, SCRef fileName);
 	const QString getFileSha(SCRef file, SCRef revSha);
 	bool saveFile(SCRef fileSha, SCRef fileName, SCRef path);
-	void getFileFilter(SCRef path, ShaSet& shaSet);
+	void getFileFilter(SCRef path, ShaSet& shaSet) const;
 	bool getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet);
 	const RevFile* getFiles(SCRef sha, SCRef sha2 = "", bool all = false, SCRef path = "");
 	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
