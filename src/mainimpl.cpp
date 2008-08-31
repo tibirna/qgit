@@ -189,10 +189,31 @@ void MainImpl::saveCurrentGeometry() {
 	QGit::saveGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
 }
 
+void MainImpl::highlightAbbrevSha(SCRef abbrevSha) {
+	// reset any previous highlight
+	if (ActSearchAndHighlight->isChecked())
+		ActSearchAndHighlight->toggle();
+
+	// set to highlight on SHA matching
+	cmbSearch->setCurrentIndex(CS_SHA1);
+
+	// set substring to search for
+	lineEditFilter->setText(abbrevSha);
+
+	// go with highlighting
+	ActSearchAndHighlight->toggle();
+}
+
 void MainImpl::lineEditSHA_returnPressed() {
 
-	rv->st.setSha(lineEditSHA->text());
-	UPDATE_DOMAIN(rv);
+	int len = lineEditSHA->text().length();
+	if (len < 40) {
+		highlightAbbrevSha(lineEditSHA->text());
+		goMatch(0);
+	} else {
+		rv->st.setSha(lineEditSHA->text());
+		UPDATE_DOMAIN(rv);
+	}
 }
 
 void MainImpl::ActBack_activated() {

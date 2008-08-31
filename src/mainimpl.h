@@ -138,6 +138,7 @@ private:
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
 	bool isMatch(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
+	void highlightAbbrevSha(SCRef abbrevSha);
 	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
 	void getExternalDiffArgs(QStringList* args, QStringList* filenames);
 	void lineEditSHASetText(SCRef text);

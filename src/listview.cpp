@@ -100,9 +100,23 @@ void ListView::setupGeometry() {
 
 void ListView::scrollToNextHighlighted(int direction) {
 
+	// Depending on the value of direction, scroll to:
+	// -1 = the next highlighted item above the current one (i.e. newer in history)
+	//  1 = the next highlighted item below the current one (i.e. older in history)
+	//  0 = the first highlighted item from the top of the list
+
 	QModelIndex idx = currentIndex();
+
+	if (!direction) {
+		idx = idx.sibling(0,0);
+		if (lp->isHighlighted(idx.row())) {
+			setCurrentIndex(idx);
+			return;
+		}
+	}
+
 	do {
-		idx = (direction > 0 ? indexBelow(idx) : indexAbove(idx));
+		idx = (direction >= 0 ? indexBelow(idx) : indexAbove(idx));
 		if (!idx.isValid())
 			return;
 
