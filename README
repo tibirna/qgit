@@ -167,21 +167,30 @@ corresponding setting and start-up time will be shorter.
 Selecting a lane with mouse right button will display a pop-up
 with the list of children and parent. Select one and you jump to it.
 
-*Filter*::
-Use the combo box to select where you want to filter on. Currently
-supported are: log header, log message, revision author, revision SHA1,
-file name and patch content.
+*Filter / Highlight*::
+Use the combo box to select where you want to filter or highlight on.
+Currently supported fields are: log header, log message, revision author,
+revision SHA1, file name and patch content.
 +
 Write a filter string, press filter button and the view
-will update showing only commits that contains the filter string,
+will update showing only commits that contain the filter string,
 case insensitive. Toggle filter button to release the filter.
++
+Alternatively press the magnifying glass button, in this case matched
+lines will be highlighted, you can use <Shift-Up> and <Shift-Down>
+keys to browse them. Toggle the button to remove the highlighting.
 +
 NOTE: In case of patch content regexp filtering, the given string is
 interpreted as a POSIX regular expression, not as a simple substring.
 +
 TIP: Very useful to quick retrieve a sha writing only first 3-4
-digits and filtering on revision sha. The sha value can then be
-copied from SHA field.
+digits and filtering / highlighting on revision sha. The sha value
+can then be copied from SHA field.
++
+TIP: It is possible to insert an abbreviated sha directly in the
+SHA line edit at the top right of the window. After pressing enter
+this will trigger an higlighting of the matched revisions. It is
+a kind of shortcut of the previous tip.
 
 *Save patch series*::
 After mouse selecting the chosen revisions (use standard CTRL+left click)
