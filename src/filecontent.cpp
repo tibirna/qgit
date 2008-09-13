@@ -551,7 +551,7 @@ void FileContent::setAnnList() {
 	listWidgetAnn->setFont(currentFont());
 
 	QString tmp;
-	tmp.fill('8', annoMaxLen + 1 + linesNumDigits + 2);
+	tmp.fill('M', annoMaxLen + 1 + linesNumDigits + 2);
 	int width = listWidgetAnn->fontMetrics().boundingRect(tmp).width();
 
 	QStringList sl;
