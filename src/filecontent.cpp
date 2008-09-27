@@ -576,12 +576,14 @@ void FileContent::setAnnList() {
 	listWidgetAnn->clear();
 	listWidgetAnn->addItems(sl);
 
-	QBrush b(Qt::darkGray);
+	QBrush fore(Qt::darkRed);
+	QBrush back(Qt::lightGray);
 	QFont f(listWidgetAnn->font());
 	f.setBold(true);
 	FOREACH (QVector<int>, it, curIdLines) {
 		QListWidgetItem* item = listWidgetAnn->item(*it);
-		item->setForeground(b);
+		item->setForeground(fore);
+		item->setForeground(back);
 		item->setFont(f);
 	}
 	/* When listWidgetAnn get focus for the first time the current
