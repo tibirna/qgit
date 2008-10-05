@@ -583,7 +583,7 @@ void FileContent::setAnnList() {
 	FOREACH (QVector<int>, it, curIdLines) {
 		QListWidgetItem* item = listWidgetAnn->item(*it);
 		item->setForeground(fore);
-		item->setForeground(back);
+		item->setBackground(back);
 		item->setFont(f);
 	}
 	/* When listWidgetAnn get focus for the first time the current
