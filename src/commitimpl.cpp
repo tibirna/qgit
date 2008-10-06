@@ -236,17 +236,33 @@ bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool 
 	    (git->isStGITStack() ? "refresh top patch with" :
 	     			   "amend last commit with") :
 	    (git->isStGITStack() ? "create a new patch with" : "commit");
-	QString text("Do you want to " + whatToDo + " the following file(s)?\n\n" +
-	             selFiles.join("\n") + "\n\nwith the message:\n\n");
+
+        QString text("Do you want to " + whatToDo);
+
+        bool const fullList = selFiles.size() < 20;
+        if (fullList)
+            text.append(" the following file(s)?\n\n" + selFiles.join("\n") +
+                        "\n\nwith the message:\n\n");
+        else
+            text.append(" those " + QString::number(selFiles.size()) +
+                        " files the with the message:\n\n");
+
 	text.append(msg);
 	if (git->isStGITStack())
 		text.append("\n\nAnd patch name: " + patchName);
 
 	QTextCodec::setCodecForCStrings(tc);
 
-	int but = QMessageBox::question(this, "Commit changes - QGit",
-	                                text, "&Yes", "&No", QString(), 0, 1);
-	return (but != 1);
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Commit changes - QGit");
+        msgBox.setText(text);
+        if (!fullList)
+            msgBox.setDetailedText(selFiles.join("\n"));
+
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+
+        return msgBox.exec() != QMessageBox::No;
 }
 
 void CommitImpl::pushButtonSettings_clicked() {
