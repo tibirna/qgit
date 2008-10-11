@@ -51,6 +51,31 @@ static void adjustPath(QStringList& args, bool* winShell) {
 	}
 }
 
+#elif defined(Q_OS_MACX) // MacOS X specific code
+
+#include <sys/types.h> // used by chmod()
+#include <sys/stat.h>  // used by chmod()
+
+const QString QGit::SCRIPT_EXT = ".sh";
+
+static void adjustPath(QStringList& args, bool*) {
+/*
+    Under MacOS X, git typically doesn't live in the PATH
+    So use GIT_DIR from the settings if available
+
+    Note: I (OC) think that this should be the default behaviour,
+          but I don't want to break other platforms, so I introduced
+          the MacOS X special case. Feel free to make this the default if
+          you do feel the same.
+*/
+	if (args.first() == "git" || args.first().startsWith("git-")) {
+
+		if (!QGit::GIT_DIR.isEmpty()) // application built from sources
+			args.first().prepend(QGit::GIT_DIR + '/');
+
+	}
+}
+
 #else
 
 #include <sys/types.h> // used by chmod()
