@@ -1253,7 +1253,12 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 				ts << formatList(getNearTags(optGoDown, sha), "Precedes");
 			}
 		}
-		QString log(colorMatch(c->longLog(), longLogRE));
+		QString longLog(c->longLog());
+		if (showHeader) {
+			longLog.prepend(QString("\n") + c->shortLog() + "\n");
+		}
+
+		QString log(colorMatch(longLog, longLogRE));
 		log.replace("\n", "\n    ").prepend('\n');
 		ts << "</table></div><div class='l'>" << log << "</div></body></html>";
 	}
