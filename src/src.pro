@@ -42,6 +42,13 @@ unix {
     CONFIG += x11
 }
 
+macx {
+    TARGET = qgit
+    target.path = ~/bin
+    #CONFIG += x86 ppc
+    RC_FILE = resources/qgit.icns
+}
+
 HAVE_GCC {
 	QMAKE_CXXFLAGS_RELEASE += -s -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 	QMAKE_CXXFLAGS_DEBUG += -g3 -ggdb -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion

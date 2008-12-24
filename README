@@ -42,7 +42,9 @@ To compile, install and start qgit:
 
  - (Windows only) open src/src.pro and set the proper GIT_EXEC_DIR value
 
- - qmake qgit.pro (only the first time)
+ - generate Makefiles (only the first time)
+   Unix/Linux and Windows:  qmake qgit.pro
+   Mac Os X:                qmake -spec macx-g++ qgit.pro
 
  - (Windows only with VC2008 IDE) open qgit.sln solution file
 
