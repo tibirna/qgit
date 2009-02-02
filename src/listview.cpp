@@ -419,7 +419,7 @@ const Rev* ListViewDelegate::revLookup(int row, FileHistory** fhPtr) const {
 }
 
 void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
-                                      const QColor& col, const QBrush& back) const {
+                                      const QColor& col, const QColor& mergeCol, const QBrush& back) const {
 
 	int h = laneHeight / 2;
 	int m = (x1 + x2) / 2;
@@ -427,13 +427,38 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	int d =  2 * r;
 
 	#define P_CENTER m , h
-	#define P_0      x2, h
-	#define P_90     m , 0
-	#define P_180    x1, h
-	#define P_270    m , 2 * h
+	#define P_0      x2, h      // >
+	#define P_90     m , 0      // ^
+	#define P_180    x1, h      // <
+	#define P_270    m , 2 * h  // v
+	#define DELTA_UR 2*(x1 - m), 2*h ,   0*16, 90*16  // -,
+	#define DELTA_DR 2*(x1 - m), 2*-h, 270*16, 90*16  // -'
+	#define DELTA_UL 2*(x2 - m), 2*h ,  90*16, 90*16  //  ,-
+	#define DELTA_DL 2*(x2 - m), 2*-h, 180*16, 90*16  //  '-
 	#define R_CENTER m - r, h - r, d, d
 
 	static QPen myPen(Qt::black, 2); // fast path here
+	myPen.setColor(QColor((col.red()+mergeCol.red())/2, (col.green()+mergeCol.green())/2, (col.blue()+mergeCol.blue())/2));  // Should actually fade from one colour to the other...
+	p->setPen(myPen);
+
+	// arc
+	switch (type) {
+	case JOIN_R:
+	case HEAD:
+	case HEAD_R:
+		p->drawArc(P_CENTER, DELTA_UR);
+		break;
+	case JOIN_L:
+		p->drawArc(P_CENTER, DELTA_UL);
+		break;
+	case TAIL:
+	case TAIL_R:
+		p->drawArc(P_CENTER, DELTA_DR);
+		break;
+	default:
+		break;
+	}
+
 	myPen.setColor(col);
 	p->setPen(myPen);
 
@@ -447,16 +472,13 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	case JOIN:
 	case JOIN_R:
 	case JOIN_L:
+	case CROSS:
 		p->drawLine(P_90, P_270);
 		break;
-	case HEAD:
-	case HEAD_R:
 	case HEAD_L:
 	case BRANCH:
 		p->drawLine(P_CENTER, P_270);
 		break;
-	case TAIL:
-	case TAIL_R:
 	case TAIL_L:
 	case INITIAL:
 	case BOUNDARY:
@@ -468,6 +490,9 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	default:
 		break;
 	}
+
+	myPen.setColor(mergeCol);
+	p->setPen(myPen);
 
 	// horizontal line
 	switch (type) {
@@ -481,14 +506,10 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 		p->drawLine(P_180, P_0);
 		break;
 	case MERGE_FORK_R:
-	case JOIN_R:
-	case HEAD_R:
-	case TAIL_R:
 	case BOUNDARY_R:
 		p->drawLine(P_180, P_CENTER);
 		break;
 	case MERGE_FORK_L:
-	case JOIN_L:
 	case HEAD_L:
 	case TAIL_L:
 	case BOUNDARY_L:
@@ -545,6 +566,10 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	#undef P_90
 	#undef P_180
 	#undef P_270
+	#undef DELTA_UR
+	#undef DELTA_DR
+	#undef DELTA_UL
+	#undef DELTA_DL
 	#undef R_CENTER
 }
 
@@ -593,14 +618,7 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		if (ln == EMPTY)
 			continue;
 
-		uint col = (   isHead(ln) || isTail(ln) || isJoin(ln)
-		            || ln == CROSS_EMPTY) ? mergeLane : i;
-
-		if (ln == CROSS) {
-			paintGraphLane(p, NOT_ACTIVE, x1, x2, colors[col % COLORS_NUM], back);
-			paintGraphLane(p, CROSS, x1, x2, colors[mergeLane % COLORS_NUM], back);
-		} else
-			paintGraphLane(p, ln, x1, x2, colors[col % COLORS_NUM], back);
+		paintGraphLane(p, ln, x1, x2, colors[i % COLORS_NUM], colors[mergeLane % COLORS_NUM], back);
 	}
 	p->restore();
 }
