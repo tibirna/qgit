@@ -590,7 +590,8 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		return;
 
 	p->save();
-	p->translate(QPoint(opt.rect.left(), opt.rect.top()));
+	p->setClipRect(opt.rect, Qt::IntersectClip);
+	p->translate(opt.rect.topLeft());
 
 	// calculate lanes
 	if (r->lanes.count() == 0)
@@ -607,7 +608,7 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		}
 
 	int x1 = 0, x2 = 0;
-	int maxWidth = opt.rect.right();
+	int maxWidth = opt.rect.width();
 	int lw = laneWidth();
 	for (uint i = 0; i < laneNum && x2 < maxWidth; i++) {
 
