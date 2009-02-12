@@ -418,6 +418,14 @@ const Rev* ListViewDelegate::revLookup(int row, FileHistory** fhPtr) const {
 	return git->revLookup(lv->sha(row), fh);
 }
 
+static QColor blend(const QColor& col1, const QColor& col2, int amount = 128) {
+
+	// Returns ((256 - amount)*col1 + amount*col2) / 256;
+	return QColor(((256 - amount)*col1.red()   + amount*col2.red()  ) / 256,
+	              ((256 - amount)*col1.green() + amount*col2.green()) / 256,
+	              ((256 - amount)*col1.blue()  + amount*col2.blue() ) / 256);
+}
+
 void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
                                       const QColor& col, const QColor& mergeCol, const QBrush& back) const {
 
@@ -438,7 +446,7 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	#define R_CENTER m - r, h - r, d, d
 
 	static QPen myPen(Qt::black, 2); // fast path here
-	myPen.setColor(QColor((col.red()+mergeCol.red())/2, (col.green()+mergeCol.green())/2, (col.blue()+mergeCol.blue())/2));  // Should actually fade from one colour to the other...
+	myPen.setColor(blend(col, mergeCol));  // Should actually fade from one colour to the other...
 	p->setPen(myPen);
 
 	// arc
@@ -600,16 +608,19 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 	QBrush back = opt.palette.base();
 	const QVector<int>& lanes(r->lanes);
 	uint laneNum = lanes.count();
-	uint mergeLane = 0;
+	uint activeLane = 0;
 	for (uint i = 0; i < laneNum; i++)
-		if (isMerge(lanes[i])) {
-			mergeLane = i;
+		if (isActive(lanes[i])) {
+			activeLane = i;
 			break;
 		}
 
 	int x1 = 0, x2 = 0;
 	int maxWidth = opt.rect.width();
 	int lw = laneWidth();
+	QColor activeColor = colors[activeLane % COLORS_NUM];
+	if (opt.state & QStyle::State_Selected)
+		activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 	for (uint i = 0; i < laneNum && x2 < maxWidth; i++) {
 
 		x1 = x2;
@@ -619,7 +630,8 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 		if (ln == EMPTY)
 			continue;
 
-		paintGraphLane(p, ln, x1, x2, colors[i % COLORS_NUM], colors[mergeLane % COLORS_NUM], back);
+		QColor color = i == activeLane ? activeColor : colors[i % COLORS_NUM];
+		paintGraphLane(p, ln, x1, x2, color, activeColor, back);
 	}
 	p->restore();
 }

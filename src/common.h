@@ -135,6 +135,9 @@ namespace QGit {
 	                                        x == BOUNDARY_R || x == BOUNDARY_L); }
 	inline bool isMerge(int x) { return (x == MERGE_FORK || x == MERGE_FORK_R ||
 	                                     x == MERGE_FORK_L || isBoundary(x)); }
+	inline bool isActive(int x) { return (x == ACTIVE || x == INITIAL || x == BRANCH ||
+	                                      isMerge(x)); }
+
 	// custom events
 	enum EventType {
 		ERROR_EV      = 65432,
