@@ -427,7 +427,7 @@ static QColor blend(const QColor& col1, const QColor& col2, int amount = 128) {
 }
 
 void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
-                                      const QColor& col, const QColor& mergeCol, const QBrush& back) const {
+                                      const QColor& col, const QColor& activeCol, const QBrush& back) const {
 
 	int h = laneHeight / 2;
 	int m = (x1 + x2) / 2;
@@ -443,26 +443,46 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	#define DELTA_DR 2*(x1 - m), 2*-h, 270*16, 90*16  // -'
 	#define DELTA_UL 2*(x2 - m), 2*h ,  90*16, 90*16  //  ,-
 	#define DELTA_DL 2*(x2 - m), 2*-h, 180*16, 90*16  //  '-
+	#define CENTER_UR x1, 2*h, 225
+	#define CENTER_DR x1, 0  , 135
+	#define CENTER_UL x2, 2*h, 315
+	#define CENTER_DL x2, 0  ,  45
 	#define R_CENTER m - r, h - r, d, d
 
 	static QPen myPen(Qt::black, 2); // fast path here
-	myPen.setColor(blend(col, mergeCol));  // Should actually fade from one colour to the other...
-	p->setPen(myPen);
 
 	// arc
 	switch (type) {
 	case JOIN_R:
 	case HEAD:
-	case HEAD_R:
+	case HEAD_R: {
+		QConicalGradient gradient(CENTER_UR);
+		gradient.setColorAt(0.375, col);
+		gradient.setColorAt(0.625, activeCol);
+		myPen.setBrush(gradient);
+		p->setPen(myPen);
 		p->drawArc(P_CENTER, DELTA_UR);
 		break;
-	case JOIN_L:
+	}
+	case JOIN_L: {
+		QConicalGradient gradient(CENTER_UL);
+		gradient.setColorAt(0.375, activeCol);
+		gradient.setColorAt(0.625, col);
+		myPen.setBrush(gradient);
+		p->setPen(myPen);
 		p->drawArc(P_CENTER, DELTA_UL);
 		break;
+	}
 	case TAIL:
-	case TAIL_R:
+	case TAIL_R: {
+		QConicalGradient gradient(CENTER_DR);
+		gradient.setColorAt(0.375, activeCol);
+		gradient.setColorAt(0.625, col);
+		myPen.setBrush(gradient);
+		p->setPen(myPen);
 		p->drawArc(P_CENTER, DELTA_DR);
 		break;
+	}
 	default:
 		break;
 	}
@@ -499,7 +519,7 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 		break;
 	}
 
-	myPen.setColor(mergeCol);
+	myPen.setColor(activeCol);
 	p->setPen(myPen);
 
 	// horizontal line
@@ -578,6 +598,10 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	#undef DELTA_DR
 	#undef DELTA_UL
 	#undef DELTA_DL
+	#undef CENTER_UR
+	#undef CENTER_DR
+	#undef CENTER_UL
+	#undef CENTER_DL
 	#undef R_CENTER
 }
 
