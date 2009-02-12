@@ -589,6 +589,8 @@ void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 	                                           Qt::magenta, ORANGE };
 	if (opt.state & QStyle::State_Selected)
 		p->fillRect(opt.rect, opt.palette.highlight());
+	else if (i.row() & 1)
+		p->fillRect(opt.rect, opt.palette.alternateBase());
 	else
 		p->fillRect(opt.rect, opt.palette.base());
 
