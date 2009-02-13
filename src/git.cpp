@@ -145,7 +145,11 @@ void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString
 	if (!renamedRevs.isEmpty() || !renamedPatches.isEmpty())
 		return;
 
-	beginInsertRows(QModelIndex(), rowCnt, shaVec.count());
+	// do not attempt to insert 0 rows since the inclusive range would be invalid
+	if (rowCnt == shaVec.count())
+		return;
+
+	beginInsertRows(QModelIndex(), rowCnt, shaVec.count()-1);
 	rowCnt = shaVec.count();
 	endInsertRows();
 }
