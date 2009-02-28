@@ -43,18 +43,23 @@ protected slots:
 	void lineEditCommitExtraOptions_textChanged(const QString& s);
 	void comboBoxCodecs_activated(int i);
 	void comboBoxUserSrc_activated(int i);
+	void comboBoxGitConfigSource_activated(int i);
+	void treeWidgetGitConfig_itemChanged(QTreeWidgetItem*, int);
 	void pushButtonExtDiff_clicked();
 	void pushButtonFont_clicked();
 
 private:
 	void writeSetting(const QString& key, const QVariant& value);
+	void addConfigOption(QTreeWidgetItem* parent, QStringList paths, const QString& value);
 	void setupCodecList(QStringList& list);
 	void setupCodecsCombo();
+	void readGitConfig(const QString& source);
 	void userInfo();
 	void changeFlag(uint f, bool b);
 
 	Git* git;
 	QStringList _uInfo;
+	bool populatingGitConfig;
 };
 
 #endif

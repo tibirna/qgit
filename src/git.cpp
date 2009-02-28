@@ -362,6 +362,22 @@ void Git::userInfo(SList info) {
 	errorReportingEnabled = true;
 }
 
+const QStringList Git::getGitConfigList(bool global) {
+
+    QString runOutput;
+
+    errorReportingEnabled = false; // 'git config' could fail, see docs
+
+    if (global)
+        run("git config --global --list", &runOutput);
+    else
+        run("git config --list", &runOutput);
+
+    errorReportingEnabled = true;
+
+    return runOutput.split('\n', QString::SkipEmptyParts);
+}
+
 bool Git::isImageFile(SCRef file) {
 
 	const QString ext(file.section('.', -1).toLower());

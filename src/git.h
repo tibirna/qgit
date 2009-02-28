@@ -132,6 +132,7 @@ public:
 	void setDefaultModel(FileHistory* fh) { revData = fh; }
 	void checkEnvironment();
 	void userInfo(SList info);
+	const QStringList getGitConfigList(bool global);
 	const QString getBaseDir(bool* c, SCRef wd, bool* ok = NULL, QString* gd = NULL);
 	bool init(SCRef wd, bool range, const QStringList* args, bool overwrite, bool* quit);
 	void stop(bool saveCache);

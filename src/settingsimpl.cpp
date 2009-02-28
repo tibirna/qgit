@@ -78,6 +78,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxDiffCache_toggled(checkBoxDiffCache->isChecked());
 	tabDialog->setCurrentIndex(defTab);
 	userInfo();
+	comboBoxGitConfigSource_activated(0);
 }
 
 void SettingsImpl::userInfo() {
@@ -108,10 +109,69 @@ void SettingsImpl::userInfo() {
 	comboBoxUserSrc_activated(idx);
 }
 
+void SettingsImpl::addConfigOption(QTreeWidgetItem* parent, QStringList paths, const QString& value) {
+
+    if (paths.isEmpty()) {
+        parent->setText(1, value);
+        return;
+    }
+    QString name(paths.first());
+    paths.removeFirst();
+
+    // Options list is already ordered
+    if (parent->childCount() == 0 || name != parent->child(0)->text(0))
+        parent->addChild(new QTreeWidgetItem(parent, QStringList(name)));
+
+    addConfigOption(parent->child(parent->childCount() - 1), paths, value);
+}
+
+void SettingsImpl::readGitConfig(const QString& source) {
+ 
+    populatingGitConfig = true;
+    treeWidgetGitConfig->clear();
+    QStringList options(git->getGitConfigList(source == "Global"));    
+    options.sort();
+
+    FOREACH_SL(it, options) {
+
+        QStringList paths = it->split("=").at(0).split(".");
+        QString value = it->split("=").at(1);
+
+        if (paths.isEmpty() || value.isEmpty()) {
+            dbp("SettingsImpl::readGitConfig Unable to parse line %1", *it);
+            continue;
+        }
+        QString name(paths.first());
+        paths.removeFirst();
+        QList<QTreeWidgetItem*> items = treeWidgetGitConfig->findItems(name, Qt::MatchExactly);
+        QTreeWidgetItem* item;
+
+        if (items.isEmpty())
+            item = new QTreeWidgetItem(treeWidgetGitConfig, QStringList(name));
+        else
+            item = items.first();
+
+        addConfigOption(item, paths, value);
+    }
+    populatingGitConfig = false;
+}
+
+void SettingsImpl::treeWidgetGitConfig_itemChanged(QTreeWidgetItem* item, int i) {
+
+    if (populatingGitConfig)
+        return;
+    dbs(item->text(0));dbs(item->text(1));dbp("column %1", i);
+}
+
 void SettingsImpl::comboBoxUserSrc_activated(int i) {
 
 	lineEditAuthor->setText(_uInfo[i * 3 + 1]);
 	lineEditMail->setText(_uInfo[i * 3 + 2]);
+}
+
+void SettingsImpl::comboBoxGitConfigSource_activated(int) {
+
+    readGitConfig(comboBoxGitConfigSource->currentText());
 }
 
 void SettingsImpl::writeSetting(const QString& key, const QVariant& value) {
