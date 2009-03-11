@@ -88,7 +88,6 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 	}
 
 	// prepend commit msg with template if available
-	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
 	msg.append(status.trimmed());
 	textEditMsg->setPlainText(msg);
 	textEditMsg->setFocus();
