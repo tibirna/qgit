@@ -1257,8 +1257,10 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 			<< "</span></th></tr>";
 
 		if (showHeader) {
+		    if (c->committer() != c->author())
+		        ts << formatList(QStringList(Qt::escape(c->committer())), "Committer");
 			ts << formatList(QStringList(Qt::escape(c->author())), "Author");
-			ts << formatList(QStringList(getLocalDate(c->authorDate())), "Date");
+			ts << formatList(QStringList(getLocalDate(c->authorDate())), " Author date");
 
 			if (c->isUnApplied || c->isApplied) {
 

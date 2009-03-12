@@ -326,6 +326,7 @@ public:
 	const ShaString parent(int idx) const;
 	const QStringList parents() const;
 	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
+	const QString committer() const { setup(); return mid(comStart, autStart - comStart - 1); }
 	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
 	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
 	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
@@ -348,7 +349,7 @@ private:
 
 	const QByteArray& ba; // reference here!
 	const int start;
-	mutable int parentsCnt, shaStart, autStart, autDateStart;
+	mutable int parentsCnt, shaStart, comStart, autStart, autDateStart;
 	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 	mutable bool indexed;
 public:

@@ -267,7 +267,7 @@ Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef
                       SCRef patch, int idx, FileHistory* fh) {
 
 	QString data('>' + sha + 'X' + parents.join(" ") + " \n");
-	data.append(author + '\n' + date + '\n');
+	data.append(author + '\n' + author + '\n' + date + '\n');
 	data.append(log + '\n' + longLog);
 
 	QString header("log size " + QString::number(data.size() - 1) + '\n');
@@ -497,7 +497,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
 	                "--log-size " // FIXME broken on Windows
 #endif
 	                "--parents --boundary -z "
-	                "--pretty=format:%m%HX%PX%n%an<%ae>%n%at%n%s%n");
+	                "--pretty=format:%m%HX%PX%n%cn<%ce>%n%an<%ae>%n%at%n%s%n");
 
 	// we don't need log message body for file history
 	if (isMainHistory(fh))
@@ -1473,6 +1473,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	- a possible one line with "Final output:\n" in case of --early-output option
 	- one line with "log size" + len of this record
 	- one line with boundary info + sha + an arbitrary amount of parent's sha
+	- one line with committer name + e-mail
 	- one line with author name + e-mail
 	- one line with author date as unix timestamp
 	- zero or more non blank lines with other info, as the encoding FIXME
@@ -1560,6 +1561,13 @@ int Rev::indexData(bool quick, bool withDiff) const {
 	// we go all the way
 	if (quick && !withDiff)
 		return ++revEnd;
+
+	comStart = ++idx;
+	idx = ba.indexOf('\n', idx); // committer line end
+	if (idx == -1) {
+		dbs("ASSERT in indexData: unexpected end of data");
+		return -1;
+	}
 
 	autStart = ++idx;
 	idx = ba.indexOf('\n', idx); // author line end
