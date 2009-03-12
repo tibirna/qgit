@@ -212,6 +212,10 @@ open on a different archive. In this case 'git format-patch' is used in the
 dragging archive to create temporary patches imported in the dropping archive
 by 'git am'.
 
+*Make branch*::
+Select a revision and open Edit->'Make Branch' or use right click context
+pop-up menu. A dialog will be shown asking for a branch name.
+
 *Make tag*::
 Select a revision and open Edit->'Make Tag' or use right click context
 pop-up menu. Two dialogs will be shown, the first asking for a tag name, the
