@@ -1767,6 +1767,11 @@ exit:
 	return ret;
 }
 
+bool Git::makeBranch(SCRef sha, SCRef branchName) {
+
+	return run("git branch " + branchName + " " + sha);
+}
+
 bool Git::makeTag(SCRef sha, SCRef tagName, SCRef msg) {
 
 	if (msg.isEmpty())

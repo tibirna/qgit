@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="utf-8"?>
+<ui version="4.0">
  <class>MainBase</class>
- <widget class="QMainWindow" name="MainBase" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,67 +10,51 @@
     <height>477</height>
    </rect>
   </property>
-  <property name="acceptDrops" >
+  <property name="acceptDrops">
    <bool>true</bool>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>QGit</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="icons.qrc" >
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
     <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
   </property>
-  <widget class="QWidget" name="widget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>62</y>
-     <width>905</width>
-     <height>415</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" >
-    <property name="spacing" >
+  <widget class="QWidget" name="widget">
+   <layout class="QHBoxLayout">
+    <property name="spacing">
      <number>6</number>
     </property>
-    <property name="margin" >
+    <property name="margin">
      <number>9</number>
     </property>
     <item>
-     <widget class="QSplitter" name="treeSplitter" >
-      <property name="orientation" >
+     <widget class="QSplitter" name="treeSplitter">
+      <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="TreeView" name="treeView" >
-       <property name="contextMenuPolicy" >
+      <widget class="TreeView" name="treeView">
+       <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
-       <property name="selectionMode" >
+       <property name="selectionMode">
         <enum>QAbstractItemView::ExtendedSelection</enum>
        </property>
-       <property name="rootIsDecorated" >
+       <property name="rootIsDecorated">
         <bool>false</bool>
        </property>
-       <property name="columnCount" >
+       <property name="columnCount">
         <number>1</number>
        </property>
        <column>
-        <property name="text" >
+        <property name="text">
          <string>Git tree</string>
         </property>
        </column>
       </widget>
-      <widget class="QTabWidget" name="tabWdg" >
-       <widget class="QWidget" name="TabWdg" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>204</width>
-          <height>368</height>
-         </rect>
-        </property>
-        <attribute name="title" >
+      <widget class="QTabWidget" name="tabWdg">
+       <widget class="QWidget" name="TabWdg">
+        <attribute name="title">
          <string>Tab&amp;Wdg</string>
         </attribute>
        </widget>
@@ -78,710 +63,714 @@
     </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="toolBar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>31</y>
-     <width>905</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="orientation" >
+  <widget class="QToolBar" name="toolBar">
+   <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
-   <property name="iconSize" >
+   <property name="iconSize">
     <size>
      <width>16</width>
      <height>16</height>
     </size>
    </property>
-   <attribute name="toolBarArea" >
+   <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak" >
+   <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="ActOpenRepo" />
-   <addaction name="ActBack" />
-   <addaction name="ActForward" />
-   <addaction name="ActRefresh" />
-   <addaction name="ActShowTree" />
-   <addaction name="ActFilterTree" />
-   <addaction name="ActMailFormatPatch" />
-   <addaction name="ActMailApplyPatch" />
-   <addaction name="separator" />
-   <addaction name="ActSearchAndFilter" />
-   <addaction name="ActSearchAndHighlight" />
-   <addaction name="separator" />
+   <addaction name="ActOpenRepo"/>
+   <addaction name="ActBack"/>
+   <addaction name="ActForward"/>
+   <addaction name="ActRefresh"/>
+   <addaction name="ActShowTree"/>
+   <addaction name="ActFilterTree"/>
+   <addaction name="ActMailFormatPatch"/>
+   <addaction name="ActMailApplyPatch"/>
+   <addaction name="separator"/>
+   <addaction name="ActSearchAndFilter"/>
+   <addaction name="ActSearchAndHighlight"/>
+   <addaction name="separator"/>
   </widget>
-  <widget class="QMenuBar" name="MenuBarEditor" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="MenuBarEditor">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>31</height>
+     <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="Help" >
-    <property name="title" >
+   <widget class="QMenu" name="Help">
+    <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="ActHelp" />
-    <addaction name="ActAbout" />
+    <addaction name="ActHelp"/>
+    <addaction name="ActAbout"/>
    </widget>
-   <widget class="QMenu" name="File" >
-    <property name="title" >
+   <widget class="QMenu" name="File">
+    <property name="title">
      <string>&amp;File</string>
     </property>
-    <property name="separatorsCollapsible" >
+    <property name="separatorsCollapsible">
      <bool>true</bool>
     </property>
-    <addaction name="ActOpenRepo" />
-    <addaction name="ActOpenRepoNewWindow" />
-    <addaction name="ActRefresh" />
-    <addaction name="ActSaveFile" />
-    <addaction name="ActMailFormatPatch" />
-    <addaction name="ActMailApplyPatch" />
-    <addaction name="separator" />
-    <addaction name="ActClose" />
-    <addaction name="ActExit" />
-    <addaction name="separator" />
+    <addaction name="ActOpenRepo"/>
+    <addaction name="ActOpenRepoNewWindow"/>
+    <addaction name="ActRefresh"/>
+    <addaction name="ActSaveFile"/>
+    <addaction name="ActMailFormatPatch"/>
+    <addaction name="ActMailApplyPatch"/>
+    <addaction name="separator"/>
+    <addaction name="ActClose"/>
+    <addaction name="ActExit"/>
+    <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="Edit" >
-    <property name="title" >
+   <widget class="QMenu" name="Edit">
+    <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <addaction name="ActCommit" />
-    <addaction name="ActAmend" />
-    <addaction name="ActTag" />
-    <addaction name="ActTagDelete" />
-    <addaction name="ActPush" />
-    <addaction name="ActPop" />
-    <addaction name="separator" />
-    <addaction name="ActFind" />
-    <addaction name="ActFindNext" />
-    <addaction name="separator" />
-    <addaction name="ActSettings" />
+    <addaction name="ActCommit"/>
+    <addaction name="ActAmend"/>
+    <addaction name="ActBranch"/>
+    <addaction name="ActTag"/>
+    <addaction name="ActTagDelete"/>
+    <addaction name="ActPush"/>
+    <addaction name="ActPop"/>
+    <addaction name="separator"/>
+    <addaction name="ActFind"/>
+    <addaction name="ActFindNext"/>
+    <addaction name="separator"/>
+    <addaction name="ActSettings"/>
    </widget>
-   <widget class="QMenu" name="Actions" >
-    <property name="title" >
+   <widget class="QMenu" name="Actions">
+    <property name="title">
      <string>&amp;Actions</string>
     </property>
-    <addaction name="ActCustomActionSetup" />
+    <addaction name="ActCustomActionSetup"/>
    </widget>
-   <widget class="QMenu" name="View" >
-    <property name="title" >
+   <widget class="QMenu" name="View">
+    <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="ActBack" />
-    <addaction name="ActForward" />
-    <addaction name="separator" />
-    <addaction name="ActRangeDlg" />
-    <addaction name="separator" />
-    <addaction name="ActCheckWorkDir" />
-    <addaction name="separator" />
-    <addaction name="ActViewRev" />
-    <addaction name="ActViewDiff" />
-    <addaction name="ActViewDiffNewTab" />
-    <addaction name="ActViewFile" />
-    <addaction name="ActViewFileNewTab" />
-    <addaction name="ActExternalDiff" />
-    <addaction name="ActShowTree" />
-    <addaction name="ActSplitView" />
-    <addaction name="ActToggleLogsDiff" />
-    <addaction name="ActShowDescHeader" />
-    <addaction name="ActFilterTree" />
+    <addaction name="ActBack"/>
+    <addaction name="ActForward"/>
+    <addaction name="separator"/>
+    <addaction name="ActRangeDlg"/>
+    <addaction name="separator"/>
+    <addaction name="ActCheckWorkDir"/>
+    <addaction name="separator"/>
+    <addaction name="ActViewRev"/>
+    <addaction name="ActViewDiff"/>
+    <addaction name="ActViewDiffNewTab"/>
+    <addaction name="ActViewFile"/>
+    <addaction name="ActViewFileNewTab"/>
+    <addaction name="ActExternalDiff"/>
+    <addaction name="ActShowTree"/>
+    <addaction name="ActSplitView"/>
+    <addaction name="ActToggleLogsDiff"/>
+    <addaction name="ActShowDescHeader"/>
+    <addaction name="ActFilterTree"/>
    </widget>
-   <addaction name="File" />
-   <addaction name="Edit" />
-   <addaction name="View" />
-   <addaction name="Actions" />
-   <addaction name="separator" />
-   <addaction name="Help" />
+   <addaction name="File"/>
+   <addaction name="Edit"/>
+   <addaction name="View"/>
+   <addaction name="Actions"/>
+   <addaction name="separator"/>
+   <addaction name="Help"/>
   </widget>
-  <action name="ActOpenRepo" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+  <action name="ActOpenRepo">
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/folder_open.png</normaloff>:/icons/resources/folder_open.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Open...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Open</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="ActExit" >
-   <property name="text" >
+  <action name="ActExit">
+   <property name="text">
     <string>E&amp;xit</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Exit</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="ActAbout" >
-   <property name="text" >
+  <action name="ActAbout">
+   <property name="text">
     <string>&amp;About QGit</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>About</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string/>
    </property>
   </action>
-  <action name="ActMailFormatPatch" >
-   <property name="enabled" >
+  <action name="ActMailFormatPatch">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/mail_send.png</normaloff>:/icons/resources/mail_send.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Save patch...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Save patch</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Save a patch series to be sent by e-mail</string>
    </property>
   </action>
-  <action name="ActHelp" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+  <action name="ActHelp">
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/help.png</normaloff>:/icons/resources/help.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>QGit ha&amp;ndbook</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Handbook</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F1</string>
    </property>
   </action>
-  <action name="ActSettings" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+  <action name="ActSettings">
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/configure.png</normaloff>:/icons/resources/configure.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Settings...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Settings</string>
    </property>
   </action>
-  <action name="ActCommit" >
-   <property name="enabled" >
+  <action name="ActCommit">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/vcs_commit.png</normaloff>:/icons/resources/vcs_commit.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Commit...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Commit</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Commit changes</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>#</string>
    </property>
   </action>
-  <action name="ActTag" >
-   <property name="enabled" >
+  <action name="ActTag">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Make &amp;tag...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Make tag</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Tag selected revision</string>
    </property>
   </action>
-  <action name="ActOpenRepoNewWindow" >
-   <property name="text" >
+  <action name="ActOpenRepoNewWindow">
+   <property name="text">
     <string>Open in a &amp;new window...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Open in a &amp;new window</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="ActClose" >
-   <property name="text" >
+  <action name="ActClose">
+   <property name="text">
     <string>&amp;Close</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Close</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="ActMailApplyPatch" >
-   <property name="enabled" >
+  <action name="ActMailApplyPatch">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/mail_get.png</normaloff>:/icons/resources/mail_get.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Apply patch...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Apply a patch series</string>
    </property>
   </action>
-  <action name="ActPush" >
-   <property name="enabled" >
+  <action name="ActPush">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Push patch</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Push patch</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Push this patch on StGIT stack</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>PgUp</string>
    </property>
   </action>
-  <action name="ActPop" >
-   <property name="enabled" >
+  <action name="ActPop">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>P&amp;op patch</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Pop patch</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Pop patches from StGIT stack until this one included</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>PgDown</string>
    </property>
   </action>
-  <action name="ActRefresh" >
-   <property name="enabled" >
+  <action name="ActRefresh">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/reload.png</normaloff>:/icons/resources/reload.png</iconset>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Refresh</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Refresh view (F5)</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F5</string>
    </property>
   </action>
-  <action name="ActViewDiff" >
-   <property name="enabled" >
+  <action name="ActViewDiff">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>View patch</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>View patch</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Double click on revision log as a shortcut</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Double click on revision log as a shortcut</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+P</string>
    </property>
   </action>
-  <action name="ActViewFile" >
-   <property name="enabled" >
+  <action name="ActViewFile">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>View file</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>View file</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Double click on file name as a shortcut</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Double click on file name as a shortcut</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+A</string>
    </property>
   </action>
-  <action name="ActSaveFile" >
-   <property name="enabled" >
+  <action name="ActSaveFile">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save file as...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Save file as...</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Save selected file</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="ActFilterTree" >
-   <property name="checkable" >
+  <action name="ActFilterTree">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled" >
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/wizard.png</normaloff>:/icons/resources/wizard.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Toggle filter by tree</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Filter by tree</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Filter by tree selection, multple selection allowed</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F</string>
    </property>
   </action>
-  <action name="ActShowTree" >
-   <property name="checkable" >
+  <action name="ActShowTree">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled" >
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/view_tree.png</normaloff>:/icons/resources/view_tree.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Toggle tree view</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Archive tree</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Toggle tree view (T)</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>T</string>
    </property>
   </action>
-  <action name="ActTagDelete" >
-   <property name="enabled" >
+  <action name="ActTagDelete">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Delete tag...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Delete tag</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Un-tag selected revision</string>
    </property>
   </action>
-  <action name="ActCheckWorkDir" >
-   <property name="checkable" >
+  <action name="ActCheckWorkDir">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled" >
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Check working dir</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Check working dir</string>
    </property>
   </action>
-  <action name="ActExternalDiff" >
-   <property name="enabled" >
+  <action name="ActExternalDiff">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>External diff...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Launch external diff viewer</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="ActViewRev" >
-   <property name="enabled" >
+  <action name="ActViewRev">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>View revision</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>View revision</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Double click on a revision in file history as a shortcut</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="ActSplitView" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+  <action name="ActSplitView">
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/view_top_bottom.png</normaloff>:/icons/resources/view_top_bottom.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Toggle split view</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Toggle split view</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Hide/unhide secondary pane</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>S</string>
    </property>
   </action>
-  <action name="ActFind" >
-   <property name="text" >
+  <action name="ActFind">
+   <property name="text">
     <string>Find...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Find text in current view...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="ActFindNext" >
-   <property name="text" >
+  <action name="ActFindNext">
+   <property name="text">
     <string>Find next</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Find next</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Go to next occurrence of searched text</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F3</string>
    </property>
   </action>
-  <action name="ActForward" >
-   <property name="enabled" >
+  <action name="ActForward">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/next.png</normaloff>:/icons/resources/next.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Forward</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Forward</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Alt+Right</string>
    </property>
   </action>
-  <action name="ActBack" >
-   <property name="enabled" >
+  <action name="ActBack">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/previous.png</normaloff>:/icons/resources/previous.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Back</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Back</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Alt+Left</string>
    </property>
   </action>
-  <action name="ActCustomActionSetup" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+  <action name="ActCustomActionSetup">
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/bookmark.png</normaloff>:/icons/resources/bookmark.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Setup actions...</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Setup actions...</string>
    </property>
   </action>
-  <action name="ActViewFileNewTab" >
-   <property name="enabled" >
+  <action name="ActViewFileNewTab">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>View file in new tab</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>View file in new tab</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+A</string>
    </property>
   </action>
-  <action name="ActViewDiffNewTab" >
-   <property name="enabled" >
+  <action name="ActViewDiffNewTab">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>View patch in new tab</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>View patch in new tab</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+P</string>
    </property>
   </action>
-  <action name="ActSearchAndFilter" >
-   <property name="checkable" >
+  <action name="ActSearchAndFilter">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled" >
+   <property name="enabled">
     <bool>true</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/filter.png</normaloff>:/icons/resources/filter.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>searchAndFilter</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Toggle filter</string>
    </property>
   </action>
-  <action name="ActSearchAndHighlight" >
-   <property name="checkable" >
+  <action name="ActSearchAndHighlight">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled" >
+   <property name="enabled">
     <bool>true</bool>
    </property>
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/find.png</normaloff>:/icons/resources/find.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>searchAndHighlight</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Toggle match highlight</string>
    </property>
   </action>
-  <action name="ActShowDescHeader" >
-   <property name="checkable" >
+  <action name="ActShowDescHeader">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="checked" >
+   <property name="checked">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Show header info</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Show header info</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Show revision description header info</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>H</string>
    </property>
   </action>
-  <action name="ActToggleLogsDiff" >
-   <property name="text" >
+  <action name="ActToggleLogsDiff">
+   <property name="text">
     <string>Toggle message/diff</string>
    </property>
-   <property name="iconText" >
+   <property name="iconText">
     <string>Toggle message/diff</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Toggle between messages and patch content\n in revision description pane</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>M</string>
    </property>
   </action>
-  <action name="ActRangeDlg" >
-   <property name="icon" >
-    <iconset resource="icons.qrc" >
+  <action name="ActRangeDlg">
+   <property name="icon">
+    <iconset resource="icons.qrc">
      <normaloff>:/icons/resources/range_select.png</normaloff>:/icons/resources/range_select.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Select range...</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Show 'Select range' dialog</string>
    </property>
   </action>
-  <action name="ActAmend" >
-   <property name="text" >
+  <action name="ActAmend">
+   <property name="text">
     <string>Amend comit...</string>
    </property>
-   <property name="toolTip" >
+   <property name="toolTip">
     <string>Amend previous comit</string>
    </property>
   </action>
+  <action name="ActBranch">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Make &amp;branch...</string>
+   </property>
+   <property name="toolTip">
+    <string>Make new branch on selected revision</string>
+   </property>
+  </action>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>TreeView</class>
@@ -790,7 +779,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc" />
+  <include location="icons.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -799,11 +788,11 @@
    <receiver>MainBase</receiver>
    <slot>ActAbout_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -815,11 +804,11 @@
    <receiver>MainBase</receiver>
    <slot>ActCheckWorkDir_toggled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -831,11 +820,11 @@
    <receiver>MainBase</receiver>
    <slot>ActClose_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -847,11 +836,11 @@
    <receiver>MainBase</receiver>
    <slot>ActCommit_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -863,11 +852,11 @@
    <receiver>MainBase</receiver>
    <slot>ActExit_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -879,11 +868,11 @@
    <receiver>MainBase</receiver>
    <slot>ActExternalDiff_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -895,11 +884,11 @@
    <receiver>MainBase</receiver>
    <slot>ActFilterTree_toggled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -911,11 +900,11 @@
    <receiver>MainBase</receiver>
    <slot>ActHelp_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -927,11 +916,11 @@
    <receiver>MainBase</receiver>
    <slot>ActMailApplyPatch_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -943,11 +932,11 @@
    <receiver>MainBase</receiver>
    <slot>ActMailFormatPatch_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -959,11 +948,11 @@
    <receiver>MainBase</receiver>
    <slot>ActOpenRepo_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -975,11 +964,11 @@
    <receiver>MainBase</receiver>
    <slot>ActOpenRepoNewWindow_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -991,11 +980,11 @@
    <receiver>MainBase</receiver>
    <slot>ActPop_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1007,11 +996,11 @@
    <receiver>MainBase</receiver>
    <slot>ActPush_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1023,11 +1012,11 @@
    <receiver>MainBase</receiver>
    <slot>ActRefresh_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1039,11 +1028,11 @@
    <receiver>MainBase</receiver>
    <slot>ActSaveFile_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1055,11 +1044,11 @@
    <receiver>MainBase</receiver>
    <slot>ActSettings_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1071,11 +1060,27 @@
    <receiver>MainBase</receiver>
    <slot>ActShowTree_toggled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActBranch</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActBranch_activated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1087,11 +1092,11 @@
    <receiver>MainBase</receiver>
    <slot>ActTag_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1103,11 +1108,11 @@
    <receiver>MainBase</receiver>
    <slot>ActTagDelete_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1119,11 +1124,11 @@
    <receiver>MainBase</receiver>
    <slot>ActViewFile_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1135,11 +1140,11 @@
    <receiver>MainBase</receiver>
    <slot>ActViewDiff_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1151,11 +1156,11 @@
    <receiver>MainBase</receiver>
    <slot>ActViewRev_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1167,11 +1172,11 @@
    <receiver>MainBase</receiver>
    <slot>ActSplitView_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1183,11 +1188,11 @@
    <receiver>MainBase</receiver>
    <slot>ActFind_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1199,11 +1204,11 @@
    <receiver>MainBase</receiver>
    <slot>ActFindNext_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1215,11 +1220,11 @@
    <receiver>MainBase</receiver>
    <slot>ActBack_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1231,11 +1236,11 @@
    <receiver>MainBase</receiver>
    <slot>ActForward_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1247,11 +1252,11 @@
    <receiver>MainBase</receiver>
    <slot>ActCustomActionSetup_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1263,11 +1268,11 @@
    <receiver>MainBase</receiver>
    <slot>ActViewFileNewTab_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1279,11 +1284,11 @@
    <receiver>MainBase</receiver>
    <slot>ActViewDiffNewTab_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1295,11 +1300,11 @@
    <receiver>MainBase</receiver>
    <slot>tabWdg_currentChanged(int)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -1311,11 +1316,11 @@
    <receiver>MainBase</receiver>
    <slot>ActSearchAndFilter_toggled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>487</x>
      <y>238</y>
     </hint>
@@ -1327,11 +1332,11 @@
    <receiver>MainBase</receiver>
    <slot>ActSearchAndHighlight_toggled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>487</x>
      <y>238</y>
     </hint>
@@ -1343,11 +1348,11 @@
    <receiver>MainBase</receiver>
    <slot>ActShowDescHeader_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>487</x>
      <y>238</y>
     </hint>
@@ -1359,11 +1364,11 @@
    <receiver>MainBase</receiver>
    <slot>ActToggleLogsDiff_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>452</x>
      <y>238</y>
     </hint>
@@ -1375,11 +1380,11 @@
    <receiver>MainBase</receiver>
    <slot>ActRangeDlg_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>452</x>
      <y>238</y>
     </hint>
@@ -1391,11 +1396,11 @@
    <receiver>MainBase</receiver>
    <slot>ActAmend_activated()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>452</x>
      <y>238</y>
     </hint>

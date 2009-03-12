@@ -113,6 +113,7 @@ protected slots:
 	void ActSettings_activated();
 	void ActCommit_activated();
 	void ActAmend_activated();
+	void ActBranch_activated();
 	void ActTag_activated();
 	void ActTagDelete_activated();
 	void ActPush_activated();
@@ -146,6 +147,7 @@ private:
 	void updateRecentRepoMenu(SCRef newEntry = "");
 	void doUpdateRecentRepoMenu(SCRef newEntry);
 	void doUpdateCustomActionMenu(const QStringList& list);
+	void doBranchOrTag(bool isTag);
 	void ActCommit_setEnabled(bool b);
 	void doContexPopup(SCRef sha);
 	void doFileContexPopup(SCRef fileName, int type);

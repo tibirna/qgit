@@ -442,6 +442,7 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 		isUnApplied = r->isUnApplied;
 		isApplied = r->isApplied;
 	}
+	ActBranch->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTag->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTagDelete->setEnabled(found && isTag && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActPush->setEnabled(found && isUnApplied && git->isNothingToCommit());
@@ -1155,6 +1156,8 @@ void MainImpl::doContexPopup(SCRef sha) {
 	if (isRevPage) {
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
 			contextMenu.addAction(ActCommit);
+		if (ActBranch->isEnabled())
+			contextMenu.addAction(ActBranch);
 		if (ActTag->isEnabled())
 			contextMenu.addAction(ActTag);
 		if (ActTagDelete->isEnabled())
@@ -1585,33 +1588,51 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 	ActCommit->setEnabled(b);
 }
 
+void MainImpl::ActBranch_activated() {
+
+    doBranchOrTag(false);
+}
+
 void MainImpl::ActTag_activated() {
 
-	QString tag(rv->tab()->listViewLog->currentText(LOG_COL));
+    doBranchOrTag(true);
+}
+
+void MainImpl::doBranchOrTag(bool isTag) {
+
+	QString refDesc = isTag ? "tag" : "branch";
+	QString boxDesc = "Make " + refDesc + " - QGit";
+	QString ref(rv->tab()->listViewLog->currentText(LOG_COL));
 	bool ok;
-	tag = QInputDialog::getText(this, "Make tag - QGit", "Enter tag name:",
-	                            QLineEdit::Normal, tag, &ok);
-	if (!ok || tag.isEmpty())
+	ref = QInputDialog::getText(this, boxDesc, "Enter " + refDesc
+	                            + " name:", QLineEdit::Normal, ref, &ok);
+	if (!ok || ref.isEmpty())
 		return;
 
-	QString tmp(tag.trimmed());
-	if (tag != tmp.remove(' ')) {
-		QMessageBox::warning(this, "Make tag - QGit",
+	QString tmp(ref.trimmed());
+	if (ref != tmp.remove(' ')) {
+		QMessageBox::warning(this, boxDesc,
 		             "Sorry, control characters or spaces\n"
-		             "are not allowed in tag name.");
+		             "are not allowed in " + refDesc + " name.");
 		return;
 	}
-	if (!git->getRefSha(tag, Git::TAG, false).isEmpty()) {
-		QMessageBox::warning(this, "Make tag - QGit",
-		             "Sorry, tag name already exists.\n"
+	if (!git->getRefSha(ref, isTag ? Git::TAG : Git::BRANCH, false).isEmpty()) {
+		QMessageBox::warning(this, boxDesc,
+		             "Sorry, " + refDesc + " name already exists.\n"
 		             "Please choose a different name.");
 		return;
 	}
-	QString msg(QInputDialog::getText(this, "Make tag - QGit",
-	        "Enter tag message, if any:", QLineEdit::Normal, "", &ok));
+	QString msg;
+	if (isTag)
+	    msg = QInputDialog::getText(this, boxDesc, "Enter tag message, if any:",
+	                                QLineEdit::Normal, "", &ok);
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	ok = git->makeTag(lineEditSHA->text(), tag, msg);
+	if (isTag)
+	    ok = git->makeTag(lineEditSHA->text(), ref, msg);
+	else
+	    ok = git->makeBranch(lineEditSHA->text(), ref);
+
 	QApplication::restoreOverrideCursor();
 	if (ok)
 		refreshRepo(true);
