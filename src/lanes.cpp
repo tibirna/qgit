@@ -120,27 +120,19 @@ void Lanes::setMerge(const QStringList& parents) {
 		int idx = findNextSha(*it, 0);
 		if (idx != -1) {
 
-			if (typeVec[idx] == CROSS) {
-
-				if(idx >= rangeEnd)
-					endJoinWasACross = true;
-				if(idx <= rangeStart)
-					startJoinWasACross = true;
-			}
-
-			typeVec[idx] = JOIN;
-
 			if (idx > rangeEnd) {
 
 				rangeEnd = idx;
-				endJoinWasACross = false;
+				endJoinWasACross = typeVec[idx] == CROSS;
 			}
 
 			if (idx < rangeStart) {
 
 				rangeStart = idx;
-				startJoinWasACross = false;
+				startJoinWasACross = typeVec[idx] == CROSS;
 			}
+
+			typeVec[idx] = JOIN;
 		} else
 			rangeEnd = add(HEAD, *it, rangeEnd + 1);
 	}
