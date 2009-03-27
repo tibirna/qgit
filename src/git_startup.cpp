@@ -1142,7 +1142,7 @@ void Git::updateLanes(Rev& c, Lanes& lns, SCRef sha) {
 //		tmp2.setNum(c.lanes[i]);
 //		tmp.append(tmp2 + "-");
 //	}
-//	qDebug("%s %s",tmp.latin1(), c.sha.latin1());
+//	qDebug("%s %s", tmp.toUtf8().data(), sha.toUtf8().data());
 }
 
 void Git::procFinished() {

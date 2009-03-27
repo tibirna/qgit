@@ -453,6 +453,7 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 
 	// arc
 	switch (type) {
+	case JOIN:
 	case JOIN_R:
 	case HEAD:
 	case HEAD_R: {

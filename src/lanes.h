@@ -12,6 +12,19 @@
 
 class QStringList;
 
+
+//
+//  At any given time, the Lanes class represents a single revision (row) of the history graph.
+//  The Lanes class contains a vector of the sha1 hashes of the next commit to appear in each lane (column).
+//  The Lanes class also contains a vector used to decide which glyph to draw on the history graph.
+//
+//  For each revision (row) (from recent (top) to ancient past (bottom)), the Lanes class is updated, and the
+//  current revision (row) of glyphs is saved elsewhere (via getLanes()).
+//
+//  The ListView class is responsible for rendering the glyphs.
+//
+
+
 class Lanes {
 public:
 	Lanes() {} // init() will setup us later, when data is available
@@ -39,8 +52,8 @@ private:
 	int add(int type, const QString& next, int pos);
 
 	int activeLane;
-	QVector<int> typeVec;
-	QVector<QString> nextShaVec;
+	QVector<int> typeVec;  // Describes which glyphs should be drawn.
+	QVector<QString> nextShaVec;  // The sha1 hashes of the next commit to appear in each lane (column).
 	bool boundary;
 	int NODE, NODE_L, NODE_R;
 };

@@ -109,7 +109,7 @@ void Lanes::setMerge(const QStringList& parents) {
 	bool wasFork   = (t == NODE);
 	bool wasFork_L = (t == NODE_L);
 	bool wasFork_R = (t == NODE_R);
-	bool joinWasACross = false;
+	bool startJoinWasACross = false, endJoinWasACross = false;
 
 	t = NODE;
 
@@ -120,16 +120,27 @@ void Lanes::setMerge(const QStringList& parents) {
 		int idx = findNextSha(*it, 0);
 		if (idx != -1) {
 
-			if (typeVec[idx] == CROSS)
-				joinWasACross = true;
+			if (typeVec[idx] == CROSS) {
+
+				if(idx >= rangeEnd)
+					endJoinWasACross = true;
+				if(idx <= rangeStart)
+					startJoinWasACross = true;
+			}
 
 			typeVec[idx] = JOIN;
 
-			if (idx > rangeEnd)
-				rangeEnd = idx;
+			if (idx > rangeEnd) {
 
-			if (idx < rangeStart)
+				rangeEnd = idx;
+				endJoinWasACross = false;
+			}
+
+			if (idx < rangeStart) {
+
 				rangeStart = idx;
+				startJoinWasACross = false;
+			}
 		} else
 			rangeEnd = add(HEAD, *it, rangeEnd + 1);
 	}
@@ -142,10 +153,10 @@ void Lanes::setMerge(const QStringList& parents) {
 	if (endT == NODE && !wasFork && !wasFork_L)
 		endT = NODE_R;
 
-	if (startT == JOIN && !joinWasACross)
+	if (startT == JOIN && !startJoinWasACross)
 		startT = JOIN_L;
 
-	if (endT == JOIN && !joinWasACross)
+	if (endT == JOIN && !endJoinWasACross)
 		endT = JOIN_R;
 
 	if (startT == HEAD)
