@@ -923,7 +923,17 @@ MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SC
 	  change is committed.
 	*/
 	if (fileSha == ZERO_SHA)
+
+#ifdef Q_OS_WIN32
+    {
+		QString winPath = quote(fileName);
+		winPath.replace("/", "\\");
+		runCmd = "type " + winPath;
+    }
+#else
 		runCmd = "cat " + quote(fileName);
+#endif
+
 	else {
 		if (fileSha.isEmpty()) // deleted
 			runCmd = "git diff-tree HEAD HEAD"; // fake an empty file reading
