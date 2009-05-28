@@ -374,7 +374,7 @@ class RevFile {
 	// When status of all the files is 'modified' then onlyModified is
 	// set, this let us to do some optimization in this common case
 	bool onlyModified;
-	QVector<int> status;
+	QVector<unsigned char> status;
 	QVector<QString> extStatus;
 
 	// prevent implicit C++ compiler defaults
@@ -416,7 +416,7 @@ public:
 	}
 	bool statusCmp(int idx, StatusFlag sf) const {
 
-		return ((onlyModified ? MODIFIED : status.at(idx)) & sf);
+		return ((onlyModified ? MODIFIED : (StatusFlag)status.at(idx)) & sf);
 	}
 	const QString extendedStatus(int idx) const {
 	/*
