@@ -1193,7 +1193,10 @@ void MainImpl::doContexPopup(SCRef sha) {
 			act->setData("Ref");
 		}
 		if (!tn.empty())
-			contextMenu.addSeparator();
+			if (contextSubMenu.actions().count() > 0)
+				contextSubMenu.addSeparator();
+			else
+				contextMenu.addSeparator();
 
 		FOREACH_SL (it, tn) {
 			if (contextMenu.actions().count() < MAX_MENU_ENTRIES)
