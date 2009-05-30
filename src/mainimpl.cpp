@@ -206,13 +206,15 @@ void MainImpl::highlightAbbrevSha(SCRef abbrevSha) {
 
 void MainImpl::lineEditSHA_returnPressed() {
 
-	int len = lineEditSHA->text().length();
-	if (len < 40) {
+	QString sha = git->getRefSha(lineEditSHA->text());
+	if (!sha.isEmpty()) // good, we can resolve to an unique sha
+	{
+		lineEditSHA->setText(sha);
+		rv->st.setSha(sha);
+		UPDATE_DOMAIN(rv);
+	} else { // try a multiple match search
 		highlightAbbrevSha(lineEditSHA->text());
 		goMatch(0);
-	} else {
-		rv->st.setSha(lineEditSHA->text());
-		UPDATE_DOMAIN(rv);
 	}
 }
 
