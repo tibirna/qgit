@@ -209,7 +209,6 @@ void MainImpl::lineEditSHA_returnPressed() {
 	QString sha = git->getRefSha(lineEditSHA->text());
 	if (!sha.isEmpty()) // good, we can resolve to an unique sha
 	{
-		lineEditSHA->setText(sha);
 		rv->st.setSha(sha);
 		UPDATE_DOMAIN(rv);
 	} else { // try a multiple match search
