@@ -1197,7 +1197,8 @@ void MainImpl::doContexPopup(SCRef sha) {
 			contextMenu.addSeparator();
 
 		FOREACH_SL (it, bn) {
-			if (cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES)
+			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES
+			    || (*it == bn.last() && contextSubMenu.isEmpty() && tn.empty()))
 				act = contextMenu.addAction(*it);
 			else
 				act = contextSubMenu.addAction(*it);
@@ -1211,7 +1212,8 @@ void MainImpl::doContexPopup(SCRef sha) {
 				contextMenu.addSeparator();
 
 		FOREACH_SL (it, tn) {
-			if (cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES)
+			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES
+			    || (*it == tn.last() && contextSubMenu.isEmpty()))
 				act = contextMenu.addAction(*it);
 			else
 				act = contextSubMenu.addAction(*it);
