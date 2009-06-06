@@ -1138,7 +1138,8 @@ static int cntMenuEntries(const QMenu& menu) {
 void MainImpl::doContexPopup(SCRef sha) {
 
 	QMenu contextMenu(this);
-	QMenu contextSubMenu("More...", this);
+	QMenu contextBrnMenu("More branches...", this);
+	QMenu contextTagMenu("More tags...", this);
 	QMenu contextRmtMenu("Remote branches", this);
 
 	connect(&contextMenu, SIGNAL(triggered(QAction*)), this, SLOT(goRef_triggered(QAction*)));
@@ -1193,35 +1194,48 @@ void MainImpl::doContexPopup(SCRef sha) {
 		if (!contextRmtMenu.isEmpty())
 			contextMenu.addMenu(&contextRmtMenu);
 
+		// halve the possible remaining entries for branches and tags
+		int remainingEntries = (MAX_MENU_ENTRIES - cntMenuEntries(contextMenu));
+		int tagEntries = remainingEntries / 2;
+		int brnEntries = remainingEntries - tagEntries;
+
+		// display more branches, if there are few tags
+		if (tagEntries > tn.count())
+			tagEntries = tn.count();
+
+		// one branch less because of the "More branches..." submenu
+		if ((bn.count() > brnEntries) && tagEntries)
+			tagEntries++;
+
 		if (!bn.empty())
 			contextMenu.addSeparator();
 
 		FOREACH_SL (it, bn) {
-			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES
-			    || (*it == bn.last() && contextSubMenu.isEmpty() && tn.empty()))
+			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES - tagEntries
+			    || (*it == bn.last() && contextBrnMenu.isEmpty()))
 				act = contextMenu.addAction(*it);
 			else
-				act = contextSubMenu.addAction(*it);
+				act = contextBrnMenu.addAction(*it);
 
 			act->setData("Ref");
 		}
+		if (!contextBrnMenu.isEmpty())
+			contextMenu.addMenu(&contextBrnMenu);
+
 		if (!tn.empty())
-			if (!contextSubMenu.isEmpty())
-				contextSubMenu.addSeparator();
-			else
-				contextMenu.addSeparator();
+			contextMenu.addSeparator();
 
 		FOREACH_SL (it, tn) {
 			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES
-			    || (*it == tn.last() && contextSubMenu.isEmpty()))
+			    || (*it == tn.last() && contextTagMenu.isEmpty()))
 				act = contextMenu.addAction(*it);
 			else
-				act = contextSubMenu.addAction(*it);
+				act = contextTagMenu.addAction(*it);
 
 			act->setData("Ref");
 		}
-		if (!contextSubMenu.isEmpty())
-			contextMenu.addMenu(&contextSubMenu);
+		if (!contextTagMenu.isEmpty())
+			contextMenu.addMenu(&contextTagMenu);
 	}
 	contextMenu.exec(QCursor::pos());
 }
