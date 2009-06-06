@@ -1124,6 +1124,17 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 	settings.setValue(REC_REP_KEY, newRecents);
 }
 
+static int cntMenuEntries(const QMenu& menu) {
+
+	int cnt = 0;
+	QList<QAction*> al(menu.actions());
+	FOREACH (QList<QAction*>, it, al) {
+		if (!(*it)->isSeparator())
+			cnt++;
+	}
+	return cnt;
+}
+
 void MainImpl::doContexPopup(SCRef sha) {
 
 	QMenu contextMenu(this);
@@ -1186,7 +1197,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 			contextMenu.addSeparator();
 
 		FOREACH_SL (it, bn) {
-			if (contextMenu.actions().count() < MAX_MENU_ENTRIES)
+			if (cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES)
 				act = contextMenu.addAction(*it);
 			else
 				act = contextSubMenu.addAction(*it);
@@ -1200,7 +1211,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 				contextMenu.addSeparator();
 
 		FOREACH_SL (it, tn) {
-			if (contextMenu.actions().count() < MAX_MENU_ENTRIES)
+			if (cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES)
 				act = contextMenu.addAction(*it);
 			else
 				act = contextSubMenu.addAction(*it);
