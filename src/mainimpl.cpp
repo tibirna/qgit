@@ -1179,7 +1179,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 			act = contextRmtMenu.addAction(*it);
 			act->setData("Ref");
 		}
-		if (contextRmtMenu.actions().count() > 0)
+		if (!contextRmtMenu.isEmpty())
 			contextMenu.addMenu(&contextRmtMenu);
 
 		if (!bn.empty())
@@ -1194,7 +1194,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 			act->setData("Ref");
 		}
 		if (!tn.empty())
-			if (contextSubMenu.actions().count() > 0)
+			if (!contextSubMenu.isEmpty())
 				contextSubMenu.addSeparator();
 			else
 				contextMenu.addSeparator();
@@ -1207,7 +1207,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 
 			act->setData("Ref");
 		}
-		if (contextSubMenu.actions().count() > 0)
+		if (!contextSubMenu.isEmpty())
 			contextMenu.addMenu(&contextSubMenu);
 	}
 	contextMenu.exec(QCursor::pos());
