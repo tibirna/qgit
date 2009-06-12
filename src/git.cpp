@@ -594,7 +594,7 @@ const QString Git::getRevInfo(SCRef sha) {
 
 	QString refsInfo;
 	if (type & BRANCH) {
-		const QString cap(type & CUR_BRANCH ? "Head: " : "Branch: ");
+		const QString cap(type & CUR_BRANCH ? "HEAD: " : "Branch: ");
 		refsInfo =  cap + getRefName(sha, BRANCH).join(" ");
 	}
 	if (type & RMT_BRANCH)
