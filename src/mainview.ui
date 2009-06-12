@@ -64,6 +64,9 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>Toolbar</string>
+   </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
