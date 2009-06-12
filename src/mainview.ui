@@ -462,9 +462,6 @@
    <property name="toolTip">
     <string>Filter by tree selection, multiple selections allowed</string>
    </property>
-   <property name="shortcut">
-    <string>F</string>
-   </property>
   </action>
   <action name="ActShowTree">
    <property name="checkable">
