@@ -66,27 +66,6 @@ namespace QGit {
 	// minimum git version required
 	extern const QString GIT_VERSION;
 
-	// key bindings
-	enum KeyType {
-		KEY_UP,
-		KEY_DOWN,
-		SHIFT_KEY_UP,
-		SHIFT_KEY_DOWN,
-		KEY_LEFT,
-		KEY_RIGHT,
-		CTRL_PLUS,
-		CTRL_MINUS,
-		KEY_U,
-		KEY_D,
-		KEY_DELETE,
-		KEY_B,
-		KEY_BCKSPC,
-		KEY_SPACE,
-		KEY_R,
-		KEY_P,
-		KEY_F
-	};
-
 	// tab pages
 	enum TabType {
 		TAB_REV,
