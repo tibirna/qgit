@@ -222,7 +222,7 @@ void TreeView::updateTree() {
 	    && treeIsValid
 	    && root
 	    && st->sha() != QGit::ZERO_SHA
-	    && root->treeSha != QGit::ZERO_SHA)
+	    && root->treeSha != QGit::ZERO_SHA) {
 		// root->treeSha could reference a different sha from current
 		// one in case the tree is the same, i.e. has the same files.
 		// so we prefer to use the previous state sha to call isSameFiles()
@@ -233,6 +233,7 @@ void TreeView::updateTree() {
 			newTree = !git->isSameFiles(st->sha(false), st->sha(true));
 		else
 			newTree = !git->isSameFiles(root->treeSha, st->sha(true));
+	}
 
 	if (newTree) // ok, we really need to update the tree
 		setTree(st->sha());
