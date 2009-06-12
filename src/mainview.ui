@@ -460,7 +460,7 @@
     <string>Filter by tree</string>
    </property>
    <property name="toolTip">
-    <string>Filter by tree selection, multple selection allowed</string>
+    <string>Filter by tree selection, multiple selections allowed</string>
    </property>
    <property name="shortcut">
     <string>F</string>
