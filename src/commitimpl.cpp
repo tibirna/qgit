@@ -22,6 +22,8 @@
 
 using namespace QGit;
 
+QString CommitImpl::lastMsgBeforeError;
+
 CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 
 	// adjust GUI
@@ -76,22 +78,24 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 	textEditMsg->moveCursor(QTextCursor::Start);
 	textEditMsg_cursorPositionChanged();
 
-	// setup textEditMsg with old commit message to be amended
-	QString status("");
-	if (amend) {
-		status = git->getLastCommitMsg();
-	}
+	if (lastMsgBeforeError.isEmpty()) {
+		// setup textEditMsg with old commit message to be amended
+		QString status("");
+		if (amend)
+			status = git->getLastCommitMsg();
 
-	// setup textEditMsg with default value if user opted to do so (default)
-	if (testFlag(USE_CMT_MSG_F, FLAGS_KEY)) {
-		status += git->getNewCommitMsg();
-	}
+		// setup textEditMsg with default value if user opted to do so (default)
+		if (testFlag(USE_CMT_MSG_F, FLAGS_KEY))
+			status += git->getNewCommitMsg();
 
-	// prepend commit msg with template if available
-        if (!amend)
-            status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+		// prepend commit msg with template if available
+		if (!amend)
+			status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
 
-	msg.append(status.trimmed());
+		msg = status.trimmed();
+	} else
+		msg = lastMsgBeforeError;
+
 	textEditMsg->setPlainText(msg);
 	textEditMsg->setFocus();
 
@@ -305,6 +309,7 @@ void CommitImpl::pushButtonCommit_clicked() {
 	else
 		ok = git->commitFiles(selFiles, msg, !Git::optAmend);
 
+	lastMsgBeforeError = (ok ? "" : msg);
 	QApplication::restoreOverrideCursor();
 	hide();
 	emit changesCommitted(ok);
