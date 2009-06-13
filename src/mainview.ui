@@ -680,7 +680,7 @@
      <normaloff>:/icons/resources/filter.png</normaloff>:/icons/resources/filter.png</iconset>
    </property>
    <property name="text">
-    <string>searchAndFilter</string>
+    <string>Search and filter</string>
    </property>
    <property name="statusTip">
     <string>Toggle filter</string>
@@ -698,7 +698,7 @@
      <normaloff>:/icons/resources/find.png</normaloff>:/icons/resources/find.png</iconset>
    </property>
    <property name="text">
-    <string>searchAndHighlight</string>
+    <string>Search and highlight</string>
    </property>
    <property name="statusTip">
     <string>Toggle match highlight</string>
