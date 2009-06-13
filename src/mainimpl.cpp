@@ -1353,7 +1353,7 @@ void MainImpl::ActSaveFile_activated() {
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	QString fileSha(git->getFileSha(rv->st.fileName(), rv->st.sha()));
-	if (!git->saveFile(fileSha, rv->st.sha(), fileName))
+	if (!git->saveFile(fileSha, rv->st.fileName(), fileName))
 		statusBar()->showMessage("Unable to save " + fileName);
 
 	QApplication::restoreOverrideCursor();
