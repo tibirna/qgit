@@ -1307,7 +1307,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 		SCRef ref = reSHA.cap(0).mid(2);
 		const Rev* r = (ref.length() == 40 ? revLookup(ref) : revLookup(getRefSha(ref)));
-		if (r) {
+		if (r && r->sha() != ZERO_SHA_RAW) {
 			QString slog(r->shortLog());
 			if (slog.isEmpty()) // very rare but possible
 				slog = r->sha();
