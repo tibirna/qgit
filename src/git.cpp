@@ -1569,7 +1569,7 @@ bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 	if (remote)
 		runCmd.append(" --keep-subject");
 
-	runCmd.append(" -o " + dirPath);
+	runCmd.append(" -o " + quote(dirPath));
 	if (!FPOpt.isEmpty())
 		runCmd.append(" " + FPOpt.trimmed());
 
