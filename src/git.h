@@ -184,6 +184,7 @@ public:
 	const QStringList getRefName(SCRef sha, RefType type, QString* curBranch = NULL) const;
 	const QStringList getAllRefNames(uint mask, bool onlyLoaded);
 	const QStringList getAllRefSha(uint mask);
+	const QStringList sortShaListByIndex(SCList shaList);
 	void getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status);
 	QTextCodec* getTextCodec(bool* isGitArchive);
 	bool formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir = "");

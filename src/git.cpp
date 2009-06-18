@@ -1556,6 +1556,20 @@ bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 	return run(runCmd + quote(patchPath));
 }
 
+const QStringList Git::sortShaListByIndex(SCList shaList) {
+
+	QStringList orderedShaList;
+	FOREACH_SL (it, shaList)
+		appendNamesWithId(orderedShaList, *it, QStringList(*it), true);
+
+	orderedShaList.sort();
+	QStringList::iterator itN(orderedShaList.begin());
+	for ( ; itN != orderedShaList.end(); ++itN) // strip 'idx'
+		(*itN) = (*itN).section(' ', -1, -1);
+
+        return orderedShaList;
+}
+
 bool Git::formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir) {
 
 	bool remote = !remoteDir.isEmpty();
