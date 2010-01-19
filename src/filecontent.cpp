@@ -13,6 +13,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QTemporaryFile>
+#include <QAbstractTextDocumentLayout>
 #include "domain.h"
 #include "myprocess.h"
 #include "mainimpl.h"
@@ -111,6 +112,8 @@ void FileContent::on_listScrollBar_valueChanged(int value) {
 
 int FileContent::itemAnnId(QListWidgetItem* item) {
 
+	if (item == NULL)
+		return 0;
 	QString id(item->text());
 	if (!id.contains('.'))
 		return 0;
@@ -556,7 +559,7 @@ void FileContent::setAnnList() {
 
 	QStringList sl;
 	QVector<int> curIdLines;
-	for (int i = 0; i <= linesNum; i++) { // QTextEdit adds a blank line after content
+	for (int i = 0; i < linesNum; i++) {
 
 		if (isAnnotationAppended) {
 			if (it != endIt)
@@ -572,9 +575,25 @@ void FileContent::setAnnList() {
 		tmp.append(QString(" %1 ").arg(i + 1, linesNumDigits));
 		sl.append(tmp);
 	}
+	sl.append(QString());  // QTextEdit adds a blank line after content
 	listWidgetAnn->setUpdatesEnabled(false);
 	listWidgetAnn->clear();
 	listWidgetAnn->addItems(sl);
+
+	QAbstractTextDocumentLayout *layout = document()->documentLayout();
+	if (layout != NULL) {
+		int previousBottom = 0;
+		QTextBlock block = document()->begin();
+		for (int i = 0; i < linesNum; i++) {
+			int bottom = layout->blockBoundingRect(block).bottom();
+			QListWidgetItem* item = listWidgetAnn->item(i);
+			item->setSizeHint(QSize(0, bottom - previousBottom));
+			item->setTextAlignment(Qt::AlignVCenter);  // Move down a pixel or so.
+
+			previousBottom = bottom;
+			block = block.next();
+		}
+	}
 
 	QBrush fore(Qt::darkRed);
 	QBrush back(Qt::lightGray);
@@ -610,5 +629,5 @@ void FileContent::resizeEvent(QResizeEvent* e) {
 
 	QTextEdit::resizeEvent(e);
 	int width = listWidgetAnn->geometry().width();
-	adjustAnnListSize(width); // update list height
+	adjustAnnListSize(width); // update list width
 }

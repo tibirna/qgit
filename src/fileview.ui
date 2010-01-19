@@ -391,9 +391,6 @@
              <property name="horizontalScrollMode" >
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
-             <property name="uniformItemSizes" >
-              <bool>true</bool>
-             </property>
             </widget>
            </item>
            <item>
