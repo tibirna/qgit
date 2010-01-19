@@ -154,6 +154,7 @@ public:
 	bool isNothingToCommit();
 	bool isUnknownFiles() const { return (workingDirInfo.otherFiles.count() > 0); }
 	bool isTextHighlighter() const { return isTextHighlighterFound; }
+	const QString textHighlighterVersion() const { return textHighlighterVersionFound; }
 	bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
 	MyProcess* getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool combined);
 	const QString getWorkDirDiff(SCRef fileName = "");
@@ -329,6 +330,7 @@ private:
 	bool isStGIT;
 	bool isGIT;
 	bool isTextHighlighterFound;
+	QString textHighlighterVersionFound;
 	bool loadingUnAppliedPatches;
 	bool fileCacheAccessed;
 	int patchesStillToFind;

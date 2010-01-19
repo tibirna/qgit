@@ -330,7 +330,9 @@ void Git::checkEnvironment() {
 	isTextHighlighterFound = run("source-highlight -V", &version);
 	errorReportingEnabled = true;
 	if (isTextHighlighterFound)
-		dbp("Found %1", version.section('\n', 0, 0));
+		textHighlighterVersionFound = version.section('\n', 0, 0);
+	else
+		textHighlighterVersionFound = "GNU source-highlight not installed";
 }
 
 void Git::userInfo(SList info) {

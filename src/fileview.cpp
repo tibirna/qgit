@@ -26,6 +26,10 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	// an empty string turn off the special-value text display
 	fileTab->spinBoxRevision->setSpecialValueText(" ");
 
+	// Add GNU source-highlight version to tooltip, or add a message that it's not installed.
+	QToolButton* highlight = fileTab->toolButtonHighlightText;
+	highlight->setToolTip(highlight->toolTip().arg(git->textHighlighterVersion()));
+
 	clear(true); // init some stuff
 
 	fileTab->listWidgetAnn->installEventFilter(this);
