@@ -1697,7 +1697,7 @@ bool Git::mkPatchFromWorkDir(SCRef msg, SCRef patchFile, SCList files) {
  		return false;
 
 	QString runOutput;
-	if (!run("git diff -C HEAD -- " + quote(files), &runOutput))
+	if (!run("git diff --no-ext-diff -C HEAD -- " + quote(files), &runOutput))
 		return false;
 
 	const QString patch("Subject: " + msg + "\n---\n" + runOutput);
