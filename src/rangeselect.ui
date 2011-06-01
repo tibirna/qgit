@@ -331,7 +331,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip" >
-          <string>You can always reenable the dialog from settings.</string>
+          <string>You can always re-enable the dialog from settings.</string>
          </property>
          <property name="text" >
           <string>S&amp;how this dialog when opening a repository</string>

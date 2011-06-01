@@ -795,10 +795,10 @@
   </action>
   <action name="ActAmend">
    <property name="text">
-    <string>Amend comit...</string>
+    <string>Amend commit...</string>
    </property>
    <property name="toolTip">
-    <string>Amend previous comit</string>
+    <string>Amend previous commit</string>
    </property>
    <property name="shortcut">
     <string>@</string>
