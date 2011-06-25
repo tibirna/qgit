@@ -830,7 +830,7 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList newNames, FileHistory*
 	SCRef lastFileSha = line.section(' ', 3, 3);
 	if (prevFileSha == lastFileSha) // just renamed
 		runOutput.clear();
-	else if (!run("git diff -r --full-index " + prevFileSha + " " + lastFileSha, &runOutput))
+	else if (!run("git diff --no-ext-diff -r --full-index " + prevFileSha + " " + lastFileSha, &runOutput))
 		return false;
 
 	SCRef prevFile = line.section('\t', -1, -1);
@@ -840,7 +840,7 @@ bool Git::populateRenamedPatches(SCRef renamedSha, SCList newNames, FileHistory*
 	// save the patch, will be used later to create a
 	// proper graft sha with correct parent info
 	if (fh) {
-		QString tmp(!runOutput.isEmpty() ? runOutput : "diff --\nsimilarity index 100%\n");
+		QString tmp(!runOutput.isEmpty() ? runOutput : "diff --no-ext-diff --\nsimilarity index 100%\n");
 		fh->renamedPatches.insert(renamedSha, tmp);
 	}
 	return true;

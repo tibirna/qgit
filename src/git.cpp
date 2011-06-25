@@ -427,7 +427,7 @@ void Git::setTextCodec(QTextCodec* tc) {
 	if (name == "Big5-HKSCS")
 		name = "Big5";
 
-	run("git repo-config i18n.commitencoding " + name);
+   run("git config i18n.commitencoding " + name);
 }
 
 QTextCodec* Git::getTextCodec(bool* isGitArchive) {
@@ -437,7 +437,7 @@ QTextCodec* Git::getTextCodec(bool* isGitArchive) {
 		return NULL;
 
 	QString runOutput;
-	if (!run("git repo-config --get i18n.commitencoding", &runOutput))
+   if (!run("git config i18n.commitencoding", &runOutput))
 		return NULL;
 
 	if (runOutput.isEmpty()) // git docs says default is utf-8
@@ -1697,7 +1697,7 @@ bool Git::mkPatchFromWorkDir(SCRef msg, SCRef patchFile, SCList files) {
  		return false;
 
 	QString runOutput;
-	if (!run("git diff -C HEAD -- " + quote(files), &runOutput))
+	if (!run("git diff --no-ext-diff -C HEAD -- " + quote(files), &runOutput))
 		return false;
 
 	const QString patch("Subject: " + msg + "\n---\n" + runOutput);

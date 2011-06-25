@@ -434,11 +434,11 @@ void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, Ra
 		// at() counts from 0.
 		//QLinkedList<QString>::const_iterator itStart(afterAnn.at(r->start - ofs - 1));
 		//QLinkedList<QString>::const_iterator itEnd(afterAnn.at(r->end - ofs - 1));
-		QStringList::const_iterator itStart(afterAnn.begin());
+		QStringList::const_iterator itStart(afterAnn.constBegin());
 		for (int i = 0; i < r->start - ofs - 1; i++)
 			++itStart;
 
-		QStringList::const_iterator itEnd(afterAnn.begin());
+		QStringList::const_iterator itEnd(afterAnn.constBegin());
 		for (int i = 0; i < r->end - ofs - 1; i++)
 			++itEnd;
 
@@ -488,7 +488,7 @@ void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, Ra
 		QStringList::const_iterator itStart(afterAnn.constEnd());
 		QStringList::const_iterator itEnd(afterAnn.constEnd());
 
-		QStringList::const_iterator it(afterAnn.begin());
+		QStringList::const_iterator it(afterAnn.constBegin());
 		for (int lineNum = ofs + 1; it != afterAnn.constEnd(); ++lineNum, ++it) {
 
 			if (*it != fakedAuthor) {
