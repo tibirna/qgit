@@ -29,9 +29,10 @@ inline const QString& _valueOf(const QString& x) { return x; }
 inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 
 // some debug macros
-#define dbg(x)    qDebug(#x " is <%s>", _valueOf(x).toLatin1().constData())
-#define dbs(x)    qDebug(_valueOf(x).toLatin1().constData())
-#define dbp(s, x) qDebug(QString(s).arg(_valueOf(x)).toLatin1().constData())
+#define constlatin(x) (_valueOf(x).toLatin1().constData())
+#define dbg(x)    qDebug(#x " is <%s>", constlatin(x))
+#define dbs(x)    qDebug(constlatin(x), "")
+#define dbp(s, x) qDebug(constlatin(s), constlatin(x))
 #define db1       qDebug("Mark Nr. 1")
 #define db2       qDebug("Mark Nr. 2")
 #define db3       qDebug("Mark Nr. 3")
