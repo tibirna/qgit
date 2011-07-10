@@ -1237,7 +1237,9 @@ void MainImpl::doContexPopup(SCRef sha) {
 		if (!contextTagMenu.isEmpty())
 			contextMenu.addMenu(&contextTagMenu);
 	}
-	contextMenu.exec(QCursor::pos());
+	QPoint p = QCursor::pos();
+	p += QPoint(10, 10);
+	contextMenu.exec(p);
 }
 
 void MainImpl::doFileContexPopup(SCRef fileName, int type) {
