@@ -1633,10 +1633,10 @@ void MainImpl::doBranchOrTag(bool isTag) {
 
 	QString refDesc = isTag ? "tag" : "branch";
 	QString boxDesc = "Make " + refDesc + " - QGit";
-	QString ref(rv->tab()->listViewLog->currentText(LOG_COL));
+	QString revDesc(rv->tab()->listViewLog->currentText(LOG_COL));
 	bool ok;
-	ref = QInputDialog::getText(this, boxDesc, "Enter " + refDesc
-	                            + " name:", QLineEdit::Normal, ref, &ok);
+	QString ref = QInputDialog::getText(this, boxDesc, "Enter " + refDesc
+								+ " name:", QLineEdit::Normal, "", &ok);
 	if (!ok || ref.isEmpty())
 		return;
 
@@ -1650,14 +1650,15 @@ void MainImpl::doBranchOrTag(bool isTag) {
 	if (!git->getRefSha(ref, isTag ? Git::TAG : Git::BRANCH, false).isEmpty()) {
 		QMessageBox::warning(this, boxDesc,
 		             "Sorry, " + refDesc + " name already exists.\n"
-		             "Please choose a different name.");
+					 "Please choose a different name.");
 		return;
 	}
 	QString msg;
-	if (isTag)
+	if (isTag) {
 	    msg = QInputDialog::getText(this, boxDesc, "Enter tag message, if any:",
-	                                QLineEdit::Normal, "", &ok);
-
+									QLineEdit::Normal, revDesc, &ok);
+		if (!ok) return;
+	}
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	if (isTag)
 	    ok = git->makeTag(lineEditSHA->text(), ref, msg);
