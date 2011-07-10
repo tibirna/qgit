@@ -435,7 +435,7 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 
 	int h = laneHeight / 2;
 	int m = (x1 + x2) / 2;
-	int r = (x2 - x1) / 3;
+	int r = (x2 - x1) * 5 / 12;
 	int d =  2 * r;
 
 	#define P_CENTER m , h
@@ -557,14 +557,14 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 	case ACTIVE:
 	case INITIAL:
 	case BRANCH:
-		p->setPen(Qt::NoPen);
+		p->setPen(Qt::black);
 		p->setBrush(col);
 		p->drawEllipse(R_CENTER);
 		break;
 	case MERGE_FORK:
 	case MERGE_FORK_R:
 	case MERGE_FORK_L:
-		p->setPen(Qt::NoPen);
+		p->setPen(Qt::black);
 		p->setBrush(col);
 		p->drawRect(R_CENTER);
 		break;
@@ -582,12 +582,14 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 		p->drawRect(m - 1, h - r, 2, d);
 		break;
 	case BOUNDARY:
+		p->setPen(Qt::black);
 		p->setBrush(back);
 		p->drawEllipse(R_CENTER);
 		break;
 	case BOUNDARY_C:
 	case BOUNDARY_R:
 	case BOUNDARY_L:
+		p->setPen(Qt::black);
 		p->setBrush(back);
 		p->drawRect(R_CENTER);
 		break;
@@ -613,7 +615,7 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
                                   const QModelIndex& i) const {
 
-	static const QColor colors[COLORS_NUM] = { Qt::black, Qt::red, DARK_GREEN,
+	static const QColor colors[COLORS_NUM] = { Qt::red, DARK_GREEN,
 	                                           Qt::blue, Qt::darkGray, BROWN,
 	                                           Qt::magenta, ORANGE };
 	if (opt.state & QStyle::State_Selected)
