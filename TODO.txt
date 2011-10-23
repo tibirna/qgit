@@ -1,0 +1,34 @@
+2011-10-22 No more distinction between revision and patch view.
+           Make view switch between review / half-half / patch.
+2011-10-22 Ctrl-R -> R, Ctrl-P -> P, Ctrl-A -> F
+2011-10-22 Patch navigation (per difference, per file) from keyboard
+2011-10-22 Headers always on top.
+2011-10-22 Fix scrolling of patch going under headers
+2011-10-22 WISH Add an "all" option to "Branches" tree
+2011-10-22 WISH Add source highlighting based on kate/qtextviewer.
+2011-10-23 Size of splits automatically computed.
+2011-10-23 regression wrt not marking sha in patch (diff)
+2011-10-23 regression wrt what the diff shows
+2011-10-23 WISH add side by side diff view
+2011-10-23 Regression files not shown in tree at first display (must hide/unhide)
+2011-10-23 Regression file selection doesn't show file diff anymore
+2011-10-23 WISH hyper-tooltips on revision (containing what is displayed in headers today)
+2011-10-25 commit message colorization a la vim in commit.ui
+2011-10-25 beautify console.ui for custom actions
+2011-10-25 make customaction a table with checkbuttons indicated next to each command
+2011-10-25 promote documentation to docbook or at least html
+2011-10-25 respect current style's tab appearence (make quit buttons less ugly)
+2011-10-25 make range select a tab in the sidebar (with icons marking top and bottom in the branches/tags list/tree)
+2011-10-25 make .svg qgit icon for installation (make installation in kde automatic)
+2011-10-25 a small toolbar above file list allows showing "diff selector" (check) and "message/diff display" (push)
+              - selecting "diff selector" switches to "diff display"
+              - selecting file switches to "diff display"
+              - selecting "message display" unselects all files (memorizes last selected) and shows message
+2011-10-25 "R" shows revisions,
+           "P" shows patches,
+           "F" shows files,
+           "M" shows message,
+           "D" shows diff,
+           "S" shows R+P (split)
+           "B" toggles branches
+           "T" toggles files
