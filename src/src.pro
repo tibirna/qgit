@@ -38,7 +38,7 @@ win32 {
 
 unix {
     TARGET = qgit
-    target.path = ~/bin
+    target.path = $$[QT_INSTALL_BINS]
     CONFIG += x11
 }
 
