@@ -1395,7 +1395,7 @@ void Git::indexTree() {
 
 			Rev* p = const_cast<Rev*>(revLookup(r->parent(y)));
 			if (p) {
-				p->childs.append(i);
+                                p->children.append(i);
 
 				if (p->descBrnMaster == -1)
 					p->descBrnMaster = isB ? r->orderIdx : r->descBrnMaster;
@@ -1420,9 +1420,9 @@ void Git::indexTree() {
 			rr->ancRefs.clear();
 			rr->ancRefs.append(i);
 		}
-		for (int y = 0; y < r->childs.count(); y++) {
+                for (int y = 0; y < r->children.count(); y++) {
 
-			Rev* c = const_cast<Rev*>(revLookup(ro[r->childs[y]]));
+                        Rev* c = const_cast<Rev*>(revLookup(ro[r->children[y]]));
 			if (c) {
 				if (c->ancRefsMaster == -1)
 					c->ancRefsMaster = isTag ? r->orderIdx:r->ancRefsMaster;

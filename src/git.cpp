@@ -830,27 +830,27 @@ const QString Git::getLaneParent(SCRef fromSHA, int laneNum) {
 	return "";
 }
 
-const QStringList Git::getChilds(SCRef parent) {
+const QStringList Git::getChildren(SCRef parent) {
 
-	QStringList childs;
+        QStringList children;
 	const Rev* r = revLookup(parent);
 	if (!r)
-		return childs;
+                return children;
 
-	for (int i = 0; i < r->childs.count(); i++)
-		childs.append(revData->revOrder[r->childs[i]]);
+        for (int i = 0; i < r->children.count(); i++)
+                children.append(revData->revOrder[r->children[i]]);
 
-	// reorder childs by loading order
-	QStringList::iterator itC(childs.begin());
-	for ( ; itC != childs.end(); ++itC) {
+        // reorder children by loading order
+        QStringList::iterator itC(children.begin());
+        for ( ; itC != children.end(); ++itC) {
 		const Rev* r = revLookup(*itC);
 		(*itC).prepend(QString("%1 ").arg(r->orderIdx, 6));
 	}
-	childs.sort();
-	for (itC = childs.begin(); itC != childs.end(); ++itC)
+        children.sort();
+        for (itC = children.begin(); itC != children.end(); ++itC)
 		(*itC) = (*itC).section(' ', -1, -1);
 
-	return childs;
+        return children;
 }
 
 const QString Git::getShortLog(SCRef sha) {
@@ -1281,7 +1281,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 				ts << formatList(patches, "Patch");
 			} else {
 				ts << formatList(c->parents(), "Parent", false);
-				ts << formatList(getChilds(sha), "Child", false);
+                                ts << formatList(getChildren(sha), "Child", false);
 				ts << formatList(getDescendantBranches(sha), "Branch", false);
 				ts << formatList(getNearTags(!optGoDown, sha), "Follows");
 				ts << formatList(getNearTags(optGoDown, sha), "Precedes");

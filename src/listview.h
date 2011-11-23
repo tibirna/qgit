@@ -63,7 +63,7 @@ private slots:
 private:
 	void setupGeometry();
 	bool filterRightButtonPressed(QMouseEvent* e);
-	bool getLaneParentsChilds(SCRef sha, int x, SList p, SList c);
+        bool getLaneParentsChildren(SCRef sha, int x, SList p, SList c);
 	int getLaneType(SCRef sha, int pos) const;
 
 	Domain* d;

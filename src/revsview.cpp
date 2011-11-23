@@ -313,10 +313,10 @@ void RevsView::updateLineEditSHA(bool clear) {
 	m()->ActForward->setEnabled(l->isRedoAvailable());
 }
 
-void RevsView::on_lanesContextMenuRequested(SCList parents, SCList childs) {
+void RevsView::on_lanesContextMenuRequested(SCList parents, SCList children) {
 
 	QMenu contextMenu;
-	FOREACH_SL (it, childs)
+	FOREACH_SL (it, children)
 		contextMenu.addAction("Child: " + git->getShortLog(*it));
 
 	FOREACH_SL (it, parents) {
@@ -327,9 +327,9 @@ void RevsView::on_lanesContextMenuRequested(SCList parents, SCList childs) {
 	if (!act)
 		return;
 
-	int cc = childs.count();
+	int cc = children.count();
 	int id = contextMenu.actions().indexOf(act);
-	SCRef target(id < cc ? childs[id] : parents[id - cc]);
+	SCRef target(id < cc ? children[id] : parents[id - cc]);
 	st.setSha(target);
 	UPDATE();
 }

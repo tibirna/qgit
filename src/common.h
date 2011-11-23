@@ -313,7 +313,7 @@ public:
 	const QString longLog() const { setup(); return mid(lLogStart, lLogLen); }
 	const QString diff() const { setup(); return mid(diffStart, diffLen); }
 
-	QVector<int> lanes, childs;
+        QVector<int> lanes, children;
 	QVector<int> descRefs;     // list of descendant refs index, normally tags
 	QVector<int> ancRefs;      // list of ancestor refs index, normally tags
 	QVector<int> descBranches; // list of descendant branches index

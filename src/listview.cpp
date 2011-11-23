@@ -273,7 +273,7 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 		filterNextContextMenuRequest = true;
 		QStringList parents, children;
-		if (getLaneParentsChilds(selSha, e->pos().x(), parents, children))
+                if (getLaneParentsChildren(selSha, e->pos().x(), parents, children))
 			emit lanesContextMenuRequested(parents, children);
 
 		return true; // filter event out
@@ -357,7 +357,7 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 	emit contextMenu(sha(index.row()), POPUP_LIST_EV);
 }
 
-bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
+bool ListView::getLaneParentsChildren(SCRef sha, int x, SList p, SList c) {
 
 	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());
 	uint lane = x / lvd->laneWidth();
@@ -374,14 +374,14 @@ bool ListView::getLaneParentsChilds(SCRef sha, int x, SList p, SList c) {
 	} else {
 		SCRef par(git->getLaneParent(sha, lane));
 		if (par.isEmpty()) {
-			dbs("ASSERT getLaneParentsChilds: parent not found");
+                        dbs("ASSERT getLaneParentsChildren: parent not found");
 			return false;
 		}
 		p.append(par);
 		root = p.first();
 	}
 	// then find children
-	c = git->getChilds(root);
+        c = git->getChildren(root);
 	return true;
 }
 

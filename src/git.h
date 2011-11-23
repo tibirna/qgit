@@ -171,7 +171,7 @@ public:
 	const QString getLastCommitMsg();
 	const QString getNewCommitMsg();
 	const QString getLaneParent(SCRef fromSHA, int laneNum);
-	const QStringList getChilds(SCRef parent);
+        const QStringList getChildren(SCRef parent);
 	const QStringList getNearTags(bool goDown, SCRef sha);
 	const QStringList getDescendantBranches(SCRef sha, bool shaOnly = false);
 	const QString getShortLog(SCRef sha);
