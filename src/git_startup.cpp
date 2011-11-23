@@ -36,7 +36,7 @@ const QString Git::getLocalDate(SCRef gitDate) {
 		return localDate;
 
 	QDateTime d;
-	d.setTime_t(gitDate.toULong());
+        d.setTime_t(gitDate.toUInt());
 	localDate = d.toString(Qt::LocalDate);
 	localDates[gitDate] = localDate;
 	return localDate;
@@ -748,11 +748,11 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
 
 			fh->loadTime += loadTime;
 
-			uint kb = byteSize / 1024;
-			float mbs = (float)byteSize / fh->loadTime / 1000;
+                        ulong kb = byteSize / 1024;
+                        double mbs = (double)byteSize / fh->loadTime / 1000;
 			QString tmp;
-			tmp.sprintf("Loaded %i revisions  (%i KB),   "
-			            "time elapsed: %i ms  (%.2f MB/s)",
+                        tmp.sprintf("Loaded %i revisions  (%li KB),   "
+                                    "time elapsed: %i ms  (%.2f MB/s)",
 			            fh->revs.count(), kb, fh->loadTime, mbs);
 
 			if (!tryFollowRenames(fh))
@@ -1198,7 +1198,7 @@ void Git::flushFileNames(FileNamesLoader& fl) {
 	QVector<int>& dirs = fl.rfDirs;
 
 	b.clear();
-	b.resize(2 * dirs.size() * sizeof(int));
+        b.resize(2 * dirs.size() * sizeof(int));
 
 	int* d = (int*)(b.data());
 

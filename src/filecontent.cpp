@@ -582,12 +582,12 @@ void FileContent::setAnnList() {
 
 	QAbstractTextDocumentLayout *layout = document()->documentLayout();
 	if (layout != NULL) {
-		int previousBottom = 0;
+                qreal previousBottom = 0.;
 		QTextBlock block = document()->begin();
 		for (int i = 0; i < linesNum; i++) {
-			int bottom = layout->blockBoundingRect(block).bottom();
+                        qreal bottom = layout->blockBoundingRect(block).bottom();
 			QListWidgetItem* item = listWidgetAnn->item(i);
-			item->setSizeHint(QSize(0, bottom - previousBottom));
+                        item->setSizeHint(QSize(0, static_cast<int>(bottom - previousBottom)+1));
 			item->setTextAlignment(Qt::AlignVCenter);  // Move down a pixel or so.
 
 			previousBottom = bottom;

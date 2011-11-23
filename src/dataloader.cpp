@@ -240,7 +240,7 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 		// file is open with Unbuffered flag, or fread() otherwise
 		QByteArray* ba = new QByteArray();
 		ba->resize(READ_BLOCK_SIZE);
-		int len = dataFile->read(ba->data(), READ_BLOCK_SIZE);
+                int len = dataFile->read(ba->data(), READ_BLOCK_SIZE);
 
 		if (len <= 0) {
 			delete ba;
