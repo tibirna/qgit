@@ -32,3 +32,4 @@
            "S" shows R+P (split)
            "B" toggles branches
            "T" toggles files
+2011-11-24 separate diff, diff HEAD and diff --cached in revisions view
