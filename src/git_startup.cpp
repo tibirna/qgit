@@ -28,17 +28,28 @@ static bool startup = true; // it's OK to be unique among qgit windows
 
 static QHash<QString, QString> localDates;
 
+/**
+ * Accesses a cache that avoids slow date calculation
+ *
+ * @param gitDate
+ *   the reference from which we want to get the date
+ *
+ * @return
+ *   human-readable date
+ **/
 const QString Git::getLocalDate(SCRef gitDate) {
-// fast path here, we use a cache to avoid the slow date calculation
-
 	QString localDate(localDates.value(gitDate));
-	if (!localDate.isEmpty())
-		return localDate;
 
-	QDateTime d;
-        d.setTime_t(gitDate.toUInt());
-	localDate = d.toString(Qt::LocalDate);
-	localDates[gitDate] = localDate;
+	// cache miss
+	if (localDate.isEmpty()) {
+		static QDateTime d;
+		d.setTime_t(gitDate.toUInt());
+		localDate = d.toString(Qt::SystemLocaleShortDate);
+
+		// save to cache
+		localDates[gitDate] = localDate;
+	}
+
 	return localDate;
 }
 
