@@ -278,7 +278,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
 bool Git::TreeEntry::operator<(const TreeEntry& te) const {
 
 	if (this->type == te.type)
-		return (this->name < te.name);
+		return( this->name.localeAwareCompare( te.name ) < 0 );
 
 	// directories are smaller then files
 	// to appear as first when sorted
@@ -288,7 +288,7 @@ bool Git::TreeEntry::operator<(const TreeEntry& te) const {
 	if (te.type == "tree")
 		return false;
 
-	return (this->name < te.name);
+	return( this->name.localeAwareCompare( te.name ) < 0 );
 }
 
 Git::Git(QObject* p) : QObject(p) {
