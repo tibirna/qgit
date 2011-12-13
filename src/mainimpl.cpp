@@ -1821,7 +1821,7 @@ void MainImpl::ActAbout_activated() {
 	static const char* aboutMsg =
 	"<p><b>QGit version " PACKAGE_VERSION "</b></p>"
 	"<p>Copyright (c) 2005, 2007, 2008 Marco Costalba</p>"
-    "<p>Use and redistribute under the terms of the<br>"
+	"<p>Use and redistribute under the terms of the<br>"
 	"<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU General Public License Version 2</a></p>"
 	"<p>Contributors:<br>"
 	"Copyright (c) 2007 Andy Parkins<br>"
@@ -1831,11 +1831,11 @@ void MainImpl::ActAbout_activated() {
 	"Copyright (c) 2007 James McKaskill<br>"
 	"Copyright (c) 2008 Jan Hudec<br>"
 	"Copyright (c) 2008 Paul Gideon Dann<br>"
-    "Copyright (c) 2008 Oliver Bock<br>"
-    "Copyright (c) 2010 Cyp &lt;cyp561@gmail.com&gt;<br>"
-    "Copyright (c) 2011 Jean-François Dagenais &lt;dagenaisj@sonatest.com&gt;<br>"
-    "Copyright (c) 2011 Pavel Tikhomirov &lt;pavtih@gmail.com&gt;<br>"
-    "Copyright (c) 2011 Cristian Tibirna &lt;tibirna@kde.org&gt;<br>"
+	"Copyright (c) 2008 Oliver Bock<br>"
+	"Copyright (c) 2010 Cyp &lt;cyp561@gmail.com&gt;<br>"
+	"Copyright (c) 2011 Jean-FranÃ§ois Dagenais &lt;dagenaisj@sonatest.com&gt;<br>"
+	"Copyright (c) 2011 Pavel Tikhomirov &lt;pavtih@gmail.com&gt;<br>"
+	"Copyright (c) 2011 Cristian Tibirna &lt;tibirna@kde.org&gt;<br>"
     "</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
