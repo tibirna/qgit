@@ -171,7 +171,7 @@ void FileList::insertFiles(const RevFile* files) {
 		if (files->statusCmp(i, RevFile::UNKNOWN))
 			continue;
 
-		QColor clr = Qt::black;
+		QColor clr = palette().color(QPalette::WindowText);
 		if (isMergeParents && files->mergeParent.at(i) != prevPar) {
 			prevPar = files->mergeParent.at(i);
 			new QListWidgetItem("", this);

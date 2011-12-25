@@ -47,7 +47,7 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 
 		bool inIndex = f->statusCmp(i, RevFile::IN_INDEX);
 		bool isNew = (f->statusCmp(i, RevFile::NEW) || f->statusCmp(i, RevFile::UNKNOWN));
-		QColor myColor = Qt::black;
+		QColor myColor = QPalette().color(QPalette::WindowText);
 		if (isNew)
 			myColor = Qt::darkGreen;
 		else if (f->statusCmp(i, RevFile::DELETED))
