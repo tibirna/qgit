@@ -19,14 +19,21 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 	if (text.isEmpty())
 		return;
 
+	const bool useDark = QPalette().color(QPalette::Window).value() > QPalette().color(QPalette::WindowText).value();
+
+	QBrush blue    = useDark ? Qt::darkBlue    : QColor(Qt::cyan);
+	QBrush green   = useDark ? Qt::darkGreen   : QColor(Qt::green);
+	QBrush magenta = useDark ? Qt::darkMagenta : QColor(Qt::magenta);
+	QBrush backgroundPurple = useDark ? QGit::PURPLE : QGit::PURPLE.darker(600);
+
 	QTextCharFormat myFormat;
 	const char firstChar = text.at(0).toLatin1();
 	switch (firstChar) {
 	case '@':
-		myFormat.setForeground(Qt::darkMagenta);
+		myFormat.setForeground(magenta);
 		break;
 	case '+':
-		myFormat.setForeground(Qt::darkGreen);
+		myFormat.setForeground(green);
 		break;
 	case '-':
 		myFormat.setForeground(Qt::red);
@@ -39,25 +46,25 @@ void DiffHighlighter::highlightBlock(const QString& text) {
 	case 'r':
 	case 's':
 		if (text.startsWith("diff --git a/")) {
-			myFormat.setForeground(Qt::darkBlue);
-			myFormat.setBackground(QGit::PURPLE);
+			myFormat.setForeground(blue);
+			myFormat.setBackground(backgroundPurple);
 		} else if (text.startsWith("copy ")
 			|| text.startsWith("index ")
 			|| text.startsWith("new ")
 			|| text.startsWith("old ")
 			|| text.startsWith("rename ")
 			|| text.startsWith("similarity "))
-			myFormat.setForeground(Qt::darkBlue);
+			myFormat.setForeground(blue);
 
 		else if (cl > 0 && text.startsWith("diff --combined")) {
-			myFormat.setForeground(Qt::darkBlue);
-			myFormat.setBackground(QGit::PURPLE);
+			myFormat.setForeground(blue);
+			myFormat.setBackground(backgroundPurple);
 		}
 		break;
 	case ' ':
 		if (cl > 0) {
 			if (text.left(cl).contains('+'))
-				myFormat.setForeground(Qt::darkGreen);
+				myFormat.setForeground(green);
 			else if (text.left(cl).contains('-'))
 				myFormat.setForeground(Qt::red);
 		}
