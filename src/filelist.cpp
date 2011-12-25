@@ -159,7 +159,11 @@ void FileList::insertFiles(const RevFile* files) {
 	if (st->isMerge()) {
 		const QString header((st->allMergeFiles()) ?
 		      "Click to view only interesting files" : "Click to view all merge files");
-		addItem(header, Qt::blue);
+		const bool useDark = QPalette().color(QPalette::Window).value() > QPalette().color(QPalette::WindowText).value();
+		QColor color (Qt::blue);
+		if (!useDark)
+			color = color.lighter();
+		addItem(header, color);
 	}
 	if (files->count() == 0)
 		return;
