@@ -5,6 +5,7 @@
 */
 #include <QDrag>
 #include <QApplication>
+#include <QPalette>
 #include <QMouseEvent>
 #include "git.h"
 #include "domain.h"
@@ -171,6 +172,8 @@ void FileList::insertFiles(const RevFile* files) {
 		if (files->statusCmp(i, RevFile::UNKNOWN))
 			continue;
 
+		const bool useDark = QPalette().color(QPalette::Window).value() > QPalette().color(QPalette::WindowText).value();
+
 		QColor clr = palette().color(QPalette::WindowText);
 		if (isMergeParents && files->mergeParent.at(i) != prevPar) {
 			prevPar = files->mergeParent.at(i);
@@ -180,11 +183,13 @@ void FileList::insertFiles(const RevFile* files) {
 		QString extSt(files->extendedStatus(i));
 		if (extSt.isEmpty()) {
 			if (files->statusCmp(i, RevFile::NEW))
-				clr = Qt::darkGreen;
+				clr = useDark ? Qt::darkGreen
+				              : Qt::green;
 			else if (files->statusCmp(i, RevFile::DELETED))
 				clr = Qt::red;
 		} else {
-			clr = Qt::darkBlue;
+			clr = useDark ? Qt::darkBlue
+			              : QColor(Qt::blue).lighter();
 			// in case of rename deleted file is not shown and...
 			if (files->statusCmp(i, RevFile::DELETED))
 				continue;

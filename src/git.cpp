@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QFontMetrics>
 #include <QImageReader>
+#include <QPalette>
 #include <QRegExp>
 #include <QSet>
 #include <QSettings>
@@ -1254,9 +1255,9 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 	else {
 		QTextStream ts(&text);
 		ts << "<html><head><style type=\"text/css\">"
-		        "tr.head { background-color: #a0a0e0 }\n"
+		        "tr.head { background-color: " << QPalette().color(QPalette::Mid).name() << " }\n"
 		        "td.h { font-weight: bold; }\n"
-		        "table { background-color: #e0e0f0; }\n"
+		        "table { background-color: " << QPalette().color(QPalette::Button).name() << "; }\n"
 		        "span.h { font-weight: bold; font-size: medium; }\n"
 		        "div.l { white-space: pre; "
 		        "font-family: " << TYPE_WRITER_FONT.family() << ";"
