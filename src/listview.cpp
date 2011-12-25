@@ -777,6 +777,7 @@ void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOpt
 			clr = PURPLE;
 
 		opt.palette.setColor(QPalette::Window, clr);
+		opt.palette.setColor(QPalette::WindowText, QColor(Qt::black));
 		addTextPixmap(pp, *it, opt);
 	}
 }
