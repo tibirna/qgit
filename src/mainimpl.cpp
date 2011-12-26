@@ -1836,6 +1836,7 @@ void MainImpl::ActAbout_activated() {
 	"Copyright (c) 2011 Jean-François Dagenais &lt;dagenaisj@sonatest.com&gt;<br>"
 	"Copyright (c) 2011 Pavel Tikhomirov &lt;pavtih@gmail.com&gt;<br>"
 	"Copyright (c) 2011 Cristian Tibirna &lt;tibirna@kde.org&gt;<br>"
+	"Copyright (c) 2011 Tim Blechmann &lt;tim@klingt.org&gt;"
     "</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
