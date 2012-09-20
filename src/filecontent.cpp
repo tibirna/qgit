@@ -94,10 +94,12 @@ void FileContent::setup(Domain* dm, Git* g, QListWidget* lw) {
 	QScrollBar* vsb = verticalScrollBar();
 	connect(vsb, SIGNAL(valueChanged(int)),
 	        this, SLOT(on_scrollBar_valueChanged(int)));
+        vsb->setSingleStep(fontMetrics().lineSpacing());
 
 	vsb = listWidgetAnn->verticalScrollBar();
 	connect(vsb, SIGNAL(valueChanged(int)),
 	        this, SLOT(on_listScrollBar_valueChanged(int)));
+        vsb->setSingleStep(fontMetrics().lineSpacing());
 }
 
 void FileContent::on_scrollBar_valueChanged(int value) {
@@ -575,7 +577,7 @@ void FileContent::setAnnList() {
 		tmp.append(QString(" %1 ").arg(i + 1, linesNumDigits));
 		sl.append(tmp);
 	}
-	sl.append(QString());  // QTextEdit adds a blank line after content
+        sl.append(QString());  // QTextEdit adds a blank line after content
 	listWidgetAnn->setUpdatesEnabled(false);
 	listWidgetAnn->clear();
 	listWidgetAnn->addItems(sl);
@@ -584,11 +586,11 @@ void FileContent::setAnnList() {
 	if (layout != NULL) {
                 qreal previousBottom = 0.;
 		QTextBlock block = document()->begin();
-		for (int i = 0; i < linesNum; i++) {
+                for (int i = 0; i < linesNum; i++) {
                         qreal bottom = layout->blockBoundingRect(block).bottom();
 			QListWidgetItem* item = listWidgetAnn->item(i);
-                        item->setSizeHint(QSize(0, static_cast<int>(bottom - previousBottom)+1));
-			item->setTextAlignment(Qt::AlignVCenter);  // Move down a pixel or so.
+                        item->setSizeHint(QSize(0, static_cast<int>(bottom - previousBottom)));
+                        item->setTextAlignment(Qt::AlignVCenter);  // Move down a pixel or so.
 
 			previousBottom = bottom;
 			block = block.next();
@@ -611,18 +613,20 @@ void FileContent::setAnnList() {
 	*/
 	int topRow = lineAtTop() + 1;
 	listWidgetAnn->setCurrentRow(topRow);
-	listWidgetAnn->adjustSize(); // update scrollbar state
-	adjustAnnListSize(width);
-	listWidgetAnn->setUpdatesEnabled(true);
+        listWidgetAnn->adjustSize(); // update scrollbar state
+        adjustAnnListSize(width);
+        listWidgetAnn->setUpdatesEnabled(true);
 }
 
 void FileContent::adjustAnnListSize(int width) {
 
-	QRect r = listWidgetAnn->geometry();
-	r.setWidth(width);
-	r.setHeight(geometry().height());
-	listWidgetAnn->setGeometry(r);
-	setViewportMargins(width, 0, 0, 0);
+        QRect r = listWidgetAnn->geometry();
+        r.setWidth(width);
+        int height = geometry().height();
+        if (horizontalScrollBar()->isVisible()) height -= horizontalScrollBar()->height();
+        r.setHeight(height);
+        listWidgetAnn->setGeometry(r);
+        setViewportMargins(width, 0, 0, 0); // move textedit view to the left of listWidgetAnn
 }
 
 void FileContent::resizeEvent(QResizeEvent* e) {
