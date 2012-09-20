@@ -27,15 +27,13 @@ public:
 	explicit Git(QObject* parent);
 
 	// used as self-documenting boolean parameters
-	static const bool optFalse       = false;
 	static const bool optSaveCache   = true;
-	static const bool optGoDown      = true;
+        static const bool optGoDown      = true; //CT TODO private, enum
 	static const bool optOnlyLoaded  = true;
 	static const bool optDragDrop    = true;
 	static const bool optFold        = true;
-	static const bool optAmend       = true;
-	static const bool optOnlyInIndex = true;
-	static const bool optCreate      = true;
+        static const bool optAmend       = true; //CT TODO enum
+        static const bool optOnlyInIndex = true; //CT TODO private, enum
 
 	enum RefType {
 		TAG        = 1,

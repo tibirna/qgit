@@ -148,6 +148,7 @@ bool Git::isImageFile(SCRef file) {
 	return QImageReader::supportedImageFormats().contains(ext.toAscii());
 }
 
+//CT TODO investigate if there is a better way of getting this (from git e.g.)
 bool Git::isBinaryFile(SCRef file) {
 
 	static const char* binaryFileExtensions[] = {"bmp", "gif", "jpeg", "jpg",
@@ -208,11 +209,13 @@ QTextCodec* Git::getTextCodec(bool* isGitArchive) {
 	return QTextCodec::codecForName(runOutput.trimmed().toLatin1());
 }
 
+//CT TODO utility function; can go elsewhere
 const QString Git::quote(SCRef nm) {
 
 	return (QUOTE_CHAR + nm + QUOTE_CHAR);
 }
 
+//CT TODO utility function; can go elsewhere
 const QString Git::quote(SCList sl) {
 
 	QString q(sl.join(QUOTE_CHAR + ' ' + QUOTE_CHAR));
@@ -966,6 +969,7 @@ const QString Git::getNewCommitMsg() {
 	return status;
 }
 
+//CT TODO utility function; can go elsewhere
 const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 
 	QString text;
@@ -988,6 +992,7 @@ const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 	return text;
 }
 
+//CT TODO utility function; can go elsewhere
 const QString Git::formatList(SCList sl, SCRef name, bool inOneLine) {
 
 	if (sl.isEmpty())
