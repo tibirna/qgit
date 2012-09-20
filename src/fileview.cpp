@@ -7,6 +7,7 @@
 
 */
 #include <QHelpEvent>
+#include "FileHistory.h"
 #include "mainimpl.h"
 #include "git.h"
 #include "annotate.h"

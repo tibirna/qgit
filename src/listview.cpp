@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QShortcut>
+#include "FileHistory.h"
 #include "domain.h"
 #include "git.h"
 #include "listview.h"

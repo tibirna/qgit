@@ -8,6 +8,7 @@
 */
 #include <QDir>
 #include <QTemporaryFile>
+#include "FileHistory.h"
 #include "git.h"
 #include "dataloader.h"
 

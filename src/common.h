@@ -12,6 +12,7 @@
 #include <QFont>
 #include <QHash>
 #include <QLatin1String>
+#include <QSet>
 #include <QVariant>
 #include <QVector>
 

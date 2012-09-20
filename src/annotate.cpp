@@ -8,6 +8,7 @@
 */
 #include <QApplication>
 #include <QTimer>
+#include "FileHistory.h"
 #include "git.h"
 #include "myprocess.h"
 #include "annotate.h"
