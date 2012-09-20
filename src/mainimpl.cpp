@@ -325,7 +325,7 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 	   On returning from processEvents() an exception is trown and init is exited,
 	   so we end up with a long list of 'exception thrown' messages.
 	   But the worst thing is that we have to wait for _all_ the init call to exit
-	   and this could take a long time as example in case of working dir refreshing
+           and this could take a long time as example in case of working directory refreshing
 	   'git update-index' of a big tree.
 	   So we use a guard flag to guarantee we have only one init() call 'in flight'
 	*/
@@ -1440,7 +1440,7 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 	if (!git->isStGITStack()) {
 		ret = QMessageBox::question(this, "Apply Patch",
 		      "Do you want to commit or just to apply changes to "
-		      "working directory?", "&Cancel", "&Working dir", "&Commit", 0, 0);
+                      "working directory?", "&Cancel", "&Working directory", "&Commit", 0, 0);
 		*workDirOnly = (ret == 1);
 		*fold = false;
 	} else {

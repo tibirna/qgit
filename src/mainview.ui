@@ -512,10 +512,13 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Check working dir</string>
+    <string>Check working directory</string>
    </property>
    <property name="iconText">
     <string>Check working dir</string>
+   </property>
+   <property name="toolTip">
+    <string>Check working directory</string>
    </property>
   </action>
   <action name="ActExternalDiff">

@@ -151,13 +151,13 @@ files/directories in tree view.
 Tree view supports multi-selection. When you right click on a file on tree
 view a context sensitive pop-up menu is shows with available commands.
 
-*Working dir changes*::
+*Working directory changes*::
 When 'Check working dir' flag is set, as example from main view context
 pop-up menu, a pseudo-revision is shown and highlighted at the top of the
-list. Highlight and revision name reflect current working dir status:
-'Nothing to commit' or 'Working dir changes' respectively.
+list. Highlight and revision name reflect current working directory status:
+'Nothing to commit' or 'Working directory changes' respectively.
 +
-To check for working dir modified files set corresponding preference in
+To check for working directory modified files set corresponding preference in
 Edit->Settings->'Working dir'. QGit checks for possible new files added in
 working directory using ignoring rules according to git ls-files
 specifications, see menu Edit->Settings->'Working dir'.

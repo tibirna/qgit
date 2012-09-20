@@ -127,7 +127,7 @@ void TreeView::getTreeSelectedItems(QStringList& selectedItems) {
 void TreeView::setTree(SCRef treeSha) {
 
 	if (topLevelItemCount() == 0)
-		// get working dir info only once after each TreeView::clear()
+                // get working directory info only once after each TreeView::clear()
 		git->getWorkDirFiles(modifiedFiles, modifiedDirs, RevFile::ANY);
 
 	QTreeWidget::clear();

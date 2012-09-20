@@ -680,7 +680,7 @@ MyProcess* Git::getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SC
 	  symlinks in git are one line files with just the name of the target,
 	  not the target content. Instead 'cat' command resolves symlinks and
 	  returns target content. So we use 'cat' only if the file is modified
-	  in working dir, to let annotation work for changed files, otherwise
+          in working directory, to let annotation work for changed files, otherwise
 	  we go with a safe 'git cat-file blob HEAD' instead.
 	  NOTE: This fails if the modified file is a new symlink, converted
 	  from an old plain file. In this case annotation will fail until
@@ -1297,7 +1297,7 @@ bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 
 	if (isStGIT) {
 		if (fold) {
-			bool ok = run("stg fold " + quote(patchPath)); // merge in working dir
+                        bool ok = run("stg fold " + quote(patchPath)); // merge in working directory
 			if (ok)
 				ok = run("stg refresh"); // update top patch
 			return ok;
@@ -1477,9 +1477,9 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 	 * So steps are:
 	 *
 	 * - Create a patch file with the changes you want to import/fold in StGit
-	 * - Stash working dir files because import/fold wants a clean directory
+         * - Stash working directory files because import/fold wants a clean directory
 	 * - Import/fold the patch
-	 * - Unstash and merge working dir modified files
+         * - Unstash and merge working directory modified files
 	 * - Restore index with not selected files
 	 */
 
@@ -1495,11 +1495,11 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 	if (partialSelection) // otherwise notSel is for sure empty
 		notSel = getOtherFiles(selFiles, optOnlyInIndex);
 
-	// create a patch with diffs between working dir and HEAD
+        // create a patch with diffs between working directory and HEAD
 	if (!mkPatchFromWorkDir(msg, patchFile, selFiles))
 		goto fail;
 
-	/* Step 2: Stash working dir modified files */
+        /* Step 2: Stash working directory modified files */
 	if (partialSelection) {
 		errorReportingEnabled = false;
 		run("git stash"); // unfortunately 'git stash' is noisy on stderr
@@ -1529,7 +1529,7 @@ bool Git::stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold) {
 
 	if (partialSelection) {
 
-		/* Step 4: Unstash and merge working dir modified files */
+                /* Step 4: Unstash and merge working directory modified files */
 		errorReportingEnabled = false;
 		run("git stash pop"); // unfortunately 'git stash' is noisy on stderr
 		errorReportingEnabled = true;

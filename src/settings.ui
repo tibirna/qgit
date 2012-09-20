@@ -531,7 +531,7 @@
        </widget>
        <widget class="QWidget" name="WorkingDir">
         <attribute name="title">
-         <string>&amp;Working dir</string>
+         <string>&amp;Working directory</string>
         </attribute>
         <layout class="QHBoxLayout">
          <property name="spacing">
@@ -569,7 +569,7 @@
                  <string>Check to see git status. You need this to commit changes</string>
                 </property>
                 <property name="text">
-                 <string>Diff again&amp;st working dir</string>
+                 <string>Diff again&amp;st working directory</string>
                 </property>
                 <property name="shortcut">
                  <string>Alt+S</string>
@@ -618,7 +618,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="textLabelExcludePerDir">
                <property name="text">
-                <string>E&amp;xc. per dir</string>
+                <string>E&amp;xclude per dir</string>
                </property>
                <property name="wordWrap">
                 <bool>false</bool>
@@ -631,7 +631,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="textLabelExcludeFile">
                <property name="text">
-                <string>&amp;Exc. file path</string>
+                <string>&amp;Exclude file path</string>
                </property>
                <property name="wordWrap">
                 <bool>false</bool>

@@ -22,7 +22,7 @@ static const char* helpInfo =
 "<qt>\n"
 "<center><h1>QGit Handbook</h1></center>\n"
 `cat "$tmpfile2"`
-"<qt>\n";
+"</qt>\n";
 EOF
 
 rm -f "$tmpfile1" "$tmpfile2"
