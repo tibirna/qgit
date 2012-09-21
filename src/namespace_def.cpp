@@ -479,6 +479,7 @@ bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) 
 		bufFile->close();
 	}
 	QStringList env = QProcess::systemEnvironment();
+	env << "GIT_TRACE=0"; // avoid choking on debug traces
 	env << "GIT_FLUSH=0"; // skip the fflush() in 'git log'
 	proc->setEnvironment(env);
 
