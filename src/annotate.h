@@ -16,15 +16,6 @@ class Git;
 class FileHistory;
 class MyProcess;
 
-class ReachInfo {
-public:
-	ReachInfo() {}
-	ReachInfo(SCRef s, int i, int t) : sha(s), id(i), type(t) {}
-	const QString sha;
-	int id, type;
-	QStringList roots;
-};
-typedef QVector<ReachInfo> ReachList;
 
 class RangeInfo {
 public:
