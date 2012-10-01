@@ -33,3 +33,9 @@
            "B" toggles branches
            "T" toggles files
 2011-11-24 separate diff, diff HEAD and diff --cached in revisions view
+
+2012-09-30 turn initMimePixMap, freeMimePixMap, mimePixMap and mimePix into a Singleton
+           (gc plus opens way for connecting to underlaying OS mimetype management)
+2012-09-30 clarify repo for startup: current dir, parameter from CLI, last in history etc.
+2012-09-30 make refreshRepo automatic (monitor files in .git/ and wd?), make refreshRepo unavail during refresh (doh)
+           (see first comment in MainImpl::setRepository())
