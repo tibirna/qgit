@@ -972,9 +972,7 @@ const QString Git::getNewCommitMsg() {
 //CT TODO utility function; can go elsewhere
 const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 
-	QString text;
-
-	text = Qt::escape(txt);
+	QString text = txt.toHtmlEscaped();
 
 	if (regExp.isEmpty())
 		return text;
@@ -1037,9 +1035,9 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 		if (showHeader) {
 		    if (c->committer() != c->author())
-		        ts << formatList(QStringList(Qt::escape(c->committer())), "Committer");
-			ts << formatList(QStringList(Qt::escape(c->author())), "Author");
-			ts << formatList(QStringList(getLocalDate(c->authorDate())), " Author date");
+			    ts << formatList(QStringList(c->committer().toHtmlEscaped()), "Committer");
+		    ts << formatList(QStringList(c->author().toHtmlEscaped()), "Author");
+		    ts << formatList(QStringList(getLocalDate(c->authorDate())), " Author date");
 
 			if (c->isUnApplied || c->isApplied) {
 
@@ -1083,8 +1081,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 			if (slog.length() > 60)
 				slog = slog.left(57).trimmed().append("...");
 
-			slog = Qt::escape(slog);
-			const QString link("<a href=\"" + r->sha() + "\">" + slog + "</a>");
+			const QString link("<a href=\"" + r->sha() + "\">" + slog.toHtmlEscaped() + "</a>");
 			text.replace(pos + 2, ref.length(), link);
 			pos += link.length();
 		} else
