@@ -234,8 +234,8 @@ bool CommitImpl::checkPatchName(QString& patchName) {
 
 bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool amend) {
 
-	QTextCodec* tc = QTextCodec::codecForCStrings();
-	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1
+//	QTextCodec* tc = QTextCodec::codecForCStrings();
+//	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1
 
 	// NOTEME: i18n-ugly
 	QString whatToDo = amend ?
@@ -257,7 +257,7 @@ bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool 
 	if (git->isStGITStack())
 		text.append("\n\nAnd patch name: " + patchName);
 
-	QTextCodec::setCodecForCStrings(tc);
+//	QTextCodec::setCodecForCStrings(tc);
 
         QMessageBox msgBox(this);
         msgBox.setWindowTitle("Commit changes - QGit");

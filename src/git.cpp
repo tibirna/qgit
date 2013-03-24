@@ -181,7 +181,7 @@ bool Git::isThrowOnStopRaised(int excpId, SCRef curContext) {
 
 void Git::setTextCodec(QTextCodec* tc) {
 
-	QTextCodec::setCodecForCStrings(tc); // works also with tc == 0 (Latin1)
+//	QTextCodec::setCodecForCStrings(tc); // works also with tc == 0 (Latin1)
 	QTextCodec::setCodecForLocale(tc);
 	QString name(tc ? tc->name() : "Latin1");
 
@@ -2225,8 +2225,8 @@ bool Git::init(SCRef wd, bool askForRange, const QStringList* passedArgs, bool o
                 if (!passedArgs) {
 
                         // update text codec according to repo settings
-                        bool dummy;
-                        QTextCodec::setCodecForCStrings(getTextCodec(&dummy));
+//                        bool dummy;
+//                        QTextCodec::setCodecForCStrings(getTextCodec(&dummy));
 
                         // load references
                         SHOW_MSG(msg1 + "refs...");
