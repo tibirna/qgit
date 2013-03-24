@@ -942,64 +942,55 @@ void MainImpl::setupShortcuts() {
 void MainImpl::shortCutActivated() {
 
 	QShortcut* se = dynamic_cast<QShortcut*>(sender());
-	if (!se)
-		return;
 
-	bool isKey_P = false;
+	if (se) {
+		const QKeySequence& key = se->key();
 
-	switch (se->key()) {
-
-	case Qt::Key_I:
-		rv->tab()->listViewLog->on_keyUp();
-		break;
-	case Qt::Key_K:
-	case Qt::Key_N:
-		rv->tab()->listViewLog->on_keyDown();
-		break;
-	case Qt::SHIFT | Qt::Key_Up:
-		goMatch(-1);
-		break;
-	case Qt::SHIFT | Qt::Key_Down:
-		goMatch(1);
-		break;
-	case Qt::Key_Left:
-		ActBack_activated();
-		break;
-	case Qt::Key_Right:
-		ActForward_activated();
-		break;
-	case Qt::CTRL | Qt::Key_Plus:
-		adjustFontSize(1);
-		break;
-	case Qt::CTRL | Qt::Key_Minus:
-		adjustFontSize(-1);
-		break;
-	case Qt::Key_U:
-		scrollTextEdit(-18);
-		break;
-	case Qt::Key_D:
-		scrollTextEdit(18);
-		break;
-	case Qt::Key_Delete:
-	case Qt::Key_B:
-	case Qt::Key_Backspace:
-		scrollTextEdit(-1);
-		break;
-	case Qt::Key_Space:
-		scrollTextEdit(1);
-		break;
-	case Qt::Key_R:
-		tabWdg->setCurrentWidget(rv->tabPage());
-		break;
-	case Qt::Key_P:
-		isKey_P = true;
-	case Qt::Key_F: {
-		QWidget* cp = tabWdg->currentWidget();
-		Domain* d = isKey_P ? static_cast<Domain*>(firstTab<PatchView>(cp)) :
-		                      static_cast<Domain*>(firstTab<FileView>(cp));
-		if (d)
-			tabWdg->setCurrentWidget(d->tabPage()); }
-		break;
+		if (key == Qt::Key_I) {
+			rv->tab()->listViewLog->on_keyUp();
+		}
+		else if (key == Qt::Key_K or key == Qt::Key_N) {
+			rv->tab()->listViewLog->on_keyDown();
+		}
+		else if (key == Qt::SHIFT | Qt::Key_Up) {
+			goMatch(-1);
+		}
+		else if (key == Qt::SHIFT | Qt::Key_Down) {
+			goMatch(1);
+		}
+		else if (key == Qt::Key_Left) {
+			ActBack_activated();
+		}
+		else if (key == Qt::Key_Right) {
+			ActForward_activated();
+		}
+		else if (key == Qt::CTRL | Qt::Key_Plus) {
+			adjustFontSize(1); //TODO replace magic constant
+		}
+		else if (key == Qt::CTRL | Qt::Key_Minus) {
+			adjustFontSize(-1); //TODO replace magic constant
+		}
+		else if (key == Qt::Key_U) {
+			scrollTextEdit(-18); //TODO replace magic constant
+		}
+		else if (key == Qt::Key_D) {
+			scrollTextEdit(18); //TODO replace magic constant
+		}
+		else if (key == Qt::Key_Delete or key == Qt::Key_B or key == Qt::Key_Backspace) {
+			scrollTextEdit(-1); //TODO replace magic constant
+		}
+		else if (key == Qt::Key_Space) {
+			scrollTextEdit(1);
+		}
+		else if (key == Qt::Key_R) {
+			tabWdg->setCurrentWidget(rv->tabPage());
+		}
+		else if (key == Qt::Key_P or key == Qt::Key_F) {
+			QWidget* cp = tabWdg->currentWidget();
+			Domain* d = key == Qt::Key_P? static_cast<Domain*>(firstTab<PatchView>(cp)) :
+						      static_cast<Domain*>(firstTab<FileView>(cp));
+			if (d) tabWdg->setCurrentWidget(d->tabPage());
+		}
 	}
 }
 
