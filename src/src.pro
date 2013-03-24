@@ -24,6 +24,8 @@ contains(QMAKE_CC,.*gcc.*) {
 # General stuff
 TEMPLATE = app
 CONFIG += qt warn_on exceptions debug_and_release
+CONFIG += uic
+QT += widgets
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
@@ -63,7 +65,6 @@ INSTALLS += target
 
 # Directories
 DESTDIR = ../bin
-BUILD_DIR = ../build
 UI_DIR = $$BUILD_DIR
 MOC_DIR = $$BUILD_DIR
 RCC_DIR = $$BUILD_DIR
