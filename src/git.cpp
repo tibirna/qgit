@@ -1632,11 +1632,11 @@ const QString Git::getLocalDate(SCRef gitDate) {
 const QStringList Git::getArgs(bool* quit, bool repoChanged) {
 
         QString args;
+	const QStringList& arglist = qApp->arguments();
         if (startup) {
-                for (int i = 1; i < qApp->argc(); i++) {
+		foreach (QString arg, arglist) {
                         // in arguments with spaces double quotes
                         // are stripped by Qt, so re-add them
-                        QString arg(qApp->argv()[i]);
                         if (arg.contains(' '))
                                 arg.prepend('\"').append('\"');
 
