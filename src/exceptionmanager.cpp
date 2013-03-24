@@ -35,7 +35,7 @@ bool ExceptionManager::isMatch(int value, int excp, const QString& context) {
 	if (match) {
 		QString info("Caught exception \'" + descriptions[excp] +
 		             "\' while in " + context);
-		qDebug(info.toLatin1().constData());
+		qDebug("%s", info.toLatin1().constData());
 	}
 	return match;
 }

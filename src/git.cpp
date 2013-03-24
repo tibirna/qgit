@@ -145,7 +145,7 @@ const QStringList Git::getGitConfigList(bool global) {
 bool Git::isImageFile(SCRef file) {
 
 	const QString ext(file.section('.', -1).toLower());
-	return QImageReader::supportedImageFormats().contains(ext.toAscii());
+	return QImageReader::supportedImageFormats().contains(ext.toLatin1());
 }
 
 //CT TODO investigate if there is a better way of getting this (from git e.g.)
@@ -1867,7 +1867,7 @@ Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef
         if (!patch.isEmpty())
                 data.append('\n' + patch);
 
-        QByteArray* ba = new QByteArray(data.toAscii());
+	QByteArray* ba = new QByteArray(data.toLatin1());
         ba->append('\0');
 
         fh->rowData.append(ba);

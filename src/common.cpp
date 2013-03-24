@@ -13,7 +13,7 @@ const QString Rev::mid(int start, int len) const {
 
         // warning no sanity check is done on arguments
         const char* data = ba.constData();
-        return QString::fromAscii(data + start, len);
+	return QString::fromLatin1(data + start, len);
 }
 
 const QString Rev::midSha(int start, int len) const {
