@@ -8,6 +8,7 @@
 */
 #include <QApplication>
 #include <QHeaderView>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>

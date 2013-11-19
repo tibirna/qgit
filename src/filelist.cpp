@@ -5,7 +5,9 @@
 */
 #include <QDrag>
 #include <QApplication>
+#include <QMimeData>
 #include <QPalette>
+#include <QMimeData>
 #include <QMouseEvent>
 #include "git.h"
 #include "domain.h"
