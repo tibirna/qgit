@@ -1663,25 +1663,23 @@ const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
         QString runOutput, tmp(workDir);
         workDir = wd;
         errorReportingEnabled = false;
-        bool ret = run("git rev-parse --git-dir", &runOutput); // run under newWorkDir
+        bool ret = run("git rev-parse --show-cdup", &runOutput); // run under newWorkDir
         errorReportingEnabled = true;
         workDir = tmp;
         runOutput = runOutput.trimmed();
-        if (!ret || runOutput.isEmpty()) {
+        if (!ret) {
                 *changed = true;
                 if (ok)
                         *ok = false;
                 return wd;
         }
-        // 'git rev-parse --git-dir' output could be a relative
-        // to working directory (as ex .git) or an absolute path
-        QDir d(runOutput.startsWith("/") ? runOutput : wd + "/" + runOutput);
+        // 'git rev-parse --show-cdup' is relative to working directory.
+        QDir d(wd + "/" + runOutput);
         *changed = (d.absolutePath() != gitDir);
         if (gd)
                 *gd = d.absolutePath();
         if (ok)
                 *ok = true;
-        d.cdUp();
         return d.absolutePath();
 }
 
