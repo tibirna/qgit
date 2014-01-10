@@ -1657,30 +1657,52 @@ const QStringList Git::getArgs(bool* quit, bool repoChanged) {
         return MyProcess::splitArgList(args);
 }
 
-const QString Git::getBaseDir(bool* changed, SCRef wd, bool* ok, QString* gd) {
+bool Git::getGitDBDir(SCRef wd, QString& gd, bool& changed) {
 // we could run from a subdirectory, so we need to get correct directories
 
         QString runOutput, tmp(workDir);
         workDir = wd;
         errorReportingEnabled = false;
-        bool ret = run("git rev-parse --show-cdup", &runOutput); // run under newWorkDir
+        bool success = run("git rev-parse --git-dir", &runOutput); // run under newWorkDir
         errorReportingEnabled = true;
         workDir = tmp;
         runOutput = runOutput.trimmed();
-        if (!ret) {
-                *changed = true;
-                if (ok)
-                        *ok = false;
-                return wd;
+        if (success) {
+                // 'git rev-parse --git-dir' output could be a relative
+                // to working directory (as ex .git) or an absolute path
+                QDir d(runOutput.startsWith("/") ? runOutput : wd + "/" + runOutput);
+                changed = (d.absolutePath() != gitDir);
+                gd = d.absolutePath();
         }
-        // 'git rev-parse --show-cdup' is relative to working directory.
-        QDir d(wd + "/" + runOutput);
-        *changed = (d.absolutePath() != gitDir);
-        if (gd)
-                *gd = d.absolutePath();
-        if (ok)
-                *ok = true;
-        return d.absolutePath();
+        return success;
+}
+
+bool Git::getBaseDir(SCRef wd, QString& bd, bool& changed) {
+// we could run from a subdirectory, so we need to get correct directories
+
+        // We use --show-cdup and not --git-dir for this, in order to take into account configurations
+        //  in which .git is indeed a "symlink", a text file containing the path of the actual .git database dir.
+        // In that particular case, the parent directory of the one given by --git-dir is *not* necessarily
+        //  the base directory of the repository.
+
+        QString runOutput, tmp(workDir);
+        workDir = wd;
+        errorReportingEnabled = false;
+        bool success = run("git rev-parse --show-cdup", &runOutput); // run under newWorkDir
+        errorReportingEnabled = true;
+        workDir = tmp;
+        runOutput = runOutput.trimmed();
+        if (success) {
+                // 'git rev-parse --show-cdup' is relative to working directory.
+                QDir d(wd + "/" + runOutput);
+                bd = d.absolutePath();
+                changed = (bd != workDir);
+        }
+        else {
+                changed = true;
+                bd = wd;
+        }
+        return success;
 }
 
 Git::Reference* Git::lookupOrAddReference(const ShaString& sha) {
@@ -2205,9 +2227,11 @@ bool Git::init(SCRef wd, bool askForRange, const QStringList* passedArgs, bool o
 
                 // check if repository is valid
                 bool repoChanged;
-                workDir = getBaseDir(&repoChanged, wd, &isGIT, &gitDir);
+                isGIT = getGitDBDir(wd, gitDir, repoChanged);
 
                 if (repoChanged) {
+                        bool dummy;
+                        getBaseDir(wd, workDir, dummy);
                         localDates.clear();
                         clearFileNames();
                         fileCacheAccessed = false;
