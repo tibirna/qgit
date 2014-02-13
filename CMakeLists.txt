@@ -1,6 +1,7 @@
 #
 # see http://www.kdab.com/using-cmake-with-qt-5/
 # see http://stackoverflow.com/questions/16245147/unable-to-include-a-ui-form-header-of-qt5-in-cmake
+# see http://www.qtcentre.org/wiki/index.php?title=Compiling_Qt4_apps_with_CMake
 #
 cmake_minimum_required(VERSION 2.8.7)
 
@@ -24,26 +25,12 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 # without -fPIE. We add that here.
 set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-# UIS_HDRS will be used later in add_executable
-QT5_WRAP_UI(UIS_HDRS
-    src/commit.ui
-    src/console.ui
-    src/customaction.ui
-    src/fileview.ui
-    src/help.ui
-    src/mainview.ui
-    src/patchview.ui
-    src/rangeselect.ui
-    src/revsview.ui
-    src/settings.ui
-)
-
 include_directories(
     .
     ${CMAKE_SOURCE_DIR}/src
 )
 
-set(qgit_SOURCES
+set(CPP_SOURCES
     src/annotate.cpp
     src/cache.cpp
     src/commitimpl.cpp
@@ -74,7 +61,31 @@ set(qgit_SOURCES
     src/treeview.cpp
 )
 
-add_executable(qgit ${qgit_SOURCES} ${UIS_HDRS})
+# UIS_HDRS will be used later in add_executable
+QT5_WRAP_UI(UIS_HDRS
+    src/commit.ui
+    src/console.ui
+    src/customaction.ui
+    src/fileview.ui
+    src/help.ui
+    src/mainview.ui
+    src/patchview.ui
+    src/rangeselect.ui
+    src/revsview.ui
+    src/settings.ui
+)
+
+# and finally an resource file
+SET(RESOURCE_FILES
+    ./src/icons.qrc
+)
+
+# this command will generate rules that will run rcc on all files from SAMPLE_RCS
+# in result SAMPLE_RC_SRCS variable will contain paths to files produced by rcc
+QT5_ADD_RESOURCES(RC_SRCS ${RESOURCE_FILES})
+
+
+add_executable(qgit ${CPP_SOURCES} ${UIS_HDRS} ${RC_SRCS})
 
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(qgit ${Qt5Widgets_LIBRARIES})
