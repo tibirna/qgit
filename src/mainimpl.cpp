@@ -345,7 +345,7 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 		EM_REGISTER(exExiting);
 
 		bool archiveChanged;
-		curDir = git->getBaseDir(&archiveChanged, newDir);
+                git->getBaseDir(newDir, curDir, archiveChanged);
 
 		git->stop(archiveChanged); // stop all pending processes, non blocking
 

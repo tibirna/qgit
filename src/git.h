@@ -59,7 +59,8 @@ public:
 	void checkEnvironment();
 	void userInfo(SList info);
 	const QStringList getGitConfigList(bool global);
-	const QString getBaseDir(bool* c, SCRef wd, bool* ok = NULL, QString* gd = NULL);
+        bool getGitDBDir(SCRef wd, QString& gd, bool& changed);
+        bool getBaseDir(SCRef wd, QString& bd, bool& changed);
 	bool init(SCRef wd, bool range, const QStringList* args, bool overwrite, bool* quit);
 	void stop(bool saveCache);
 	void setThrowOnStop(bool b);
