@@ -1883,7 +1883,7 @@ Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef
         data.append(author + '\n' + author + '\n' + date + '\n');
         data.append(log + '\n' + longLog);
 
-        QString header("log size " + QString::number(QByteArray(data.toAscii()).length() - 1) + '\n');
+        QString header("log size " + QString::number(QByteArray(data.toLatin1()).length() - 1) + '\n');
         data.prepend(header);
         if (!patch.isEmpty())
                 data.append('\n' + patch);
