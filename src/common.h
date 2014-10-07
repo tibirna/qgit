@@ -454,3 +454,5 @@ private:
 };
 
 #endif
+
+QString qt4and5escaping(QString toescape);

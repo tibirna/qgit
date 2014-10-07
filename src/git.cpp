@@ -972,7 +972,7 @@ const QString Git::getNewCommitMsg() {
 //CT TODO utility function; can go elsewhere
 const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
 
-	QString text = txt.toHtmlEscaped();
+	QString text = qt4and5escaping(txt);
 
 	if (regExp.isEmpty())
 		return text;
@@ -1035,9 +1035,9 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 		if (showHeader) {
 		    if (c->committer() != c->author())
-			    ts << formatList(QStringList(c->committer().toHtmlEscaped()), "Committer");
-		    ts << formatList(QStringList(c->author().toHtmlEscaped()), "Author");
-		    ts << formatList(QStringList(getLocalDate(c->authorDate())), " Author date");
+			ts << formatList(QStringList(qt4and5escaping(c->committer())), "Committer");
+			ts << formatList(QStringList(qt4and5escaping(c->author())), "Author");
+			ts << formatList(QStringList(getLocalDate(c->authorDate())), " Author date");
 
 			if (c->isUnApplied || c->isApplied) {
 
