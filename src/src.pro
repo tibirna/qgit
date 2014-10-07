@@ -25,10 +25,12 @@ contains(QMAKE_CC,.*gcc.*) {
 TEMPLATE = app
 CONFIG += qt warn_on exceptions debug_and_release
 CONFIG += uic
-QT += widgets
 INCLUDEPATH += ../src
 MAKEFILE = qmake
 RESOURCES += icons.qrc
+
+# Qt5 needs "widgets"
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 # Platform dependent stuff
 win32 {
