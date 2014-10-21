@@ -125,13 +125,9 @@ int Rev::indexData(bool quick, bool withDiff) const {
     if (withDiff || !logSize) {
 
         revEnd = (logEnd > idx) ? logEnd - 1: idx;
-        do { // search for "\n\0" to handle (rare) cases of '\0'
-            // in content, see c42012 and bb8d8a6 in Linux tree
-            revEnd = ba.indexOf('\0', revEnd + 1);
-            if (revEnd == -1)
-                return -1;
-
-        } while (data[revEnd - 1] != '\n');
+        revEnd = ba.indexOf('\0', revEnd + 1);
+        if (revEnd == -1)
+            return -1;
 
     } else
         revEnd = logEnd;
