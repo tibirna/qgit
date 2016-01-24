@@ -90,6 +90,8 @@ add_executable(qgit ${CPP_SOURCES} ${UIS_HDRS} ${RC_SRCS})
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(qgit ${Qt5Widgets_LIBRARIES})
 
+install(TARGETS qgit DESTINATION bin)
+
 # kate: indent-width 4; replace-tabs on;
 
 # notes:
