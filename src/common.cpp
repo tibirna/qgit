@@ -7,6 +7,7 @@
 
 */
 
+#include <QDataStream>
 #include "common.h"
 
 const QString Rev::mid(int start, int len) const {

@@ -7,6 +7,7 @@
 
 */
 #include <QFile>
+#include <QDataStream>
 #include <QDir>
 #include "cache.h"
 
