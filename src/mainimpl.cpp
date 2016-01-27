@@ -1092,8 +1092,7 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 
 	QList<QAction*> al(File->actions());
 	FOREACH (QList<QAction*>, it, al) {
-		SCRef txt = (*it)->text();
-		if (!txt.isEmpty() && txt.at(0).isDigit())
+		if ((*it)->data().toString().startsWith(QStringLiteral("RECENT")))
 			File->removeAction(*it);
 	}
 	QSettings settings;
@@ -1108,7 +1107,8 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 	idx = 1;
 	QStringList newRecents;
 	FOREACH_SL (it, recents) {
-		File->addAction(QString::number(idx++) + " " + *it);
+		QAction* newAction = File->addAction(QString::number(idx++) + " " + *it);
+		newAction->setData(QStringLiteral("RECENT ") + *it);
 		newRecents << *it;
 		if (idx > MAX_RECENT_REPOS)
 			break;
@@ -1355,12 +1355,12 @@ void MainImpl::ActSaveFile_activated() {
 
 void MainImpl::openRecent_triggered(QAction* act) {
 
-	bool ok;
-	act->text().left(1).toInt(&ok);
-	if (!ok) // only recent repos entries have a number in first char
+	const QString dataString = act->data().toString();
+	if (!dataString.startsWith(QStringLiteral("RECENT")))
+		// only recent repos entries have "RECENT" in data field
 		return;
 
-	const QString workDir(act->text().section(' ', 1));
+	const QString workDir = dataString.mid(7);
 	if (!workDir.isEmpty()) {
 		QDir d(workDir);
 		if (d.exists())
