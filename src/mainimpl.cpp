@@ -1825,10 +1825,14 @@ void MainImpl::ActAbout_activated() {
 	"Copyright (c) 2008 Paul Gideon Dann<br>"
 	"Copyright (c) 2008 Oliver Bock<br>"
 	"Copyright (c) 2010 Cyp &lt;cyp561@gmail.com&gt;<br>"
-	"Copyright (c) 2011 Jean-François Dagenais &lt;dagenaisj@sonatest.com&gt;<br>"
+	"Copyright (c) 2011 Jean-Fran&ccedil;ois Dagenais &lt;dagenaisj@sonatest.com&gt;<br>"
 	"Copyright (c) 2011 Pavel Tikhomirov &lt;pavtih@gmail.com&gt;<br>"
-	"Copyright (c) 2011 Cristian Tibirna &lt;tibirna@kde.org&gt;<br>"
-	"Copyright (c) 2011 Tim Blechmann &lt;tim@klingt.org&gt;"
+	"Copyright (c) 2011-2016 Cristian Tibirna &lt;tibirna@kde.org&gt;<br>"
+	"Copyright (c) 2011 Tim Blechmann &lt;tim@klingt.org&gt;<br>"
+	"Copyright (c) 2014 Gregor Mi &lt;codestruct@posteo.org&gt;<br>"
+	"Copyright (c) 2014 Sbytov N.N &lt;sbytnn@gmail.com&gt;<br>"
+	"Copyright (c) 2015 Daniel Levin &lt;dendy.ua@gmail.com&gt;<br>"
+	"Copyright (c) 2016 Luigi Toscano &lt;luigi.toscano@tiscali.it&gt;"
     "</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
