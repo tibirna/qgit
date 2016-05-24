@@ -1081,7 +1081,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 			if (slog.length() > 60)
 				slog = slog.left(57).trimmed().append("...");
 
-			const QString link("<a href=\"" + r->sha() + "\">" + slog.toHtmlEscaped() + "</a>");
+			const QString link("<a href=\"" + r->sha() + "\">" + qt4and5escaping(slog) + "</a>");
 			text.replace(pos + 2, ref.length(), link);
 			pos += link.length();
 		} else

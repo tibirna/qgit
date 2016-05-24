@@ -945,7 +945,11 @@ void MainImpl::shortCutActivated() {
 	QShortcut* se = dynamic_cast<QShortcut*>(sender());
 
 	if (se) {
+#if QT_VERSION >= 0x050000
 		const QKeySequence& key = se->key();
+#else
+		const int key = se->key();
+#endif
 
 		if (key == Qt::Key_I) {
 			rv->tab()->listViewLog->on_keyUp();
@@ -1092,7 +1096,7 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 
 	QList<QAction*> al(File->actions());
 	FOREACH (QList<QAction*>, it, al) {
-		if ((*it)->data().toString().startsWith(QStringLiteral("RECENT")))
+		if ((*it)->data().toString().startsWith("RECENT"))
 			File->removeAction(*it);
 	}
 	QSettings settings;
@@ -1108,7 +1112,7 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 	QStringList newRecents;
 	FOREACH_SL (it, recents) {
 		QAction* newAction = File->addAction(QString::number(idx++) + " " + *it);
-		newAction->setData(QStringLiteral("RECENT ") + *it);
+		newAction->setData(QString("RECENT ") + *it);
 		newRecents << *it;
 		if (idx > MAX_RECENT_REPOS)
 			break;
@@ -1356,7 +1360,7 @@ void MainImpl::ActSaveFile_activated() {
 void MainImpl::openRecent_triggered(QAction* act) {
 
 	const QString dataString = act->data().toString();
-	if (!dataString.startsWith(QStringLiteral("RECENT")))
+	if (!dataString.startsWith("RECENT"))
 		// only recent repos entries have "RECENT" in data field
 		return;
 

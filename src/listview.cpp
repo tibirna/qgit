@@ -88,9 +88,15 @@ void ListView::setupGeometry() {
 
 	QHeaderView* hv = header();
 	hv->setStretchLastSection(true);
+#if QT_VERSION >= 0x050000
 	hv->setSectionResizeMode(LOG_COL, QHeaderView::Interactive);
 	hv->setSectionResizeMode(TIME_COL, QHeaderView::Interactive);
 	hv->setSectionResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
+#else
+	hv->setResizeMode(LOG_COL, QHeaderView::Interactive);
+	hv->setResizeMode(TIME_COL, QHeaderView::Interactive);
+	hv->setResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
+#endif
 	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
 	hv->resizeSection(LOG_COL, DEF_LOG_COL_WIDTH);
 	hv->resizeSection(AUTH_COL, DEF_AUTH_COL_WIDTH);
