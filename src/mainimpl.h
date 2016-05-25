@@ -113,6 +113,7 @@ protected slots:
 	void ActSettings_activated();
 	void ActCommit_activated();
 	void ActAmend_activated();
+	void ActCheckout_activated();
 	void ActBranch_activated();
 	void ActTag_activated();
 	void ActTagDelete_activated();

@@ -31,6 +31,7 @@
 #include "help.h"
 #include "listview.h"
 #include "mainimpl.h"
+#include "inputdialog.h"
 #include "patchview.h"
 #include "rangeselectimpl.h"
 #include "revdesc.h"
@@ -444,6 +445,7 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 		isUnApplied = r->isUnApplied;
 		isApplied = r->isApplied;
 	}
+	ActCheckout->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActBranch->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTag->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTagDelete->setEnabled(found && isTag && (newRevSha != ZERO_SHA) && !isUnApplied);
@@ -1165,6 +1167,8 @@ void MainImpl::doContexPopup(SCRef sha) {
 	if (isRevPage) {
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
 			contextMenu.addAction(ActCommit);
+		if (ActCheckout->isEnabled())
+			contextMenu.addAction(ActCheckout);
 		if (ActBranch->isEnabled())
 			contextMenu.addAction(ActBranch);
 		if (ActTag->isEnabled())
@@ -1615,6 +1619,24 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 		ActPop->setEnabled(false);
 	}
 	ActCommit->setEnabled(b);
+}
+
+void MainImpl::ActCheckout_activated()
+{
+	SCRef sha = lineEditSHA->text();
+	QStringList branches;
+
+	InputDialog::DefaultsMap defaults;
+	const QString branchKey("local branch name");
+	defaults.insert(branchKey, branches);
+	InputDialog dlg(QString("%%1%").arg(branchKey), defaults);
+
+	if (dlg.exec() != QDialog::Accepted) return;
+	QString cmd = "git checkout ";
+	QString branch = dlg.value(branchKey).toString();
+	if (!branch.isEmpty()) cmd.append("-b ").append(branch);
+	cmd.append(sha);
+	git->run(cmd);
 }
 
 void MainImpl::ActBranch_activated() {
