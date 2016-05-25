@@ -747,6 +747,15 @@ QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& op
 
 	QPixmap* pm = new QPixmap(); // must be deleted by caller
 
+	// detached ?
+	if ((rt & Git::CUR_BRANCH) && !(rt & Git::BRANCH)) {
+		QStyleOptionViewItem o(opt);
+		o.palette.setColor(QPalette::Window, Qt::red);
+		o.palette.setColor(QPalette::WindowText, QColor(Qt::black));
+		o.font.setBold(true);
+		addTextPixmap(&pm, "detached", o);
+	}
+
 	if (rt & Git::BRANCH)
 		addRefPixmap(&pm, sha, Git::BRANCH, opt);
 

@@ -1822,6 +1822,10 @@ bool Git::getRefs() {
         if (isStGIT && !patchNames.isEmpty())
                 parseStGitPatches(patchNames, patchShas);
 
+        // mark current head (even when detached)
+        Reference* cur = lookupOrAddReference(toPersistentSha(curBranchSHA, shaBackupBuf));
+        cur->type |= CUR_BRANCH;
+
         return !refsShaMap.empty();
 }
 
