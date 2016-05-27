@@ -5,7 +5,8 @@
 namespace QGit {
 
 /** create an input dialog from a command containing tokens of the form
- * %Widget Name%
+ * %<widget_type>:<widget name>=<default value>%
+ * For default values, variables of the form $VAR_NAME can be used.
  * For each of those tokens, an input widget is created.
  */
 class InputDialog : public QDialog
@@ -20,9 +21,10 @@ class InputDialog : public QDialog
 	QString cmd;
 
 public:
-	typedef QMap<QString, QVariant> DefaultsMap;
-	explicit InputDialog(const QString &cmd, const DefaultsMap &defaults,
-						QWidget *parent = 0, Qt::WindowFlags f = 0);
+	typedef QMap<QString, QVariant> VariableMap;
+	explicit InputDialog(const QString &cmd, const VariableMap &variables,
+	                     const QString &title="",
+	                     QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	/// retrieve value of given token
 	QVariant value(const QString &token) const;

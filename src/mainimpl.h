@@ -136,6 +136,7 @@ private:
 
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
+	void updateRevVariables(SCRef sha);
 	void setupShortcuts();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
@@ -168,15 +169,16 @@ private:
 	RevsView* rv;
 	QProgressBar* pbFileNamesLoading;
 
-        // curDir is the repository working directory, could be different from qgit running
+	// curDir is the repository working directory, could be different from qgit running
 	// directory QDir::current(). Note that qgit could be run from subdirectory
-        // so only after git->isArchive() that updates curDir to point to working directory
+	// so only after git->isArchive() that updates curDir to point to working directory
 	// we are sure is correct.
 	QString curDir;
 	QString startUpDir;
 	QString textToFind;
 	QRegExp shortLogRE;
 	QRegExp longLogRE;
+	QMap<QString, QVariant> dialog_variables; // variables used in generic input dialogs
 	bool setRepositoryBusy;
 };
 

@@ -424,6 +424,29 @@ void MainImpl::updateGlobalActions(bool b) {
 	rv->setEnabled(b);
 }
 
+void MainImpl::updateRevVariables(SCRef sha) {
+	QMap<QString, QVariant> &v = dialog_variables;
+	const QStringList &remote_branches = git->getRefName(sha, Git::RMT_BRANCH);
+	v.insert("REV_LOCAL_BRANCHES", git->getRefName(sha, Git::BRANCH));
+	v.insert("REV_REMOTE_BRANCHES", remote_branches);
+	v.insert("REV_TAGS", git->getRefName(sha, Git::TAG));
+
+	QStringList all_branches, all_names;
+	all_branches << v["REV_LOCAL_BRANCHES"].toStringList()
+	             << v["REV_REMOTE_BRANCHES"].toStringList();
+	v.insert("REV_ALL_BRANCHES", all_branches);
+
+	all_names << v["REV_LOCAL_BRANCHES"].toStringList()
+	          << v["REV_TAGS"].toStringList();
+	// remove remote name from remote branches
+	for (QStringList::const_iterator it=remote_branches.begin(), end=remote_branches.end(); it!=end; ++it) {
+		all_names << it->mid(it->indexOf('/')+1);
+	}
+	all_names.removeDuplicates();
+	all_names.sort();
+	v.insert("REV_ALL_NAMES", all_names);
+}
+
 void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
                                     bool isDir, bool found) {
 
@@ -1624,12 +1647,10 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 void MainImpl::ActCheckout_activated()
 {
 	SCRef sha = lineEditSHA->text();
-	QStringList branches;
-
-	InputDialog::DefaultsMap defaults;
+	updateRevVariables(sha);
 	const QString branchKey("local branch name");
-	defaults.insert(branchKey, branches);
-	InputDialog dlg(QString("%%1%").arg(branchKey), defaults);
+	InputDialog dlg(QString("%combobox:%1=$REV_ALL_NAMES%").arg(branchKey), dialog_variables,
+	                "Checkout revision", this);
 
 	if (dlg.exec() != QDialog::Accepted) return;
 	QString cmd = "git checkout ";

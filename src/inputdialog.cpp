@@ -22,17 +22,35 @@ struct InputDialog::WidgetItem {
 	int start, end;
 };
 
-InputDialog::InputDialog(const QString &cmd, const DefaultsMap &defaults, QWidget *parent, Qt::WindowFlags f)
-	: cmd(cmd)
+QString parseString(const QString &value, const InputDialog::VariableMap &vars) {
+	if (value.startsWith('$')) return vars.value(value.mid(1), QString()).toString();
+	else return value;
+}
+QStringList parseStringList(const QString &value, const InputDialog::VariableMap &vars) {
+	QStringList values = value.split(',');
+	QStringList result;
+	for (QStringList::iterator it=values.begin(), end=values.end(); it!=end; ++it) {
+		if (it->startsWith('$')) result.append(vars.value(value.mid(1), QStringList()).toStringList());
+		else result.append(*it);
+	}
+	return result;
+}
+
+InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
+                         const QString &title, QWidget *parent, Qt::WindowFlags f)
+    : QDialog(parent, f)
+    , cmd(cmd)
 {
+	this->setWindowTitle(title);
 	QGridLayout *layout = new QGridLayout(this);
 
-	QRegExp re("%([a-z]+:)?([^%]+)%");
+	QRegExp re("%([a-z]+:)?([^%=]+)(=[^%]+)?%");
 	int start = 0;
 	int row = 0;
 	while ((start = re.indexIn(cmd, start)) != -1) {
-		const QString type = re.cap(1);
+		QString type = re.cap(1); type.chop(1);
 		const QString name = re.cap(2);
+		const QString value = re.cap(3).mid(1);
 		if (widgets.count(name)) { // widget already created
 			if (!type.isEmpty()) dbs("token must not be redefined: " + name);
 			continue;
@@ -44,18 +62,20 @@ InputDialog::InputDialog(const QString &cmd, const DefaultsMap &defaults, QWidge
 
 		if (type == "combobox") {
 			QComboBox *w = new QComboBox(this);
-			w->addItems(defaults.value(name, QStringList()).toStringList());
+			w->addItems(parseStringList(value, variables));
+			w->setEditable(true);
+			w->setMinimumWidth(100);
 			item->init(w, "currentText");
 		} else if (type == "lineedit" || type == "") {
 			QLineEdit *w = new QLineEdit(this);
-			w->setText(defaults.value(name, QString()).toString());
+			w->setText(parseString(value, variables));
 			item->init(w, "text");
 		} else {
 			dbs("unknown widget type: " + type);
 			continue;
 		}
 		widgets.insert(name, item);
-		layout->addWidget(new QLabel(name), row, 0);
+		layout->addWidget(new QLabel(name + ":"), row, 0);
 		layout->addWidget(item->widget, row, 1);
 		++row;
 	}
