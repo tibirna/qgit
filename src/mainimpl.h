@@ -136,7 +136,7 @@ private:
 
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
-	void updateRevVariables(SCRef sha);
+	void updateDialogVariables(SCRef sha);
 	void setupShortcuts();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);

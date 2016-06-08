@@ -424,27 +424,27 @@ void MainImpl::updateGlobalActions(bool b) {
 	rv->setEnabled(b);
 }
 
-void MainImpl::updateRevVariables(SCRef sha) {
+const QString REV_LOCAL_BRANCHES("REV_LOCAL_BRANCHES");
+const QString REV_REMOTE_BRANCHES("REV_REMOTE_BRANCHES");
+const QString REV_TAGS("REV_TAGS");
+const QString CURRENT_BRANCH("CURRENT_BRANCH");
+const QString SELECTED_NAME("SELECTED_NAME");
+
+void MainImpl::updateDialogVariables(SCRef sha) {
 	QMap<QString, QVariant> &v = dialog_variables;
+	v.clear();
+
 	const QStringList &remote_branches = git->getRefName(sha, Git::RMT_BRANCH);
-	v.insert("REV_LOCAL_BRANCHES", git->getRefName(sha, Git::BRANCH));
-	v.insert("REV_REMOTE_BRANCHES", remote_branches);
-	v.insert("REV_TAGS", git->getRefName(sha, Git::TAG));
+	QString curBranch;
+	v.insert(REV_LOCAL_BRANCHES, git->getRefName(sha, Git::BRANCH, &curBranch));
+	v.insert(CURRENT_BRANCH, curBranch);
+	v.insert(REV_REMOTE_BRANCHES, remote_branches);
+	v.insert(REV_TAGS, git->getRefName(sha, Git::TAG));
+	v.insert("SHA", sha);
 
-	QStringList all_branches, all_names;
-	all_branches << v["REV_LOCAL_BRANCHES"].toStringList()
-	             << v["REV_REMOTE_BRANCHES"].toStringList();
-	v.insert("REV_ALL_BRANCHES", all_branches);
-
-	all_names << v["REV_LOCAL_BRANCHES"].toStringList()
-	          << v["REV_TAGS"].toStringList();
-	// remove remote name from remote branches
-	for (QStringList::const_iterator it=remote_branches.begin(), end=remote_branches.end(); it!=end; ++it) {
-		all_names << it->mid(it->indexOf('/')+1);
-	}
-	all_names.removeDuplicates();
-	all_names.sort();
-	v.insert("REV_ALL_NAMES", all_names);
+	// determine which name the user clicked on
+	ListView* lv = rv->tab()->listViewLog;
+	v.insert(SELECTED_NAME, lv->selectedRefName());
 }
 
 void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
@@ -1188,6 +1188,8 @@ void MainImpl::doContexPopup(SCRef sha) {
 		contextMenu.addAction(ActExternalDiff);
 
 	if (isRevPage) {
+		updateDialogVariables(sha);
+
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
 			contextMenu.addAction(ActCommit);
 		if (ActCheckout->isEnabled())
@@ -1644,20 +1646,70 @@ void MainImpl::ActCommit_setEnabled(bool b) {
 	ActCommit->setEnabled(b);
 }
 
+/** Checkout supports various operation modes:
+ *  - switching to an existing branch (standard use case)
+ *  - create and checkout a new branch
+ *  - resetting an existing branch to a new sha
+ */
 void MainImpl::ActCheckout_activated()
 {
-	SCRef sha = lineEditSHA->text();
-	updateRevVariables(sha);
+	QString sha = lineEditSHA->text(), rev = sha;
 	const QString branchKey("local branch name");
-	InputDialog dlg(QString("%combobox:%1=$REV_ALL_NAMES%").arg(branchKey), dialog_variables,
-	                "Checkout revision", this);
+	QString cmd = "git checkout -q ";
 
-	if (dlg.exec() != QDialog::Accepted) return;
-	QString cmd = "git checkout ";
-	QString branch = dlg.value(branchKey).toString();
-	if (!branch.isEmpty()) cmd.append("-b ").append(branch);
-	cmd.append(sha);
-	git->run(cmd);
+	const QString &selected_name = dialog_variables.value(SELECTED_NAME).toString();
+	const QString &current_branch = dialog_variables.value(CURRENT_BRANCH).toString();
+	const QStringList &local_branches = dialog_variables.value(REV_LOCAL_BRANCHES).toStringList();
+
+	if (!selected_name.isEmpty() &&
+	    local_branches.contains(selected_name) > 0 &&
+	    selected_name != current_branch) {
+		// standard branch switching: directly checkout selected branch
+		rev = selected_name;
+	} else {
+		// ask for (new) local branch name
+		QString title = QString("Checkout ");
+		if (selected_name.isEmpty()) {
+			title += QString("revision ") + sha.mid(0, 8);
+		} else {
+			title	+= QString("branch ") + selected_name;
+			rev = selected_name;
+		}
+		// merge all reference names into a single list
+		const QStringList &rmts = dialog_variables.value(REV_REMOTE_BRANCHES).toStringList();
+		QStringList all_names;
+		all_names << dialog_variables.value(REV_LOCAL_BRANCHES).toStringList();
+		for(QStringList::const_iterator it=rmts.begin(), end=rmts.end(); it!=end; ++it) {
+			// drop initial <origin>/ from name
+			int pos = it->indexOf('/'); if (pos < 0) continue;
+			all_names << it->mid(pos+1);
+		}
+		dialog_variables.insert("ALL_NAMES", all_names);
+
+		InputDialog dlg(QString("%combobox[ref,editable]:%1=$ALL_NAMES%").arg(branchKey), dialog_variables, title, this);
+		if (dlg.exec() != QDialog::Accepted) return;
+
+		QString branch = dlg.value(branchKey).toString();
+		if (!branch.isEmpty()) {
+			if (!git->getRefSha(branch, Git::BRANCH, true).isEmpty()) {
+				if (QMessageBox::warning(this, "Checkout " + branch,
+				                         QString("Branch %1 already exists. Reset?").arg(branch),
+				                         QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+				    != QMessageBox::Yes)
+					return;
+				else
+					cmd.append("-B ").append(branch); // reset an existing branch
+			} else {
+				cmd.append("-b ").append(branch); // create new local branch
+			}
+		} // if new branch name is empty, checkout detached
+	}
+
+	cmd.append(" ").append(rev);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	if (!git->run(cmd)) statusBar()->showMessage("Failed to checkout " + rev);
+	refreshRepo(true);
+	QApplication::restoreOverrideCursor();
 }
 
 void MainImpl::ActBranch_activated() {
