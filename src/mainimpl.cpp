@@ -315,6 +315,54 @@ void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
 	filenames->append(fName2);
 }
 
+// *************************** ExternalEditor ***************************
+
+void MainImpl::ActExternalEditor_activated() {
+
+	QStringList args;
+	QStringList filenames;
+	getExternalEditorArgs(&args, &filenames);
+	ExternalEditorProc* externalEditor = new ExternalEditorProc(filenames, this);
+	externalEditor->setWorkingDirectory(curDir);
+
+	if (!QGit::startProcess(externalEditor, args)) {
+		QString text("Cannot start external editor: ");
+		text.append(args[0]);
+		QMessageBox::warning(this, "Error - QGit", text);
+		delete externalEditor;
+	}
+}
+
+void MainImpl::getExternalEditorArgs(QStringList* args, QStringList* filenames) {
+
+	QString fName1(curDir + "/" + rv->st.fileName());
+
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+	// get external diff viewer command
+	QSettings settings;
+	QString extEditor(settings.value(EXT_EDITOR_KEY, EXT_EDITOR_DEF).toString());
+
+	QApplication::restoreOverrideCursor();
+
+	// if command doesn't have %1 to denote filename, add to end
+	if (!extEditor.contains("%1")) {
+		extEditor.append(" %1");
+	}
+
+	// set process arguments
+	QStringList extEditorArgs = extEditor.split(' ');
+	QString curArg;
+	for (int i = 0; i < extEditorArgs.count(); i++) {
+		curArg = extEditorArgs.value(i);
+
+		// perform any filename replacements that are necessary
+		// (done inside the loop to handle whitespace in paths properly)
+		curArg.replace("%1", fName1);
+
+		args->append(curArg);
+	}
+}
 // ********************** Repository open or changed *************************
 
 void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
@@ -456,6 +504,7 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 	ActViewFile->setEnabled(fileActionsEnabled);
 	ActViewFileNewTab->setEnabled(fileActionsEnabled && firstTab<FileView>());
 	ActExternalDiff->setEnabled(fileActionsEnabled);
+	ActExternalEditor->setEnabled(fileActionsEnabled);
 	ActSaveFile->setEnabled(fileActionsEnabled);
 	ActFilterTree->setEnabled(pathActionsEnabled || ActFilterTree->isChecked());
 
@@ -496,18 +545,27 @@ void MainImpl::fileList_itemDoubleClicked(QListWidgetItem* item) {
 	if (isFirst && rv->st.isMerge())
 		return;
 
-	bool isMainView = (item && item->listWidget() == rv->tab()->fileList);
-	if (isMainView && ActViewDiff->isEnabled())
-		ActViewDiff->activate(QAction::Trigger);
+	if (testFlag(OPEN_IN_EDITOR_F, FLAGS_KEY)) {
+		if (item && ActExternalEditor->isEnabled())
+			ActExternalEditor->activate(QAction::Trigger);
+	} else {
+		bool isMainView = (item && item->listWidget() == rv->tab()->fileList);
+		if (isMainView && ActViewDiff->isEnabled())
+			ActViewDiff->activate(QAction::Trigger);
 
-	if (item && !isMainView && ActViewFile->isEnabled())
-		ActViewFile->activate(QAction::Trigger);
+		if (item && !isMainView && ActViewFile->isEnabled())
+			ActViewFile->activate(QAction::Trigger);
+	}
 }
 
 void MainImpl::treeView_doubleClicked(QTreeWidgetItem* item, int) {
-
-	if (item && ActViewFile->isEnabled())
-		ActViewFile->activate(QAction::Trigger);
+	if (testFlag(OPEN_IN_EDITOR_F, FLAGS_KEY)) {
+		if (item && ActExternalEditor->isEnabled())
+			ActExternalEditor->activate(QAction::Trigger);
+	} else {
+		if (item && ActViewFile->isEnabled())
+			ActViewFile->activate(QAction::Trigger);
+	}
 }
 
 void MainImpl::pushButtonCloseTab_clicked() {
@@ -1187,6 +1245,9 @@ void MainImpl::doContexPopup(SCRef sha) {
 	if (!isFilePage && ActExternalDiff->isEnabled())
 		contextMenu.addAction(ActExternalDiff);
 
+	if (isFilePage && ActExternalEditor->isEnabled())
+		contextMenu.addAction(ActExternalEditor);
+
 	if (isRevPage) {
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
 			contextMenu.addAction(ActCommit);
@@ -1296,6 +1357,10 @@ void MainImpl::doFileContexPopup(SCRef fileName, int type) {
 			contextMenu.addAction(ActSaveFile);
 		if ((type == POPUP_FILE_EV) && ActExternalDiff->isEnabled())
 			contextMenu.addAction(ActExternalDiff);
+		if ((type == POPUP_FILE_EV) && ActExternalEditor->isEnabled())
+			contextMenu.addAction(ActExternalEditor);
+		if (ActExternalEditor->isEnabled())
+			contextMenu.addAction(ActExternalEditor);
 	}
 	contextMenu.exec(QCursor::pos());
 }

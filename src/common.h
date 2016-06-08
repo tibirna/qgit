@@ -201,6 +201,7 @@ namespace QGit {
 	extern const QString EX_KEY;
 	extern const QString EX_PER_DIR_KEY;
 	extern const QString EXT_DIFF_KEY;
+	extern const QString EXT_EDITOR_KEY;
 	extern const QString REC_REP_KEY;
 	extern const QString ACT_LIST_KEY;
 	extern const QString ACT_GEOM_KEY;
@@ -213,6 +214,7 @@ namespace QGit {
 	extern const QString EX_DEF;
 	extern const QString EX_PER_DIR_DEF;
 	extern const QString EXT_DIFF_DEF;
+	extern const QString EXT_EDITOR_DEF;
 
 	// settings booleans
 	enum FlagType {
@@ -231,7 +233,8 @@ namespace QGit {
 		WHOLE_HISTORY_F = 1 << 12,
 		RANGE_SELECT_F  = 1 << 13,
 		REOPEN_REPO_F   = 1 << 14,
-		USE_CMT_MSG_F   = 1 << 15
+		USE_CMT_MSG_F   = 1 << 15,
+		OPEN_IN_EDITOR_F = 1 << 16,
 	};
 	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F;
 
