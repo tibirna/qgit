@@ -362,6 +362,7 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 		filterNextContextMenuRequest = false;
 		return;
 	}
+	lastRefName = refNameAt(pos);
 	emit contextMenu(sha(index.row()), POPUP_LIST_EV);
 }
 
@@ -391,6 +392,69 @@ bool ListView::getLaneParentsChildren(SCRef sha, int x, SList p, SList c) {
 	// then find children
         c = git->getChildren(root);
 	return true;
+}
+
+/** Iterator over all refnames of a given sha.
+ *  References are traversed in following order:
+ *  detached (name empty), local branches, remote branches, tags, other refs
+ */
+class RefNameIterator {
+	Git* git;
+	const QString sha;
+	uint ref_types; // all reference types associated with sha
+	int  cur_state; // state indicating the currently processed ref type
+	QStringList ref_names; // ref_names of current type
+	QStringList::const_iterator cur_name;
+	QString cur_branch;
+
+public:
+	RefNameIterator(const QString &sha, Git* git);
+	bool valid() const {return cur_state != -1;}
+	QString name() const {return *cur_name;}
+	int type() {return cur_state;}
+	bool isCurrentBranch() {return *cur_name == cur_branch;}
+
+	void next();
+};
+
+RefNameIterator::RefNameIterator(const QString &sha, Git *git)
+    : git(git), sha(sha), cur_state(0)
+{
+	ref_types = git->checkRef(sha);
+	if (ref_types == 0) {
+		cur_state = -1; // indicates end
+		return;
+	}
+
+	// initialize dummy string list
+	ref_names << "";
+	cur_name = ref_names.begin();
+
+	// detached ?
+	if ((ref_types & Git::CUR_BRANCH) && !(ref_types & Git::BRANCH)) {
+		// indicate detached state with type() == 0 and empty ref name
+		cur_branch = *cur_name;
+	} else { // advance to first real ref name
+		next();
+	}
+}
+
+void RefNameIterator::next()
+{
+	++cur_name;
+
+	// switch to next ref type if required
+	while (valid() && cur_name == ref_names.end()) {
+		switch (cur_state) {
+		case 0: cur_state = Git::BRANCH; break;
+		case Git::BRANCH: cur_state = Git::RMT_BRANCH; break;
+		case Git::RMT_BRANCH: cur_state = Git::TAG; break;
+		case Git::TAG: cur_state = Git::REF; break;
+		default: cur_state = -1; // indicate end
+		}
+		ref_names = git->getRefName(sha, (Git::RefType)cur_state, &cur_branch);
+		cur_name = ref_names.begin();
+	}
 }
 
 // *****************************************************************************
@@ -739,64 +803,69 @@ bool ListViewDelegate::changedFiles(SCRef sha) const {
 	return false;
 }
 
+// adapt style and name based on type
+void getTagMarkParams(QString &name, QStyleOptionViewItem& o,
+                      const int type, const bool isCurrent) {
+	QColor clr;
+
+	switch (type) {
+	case 0: name = "detached"; clr = Qt::red; break;
+	case Git::BRANCH: clr = isCurrent ? Qt::green : DARK_GREEN; break;
+	case Git::RMT_BRANCH: clr = LIGHT_ORANGE; break;
+	case Git::TAG: clr = Qt::yellow; break;
+	case Git::REF: clr = PURPLE; break;
+	}
+
+	o.palette.setColor(QPalette::Window, clr);
+	o.palette.setColor(QPalette::WindowText, QColor(Qt::black));
+	o.font.setBold(isCurrent);
+}
+
 QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const {
 
 	uint rt = git->checkRef(sha);
 	if (rt == 0)
-		return NULL; // common case
+		return NULL; // common case: no refs at all
 
 	QPixmap* pm = new QPixmap(); // must be deleted by caller
 
-	// detached ?
-	if ((rt & Git::CUR_BRANCH) && !(rt & Git::BRANCH)) {
+	for (RefNameIterator it(sha, git); it.valid(); it.next()) {
 		QStyleOptionViewItem o(opt);
-		o.palette.setColor(QPalette::Window, Qt::red);
-		o.palette.setColor(QPalette::WindowText, QColor(Qt::black));
-		o.font.setBold(true);
-		addTextPixmap(&pm, "detached", o);
+		QString name = it.name();
+		getTagMarkParams(name, o, it.type(), it.isCurrentBranch());
+		addTextPixmap(&pm, name, o);
 	}
-
-	if (rt & Git::BRANCH)
-		addRefPixmap(&pm, sha, Git::BRANCH, opt);
-
-	if (rt & Git::RMT_BRANCH)
-		addRefPixmap(&pm, sha, Git::RMT_BRANCH, opt);
-
-	if (rt & Git::TAG)
-		addRefPixmap(&pm, sha, Git::TAG, opt);
-
-	if (rt & Git::REF)
-		addRefPixmap(&pm, sha, Git::REF, opt);
 
 	return pm;
 }
 
-void ListViewDelegate::addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const {
+QString ListView::refNameAt(const QPoint &pos)
+{
+	QModelIndex index = indexAt(pos);
+	if (index.column() != LOG_COL) return QString();
 
-	QString curBranch;
-	SCList refs = git->getRefName(sha, (Git::RefType)type, &curBranch);
-	FOREACH_SL (it, refs) {
+	int spacing = 4; // inner spacing within pixmaps (cf. addTextPixmap)
+	int ofs = visualRect(index).left();
+	for (RefNameIterator it(sha(index.row()), git); it.valid(); it.next()) {
+		QStyleOptionViewItem o;
+		QString name = it.name();
+		getTagMarkParams(name, o, it.type(), it.isCurrentBranch());
 
-		bool isCur = (curBranch == *it);
-		opt.font.setBold(isCur);
-
-		QColor clr;
-		if (type == Git::BRANCH)
-			clr = (isCur ? Qt::green : DARK_GREEN);
-
-		else if (type == Git::RMT_BRANCH)
-			clr = LIGHT_ORANGE;
-
-		else if (type == Git::TAG)
-			clr = Qt::yellow;
-
-		else if (type == Git::REF)
-			clr = PURPLE;
-
-		opt.palette.setColor(QPalette::Window, clr);
-		opt.palette.setColor(QPalette::WindowText, QColor(Qt::black));
-		addTextPixmap(pp, *it, opt);
+		QFontMetrics fm(o.font);
+		ofs += fm.boundingRect(name).width() + 2*spacing;
+		if (pos.x() <= ofs) {
+			// name found: return fully-qualified ref name (cf. Git::getRefs() for names)
+			switch (it.type()) {
+			   case Git::BRANCH: return it.name(); break;
+			   case Git::TAG: return "tags/" + it.name(); break;
+			   case Git::RMT_BRANCH: return "remotes/" + it.name(); break;
+			   case Git::REF: return "bases/" + it.name(); break;
+			   default: return QString(); break;
+			}
+		}
+		ofs += 2; // distance between pixmaps (cf. addTextPixmap)
 	}
+	return QString();
 }
 
 void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const {

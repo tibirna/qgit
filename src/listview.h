@@ -35,6 +35,8 @@ public:
 	int filterRows(bool, bool, SCRef = QString(), int = -1, ShaSet* = NULL);
 	const QString sha(int row) const;
 	int row(SCRef sha) const;
+	QString refNameAt(const QPoint &pos);
+	const QString& selectedRefName() const {return lastRefName;}
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
@@ -73,6 +75,7 @@ private:
 	ListViewProxy* lp;
 	unsigned long secs;
 	bool filterNextContextMenuRequest;
+	QString lastRefName; // last ref name clicked on
 };
 
 class ListViewDelegate : public QItemDelegate {
@@ -97,7 +100,6 @@ private:
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraphLane(QPainter* p, int type, int x1, int x2, const QColor& col, const QColor& activeCol, const QBrush& back) const;
 	QPixmap* getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const;
-	void addRefPixmap(QPixmap** pp, SCRef sha, int type, QStyleOptionViewItem opt) const;
 	void addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const;
 	bool changedFiles(SCRef sha) const;
 
