@@ -1171,10 +1171,6 @@ void MainImpl::doContexPopup(SCRef sha) {
 	bool isPatchPage = (tt == TAB_PATCH);
 	bool isFilePage = (tt == TAB_FILE);
 
-	if (!isFilePage && ActCheckWorkDir->isEnabled()) {
-		contextMenu.addAction(ActCheckWorkDir);
-		contextMenu.addSeparator();
-	}
 	if (isFilePage && ActViewRev->isEnabled())
 		contextMenu.addAction(ActViewRev);
 

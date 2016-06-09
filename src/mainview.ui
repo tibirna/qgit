@@ -135,6 +135,7 @@
     </property>
     <addaction name="ActCommit"/>
     <addaction name="ActAmend"/>
+    <addaction name="ActCheckout"/>
     <addaction name="ActBranch"/>
     <addaction name="ActTag"/>
     <addaction name="ActDelete"/>
@@ -297,6 +298,9 @@
    </property>
    <property name="toolTip">
     <string>Tag selected revision</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="ActOpenRepoNewWindow">
@@ -771,6 +775,9 @@
    <property name="toolTip">
     <string>Make new branch on selected revision</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
   </action>
   <action name="ActCheckout">
    <property name="text">
@@ -778,6 +785,9 @@
    </property>
    <property name="toolTip">
     <string>Checkout selected revision</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
  </widget>
