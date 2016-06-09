@@ -1898,9 +1898,9 @@ void MainImpl::ActDelete_activated() {
 	for (RefGroupMap::const_iterator g = groups.begin(), gend = groups.end(); g != gend; ++g) {
 		QString cmd;
 		if (g.key() == "") // local branches
-			cmd = "git branch -d " + g.value().join(' ');
+			cmd = "git branch -d " + g.value().join(" ");
 		else if (g.key() == "tags/") // tags
-			cmd = "git tag -d " + g.value().join(' ');
+			cmd = "git tag -d " + g.value().join(" ");
 		else // remote branches
 			cmd = "git push " + g.key() + " :" + g.value().join(" :");
 		ok &= git->run(cmd);
