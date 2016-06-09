@@ -1722,47 +1722,63 @@ void MainImpl::ActTag_activated() {
     doBranchOrTag(true);
 }
 
+const QStringList& stripNames(QStringList& names) {
+	for(QStringList::iterator it=names.begin(), end=names.end(); it!=end; ++it)
+		*it = it->section('/', -1);
+	return names;
+}
+
 void MainImpl::doBranchOrTag(bool isTag) {
-
+	const QString sha = lineEditSHA->text();
 	QString refDesc = isTag ? "tag" : "branch";
-	QString boxDesc = "Make " + refDesc + " - QGit";
-	QString revDesc(rv->tab()->listViewLog->currentText(LOG_COL));
-	bool ok;
-	QString ref = QInputDialog::getText(this, boxDesc, "Enter " + refDesc
-								+ " name:", QLineEdit::Normal, "", &ok);
-	if (!ok || ref.isEmpty())
-		return;
+	QString dlgTitle = "Create " + refDesc + " - QGit";
 
-	QString tmp(ref.trimmed());
-	if (ref != tmp.remove(' ')) {
-		QMessageBox::warning(this, boxDesc,
-		             "Sorry, control characters or spaces\n"
-		             "are not allowed in " + refDesc + " name.");
-		return;
-	}
-	if (!git->getRefSha(ref, isTag ? Git::TAG : Git::BRANCH, false).isEmpty()) {
-		QMessageBox::warning(this, boxDesc,
-		             "Sorry, " + refDesc + " name already exists.\n"
-					 "Please choose a different name.");
-		return;
-	}
-	QString msg;
+	QString dlgDesc = "%lineedit[ref]:name=$ALL_NAMES%";
+	InputDialog::VariableMap dlgVars;
+	QStringList allNames = git->getAllRefNames(Git::BRANCH | Git::RMT_BRANCH | Git::TAG, false);
+	stripNames(allNames);
+	allNames.removeDuplicates();
+	allNames.sort();
+	dlgVars.insert("ALL_NAMES", allNames);
+
 	if (isTag) {
-	    msg = QInputDialog::getText(this, boxDesc, "Enter tag message, if any:",
-									QLineEdit::Normal, revDesc, &ok);
-		if (!ok) return;
+		QString revDesc(rv->tab()->listViewLog->currentText(LOG_COL));
+		dlgDesc += "%textedit:message=$MESSAGE%";
+		dlgVars.insert("MESSAGE", revDesc);
 	}
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	if (isTag)
-	    ok = git->makeTag(lineEditSHA->text(), ref, msg);
-	else
-	    ok = git->makeBranch(lineEditSHA->text(), ref);
 
-	QApplication::restoreOverrideCursor();
-	if (ok)
+	InputDialog dlg(dlgDesc, dlgVars, dlgTitle, this);
+	if (dlg.exec() != QDialog::Accepted) return;
+	const QString& ref = dlg.value("name").toString();
+	const QString& msg = dlg.value("message").toString();
+
+	bool force = false;
+	if (!git->getRefSha(ref, isTag ? Git::TAG : Git::BRANCH, false).isEmpty()) {
+		if (QMessageBox::warning(this, dlgTitle,
+		                         refDesc + " name '" + ref + "' already exists.\n"
+		                         "Force reset?", QMessageBox::Yes | QMessageBox::No,
+		                         QMessageBox::No) != QMessageBox::Yes)
+			return;
+		force = true;
+	}
+
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QString cmd;
+	if (isTag) {
+		cmd = "git tag ";
+		if (!msg.isEmpty()) cmd += "-m \"" + msg + "\" ";
+	} else {
+		cmd = "git branch ";
+	}
+	if (force) cmd += "-f ";
+	cmd += ref + " " + sha;
+
+	if (git->run(cmd))
 		refreshRepo(true);
 	else
-		statusBar()->showMessage("Sorry, unable to tag the revision");
+		statusBar()->showMessage("Failed to create " + refDesc + " " + ref);
+
+	QApplication::restoreOverrideCursor();
 }
 
 void MainImpl::ActTagDelete_activated() {
