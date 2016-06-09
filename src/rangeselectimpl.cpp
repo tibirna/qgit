@@ -179,3 +179,8 @@ void RangeSelectImpl::pushButtonOk_clicked() {
 
 	done(QDialog::Accepted);
 }
+
+QString RangeSelectImpl::getDefaultArgs() {
+	QSettings settings;
+	return settings.value(RANGE_OPT_KEY).toString();
+}

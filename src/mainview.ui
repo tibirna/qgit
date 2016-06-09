@@ -170,6 +170,7 @@
     <addaction name="ActViewFile"/>
     <addaction name="ActViewFileNewTab"/>
     <addaction name="ActExternalDiff"/>
+    <addaction name="ActExternalEditor"/>
     <addaction name="ActShowTree"/>
     <addaction name="ActSplitView"/>
     <addaction name="ActToggleLogsDiff"/>
@@ -539,6 +540,20 @@
     <string>Ctrl+D</string>
    </property>
   </action>
+  <action name="ActExternalEditor">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>External editor...</string>
+   </property>
+   <property name="iconText">
+    <string>Launch external editor</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
   <action name="ActViewRev">
    <property name="enabled">
     <bool>false</bool>
@@ -904,6 +919,22 @@
    <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActExternalDiff_activated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActExternalEditor</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActExternalEditor_activated()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

@@ -15,6 +15,7 @@ class RangeSelectImpl: public QDialog, public Ui_RangeSelectBase {
 Q_OBJECT
 public:
 	RangeSelectImpl(QWidget* par, QString* range, bool rc, Git* g);
+	static QString getDefaultArgs();
 
 public slots:
 	void pushButtonOk_clicked();

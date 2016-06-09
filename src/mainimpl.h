@@ -101,6 +101,7 @@ protected slots:
 	void ActViewDiff_activated();
 	void ActViewDiffNewTab_activated();
 	void ActExternalDiff_activated();
+	void ActExternalEditor_activated();
 	void ActSplitView_activated();
 	void ActToggleLogsDiff_activated();
 	void ActShowDescHeader_activated();
@@ -144,6 +145,7 @@ private:
 	void highlightAbbrevSha(SCRef abbrevSha);
 	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
 	void getExternalDiffArgs(QStringList* args, QStringList* filenames);
+	QStringList getExternalEditorArgs();
 	void lineEditSHASetText(SCRef text);
 	void updateCommitMenu(bool isStGITStack);
 	void updateRecentRepoMenu(SCRef newEntry = "");
@@ -211,5 +213,25 @@ private:
 		}
 	}
 };
+
+class ExternalEditorProc : public QProcess {
+Q_OBJECT
+public:
+	ExternalEditorProc(QObject* p)
+	    : QProcess(p) {
+
+		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+	}
+	~ExternalEditorProc() {
+		terminate();
+	}
+
+private slots:
+	void on_finished(int, QProcess::ExitStatus) { deleteLater(); }
+
+private:
+};
+
 
 #endif
