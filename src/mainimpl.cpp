@@ -430,8 +430,8 @@ const QString REV_TAGS("REV_TAGS");
 const QString CURRENT_BRANCH("CURRENT_BRANCH");
 const QString SELECTED_NAME("SELECTED_NAME");
 
-void MainImpl::updateDialogVariables(SCRef sha) {
-	QMap<QString, QVariant> &v = dialog_variables;
+void MainImpl::updateRevVariables(SCRef sha) {
+	QMap<QString, QVariant> &v = revision_variables;
 	v.clear();
 
 	const QStringList &remote_branches = git->getRefName(sha, Git::RMT_BRANCH);
@@ -1188,7 +1188,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 		contextMenu.addAction(ActExternalDiff);
 
 	if (isRevPage) {
-		updateDialogVariables(sha);
+		updateRevVariables(sha);
 
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
 			contextMenu.addAction(ActCommit);
@@ -1265,6 +1265,9 @@ void MainImpl::doContexPopup(SCRef sha) {
 	QPoint p = QCursor::pos();
 	p += QPoint(10, 10);
 	contextMenu.exec(p);
+
+	// remove selected ref name after showing the popup
+	revision_variables.remove(SELECTED_NAME);
 }
 
 void MainImpl::doFileContexPopup(SCRef fileName, int type) {
@@ -1657,9 +1660,9 @@ void MainImpl::ActCheckout_activated()
 	const QString branchKey("local branch name");
 	QString cmd = "git checkout -q ";
 
-	const QString &selected_name = dialog_variables.value(SELECTED_NAME).toString();
-	const QString &current_branch = dialog_variables.value(CURRENT_BRANCH).toString();
-	const QStringList &local_branches = dialog_variables.value(REV_LOCAL_BRANCHES).toStringList();
+	const QString &selected_name = revision_variables.value(SELECTED_NAME).toString();
+	const QString &current_branch = revision_variables.value(CURRENT_BRANCH).toString();
+	const QStringList &local_branches = revision_variables.value(REV_LOCAL_BRANCHES).toStringList();
 
 	if (!selected_name.isEmpty() &&
 	    local_branches.contains(selected_name) > 0 &&
@@ -1676,17 +1679,17 @@ void MainImpl::ActCheckout_activated()
 			rev = selected_name;
 		}
 		// merge all reference names into a single list
-		const QStringList &rmts = dialog_variables.value(REV_REMOTE_BRANCHES).toStringList();
+		const QStringList &rmts = revision_variables.value(REV_REMOTE_BRANCHES).toStringList();
 		QStringList all_names;
-		all_names << dialog_variables.value(REV_LOCAL_BRANCHES).toStringList();
+		all_names << revision_variables.value(REV_LOCAL_BRANCHES).toStringList();
 		for(QStringList::const_iterator it=rmts.begin(), end=rmts.end(); it!=end; ++it) {
 			// drop initial <origin>/ from name
 			int pos = it->indexOf('/'); if (pos < 0) continue;
 			all_names << it->mid(pos+1);
 		}
-		dialog_variables.insert("ALL_NAMES", all_names);
+		revision_variables.insert("ALL_NAMES", all_names);
 
-		InputDialog dlg(QString("%combobox[editable,ref,empty]:%1=$ALL_NAMES%").arg(branchKey), dialog_variables, title, this);
+		InputDialog dlg(QString("%combobox[editable,ref,empty]:%1=$ALL_NAMES%").arg(branchKey), revision_variables, title, this);
 		if (dlg.exec() != QDialog::Accepted) return;
 
 		QString branch = dlg.value(branchKey).toString();
@@ -1796,13 +1799,13 @@ static void groupRef(const QString& ref, RefGroupMap& groups) {
 
 void MainImpl::ActDelete_activated() {
 
-	const QString &selected_name = dialog_variables.value(SELECTED_NAME).toString();
-	const QStringList &tags = dialog_variables.value(REV_TAGS).toStringList();
-	const QStringList &rmts = dialog_variables.value(REV_REMOTE_BRANCHES).toStringList();
+	const QString &selected_name = revision_variables.value(SELECTED_NAME).toString();
+	const QStringList &tags = revision_variables.value(REV_TAGS).toStringList();
+	const QStringList &rmts = revision_variables.value(REV_REMOTE_BRANCHES).toStringList();
 
 	// merge all reference names into a single list
 	QStringList all_names;
-	all_names << dialog_variables.value(REV_LOCAL_BRANCHES).toStringList();
+	all_names << revision_variables.value(REV_LOCAL_BRANCHES).toStringList();
 	for (QStringList::const_iterator it=rmts.begin(), end=rmts.end(); it!=end; ++it)
 		all_names << "remotes/" + *it;
 	for (QStringList::const_iterator it=tags.begin(), end=tags.end(); it!=end; ++it)
@@ -1815,8 +1818,8 @@ void MainImpl::ActDelete_activated() {
 	} else if (all_names.size() == 1) {
 		groupRef(all_names.first(), groups);
 	} else {
-		dialog_variables.insert("ALL_NAMES", all_names);
-		InputDialog dlg("%listbox:_refs=$ALL_NAMES%", dialog_variables,
+		revision_variables.insert("ALL_NAMES", all_names);
+		InputDialog dlg("%listbox:_refs=$ALL_NAMES%", revision_variables,
 		                "Delete references - QGit", this);
 		QListView *w = dynamic_cast<QListView*>(dlg.widget("_refs"));
 		w->setSelectionMode(QAbstractItemView::ExtendedSelection);

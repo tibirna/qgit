@@ -136,7 +136,7 @@ private:
 
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
-	void updateDialogVariables(SCRef sha);
+	void updateRevVariables(SCRef sha);
 	void setupShortcuts();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
@@ -178,7 +178,7 @@ private:
 	QString textToFind;
 	QRegExp shortLogRE;
 	QRegExp longLogRE;
-	QMap<QString, QVariant> dialog_variables; // variables used in generic input dialogs
+	QMap<QString, QVariant> revision_variables; // variables used in generic input dialogs
 	bool setRepositoryBusy;
 };
 
