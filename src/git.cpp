@@ -236,15 +236,12 @@ uint Git::checkRef(SCRef sha, uint mask) const {
 	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 
-const QStringList Git::getRefName(SCRef sha, RefType type, QString* curBranch) const {
+const QStringList Git::getRefName(SCRef sha, RefType type) const {
 
 	if (!checkRef(sha, type))
 		return QStringList();
 
 	const Reference& rf = refsShaMap[toTempSha(sha)];
-
-	if (curBranch)
-		*curBranch = rf.currentBranch;
 
 	if (type == TAG)
 		return rf.tags;
@@ -1712,7 +1709,7 @@ bool Git::getRefs() {
 
         // check for a merge and read current branch sha
         isMergeHead = d.exists("MERGE_HEAD");
-        QString curBranchSHA, curBranchName;
+        QString curBranchSHA;
         if (!run("git rev-parse --revs-only HEAD", &curBranchSHA))
                 return false;
 
@@ -1781,10 +1778,8 @@ bool Git::getRefs() {
 
                         cur->branches.append(refName.mid(11));
                         cur->type |= BRANCH;
-                        if (curBranchSHA == revSha) {
+                        if (curBranchSHA == revSha)
                                 cur->type |= CUR_BRANCH;
-                                cur->currentBranch = curBranchName;
-                        }
                 } else if (refName.startsWith("refs/remotes/") && !refName.endsWith("HEAD")) {
 
                         cur->remoteBranches.append(refName.mid(13));

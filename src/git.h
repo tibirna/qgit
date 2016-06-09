@@ -94,6 +94,7 @@ public:
 	const RevFile* getFiles(SCRef sha, SCRef sha2 = "", bool all = false, SCRef path = "");
 	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
 	static const QString getLocalDate(SCRef gitDate);
+	const QString getCurrentBranchName() const {return curBranchName;}
 	const QString getDesc(SCRef sha, QRegExp& slogRE, QRegExp& lLogRE, bool showH, FileHistory* fh);
 	const QString getLastCommitMsg();
 	const QString getNewCommitMsg();
@@ -109,7 +110,7 @@ public:
 	uint checkRef(SCRef sha, uint mask = ANY_REF) const;
 	const QString getRevInfo(SCRef sha);
 	const QString getRefSha(SCRef refName, RefType type = ANY_REF, bool askGit = true);
-	const QStringList getRefName(SCRef sha, RefType type, QString* curBranch = NULL) const;
+	const QStringList getRefName(SCRef sha, RefType type) const;
 	const QStringList getAllRefNames(uint mask, bool onlyLoaded);
 	const QStringList getAllRefSha(uint mask);
 	const QStringList sortShaListByIndex(SCList shaList);
@@ -167,7 +168,6 @@ private:
                 uint type;
                 QStringList branches;
                 QStringList remoteBranches;
-                QString     currentBranch;
                 QStringList tags;
                 QStringList refs;
                 QString     tagObj; // TODO support more then one obj
@@ -262,6 +262,7 @@ private:
 	QString gitDir;
 	QString filesLoadingPending;
 	QString filesLoadingCurSha;
+	QString curBranchName;
 	int filesLoadingStartOfs;
 	bool cacheNeedsUpdate;
 	bool errorReportingEnabled;

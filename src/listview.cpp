@@ -418,7 +418,7 @@ public:
 };
 
 RefNameIterator::RefNameIterator(const QString &sha, Git *git)
-    : git(git), sha(sha), cur_state(0)
+    : git(git), sha(sha), cur_state(0), cur_branch(git->getCurrentBranchName())
 {
 	ref_types = git->checkRef(sha);
 	if (ref_types == 0) {
@@ -452,7 +452,7 @@ void RefNameIterator::next()
 		case Git::TAG: cur_state = Git::REF; break;
 		default: cur_state = -1; // indicate end
 		}
-		ref_names = git->getRefName(sha, (Git::RefType)cur_state, &cur_branch);
+		ref_names = git->getRefName(sha, (Git::RefType)cur_state);
 		cur_name = ref_names.begin();
 	}
 }
