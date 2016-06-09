@@ -319,10 +319,8 @@ void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
 
 void MainImpl::ActExternalEditor_activated() {
 
-	QStringList args;
-	QStringList filenames;
-	getExternalEditorArgs(&args, &filenames);
-	ExternalEditorProc* externalEditor = new ExternalEditorProc(filenames, this);
+	const QStringList &args = getExternalEditorArgs();
+	ExternalEditorProc* externalEditor = new ExternalEditorProc(this);
 	externalEditor->setWorkingDirectory(curDir);
 
 	if (!QGit::startProcess(externalEditor, args)) {
@@ -333,35 +331,27 @@ void MainImpl::ActExternalEditor_activated() {
 	}
 }
 
-void MainImpl::getExternalEditorArgs(QStringList* args, QStringList* filenames) {
+QStringList MainImpl::getExternalEditorArgs() {
 
 	QString fName1(curDir + "/" + rv->st.fileName());
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	// get external diff viewer command
 	QSettings settings;
 	QString extEditor(settings.value(EXT_EDITOR_KEY, EXT_EDITOR_DEF).toString());
 
-	QApplication::restoreOverrideCursor();
-
 	// if command doesn't have %1 to denote filename, add to end
-	if (!extEditor.contains("%1")) {
-		extEditor.append(" %1");
-	}
+	if (!extEditor.contains("%1")) extEditor.append(" %1");
 
 	// set process arguments
-	QStringList extEditorArgs = extEditor.split(' ');
-	QString curArg;
-	for (int i = 0; i < extEditorArgs.count(); i++) {
-		curArg = extEditorArgs.value(i);
+	QStringList args = extEditor.split(' ');
+	for (int i = 0; i < args.count(); i++) {
+		QString &curArg = args[i];
 
 		// perform any filename replacements that are necessary
 		// (done inside the loop to handle whitespace in paths properly)
 		curArg.replace("%1", fName1);
-
-		args->append(curArg);
 	}
+	return args;
 }
 // ********************** Repository open or changed *************************
 

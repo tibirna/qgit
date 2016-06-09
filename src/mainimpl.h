@@ -145,7 +145,7 @@ private:
 	void highlightAbbrevSha(SCRef abbrevSha);
 	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
 	void getExternalDiffArgs(QStringList* args, QStringList* filenames);
-	void getExternalEditorArgs(QStringList* args, QStringList* filenames);
+	QStringList getExternalEditorArgs();
 	void lineEditSHASetText(SCRef text);
 	void updateCommitMenu(bool isStGITStack);
 	void updateRecentRepoMenu(SCRef newEntry = "");
@@ -217,8 +217,8 @@ private:
 class ExternalEditorProc : public QProcess {
 Q_OBJECT
 public:
-	ExternalEditorProc(const QStringList& f, QObject* p)
-		: QProcess(p), filenames(f) {
+	ExternalEditorProc(QObject* p)
+	    : QProcess(p) {
 
 		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
 		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
@@ -226,7 +226,6 @@ public:
 	~ExternalEditorProc() {
 		terminate();
 	}
-	QStringList filenames;
 
 private slots:
 	void on_finished(int, QProcess::ExitStatus) { deleteLater(); }

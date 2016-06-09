@@ -278,32 +278,16 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLabel" name="label">
-               <property name="font">
-                <font>
-                 <pointsize>11</pointsize>
-                </font>
-               </property>
+              <widget class="QLabel" name="labelDiffHint">
                <property name="text">
                 <string>Use %1 and %2 to denote files to diff.</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLabel" name="label">
-               <property name="font">
-                <font>
-                 <pointsize>11</pointsize>
-                </font>
-               </property>
+              <widget class="QLabel" name="labelEditorHint">
                <property name="text">
-                <string>Use %1 to denote files to editor.</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <string>Use %1 to denote files to edit.</string>
                </property>
               </widget>
              </item>
