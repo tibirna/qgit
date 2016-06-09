@@ -294,6 +294,28 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Inserting tokens of the form %lineedit:arguments=defaults%
+will open a dialog to enter arguments. Additionally, you can use
+variables $CURRENT_BRANCH and $SHA.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxRefreshAfterAction">
+             <property name="toolTip">
+              <string>If checked main view will be automatically refreshed when done</string>
+             </property>
+             <property name="text">
+              <string>Refresh &amp;view at the end</string>
+             </property>
+             <property name="shortcut">
+              <string>Alt+V</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QHBoxLayout" >
              <property name="spacing" >
               <number>6</number>
@@ -310,32 +332,6 @@
              <property name="bottomMargin" >
               <number>0</number>
              </property>
-             <item>
-              <widget class="QCheckBox" name="checkBoxRefreshAfterAction" >
-               <property name="toolTip" >
-                <string>If checked main view will be automatically refreshed when done</string>
-               </property>
-               <property name="text" >
-                <string>Refresh &amp;view at the end</string>
-               </property>
-               <property name="shortcut" >
-                <string>Alt+V</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBoxAskArgs" >
-               <property name="toolTip" >
-                <string>Check if you want to be prompted for command line arguments. Args will be appended after the first command only.</string>
-               </property>
-               <property name="text" >
-                <string>A&amp;sk for command line arguments</string>
-               </property>
-               <property name="shortcut" >
-                <string>Alt+S</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
           </layout>
@@ -489,22 +485,6 @@
    <signal>clicked()</signal>
    <receiver>CustomActionBase</receiver>
    <slot>pushButtonMoveDown_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxAskArgs</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>CustomActionBase</receiver>
-   <slot>checkBoxAskArgs_toggled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>20</x>

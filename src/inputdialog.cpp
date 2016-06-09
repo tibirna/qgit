@@ -192,7 +192,7 @@ bool InputDialog::validate()
 	return result;
 }
 
-QString InputDialog::replace() const
+QString InputDialog::replace(const VariableMap &variables) const
 {
 	QString result = cmd;
 	for (WidgetMap::const_iterator it = widgets.begin(), end = widgets.end(); it != end; ++it) {
@@ -201,6 +201,12 @@ QString InputDialog::replace() const
 		QString value = item->widget->property(item->prop_name).toString();
 		result.replace(item->start, item->end - item->start, value); // replace main token
 		result.replace(token, value); // replace all other occurences of %name%
+	}
+	for (VariableMap::const_iterator it=variables.begin(), end=variables.end(); it != end; ++it) {
+		QString token = "$" + it.key();
+		QString val = it.value().type() == QVariant::StringList ? it.value().toStringList().join(' ')
+		                                                        : it.value().toString();
+		result.replace(token, val);
 	}
 	return result;
 }

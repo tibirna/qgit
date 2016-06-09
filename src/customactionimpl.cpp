@@ -41,7 +41,6 @@ void CustomActionImpl::loadAction(const QString& name) {
 
 	const QString flags(ACT_GROUP_KEY + name + ACT_FLAGS_KEY);
 	checkBoxRefreshAfterAction->setChecked(testFlag(ACT_REFRESH_F, flags));
-	checkBoxAskArgs->setChecked(testFlag(ACT_CMD_LINE_F, flags));
 	QSettings set;
 	const QString& data(set.value(ACT_GROUP_KEY + name + ACT_TEXT_KEY, "").toString());
 	textEditAction->setPlainText(data);
@@ -83,13 +82,9 @@ void CustomActionImpl::listWidgetNames_currentItemChanged(QListWidgetItem* item,
 		textEditAction->clear();
 		if (checkBoxRefreshAfterAction->isChecked())
 			checkBoxRefreshAfterAction->toggle();
-
-		if (checkBoxAskArgs->isChecked())
-			checkBoxAskArgs->toggle();
 	}
 	textEditAction->setEnabled(!empty);
 	checkBoxRefreshAfterAction->setEnabled(!empty);
-	checkBoxAskArgs->setEnabled(!empty);
 	pushButtonRename->setEnabled(!empty);
 	pushButtonRemove->setEnabled(!empty);
 	pushButtonMoveUp->setEnabled(!empty && (item != listWidgetNames->item(0)));

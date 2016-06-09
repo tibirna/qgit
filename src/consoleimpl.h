@@ -20,7 +20,7 @@ class ConsoleImpl : public QMainWindow, Ui_Console { // we need a statusbar
 Q_OBJECT
 public:
 	ConsoleImpl(const QString& nm, Git* g);
-	bool start(const QString& cmd,const QString& args);
+	bool start(const QString &cmd);
 
 signals:
 	void customAction_exited(const QString& name);

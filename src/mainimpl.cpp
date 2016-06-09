@@ -1579,16 +1579,23 @@ void MainImpl::customAction_triggered(QAction* act) {
 		dbp("ASSERT in customAction_activated, action %1 not found", actionName);
 		return;
 	}
-	QString cmdArgs;
+	QString cmd = set.value(ACT_GROUP_KEY + actionName + ACT_TEXT_KEY).toString().trimmed();
 	if (testFlag(ACT_CMD_LINE_F, ACT_GROUP_KEY + actionName + ACT_FLAGS_KEY)) {
-		bool ok;
-		cmdArgs = QInputDialog::getText(this, "Run action - QGit", "Enter command line "
-		          "arguments for '" + actionName + "'", QLineEdit::Normal, "", &ok);
-		cmdArgs.prepend(' ');
-		if (!ok)
-			return;
+		// for backwards compatibility: if ACT_CMD_LINE_F is set, insert a dialog token in first line
+		int pos = cmd.indexOf('\n');
+		if (pos < 0) pos = cmd.length();
+		cmd.insert(pos, " %lineedit:cmdline args%");
 	}
-	SCRef cmd = set.value(ACT_GROUP_KEY + actionName + ACT_TEXT_KEY).toString();
+	updateRevVariables(lineEditSHA->text());
+	InputDialog dlg(cmd, revision_variables, "Run custom action: " + actionName, this);
+	if (!dlg.empty() && dlg.exec() != QDialog::Accepted) return;
+	try {
+		cmd = dlg.replace(revision_variables); // replace variables
+	} catch (const std::exception &e) {
+		QMessageBox::warning(this, "Custom action command", e.what());
+		return;
+	}
+
 	if (cmd.isEmpty())
 		return;
 
@@ -1601,7 +1608,7 @@ void MainImpl::customAction_triggered(QAction* act) {
 	connect(c, SIGNAL(customAction_exited(const QString&)),
 	        this, SLOT(customAction_exited(const QString&)));
 
-	if (c->start(cmd, cmdArgs))
+	if (c->start(cmd))
 		c->show();
 }
 

@@ -33,15 +33,19 @@ public:
 	explicit InputDialog(const QString &cmd, const VariableMap &variables,
 	                     const QString &title="",
 	                     QWidget *parent = 0, Qt::WindowFlags f = 0);
-public Q_SLOTS:
-	virtual bool validate();
+
+	/// any widgets defined?
+	bool empty() const {return widgets.empty();}
 
 	/// retrieve widget of given token
 	QWidget *widget(const QString &token);
 	/// retrieve value of given token
 	QVariant value(const QString &token) const;
 	/// replace all tokens in cmd by their values
-	QString replace() const;
+	QString replace(const VariableMap &variables) const;
+
+public Q_SLOTS:
+	virtual bool validate();
 };
 
 } // namespace QGit
