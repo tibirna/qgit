@@ -1648,12 +1648,15 @@ const QStringList Git::getArgs(bool* quit, bool repoChanged) {
                         args.append(arg + ' ');
                 }
         }
-        if (testFlag(RANGE_SELECT_F) && (!startup || args.isEmpty())) {
-
-                RangeSelectImpl rs((QWidget*)parent(), &args, repoChanged, this);
-                *quit = (rs.exec() == QDialog::Rejected); // modal execution
-                if (*quit)
-                        return QStringList();
+        if (!startup || args.isEmpty()) { // need to retrieve args
+                if (testFlag(RANGE_SELECT_F)) { // open range dialog
+                        RangeSelectImpl rs((QWidget*)parent(), &args, repoChanged, this);
+                        *quit = (rs.exec() == QDialog::Rejected); // modal execution
+                        if (*quit)
+                            return QStringList();
+                } else {
+                    args = RangeSelectImpl::getDefaultArgs();
+                }
         }
         startup = false;
         return MyProcess::splitArgList(args);
