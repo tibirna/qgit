@@ -118,9 +118,6 @@ public:
 	bool formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir = "");
 	bool updateIndex(SCList selFiles);
 	bool commitFiles(SCList files, SCRef msg, bool amend);
-	bool makeBranch(SCRef sha, SCRef branchName);
-	bool makeTag(SCRef sha, SCRef tag, SCRef msg);
-	bool deleteTag(SCRef sha);
 	bool applyPatchFile(SCRef patchPath, bool fold, bool sign);
 	bool resetCommits(int parentDepth);
 	bool stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold);

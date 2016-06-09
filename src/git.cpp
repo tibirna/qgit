@@ -1560,28 +1560,6 @@ exit:
 	return ret;
 }
 
-bool Git::makeBranch(SCRef sha, SCRef branchName) {
-
-	return run("git branch " + branchName + " " + sha);
-}
-
-bool Git::makeTag(SCRef sha, SCRef tagName, SCRef msg) {
-
-	if (msg.isEmpty())
-		return run("git tag " + tagName + " " + sha);
-
-	return run("git tag -m \"" + msg + "\" " + tagName + " " + sha);
-}
-
-bool Git::deleteTag(SCRef sha) {
-
-	const QStringList tags(getRefName(sha, TAG));
-	if (!tags.empty())
-		return run("git tag -d " + tags.first()); // only one
-
-	return false;
-}
-
 bool Git::stgPush(SCRef sha) {
 
 	const QStringList patch(getRefName(sha, UN_APPLIED));
