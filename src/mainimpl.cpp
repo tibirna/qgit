@@ -1161,7 +1161,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 	QMenu contextMenu(this);
 	QMenu contextBrnMenu("More branches...", this);
 	QMenu contextTagMenu("More tags...", this);
-	QMenu contextRmtMenu("Remote branches", this);
+	QMenu contextRmtMenu("Remote branches...", this);
 
 	connect(&contextMenu, SIGNAL(triggered(QAction*)), this, SLOT(goRef_triggered(QAction*)));
 
@@ -1216,11 +1216,10 @@ void MainImpl::doContexPopup(SCRef sha) {
 			act = contextRmtMenu.addAction(*it);
 			act->setData("Ref");
 		}
-		if (!contextRmtMenu.isEmpty())
-			contextMenu.addMenu(&contextRmtMenu);
 
 		// halve the possible remaining entries for branches and tags
 		int remainingEntries = (MAX_MENU_ENTRIES - cntMenuEntries(contextMenu));
+		if (!contextRmtMenu.isEmpty()) --remainingEntries;
 		int tagEntries = remainingEntries / 2;
 		int brnEntries = remainingEntries - tagEntries;
 
@@ -1246,6 +1245,9 @@ void MainImpl::doContexPopup(SCRef sha) {
 		}
 		if (!contextBrnMenu.isEmpty())
 			contextMenu.addMenu(&contextBrnMenu);
+
+		if (!contextRmtMenu.isEmpty())
+			contextMenu.addMenu(&contextRmtMenu);
 
 		if (!tn.empty())
 			contextMenu.addSeparator();
