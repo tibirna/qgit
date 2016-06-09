@@ -90,7 +90,7 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	this->setWindowTitle(title);
 	QGridLayout *layout = new QGridLayout(this);
 
-	QRegExp re("%(([a-z]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
+	QRegExp re("%(([a-z_]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
 	int start = 0;
 	int row = 0;
 	while ((start = re.indexIn(cmd, start)) != -1) {
@@ -139,8 +139,12 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 			continue;
 		}
 		widgets.insert(name, item);
-		layout->addWidget(new QLabel(name + ":"), row, 0);
-		layout->addWidget(item->widget, row, 1);
+		if (name.startsWith('_')) { // _name triggers hiding of label
+			layout->addWidget(item->widget, row, 1);
+		} else {
+			layout->addWidget(new QLabel(name + ":"), row, 0);
+			layout->addWidget(item->widget, row, 1);
+		}
 		++row;
 	}
 	QDialogButtonBox *buttons =	new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
