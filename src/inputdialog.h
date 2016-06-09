@@ -36,6 +36,8 @@ public:
 public Q_SLOTS:
 	virtual bool validate();
 
+	/// retrieve widget of given token
+	QWidget *widget(const QString &token);
 	/// retrieve value of given token
 	QVariant value(const QString &token) const;
 	/// replace all tokens in cmd by their values

@@ -8,6 +8,8 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QCompleter>
+#include <QListView>
+#include <QStringListModel>
 
 namespace QGit {
 
@@ -118,6 +120,10 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 				connect(w, SIGNAL(editTextChanged(QString)), this, SLOT(validate()));
 			}
 			item->init(w, "currentText");
+		} else if (type == "listbox") {
+			QListView *w = new QListView(this);
+			w->setModel(new QStringListModel(parseStringList(value, variables)));
+			item->init(w, NULL);
 		} else if (type == "lineedit" || type == "") {
 			QLineEdit *w = new QLineEdit(this);
 			w->setText(parseString(value, variables));
@@ -154,6 +160,12 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	connect(okButton, SIGNAL(pressed()), this, SLOT(accept()));
 	connect(buttons->button(QDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
 	validate();
+}
+
+QWidget *InputDialog::widget(const QString &token)
+{
+	WidgetItemPtr item = widgets.value(token);
+	return item ? item->widget : NULL;
 }
 
 QVariant InputDialog::value(const QString &token) const
