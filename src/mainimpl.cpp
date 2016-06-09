@@ -1686,7 +1686,7 @@ void MainImpl::ActCheckout_activated()
 		}
 		dialog_variables.insert("ALL_NAMES", all_names);
 
-		InputDialog dlg(QString("%combobox[ref,editable]:%1=$ALL_NAMES%").arg(branchKey), dialog_variables, title, this);
+		InputDialog dlg(QString("%combobox[editable,ref,empty]:%1=$ALL_NAMES%").arg(branchKey), dialog_variables, title, this);
 		if (dlg.exec() != QDialog::Accepted) return;
 
 		QString branch = dlg.value(branchKey).toString();

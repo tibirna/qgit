@@ -2,12 +2,18 @@
 #include <QDialog>
 #include <QMap>
 
+class QValidator;
+class QPushButton;
 namespace QGit {
 
 /** create an input dialog from a command containing tokens of the form
- * %<widget_type>:<widget name>=<default value>%
+ * %<widget_type>[options]:<widget name>=<default value>%
  * For default values, variables of the form $VAR_NAME can be used.
  * For each of those tokens, an input widget is created.
+ * Supported widgets include: lineedit, combobox, textedit
+ * options include:
+ * - [ref]: enable ref name validation
+ * - [editable]: ediable combobox
  */
 class InputDialog : public QDialog
 {
@@ -19,12 +25,16 @@ class InputDialog : public QDialog
 	// map from token names to
 	WidgetMap widgets;
 	QString cmd;
+	QMap<QString, const QValidator*> validators;
+	QPushButton *okButton;
 
 public:
 	typedef QMap<QString, QVariant> VariableMap;
 	explicit InputDialog(const QString &cmd, const VariableMap &variables,
 	                     const QString &title="",
 	                     QWidget *parent = 0, Qt::WindowFlags f = 0);
+public Q_SLOTS:
+	virtual bool validate();
 
 	/// retrieve value of given token
 	QVariant value(const QString &token) const;
