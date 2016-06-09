@@ -471,7 +471,7 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 	ActCheckout->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActBranch->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTag->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
-	ActTagDelete->setEnabled(found && isTag && (newRevSha != ZERO_SHA) && !isUnApplied);
+	ActDelete->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActPush->setEnabled(found && isUnApplied && git->isNothingToCommit());
 	ActPop->setEnabled(found && isApplied && git->isNothingToCommit());
 }
@@ -1198,8 +1198,8 @@ void MainImpl::doContexPopup(SCRef sha) {
 			contextMenu.addAction(ActBranch);
 		if (ActTag->isEnabled())
 			contextMenu.addAction(ActTag);
-		if (ActTagDelete->isEnabled())
-			contextMenu.addAction(ActTagDelete);
+		if (ActDelete->isEnabled())
+			contextMenu.addAction(ActDelete);
 		if (ActMailFormatPatch->isEnabled())
 			contextMenu.addAction(ActMailFormatPatch);
 		if (ActPush->isEnabled())
@@ -1781,20 +1781,70 @@ void MainImpl::doBranchOrTag(bool isTag) {
 	QApplication::restoreOverrideCursor();
 }
 
-void MainImpl::ActTagDelete_activated() {
+// put a ref name into a corresponding StringList for tags, remotes, and local branches
+typedef QMap<QString, QStringList> RefGroupMap;
+static void groupRef(const QString& ref, RefGroupMap& groups) {
+	QString group, name;
+	if (ref.startsWith("tags/")) { group = ref.left(5); name = ref.mid(5); }
+	else if (ref.startsWith("remotes/")) { group = ref.section('/', 1, 1); name = ref.section('/', 2); }
+	else { group = ""; name = ref; }
+	if (!groups.contains(group))
+		groups.insert(group, QStringList());
+	QStringList &l = groups[group];
+	l << name;
+}
 
-	if (QMessageBox::question(this, "Delete tag - QGit",
-	                 "Do you want to un-tag selected revision?",
-	                 "&Yes", "&No", QString(), 0, 1) == 1)
-		return;
+void MainImpl::ActDelete_activated() {
 
+	const QString &selected_name = dialog_variables.value(SELECTED_NAME).toString();
+	const QStringList &tags = dialog_variables.value(REV_TAGS).toStringList();
+	const QStringList &rmts = dialog_variables.value(REV_REMOTE_BRANCHES).toStringList();
+
+	// merge all reference names into a single list
+	QStringList all_names;
+	all_names << dialog_variables.value(REV_LOCAL_BRANCHES).toStringList();
+	for (QStringList::const_iterator it=rmts.begin(), end=rmts.end(); it!=end; ++it)
+		all_names << "remotes/" + *it;
+	for (QStringList::const_iterator it=tags.begin(), end=tags.end(); it!=end; ++it)
+		all_names << "tags/" + *it;
+
+	// group selected names by origin
+	QMap <QString, QStringList> groups;
+	if (!selected_name.isEmpty()) {
+		groupRef(selected_name, groups);
+	} else if (all_names.size() == 1) {
+		groupRef(all_names.first(), groups);
+	} else {
+		dialog_variables.insert("ALL_NAMES", all_names);
+		InputDialog dlg("%listbox:_refs=$ALL_NAMES%", dialog_variables,
+		                "Delete references - QGit", this);
+		QListView *w = dynamic_cast<QListView*>(dlg.widget("_refs"));
+		w->setSelectionMode(QAbstractItemView::ExtendedSelection);
+		if (dlg.exec() != QDialog::Accepted) return;
+
+		QModelIndexList selected = w->selectionModel()->selectedIndexes();
+		for (QModelIndexList::const_iterator it=selected.begin(), end=selected.end(); it!=end; ++it)
+			groupRef(it->data().toString(), groups);
+	}
+	if (groups.empty()) return;
+
+
+	// group selected names by origin
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	bool ok = git->deleteTag(lineEditSHA->text());
+	bool ok = true;
+	for (RefGroupMap::const_iterator g = groups.begin(), gend = groups.end(); g != gend; ++g) {
+		QString cmd;
+		if (g.key() == "") // local branches
+			cmd = "git branch -d " + g.value().join(' ');
+		else if (g.key() == "tags/") // tags
+			cmd = "git tag -d " + g.value().join(' ');
+		else // remote branches
+			cmd = "git push " + g.key() + " :" + g.value().join(" :");
+		ok &= git->run(cmd);
+	}
+	refreshRepo(true);
 	QApplication::restoreOverrideCursor();
-	if (ok)
-		refreshRepo(true);
-	else
-		statusBar()->showMessage("Sorry, unable to un-tag the revision");
+	if (!ok) statusBar()->showMessage("Failed, to remove some refs.");
 }
 
 void MainImpl::ActPush_activated() {

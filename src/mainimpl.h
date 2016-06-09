@@ -116,7 +116,7 @@ protected slots:
 	void ActCheckout_activated();
 	void ActBranch_activated();
 	void ActTag_activated();
-	void ActTagDelete_activated();
+	void ActDelete_activated();
 	void ActPush_activated();
 	void ActPop_activated();
 	void ActClose_activated();

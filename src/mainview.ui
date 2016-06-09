@@ -137,7 +137,7 @@
     <addaction name="ActAmend"/>
     <addaction name="ActBranch"/>
     <addaction name="ActTag"/>
-    <addaction name="ActTagDelete"/>
+    <addaction name="ActDelete"/>
     <addaction name="ActPush"/>
     <addaction name="ActPop"/>
     <addaction name="separator"/>
@@ -490,18 +490,18 @@
     <string>T</string>
    </property>
   </action>
-  <action name="ActTagDelete">
+  <action name="ActDelete">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Delete tag...</string>
+    <string>&amp;Delete references...</string>
    </property>
    <property name="iconText">
     <string>Delete tag</string>
    </property>
    <property name="toolTip">
-    <string>Un-tag selected revision</string>
+    <string>Remove selected reference names</string>
    </property>
   </action>
   <action name="ActCheckWorkDir">
@@ -1130,10 +1130,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>ActTagDelete</sender>
+   <sender>ActDelete</sender>
    <signal>triggered()</signal>
    <receiver>MainBase</receiver>
-   <slot>ActTagDelete_activated()</slot>
+   <slot>ActDelete_activated()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
