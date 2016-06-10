@@ -111,12 +111,6 @@ public:
 	bool isThrowOnDeleteRaised(int excpId, SCRef curContext);
 	MainImpl* m() const;
 	FileHistory* model() const { return fileHistory; }
-	bool isReadyToDrag() const { return readyToDrag; }
-	bool setReadyToDrag(bool b);
-	bool isDragging() const { return dragging; }
-	bool setDragging(bool b);
-	bool isDropping() const { return dropping; }
-	void setDropping(bool b) { dropping = b; }
 	bool isLinked() const { return linked; }
 	QWidget* tabPage() const { return container; }
 	virtual bool isMatch(SCRef) { return false; }
@@ -157,9 +151,6 @@ private:
 	EM_DECLARE(exCancelRequest);
 
 	FileHistory* fileHistory;
-	bool readyToDrag;
-	bool dragging;
-	bool dropping;
 	bool linked;
 	int popupType;
 	QString popupData;

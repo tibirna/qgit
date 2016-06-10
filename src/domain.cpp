@@ -102,7 +102,7 @@ Domain::Domain(MainImpl* m, Git* g, bool isMain) : QObject(m), git(g) {
 		git->setDefaultModel(fileHistory);
 
 	st.clear();
-	busy = readyToDrag = dragging = dropping = linked = false;
+	busy = linked = false;
 	popupType = 0;
 	container = new QWidget(NULL); // will be reparented to m()->tabWdg
 }
@@ -177,27 +177,6 @@ void Domain::setTabCaption(const QString& caption) {
 	m()->tabWdg->setTabText(idx, caption);
 }
 
-bool Domain::setReadyToDrag(bool b) {
-
-	readyToDrag = (b && !busy && !dragging && !dropping);
-	return readyToDrag;
-}
-
-bool Domain::setDragging(bool b) {
-
-	bool dragFinished = (!b && dragging);
-
-	dragging = (b && readyToDrag && !dropping);
-
-	if (dragging)
-		readyToDrag = false;
-
-	if (dragFinished)
-		flushQueue();
-
-	return dragging;
-}
-
 void Domain::unlinkDomain(Domain* d) {
 
 	d->linked = false;
@@ -268,7 +247,7 @@ void Domain::update(bool fromMaster, bool force) {
 		EM_RAISE(exCancelRequest);
 		emit cancelDomainProcesses();
 	}
-	if (busy || dragging)
+	if (busy)
 		return;
 
 	if (linked && !fromMaster) {
@@ -284,7 +263,6 @@ void Domain::update(bool fromMaster, bool force) {
 		git->setThrowOnStop(true);
 		git->setCurContext(this);
 		busy = true;
-		setReadyToDrag(false); // do not start any drag while updating
 		populateState(); // complete any missing state information
 		st.setLock(true); // any state change will be queued now
 

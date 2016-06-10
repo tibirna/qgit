@@ -691,9 +691,6 @@ void MainImpl::revisionsDragged(SCList selRevs) {
 void MainImpl::revisionsDropped(SCList remoteRevs) {
 // remoteRevs is already sanity checked to contain some possible valid data
 
-	if (rv->isDropping()) // avoid reentrancy
-		return;
-
 	QDir dr(curDir + QGit::PATCHES_DIR);
 	if (dr.exists()) {
 		const QString tmp("Please remove stale import directory " + dr.absolutePath());
@@ -705,7 +702,6 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 		return;
 
 	// ok, let's go
-	rv->setDropping(true);
 	dr.setFilter(QDir::Files);
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	raise();
@@ -753,7 +749,6 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 
 	dr.rmdir(dr.absolutePath()); // 'dr' must be already empty
 	QApplication::restoreOverrideCursor();
-	rv->setDropping(false);
 	refreshRepo();
 }
 

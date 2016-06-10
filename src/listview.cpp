@@ -297,9 +297,6 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 void ListView::mousePressEvent(QMouseEvent* e) {
 	lastRefName = refNameAt(e->pos());
 
-	if (currentIndex().isValid() && e->button() == Qt::LeftButton)
-		d->setReadyToDrag(true);
-
 	if (e->button() == Qt::RightButton && filterRightButtonPressed(e))
 		return; // filtered out
 
@@ -308,29 +305,21 @@ void ListView::mousePressEvent(QMouseEvent* e) {
 
 void ListView::mouseReleaseEvent(QMouseEvent* e) {
 
-	d->setReadyToDrag(false); // in case of just click without moving
 	lastRefName = ""; // reset
 	QTreeView::mouseReleaseEvent(e);
 }
 
 void ListView::mouseMoveEvent(QMouseEvent* e) {
 
-	if (d->isReadyToDrag()) {
+	if (indexAt(e->pos()).row() == currentIndex().row())
+		return; // move at least by one line to activate drag
 
-		if (indexAt(e->pos()).row() == currentIndex().row())
-			return; // move at least by one line to activate drag
+	QStringList selRevs;
+	getSelectedItems(selRevs);
+	selRevs.removeAll(ZERO_SHA);
+	if (!selRevs.empty())
+		emit revisionsDragged(selRevs); // blocking until drop event
 
-		if (!d->setDragging(true))
-			return;
-
-		QStringList selRevs;
-		getSelectedItems(selRevs);
-		selRevs.removeAll(ZERO_SHA);
-		if (!selRevs.empty())
-			emit revisionsDragged(selRevs); // blocking until drop event
-
-		d->setDragging(false);
-	}
 	QTreeView::mouseMoveEvent(e);
 }
 
