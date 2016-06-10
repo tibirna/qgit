@@ -9,6 +9,7 @@
 #include <QPalette>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QPainter>
 #include "git.h"
 #include "domain.h"
 #include "filelist.h"
@@ -115,40 +116,40 @@ void FileList::on_customContextMenuRequested(const QPoint&) {
 	emit contextMenu(currentText(), QGit::POPUP_FILE_EV);
 }
 
-void FileList::mousePressEvent(QMouseEvent* e) {
+bool FileList::startDragging(QMouseEvent* e) {
+	const QString& dragFileName = currentText();
+	if (dragFileName.isEmpty()) return false;
 
-	if (currentItem() && e->button() == Qt::LeftButton) {
-		d->setReadyToDrag(true);
-		dragFileName = currentText();
-	}
-	QListWidget::mousePressEvent(e);
-}
+	QMimeData* mimeData = new QMimeData;
+	mimeData->setText(dragFileName);
 
-void FileList::mouseReleaseEvent(QMouseEvent* e) {
+	QDrag *drag = new QDrag(this);
+	drag->setMimeData(mimeData);
 
-	d->setReadyToDrag(false); // in case of just click without moving
-	QListWidget::mouseReleaseEvent(e);
+	// attach some nice pixmap to the drag (to know what is dragged)
+	int spacing = 4;
+	QFont f;
+	QFontMetrics fm(f);
+	QSize size = fm.boundingRect(dragFileName).size() + QSize(2*spacing, 2);
+
+	QPixmap pixmap(size);
+	QPainter painter;
+	painter.begin(&pixmap);
+	painter.setBrush(QPalette().color(QPalette::Window));
+	painter.drawRect(0,0, size.width()-1, size.height()-1);
+	painter.drawText(spacing, fm.ascent()+1, dragFileName);
+	painter.end();
+	drag->setPixmap(pixmap);
+
+	// exec blocks until dragging is finished
+	drag->exec(Qt::CopyAction, Qt::CopyAction);
+	return true;
 }
 
 void FileList::mouseMoveEvent(QMouseEvent* e) {
+	if (e->buttons() == Qt::LeftButton)
+		if (startDragging(e)) return;
 
-	if (d->isReadyToDrag()) {
-
-		if (!d->setDragging(true))
-			return;
-
-		if (dragFileName.isEmpty())
-			dbs("ASSERT in FileList::mouseMoveEvent() empty drag name");
-
-		QDrag* drag = new QDrag(this);
-		QMimeData* mimeData = new QMimeData;
-		mimeData->setText(dragFileName);
-		drag->setMimeData(mimeData);
-		dragFileName = "";
-		drag->start(); // blocking until drop event
-
-		d->setDragging(false);
-	}
 	QListWidget::mouseMoveEvent(e);
 }
 

@@ -30,9 +30,8 @@ public slots:
 
 protected:
 	virtual void focusInEvent(QFocusEvent*);
-	virtual void mousePressEvent(QMouseEvent*);
 	virtual void mouseMoveEvent(QMouseEvent*);
-	virtual void mouseReleaseEvent(QMouseEvent*);
+	bool startDragging(QMouseEvent *e);
 
 private slots:
 	void on_currentItemChanged(QListWidgetItem*, QListWidgetItem*);
@@ -44,7 +43,6 @@ private:
 	Domain* d;
 	Git* git;
 	StateInfo* st;
-	QString dragFileName;
 };
 
 #endif
