@@ -153,6 +153,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	// connect cross-domain update signals
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
 	        this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
+	connect(rv->tab()->listViewLog, SIGNAL(showStatusMessage(const QString&)),
+	        statusBar(), SLOT(showMessage(const QString&)));
 
 	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
@@ -509,6 +511,7 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 		isUnApplied = r->isUnApplied;
 		isApplied = r->isApplied;
 	}
+	ActMarkDiffToSha->setEnabled(newRevSha != ZERO_SHA);
 	ActCheckout->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActBranch->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTag->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
@@ -2036,6 +2039,12 @@ void MainImpl::ActHelp_activated() {
 	connect(this, SIGNAL(closeAllWindows()), dlg, SLOT(close()));
 	dlg->show();
 	dlg->raise();
+}
+
+void MainImpl::ActMarkDiffToSha_activated()
+{
+	ListView* lv = rv->tab()->listViewLog;
+	lv->markDiffToSha(lineEditSHA->text());
 }
 
 void MainImpl::ActAbout_activated() {

@@ -163,6 +163,7 @@
     <addaction name="ActRangeDlg"/>
     <addaction name="separator"/>
     <addaction name="ActCheckWorkDir"/>
+    <addaction name="ActMarkDiffToSha"/>
     <addaction name="separator"/>
     <addaction name="ActViewRev"/>
     <addaction name="ActViewDiff"/>
@@ -524,6 +525,17 @@
    </property>
    <property name="toolTip">
     <string>Check working directory</string>
+   </property>
+  </action>
+  <action name="ActMarkDiffToSha">
+   <property name="text">
+    <string>Mark for diff</string>
+   </property>
+   <property name="iconText">
+    <string>Mark for diff</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark selected revision to diff against</string>
    </property>
   </action>
   <action name="ActExternalDiff">
@@ -1467,6 +1479,22 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>452</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActMarkDiffToSha</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActMarkDiffToSha_activated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>452</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>452</x>

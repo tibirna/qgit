@@ -130,6 +130,7 @@ protected slots:
 	void ActFilterTree_toggled(bool);
 	void ActAbout_activated();
 	void ActHelp_activated();
+	void ActMarkDiffToSha_activated();
 	void closeEvent(QCloseEvent* ce);
 
 private:

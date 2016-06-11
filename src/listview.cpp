@@ -255,6 +255,17 @@ void ListView::currentChanged(const QModelIndex& index, const QModelIndex&) {
 	}
 }
 
+void ListView::markDiffToSha(SCRef sha) {
+	if (sha != st->diffToSha()) {
+		st->setDiffToSha(sha);
+		emit showStatusMessage("Marked " +  sha + " for diff. (Ctrl-RightClick)");
+	} else {
+		st->setDiffToSha(""); // restore std view
+		emit showStatusMessage("Unmarked diff reference.");
+	}
+	UPDATE_DOMAIN(d);
+}
+
 bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 	QModelIndex index = indexAt(e->pos());
@@ -263,16 +274,10 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 		return false;
 
 	if (e->modifiers() == Qt::ControlModifier) { // check for 'diff to' function
-
 		if (selSha != ZERO_SHA) {
 
-			if (selSha != st->diffToSha())
-				st->setDiffToSha(selSha);
-			else
-				st->setDiffToSha(""); // restore std view
-
 			filterNextContextMenuRequest = true;
-			UPDATE_DOMAIN(d);
+			markDiffToSha(selSha);
 			return true; // filter event out
 		}
 	}

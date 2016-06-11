@@ -37,6 +37,7 @@ public:
 	int row(SCRef sha) const;
 	QString refNameAt(const QPoint &pos);
 	const QString& selectedRefName() const {return lastRefName;}
+	void markDiffToSha(SCRef sha);
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
@@ -44,6 +45,7 @@ signals:
 	void revisionsDropped(const QStringList&);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
+	void showStatusMessage(const QString&);
 
 public slots:
 	void on_changeFont(const QFont& f);
