@@ -499,18 +499,20 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 	ActFilterTree->setEnabled(pathActionsEnabled || ActFilterTree->isChecked());
 
 	bool isTag, isUnApplied, isApplied;
+	uint ref_type = 0;
 	isTag = isUnApplied = isApplied = false;
 
 	if (found) {
 		const Rev* r = git->revLookup(newRevSha);
-		isTag = git->checkRef(newRevSha, Git::TAG);
+		ref_type = git->checkRef(newRevSha, Git::ANY_REF);
+		isTag = ref_type & Git::TAG;
 		isUnApplied = r->isUnApplied;
 		isApplied = r->isApplied;
 	}
 	ActCheckout->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActBranch->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActTag->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
-	ActDelete->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
+	ActDelete->setEnabled(ref_type != 0);
 	ActPush->setEnabled(found && isUnApplied && git->isNothingToCommit());
 	ActPop->setEnabled(found && isApplied && git->isNothingToCommit());
 }
