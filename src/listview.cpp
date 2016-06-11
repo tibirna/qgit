@@ -264,7 +264,7 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 	if (e->modifiers() == Qt::ControlModifier) { // check for 'diff to' function
 
-		if (selSha != ZERO_SHA && st->sha() != ZERO_SHA) {
+		if (selSha != ZERO_SHA) {
 
 			if (selSha != st->diffToSha())
 				st->setDiffToSha(selSha);

@@ -153,7 +153,7 @@ const QString QGit::PATCHES_NAME = "qgit_import";
 
 // git index parameters
 const QString QGit::ZERO_SHA        = "0000000000000000000000000000000000000000";
-const QString QGit::CUSTOM_SHA      = "CUSTOM";
+const QString QGit::CUSTOM_SHA      = "*** CUSTOM * CUSTOM * CUSTOM * CUSTOM **";
 const QString QGit::ALL_MERGE_FILES = "ALL_MERGE_FILES";
 
 const QByteArray QGit::ZERO_SHA_BA(QGit::ZERO_SHA.toLatin1());
