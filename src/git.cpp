@@ -863,6 +863,16 @@ bool Git::isParentOf(SCRef par, SCRef child) {
 	return (c && c->parentsCount() == 1 && QString(c->parent(0)) == par); // no merges
 }
 
+bool Git::isContiguous(const QStringList &revs)
+{
+	if (revs.count() == 1) return true;
+	for (QStringList::const_iterator it=revs.begin(), end=revs.end()-1; it!=end; ++it) {
+		const Rev* c = revLookup(*it);
+		if (!c->parents().contains(*(it+1))) return false;
+	}
+	return true;
+}
+
 bool Git::isSameFiles(SCRef tree1Sha, SCRef tree2Sha) {
 
 	// early skip common case of browsing with up and down arrows, i.e.
@@ -1323,7 +1333,7 @@ bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 		} else
 			return run("stg import --mail " + quote(patchPath));
 	}
-	QString runCmd("git am --utf8 --3way ");
+	QString runCmd("git am ");
 
 	QSettings settings;
 	const QString APOpt(settings.value(AM_P_OPT_KEY).toString());

@@ -20,6 +20,7 @@ class ListViewProxy;
 
 class ListView: public QTreeView {
 Q_OBJECT
+	struct DropInfo;
 public:
 	ListView(QWidget* parent);
 	~ListView();
@@ -41,7 +42,8 @@ public:
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
-	void revisionsDropped(const QStringList&);
+	void applyRevisions(const QStringList& shas, const QString& remoteRepo);
+	void applyPatches(const QStringList &files);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
 	void showStatusMessage(const QString&);
@@ -59,6 +61,7 @@ protected:
 	virtual void dragMoveEvent(QDragMoveEvent* e);
 	virtual void dropEvent(QDropEvent* e);
 	void startDragging(QMouseEvent *e);
+	QPixmap pixmapFromSelection() const;
 
 private slots:
 	void on_customContextMenuRequested(const QPoint&);
@@ -78,9 +81,11 @@ private:
 	unsigned long secs;
 	bool filterNextContextMenuRequest;
 	QString lastRefName; // last ref name clicked on
+	DropInfo *dropInfo; // struct describing to-be-dropped content
 };
 
 class ListViewDelegate : public QItemDelegate {
+	friend class ListView;
 Q_OBJECT
 public:
 	ListViewDelegate(Git* git, ListViewProxy* lp, QObject* parent);

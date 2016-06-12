@@ -22,7 +22,7 @@
 
 using namespace QGit;
 
-ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL), lp(NULL) {}
+ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL), lp(NULL), dropInfo(NULL) {}
 
 void ListView::setup(Domain* dm, Git* g) {
 
@@ -311,24 +311,90 @@ void ListView::mouseReleaseEvent(QMouseEvent* e) {
 	QTreeView::mouseReleaseEvent(e);
 }
 
+QPixmap ListView::pixmapFromSelection() const {
+	const QModelIndexList &ml = selectionModel()->selectedRows(LOG_COL);
+	const QRegion& visible = visualRegionForSelection(selectionModel()->selection());
+	QRect bbox = visible.boundingRect();
+	QRect bbox_column = visualRect(ml.first());
+	int dx=bbox.left() - bbox_column.left();
+	int dy=-bbox.top();
+
+	ListViewDelegate *lvd = dynamic_cast<ListViewDelegate*>(itemDelegate());
+	QPixmap pixmap (bbox.adjusted(dx,0, bbox.right() - bbox_column.right(),0).size());
+	QPainter painter(&pixmap);
+	QStyleOptionViewItem opt;
+	FOREACH (QModelIndexList, it, ml) {
+		opt.rect = visualRect(*it);
+		if (!visible.contains(opt.rect)) continue;
+		opt.rect.adjust(dx,dy, dx,dy);
+		painter.fillRect(opt.rect, QPalette().color(QPalette::Background));
+
+		QPixmap* pm = lvd->getTagMarks(sha(it->row()), opt);
+		if (pm) {
+			painter.drawPixmap(opt.rect.x(), opt.rect.y()+1, *pm);
+			opt.rect.adjust(pm->width(), 0, 0, 0);
+			delete pm;
+		}
+		lvd->QItemDelegate::paint(&painter, opt, *it);
+	}
+	painter.end();
+	return pixmap;
+}
+
+void setDragCursor(QDrag& drag, Qt::DropAction action, const QString &text) {
+	QFont font;
+	QFontMetrics fm(font);
+	QSize size = fm.boundingRect(text).size();
+	QPixmap pixmap(size);
+	QPainter painter(&pixmap);
+	painter.fillRect(0,0, size.width(), size.height(), QPalette().color(QPalette::Background));
+	painter.drawText(0, fm.ascent(), text);
+	painter.end();
+	drag.setDragCursor(pixmap, action);
+}
+
 void ListView::startDragging(QMouseEvent* e) {
 
 	QStringList selRevs;
 	getSelectedItems(selRevs);
 	selRevs.removeAll(ZERO_SHA);
 
+	QDrag* drag = new QDrag(this);
+	QMimeData* mimeData = new QMimeData;
 	if (!selRevs.empty()) {
-		selRevs << "";
+		Qt::DropActions actions = Qt::CopyAction; // patch
+		Qt::DropAction default_action = Qt::CopyAction;
 
-		QDrag* drag = new QDrag(this);
 		// compose mime data
-		QMimeData* mimeData = new QMimeData;
-		QString source(QString("@") + d->m()->currentDir() + '\n');
-		const QString dragRevs = selRevs.join(source).trimmed();
-		mimeData->setData("application/x-qgit-revs", dragRevs.toLatin1());
+		bool contiguous = git->isContiguous(selRevs);
+
+		// standard text for range description
+		if (contiguous) {
+			QString text;
+			if (selRevs.size() > 1) text += selRevs.back() + "..";
+			text += lastRefName.isEmpty() ? selRevs.front() : lastRefName;
+			mimeData->setText(text);
+		}
+
+		// revision range for patch/merge/rebase operations
+		QString mime = QString("%1@%2\n").arg(contiguous ? "RANGE" : "LIST").arg(d->m()->currentDir());
+		if (contiguous && !lastRefName.isEmpty())
+			selRevs.front() += " " + lastRefName; // append ref name
+		mime.append(selRevs.join("\n"));
+		mimeData->setData("application/x-qgit-revs", mime.toUtf8());
 
 		drag->setMimeData(mimeData);
-		drag->exec(Qt::CopyAction, Qt::CopyAction);
+		drag->setPixmap(pixmapFromSelection());
+
+		if (contiguous) { // merge + rebase enabled
+			actions |= Qt::MoveAction; // rebase (local branch) or push (remote branch)
+			default_action = Qt::MoveAction;
+			if (selRevs.size() == 1) {
+				actions |= Qt::LinkAction; // merge
+				default_action = Qt::LinkAction;
+			}
+		}
+		drag->exec(actions, default_action);
 	}
 }
 
@@ -342,34 +408,98 @@ void ListView::mouseMoveEvent(QMouseEvent* e) {
 	QTreeView::mouseMoveEvent(e);
 }
 
+struct ListView::DropInfo {
+	DropInfo (uint f) : flags(f) {}
+
+	enum Type {
+		PATCHES  = 1 << 0,
+		REV_LIST = 1 << 1,
+		REV_RANGE = 1 << 2,
+		NAMED_REF     = 1 << 3,
+		REMOTE_BRANCH = 1 << 4,
+		CLEAN_WORKDIR = 1 << 5,
+		SAME_REPO     = 1 << 6,
+	};
+	QString sourceRepo;
+	QString refName;
+	uint flags;
+	QStringList shas;
+};
+
 void ListView::dragEnterEvent(QDragEnterEvent* e) {
 
-	if (e->mimeData()->hasFormat("application/x-qgit-revs"))
+	if (dropInfo) delete dropInfo;
+	dropInfo = NULL;
+
+	// accept local file urls for patching
+	bool valid=true;
+	const QList<QUrl>& urls = e->mimeData()->urls();
+	for(QList<QUrl>::const_iterator it=urls.begin(), end=urls.end();
+	    valid && it!=end; ++it)
+		valid &= it->isLocalFile();
+	if (urls.size() > 0 && valid) {
+		dropInfo = new DropInfo(DropInfo::PATCHES);
 		e->accept();
+	}
+
+	// parse internal mime format
+	if (!e->mimeData()->hasFormat("application/x-qgit-revs"))
+		return;
+
+	e->accept();
+	dropInfo = new DropInfo(DropInfo::REV_LIST);
+	if (git->isNothingToCommit())
+		dropInfo->flags |= DropInfo::CLEAN_WORKDIR;
+
+	SCRef revsText(e->mimeData()->data("application/x-qgit-revs"));
+	QString header = revsText.section("\n", 0, 0);
+	dropInfo->shas = revsText.section("\n", 1).split('\n', QString::SkipEmptyParts);
+	// extract refname and sha from first entry again
+	dropInfo->refName = dropInfo->shas.front().section(" ", 1);
+	dropInfo->shas.front() = dropInfo->shas.front().section(" ", 0, 0);
+
+	// check source repo
+	dropInfo->sourceRepo = header.section("@", 1);
+	if (dropInfo->sourceRepo != d->m()->currentDir()) {
+		if (!QDir().exists(dropInfo->sourceRepo)) {
+			emit showStatusMessage("Remote repository missing: " + dropInfo->sourceRepo);
+			e->ignore();
+			return;
+		}
+		e->setDropAction(Qt::CopyAction);
+		return; // merging + rebasing is only enabled on same repo
+	}
+
+	dropInfo->flags |= DropInfo::SAME_REPO;
+	if (header.startsWith("RANGE")) dropInfo->flags |= DropInfo::REV_RANGE;
+	if (!dropInfo->refName.isEmpty()) dropInfo->flags |= DropInfo::NAMED_REF;
+	if (dropInfo->refName.startsWith("remotes/")) dropInfo->flags |= DropInfo::REMOTE_BRANCH;
 }
 
 void ListView::dragMoveEvent(QDragMoveEvent* e) {
 
-	// move at least by one line before accepting drag
 	if (e->source() == this && indexAt(e->pos()).row() == currentIndex().row()) {
+		// move at least by one line before enabling drag
 		e->ignore();
 		return;
 	}
-	// already checked by dragEnterEvent()
 	e->accept();
+
+	QString targetRef = refNameAt(e->pos());
 }
 
 void ListView::dropEvent(QDropEvent *e) {
 
-	const QString revsText(e->mimeData()->data("application/x-qgit-revs"));
-	SCList remoteRevs(revsText.split('\n', QString::SkipEmptyParts));
-	if (!remoteRevs.isEmpty()) {
-		// some sanity check on dropped data
-		SCRef sha(remoteRevs.first().section('@', 0, 0));
-		SCRef remoteRepo(remoteRevs.first().section('@', 1));
-		if (sha.length() == 40 && !remoteRepo.isEmpty())
-			emit revisionsDropped(remoteRevs);
+	if (dropInfo->flags & DropInfo::PATCHES) {
+		QStringList files;
+		QList<QUrl> urls = e->mimeData()->urls();
+		FOREACH(QList<QUrl>, it, urls)
+		    files << it->toLocalFile();
+
+		emit applyPatches(files);
+		return;
 	}
+	emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
 }
 
 void ListView::on_customContextMenuRequested(const QPoint& pos) {

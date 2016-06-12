@@ -68,7 +68,8 @@ private slots:
 	void tabWdg_currentChanged(int);
 	void newRevsAdded(const FileHistory*, const QVector<ShaString>&);
 	void fileNamesLoad(int, int);
-	void revisionsDropped(const QStringList&);
+	void applyRevisions(const QStringList& shas, const QString& remoteRepo);
+	bool applyPatches(const QStringList &files);
 	void shortCutActivated();
 
 protected:

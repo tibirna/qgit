@@ -676,13 +676,17 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 	return QWidget::eventFilter(obj, ev);
 }
 
-void MainImpl::revisionsDropped(SCList remoteRevs) {
-// remoteRevs is already sanity checked to contain some possible valid data
+void MainImpl::applyRevisions(SCList remoteRevs, SCRef remoteRepo) {
+	// remoteRevs is already sanity checked to contain some possible valid data
 
 	QDir dr(curDir + QGit::PATCHES_DIR);
-	if (dr.exists()) {
-		const QString tmp("Please remove stale import directory " + dr.absolutePath());
-		statusBar()->showMessage(tmp);
+	dr.setFilter(QDir::Files);
+	if (!dr.exists(remoteRepo)) {
+		statusBar()->showMessage("Remote repository missing: " + remoteRepo);
+		return;
+	}
+	if (dr.exists() && dr.count()) {
+		statusBar()->showMessage(QString("Please remove stale import directory " + dr.absolutePath()));
 		return;
 	}
 	bool workDirOnly, fold;
@@ -690,7 +694,6 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 		return;
 
 	// ok, let's go
-	dr.setFilter(QDir::Files);
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	raise();
 	EM_PROCESS_EVENTS;
@@ -699,15 +702,9 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 	QStringList::const_iterator it(remoteRevs.constEnd());
 	do {
 		--it;
-
-		QString tmp("Importing revision %1 of %2");
-		statusBar()->showMessage(tmp.arg(++revNum).arg(remoteRevs.count()));
-
-		SCRef sha((*it).section('@', 0, 0));
-		SCRef remoteRepo((*it).section('@', 1));
-
-		if (!dr.exists(remoteRepo))
-			break;
+		SCRef sha = *it;
+		statusBar()->showMessage(QString("Importing revision %1 of %2: %3")
+		                         .arg(++revNum).arg(remoteRevs.count()).arg(sha));
 
 		// we create patches one by one
 		if (!git->formatPatch(QStringList(sha), dr.absolutePath(), remoteRepo))
@@ -716,21 +713,22 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 		dr.refresh();
 		if (dr.count() != 1) {
 			qDebug("ASSERT in on_droppedRevisions: found %i files "
-			       "in %s", dr.count(), QGit::PATCHES_DIR.toLatin1().constData());
+			       "in %s", dr.count(), qPrintable(dr.absolutePath()));
 			break;
 		}
 		SCRef fn(dr.absoluteFilePath(dr[0]));
 		bool is_applied = git->applyPatchFile(fn, fold, Git::optDragDrop);
 		dr.remove(fn);
-		if (!is_applied)
+		if (!is_applied) {
+			statusBar()->showMessage(QString("Failed to import revision %1 of %2: %3")
+			                         .arg(revNum).arg(remoteRevs.count()).arg(sha));
 			break;
+		}
 
 	} while (it != remoteRevs.constBegin());
 
 	if (it == remoteRevs.constBegin())
 		statusBar()->clearMessage();
-	else
-		statusBar()->showMessage("Failed to import revision " + QString::number(revNum--));
 
 	if (workDirOnly && (revNum > 0))
 		git->resetCommits(revNum);
@@ -738,6 +736,28 @@ void MainImpl::revisionsDropped(SCList remoteRevs) {
 	dr.rmdir(dr.absolutePath()); // 'dr' must be already empty
 	QApplication::restoreOverrideCursor();
 	refreshRepo();
+}
+
+bool MainImpl::applyPatches(const QStringList &files) {
+	bool workDirOnly, fold;
+	if (!askApplyPatchParameters(&workDirOnly, &fold))
+		return false;
+
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QStringList::const_iterator it=files.begin(), end=files.end();
+	for(; it!=end; ++it) {
+		statusBar()->showMessage("Applying " + *it);
+		if (!git->applyPatchFile(*it, fold, Git::optDragDrop))
+			statusBar()->showMessage("Failed to apply " + *it);
+	}
+	if (it == end) statusBar()->clearMessage();
+
+	if (workDirOnly && (files.count() > 0))
+		git->resetCommits(files.count());
+
+	QApplication::restoreOverrideCursor();
+	refreshRepo();
+	return true;
 }
 
 // ******************************* Filter ******************************
