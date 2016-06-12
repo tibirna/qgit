@@ -295,6 +295,7 @@ bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 }
 
 void ListView::mousePressEvent(QMouseEvent* e) {
+	lastRefName = refNameAt(e->pos());
 
 	if (currentIndex().isValid() && e->button() == Qt::LeftButton)
 		d->setReadyToDrag(true);
@@ -308,6 +309,7 @@ void ListView::mousePressEvent(QMouseEvent* e) {
 void ListView::mouseReleaseEvent(QMouseEvent* e) {
 
 	d->setReadyToDrag(false); // in case of just click without moving
+	lastRefName = ""; // reset
 	QTreeView::mouseReleaseEvent(e);
 }
 
@@ -367,7 +369,6 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 		filterNextContextMenuRequest = false;
 		return;
 	}
-	lastRefName = refNameAt(pos);
 	emit contextMenu(sha(index.row()), POPUP_LIST_EV);
 }
 
