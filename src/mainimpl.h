@@ -36,6 +36,7 @@ public:
 	MainImpl(const QString& curDir = "", QWidget* parent = 0);
 	void updateContextActions(SCRef newRevSha, SCRef newFileName, bool isDir, bool found);
 	const QString getRevisionDesc(SCRef sha);
+	const QString currentDir() const {return curDir;}
 
 	// not buildable with Qt designer, will be created manually
 	QLineEdit* lineEditSHA;
@@ -67,7 +68,6 @@ private slots:
 	void tabWdg_currentChanged(int);
 	void newRevsAdded(const FileHistory*, const QVector<ShaString>&);
 	void fileNamesLoad(int, int);
-	void revisionsDragged(const QStringList&);
 	void revisionsDropped(const QStringList&);
 	void shortCutActivated();
 

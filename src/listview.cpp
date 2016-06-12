@@ -13,8 +13,10 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QShortcut>
+#include <QDrag>
 #include "FileHistory.h"
 #include "domain.h"
+#include "mainimpl.h"
 #include "git.h"
 #include "listview.h"
 
@@ -309,35 +311,58 @@ void ListView::mouseReleaseEvent(QMouseEvent* e) {
 	QTreeView::mouseReleaseEvent(e);
 }
 
-void ListView::mouseMoveEvent(QMouseEvent* e) {
-
-	if (indexAt(e->pos()).row() == currentIndex().row())
-		return; // move at least by one line to activate drag
+void ListView::startDragging(QMouseEvent* e) {
 
 	QStringList selRevs;
 	getSelectedItems(selRevs);
 	selRevs.removeAll(ZERO_SHA);
-	if (!selRevs.empty())
-		emit revisionsDragged(selRevs); // blocking until drop event
+
+	if (!selRevs.empty()) {
+		selRevs << "";
+
+		QDrag* drag = new QDrag(this);
+		// compose mime data
+		QMimeData* mimeData = new QMimeData;
+		QString source(QString("@") + d->m()->currentDir() + '\n');
+		const QString dragRevs = selRevs.join(source).trimmed();
+		mimeData->setData("application/x-qgit-revs", dragRevs.toLatin1());
+
+		drag->setMimeData(mimeData);
+		drag->exec(Qt::CopyAction, Qt::CopyAction);
+	}
+}
+
+void ListView::mouseMoveEvent(QMouseEvent* e) {
+
+	if (e->buttons() == Qt::LeftButton) {
+		startDragging(e);
+		return;
+	}
 
 	QTreeView::mouseMoveEvent(e);
 }
 
 void ListView::dragEnterEvent(QDragEnterEvent* e) {
 
-	if (e->mimeData()->hasFormat("text/plain"))
+	if (e->mimeData()->hasFormat("application/x-qgit-revs"))
 		e->accept();
 }
 
 void ListView::dragMoveEvent(QDragMoveEvent* e) {
 
+	// move at least by one line before accepting drag
+	if (e->source() == this && indexAt(e->pos()).row() == currentIndex().row()) {
+		e->ignore();
+		return;
+	}
 	// already checked by dragEnterEvent()
 	e->accept();
 }
 
 void ListView::dropEvent(QDropEvent *e) {
 
-	SCList remoteRevs(e->mimeData()->text().split('\n', QString::SkipEmptyParts));
+	const QString revsText(e->mimeData()->data("application/x-qgit-revs"));
+	SCList remoteRevs(revsText.split('\n', QString::SkipEmptyParts));
 	if (!remoteRevs.isEmpty()) {
 		// some sanity check on dropped data
 		SCRef sha(remoteRevs.first().section('@', 0, 0));

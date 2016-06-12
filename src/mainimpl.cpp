@@ -7,7 +7,6 @@
 
 */
 #include <QCloseEvent>
-#include <QDrag>
 #include <QEvent>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -675,17 +674,6 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 		}
 	}
 	return QWidget::eventFilter(obj, ev);
-}
-
-void MainImpl::revisionsDragged(SCList selRevs) {
-
-	const QString h(QString::fromLatin1("@") + curDir + '\n');
-	const QString dragRevs = selRevs.join(h).append(h).trimmed();
-	QDrag* drag = new QDrag(this);
-	QMimeData* mimeData = new QMimeData;
-	mimeData->setText(dragRevs);
-	drag->setMimeData(mimeData);
-	drag->start(); // blocking until drop event
 }
 
 void MainImpl::revisionsDropped(SCList remoteRevs) {

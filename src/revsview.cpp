@@ -61,9 +61,6 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	        const QStringList&)), this, SLOT(on_lanesContextMenuRequested
 	       (const QStringList&, const QStringList&)));
 
-	connect(tab()->listViewLog, SIGNAL(revisionsDragged(const QStringList&)),
-	        m(), SLOT(revisionsDragged(const QStringList&)));
-
 	connect(tab()->listViewLog, SIGNAL(revisionsDropped(const QStringList&)),
 	        m(), SLOT(revisionsDropped(const QStringList&)));
 
