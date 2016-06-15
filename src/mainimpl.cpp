@@ -1759,7 +1759,10 @@ void MainImpl::ActCheckout_activated()
 
 		QString branch = dlg.value(branchKey).toString();
 		if (!branch.isEmpty()) {
-			if (!git->getRefSha(branch, Git::BRANCH, true).isEmpty()) {
+			SCRef refsha = git->getRefSha(branch, Git::BRANCH, true);
+			if (refsha == sha)
+				rev = branch; // checkout existing branch, even if name wasn't directly selected
+			else if (!refsha.isEmpty()) {
 				if (QMessageBox::warning(this, "Checkout " + branch,
 				                         QString("Branch %1 already exists. Reset?").arg(branch),
 				                         QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
