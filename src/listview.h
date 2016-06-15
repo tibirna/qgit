@@ -46,10 +46,10 @@ signals:
 	void applyPatches(const QStringList &files);
 	void rebase(const QString& from, const QString& to, const QString& onto);
 	void merge(const QStringList& shas, const QString& into);
-	void push(const QString& remote, const QString& toSHA);
+	void moveRef(const QString& refName, const QString& toSHA);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
-	void showStatusMessage(const QString&);
+	void showStatusMessage(const QString&, int timeout=0);
 
 public slots:
 	void on_changeFont(const QFont& f);

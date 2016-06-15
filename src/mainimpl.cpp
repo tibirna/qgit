@@ -154,8 +154,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	// connect cross-domain update signals
 	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
 	        this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
-	connect(rv->tab()->listViewLog, SIGNAL(showStatusMessage(const QString&)),
-	        statusBar(), SLOT(showMessage(const QString&)));
+	connect(rv->tab()->listViewLog, SIGNAL(showStatusMessage(QString,int)),
+	        statusBar(), SLOT(showMessage(QString,int)));
 
 	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
@@ -784,18 +784,25 @@ void MainImpl::merge(const QStringList &shas, const QString &into)
 	QApplication::restoreOverrideCursor();
 }
 
-void MainImpl::push(const QString &target, const QString &toSHA)
+void MainImpl::moveRef(const QString &target, const QString &toSHA)
 {
-	assert(target.startsWith("remotes/"));
-	QString remote = target.section("/", 1, 1);
-	QString name = target.section("/", 2);
-	QString cmd("git push -q %1 %2:%3");
+	QString cmd;
+	if (target.startsWith("remotes/")) {
+		QString remote = target.section("/", 1, 1);
+		QString name = target.section("/", 2);
+		cmd = QString("git push -q %1 %2:%3").arg(remote, toSHA, name);
+	} else if (target.startsWith("tags/")) {
+		cmd = QString("git tag -f %1 %2").arg(target.section("/",1), toSHA);
+	} else if (!target.isEmpty()) {
+		if (target == git->getCurrentBranchName()) // move current branch
+			cmd = QString("git checkout -q -B %1 %2").arg(target, toSHA);
+		else // move any other local branch
+			cmd = QString("git branch -f %1 %2").arg(target, toSHA);
+	}
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	if (git->run(cmd.arg(remote, toSHA, name)))
-		refreshRepo(true);
+	if (git->run(cmd)) refreshRepo(true);
 	QApplication::restoreOverrideCursor();
 }
-
 
 // ******************************* Filter ******************************
 
