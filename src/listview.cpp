@@ -437,7 +437,7 @@ RefNameIterator::RefNameIterator(const QString &sha, Git *git)
 	cur_name = ref_names.begin();
 
 	// detached ?
-	if ((ref_types & Git::CUR_BRANCH) && !(ref_types & Git::BRANCH)) {
+	if ((ref_types & Git::CUR_BRANCH) && cur_branch.isEmpty()) {
 		// indicate detached state with type() == 0 and empty ref name
 		cur_branch = *cur_name;
 	} else { // advance to first real ref name
