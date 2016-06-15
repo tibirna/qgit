@@ -70,6 +70,9 @@ private slots:
 	void fileNamesLoad(int, int);
 	void applyRevisions(const QStringList& shas, const QString& remoteRepo);
 	bool applyPatches(const QStringList &files);
+	void rebase(const QString& from, const QString& to, const QString& onto);
+	void merge(const QStringList& shas, const QString& into);
+	void push(const QString& remote, const QString& toSHA);
 	void shortCutActivated();
 
 protected:

@@ -44,6 +44,9 @@ signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
 	void applyRevisions(const QStringList& shas, const QString& remoteRepo);
 	void applyPatches(const QStringList &files);
+	void rebase(const QString& from, const QString& to, const QString& onto);
+	void merge(const QStringList& shas, const QString& into);
+	void push(const QString& remote, const QString& toSHA);
 	void contextMenu(const QString&, int);
 	void diffTargetChanged(int); // used by new model_view integration
 	void showStatusMessage(const QString&);
@@ -59,6 +62,7 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent* e);
 	virtual void dragEnterEvent(QDragEnterEvent* e);
 	virtual void dragMoveEvent(QDragMoveEvent* e);
+	virtual void dragLeaveEvent(QDragLeaveEvent* event);
 	virtual void dropEvent(QDropEvent* e);
 	void startDragging(QMouseEvent *e);
 	QPixmap pixmapFromSelection() const;

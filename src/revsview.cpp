@@ -66,6 +66,13 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(tab()->listViewLog, SIGNAL(applyPatches(QStringList)),
 	        m(), SLOT(applyPatches(const QStringList&)));
 
+	connect(tab()->listViewLog, SIGNAL(rebase(QString,QString,QString)),
+	        m(), SLOT(rebase(QString,QString,QString)));
+	connect(tab()->listViewLog, SIGNAL(merge(QStringList,QString)),
+	        m(), SLOT(merge(QStringList,QString)));
+	connect(tab()->listViewLog, SIGNAL(push(QString,QString)),
+	        m(), SLOT(push(QString,QString)));
+
 	connect(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 

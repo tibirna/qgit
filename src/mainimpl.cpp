@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QWheelEvent>
 #include <QTextCodec>
+#include <assert.h>
 #include "config.h" // defines PACKAGE_VERSION
 #include "consoleimpl.h"
 #include "commitimpl.h"
@@ -759,6 +760,42 @@ bool MainImpl::applyPatches(const QStringList &files) {
 	refreshRepo();
 	return true;
 }
+
+void MainImpl::rebase(const QString &from, const QString &to, const QString &onto)
+{
+	QString cmd = QString("git rebase --onto %3 %1^ %2").arg(from, to, onto);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	if (git->run(cmd))
+	refreshRepo(true);
+	QApplication::restoreOverrideCursor();
+}
+
+void MainImpl::merge(const QStringList &shas, const QString &into)
+{
+	QString cmd = QString("git checkout -q %1").arg(into);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	if (git->run(cmd)) {
+		cmd = "git merge " + shas.join(" ");
+		if (git->run(cmd)) {
+			statusBar()->showMessage(QString("Successfully merged into %1").arg(into));
+		}
+	}
+	refreshRepo(true);
+	QApplication::restoreOverrideCursor();
+}
+
+void MainImpl::push(const QString &target, const QString &toSHA)
+{
+	assert(target.startsWith("remotes/"));
+	QString remote = target.section("/", 1, 1);
+	QString name = target.section("/", 2);
+	QString cmd("git push -q %1 %2:%3");
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	if (git->run(cmd.arg(remote, toSHA, name)))
+		refreshRepo(true);
+	QApplication::restoreOverrideCursor();
+}
+
 
 // ******************************* Filter ******************************
 

@@ -14,6 +14,7 @@
 #include <QPixmap>
 #include <QShortcut>
 #include <QDrag>
+#include <QUrl>
 #include "FileHistory.h"
 #include "domain.h"
 #include "mainimpl.h"
@@ -374,14 +375,12 @@ void ListView::startDragging(QMouseEvent* e) {
 		drag->setMimeData(mimeData);
 		drag->setPixmap(pixmapFromSelection());
 
-		if (contiguous) { // merge + rebase enabled
+		if (contiguous) { // rebase enabled
 			actions |= Qt::MoveAction; // rebase (local branch) or push (remote branch)
-			default_action = Qt::MoveAction;
-			if (selRevs.size() == 1) {
-				actions |= Qt::LinkAction; // merge
-				default_action = Qt::LinkAction;
-			}
 		}
+		// merging (of several shas) is also enabled
+		actions |= Qt::LinkAction;
+
 		drag->exec(actions, default_action);
 	}
 }
@@ -399,25 +398,54 @@ void ListView::mouseMoveEvent(QMouseEvent* e) {
 struct ListView::DropInfo {
 	DropInfo (uint f) : flags(f) {}
 
-	enum Type {
+	enum Flags {
 		PATCHES  = 1 << 0,
 		REV_LIST = 1 << 1,
 		REV_RANGE = 1 << 2,
-		NAMED_REF     = 1 << 3,
-		REMOTE_BRANCH = 1 << 4,
-		CLEAN_WORKDIR = 1 << 5,
-		SAME_REPO     = 1 << 6,
+		SAME_REPO     = 1 << 3,
 	};
+	enum Action {
+		PatchAction = Qt::CopyAction,
+		RebaseAction = Qt::MoveAction,
+		PushAction = (Qt::LinkAction << 1) | Qt::MoveAction,
+		MergeAction = Qt::LinkAction,
+	};
+
 	QString sourceRepo;
-	QString refName;
+	QString sourceRef;
+	uint    sourceRefType;
+	Action  action;
 	uint flags;
 	QStringList shas;
+
+	static QString actionName (ListView::DropInfo::Action a) {
+		switch (a) {
+		case PatchAction: return "patching";
+		case RebaseAction: return "rebasing";
+		case PushAction: return "pushing";
+		case MergeAction: return "merging";
+		default: "This should not happen.";
+		}
+	}
 };
+
+uint refTypeFromName(SCRef name) {
+	if (name.startsWith("tags/")) return Git::TAG;
+	if (name.startsWith("remotes/")) return Git::RMT_BRANCH;
+	if (!name.isEmpty()) return Git::BRANCH;
+	return 0;
+}
 
 void ListView::dragEnterEvent(QDragEnterEvent* e) {
 
 	if (dropInfo) delete dropInfo;
 	dropInfo = NULL;
+
+	if (!git->isNothingToCommit()) {
+		emit showStatusMessage("Drag-n-drop rejected: First clean your working dir!");
+		e->ignore();
+		return;
+	}
 
 	// accept local file urls for patching
 	bool valid=true;
@@ -436,14 +464,12 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 
 	e->accept();
 	dropInfo = new DropInfo(DropInfo::REV_LIST);
-	if (git->isNothingToCommit())
-		dropInfo->flags |= DropInfo::CLEAN_WORKDIR;
 
 	SCRef revsText(e->mimeData()->data("application/x-qgit-revs"));
 	QString header = revsText.section("\n", 0, 0);
 	dropInfo->shas = revsText.section("\n", 1).split('\n', QString::SkipEmptyParts);
 	// extract refname and sha from first entry again
-	dropInfo->refName = dropInfo->shas.front().section(" ", 1);
+	dropInfo->sourceRef = dropInfo->shas.front().section(" ", 1);
 	dropInfo->shas.front() = dropInfo->shas.front().section(" ", 0, 0);
 
 	// check source repo
@@ -454,26 +480,103 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 			e->ignore();
 			return;
 		}
-		e->setDropAction(Qt::CopyAction);
 		return; // merging + rebasing is only enabled on same repo
 	}
 
 	dropInfo->flags |= DropInfo::SAME_REPO;
 	if (header.startsWith("RANGE")) dropInfo->flags |= DropInfo::REV_RANGE;
-	if (!dropInfo->refName.isEmpty()) dropInfo->flags |= DropInfo::NAMED_REF;
-	if (dropInfo->refName.startsWith("remotes/")) dropInfo->flags |= DropInfo::REMOTE_BRANCH;
+	dropInfo->sourceRefType = refTypeFromName(dropInfo->sourceRef);
 }
 
 void ListView::dragMoveEvent(QDragMoveEvent* e) {
+	// When getting here, dragEnterEvent already accepted the drag in general
 
-	if (e->source() == this && indexAt(e->pos()).row() == currentIndex().row()) {
+	SCRef targetRef = refNameAt(e->pos());
+	uint targetRefType = refTypeFromName(targetRef);
+	QModelIndex idx = indexAt(e->pos());
+	SCRef targetSHA = sha(idx.row());
+	uint   accepted_actions = DropInfo::PatchAction; // applying patches is always allowed
+	DropInfo::Action  action, default_action = DropInfo::PatchAction;
+
+	// extended drop actions (merging, rebasing, pushing) are only allowed
+	if (dropInfo->flags & DropInfo::SAME_REPO && // on same repo
+	    dropInfo->flags & DropInfo::REV_LIST && // qgit drags
+	    idx.column() == LOG_COL) { // and when dropping onto LOG_COL
+		// only accept drop when target has different sha than source shas
+		if (dropInfo->shas.contains(targetSHA)) {
+			e->ignore();
+			emit showStatusMessage("Cannot drop onto current selection.");
+			return;
+		}
+		// decide the preferred drop action based on context and
+
+		// rebasing is allowed onto any sha (and workdir),
+		// but only if source sha list is contiguous range
+		if (dropInfo->flags & DropInfo::REV_RANGE) {
+			accepted_actions |= DropInfo::RebaseAction;
+			default_action = DropInfo::RebaseAction;
+		}
+
+		// merging is allowed onto any local branch
+		if (targetRefType == Git::BRANCH) {
+			accepted_actions |= DropInfo::MergeAction;
+			default_action = DropInfo::MergeAction;
+		}
+
+		// pushing is allowed when sha list has 1 item and sourceRef is remote branch
+		if (dropInfo->shas.count() == 1 &&
+		    dropInfo->sourceRefType == Git::RMT_BRANCH && targetSHA != ZERO_SHA) {
+			accepted_actions |= DropInfo::PushAction;
+			default_action = DropInfo::PushAction;
+		}
+	} else if (e->source() == this && idx.row() == currentIndex().row()) {
 		// move at least by one line before enabling drag
 		e->ignore();
+		showStatusMessage("");
 		return;
 	}
-	e->accept();
 
-	QString targetRef = refNameAt(e->pos());
+	e->accept();
+	// check whether modifier keys enforce an action
+	switch (e->keyboardModifiers()) {
+	case Qt::ControlModifier: action = DropInfo::PatchAction; break;
+	case Qt::ShiftModifier: action = (default_action == DropInfo::PushAction ? DropInfo::PushAction : DropInfo::RebaseAction); break;
+	case Qt::AltModifier: action = DropInfo::MergeAction; break;
+	default: action = default_action; break;
+	}
+	QString statusMsg;
+	if ((action & accepted_actions) == 0) {
+		statusMsg = DropInfo::actionName(action) + " not allowed. ";
+		statusMsg[0] = statusMsg[0].toUpper();
+		action = default_action;
+	}
+
+	// inform user about the to-be-performed action in statusBar
+	switch (action) {
+	case DropInfo::PatchAction:
+		statusMsg += "Applying patches";
+		break;
+	case DropInfo::RebaseAction:
+		statusMsg += QString("Rebasing %1onto %2")
+		        .arg(dropInfo->shas.count() > 1 ? "selection " : "")
+		        .arg(targetRefType == Git::BRANCH ? targetRef : targetSHA);
+		break;
+	case DropInfo::PushAction:
+		statusMsg += "Updating " + dropInfo->sourceRef;
+		break;
+	case DropInfo::MergeAction:
+		statusMsg += "Merging selected branches into " + targetRef;
+		break;
+	}
+	emit showStatusMessage(statusMsg);
+	dropInfo->action = action;
+	e->setDropAction(static_cast<Qt::DropAction>(action & 0x7));
+}
+
+void ListView::dragLeaveEvent(QDragLeaveEvent *e)
+{
+	if (dropInfo) delete dropInfo; dropInfo = NULL;
+	showStatusMessage("");
 }
 
 void ListView::dropEvent(QDropEvent *e) {
@@ -487,7 +590,26 @@ void ListView::dropEvent(QDropEvent *e) {
 		emit applyPatches(files);
 		return;
 	}
-	emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
+
+	SCRef targetRef = refNameAt(e->pos());
+	uint  targetRefType = refTypeFromName(targetRef);
+	SCRef targetSHA = sha(indexAt(e->pos()).row());
+	switch(dropInfo->action) {
+	case DropInfo::PatchAction:
+		emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
+		break;
+	case DropInfo::RebaseAction:
+		emit rebase(dropInfo->shas.last(),
+		            dropInfo->sourceRef.isEmpty() ? dropInfo->shas.first() : dropInfo->sourceRef,
+		            targetRefType == Git::BRANCH ? targetRef : targetSHA);
+		break;
+	case DropInfo::MergeAction:
+		emit merge(dropInfo->shas, targetRef);
+		break;
+	case DropInfo::PushAction:
+		emit push(dropInfo->sourceRef, targetSHA);
+		break;
+	}
 }
 
 void ListView::on_customContextMenuRequested(const QPoint& pos) {
