@@ -341,18 +341,6 @@ QPixmap ListView::pixmapFromSelection() const {
 	return pixmap;
 }
 
-void setDragCursor(QDrag& drag, Qt::DropAction action, const QString &text) {
-	QFont font;
-	QFontMetrics fm(font);
-	QSize size = fm.boundingRect(text).size();
-	QPixmap pixmap(size);
-	QPainter painter(&pixmap);
-	painter.fillRect(0,0, size.width(), size.height(), QPalette().color(QPalette::Background));
-	painter.drawText(0, fm.ascent(), text);
-	painter.end();
-	drag.setDragCursor(pixmap, action);
-}
-
 void ListView::startDragging(QMouseEvent* e) {
 
 	QStringList selRevs;
