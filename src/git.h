@@ -122,6 +122,7 @@ public:
 	bool commitFiles(SCList files, SCRef msg, bool amend);
 	bool applyPatchFile(SCRef patchPath, bool fold, bool sign);
 	bool resetCommits(int parentDepth);
+	bool merge(SCRef into, SCList sources, QString* error=NULL);
 	bool stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold);
 	bool stgPush(SCRef sha);
 	bool stgPop(SCRef sha);

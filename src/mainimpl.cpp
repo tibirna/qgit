@@ -777,13 +777,15 @@ void MainImpl::rebase(const QString &from, const QString &to, const QString &ont
 
 void MainImpl::merge(const QStringList &shas, const QString &into)
 {
-	QString cmd = QString("git checkout -q %1").arg(into);
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	if (git->run(cmd)) {
-		cmd = "git merge " + shas.join(" ");
-		if (git->run(cmd)) {
-			statusBar()->showMessage(QString("Successfully merged into %1").arg(into));
-		}
+	QString output;
+	if (git->merge(into, shas, &output)) {
+		refreshRepo(true);
+		statusBar()->showMessage(QString("Successfully merged into %1").arg(into));
+		ActCommit_activated();
+	} else if (!output.isEmpty()) {
+		QMessageBox::warning(this, "git merge failed",
+		                     QString("\n\nGit says: \n\n" + output));
 	}
 	refreshRepo(true);
 	QApplication::restoreOverrideCursor();

@@ -1322,6 +1322,23 @@ bool Git::resetCommits(int parentDepth) {
 	return run(runCmd);
 }
 
+bool Git::merge(SCRef into, SCList sources, QString *error)
+{
+	if (error) *error = "";
+	if (!run(QString("git checkout -q %1").arg(into)))
+		return false; // failed to checkout
+
+	QString cmd = QString("git merge -q --no-commit ") + sources.join(" ");
+	MyProcess p(parent(), this, workDir, false);
+	p.runSync(cmd, NULL, NULL, "");
+
+	const QString& e = p.getErrorOutput();
+	if (e.contains("stopped before committing as requested"))
+		return true;
+	if (error) *error = e;
+	return false;
+}
+
 bool Git::applyPatchFile(SCRef patchPath, bool fold, bool isDragDrop) {
 
 	if (isStGIT) {
