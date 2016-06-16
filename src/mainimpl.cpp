@@ -476,12 +476,12 @@ void MainImpl::updateRevVariables(SCRef sha) {
 	QMap<QString, QVariant> &v = revision_variables;
 	v.clear();
 
-	const QStringList &remote_branches = git->getRefName(sha, Git::RMT_BRANCH);
+	const QStringList &remote_branches = git->getRefNames(sha, Git::RMT_BRANCH);
 	QString curBranch;
-	v.insert(REV_LOCAL_BRANCHES, git->getRefName(sha, Git::BRANCH));
+	v.insert(REV_LOCAL_BRANCHES, git->getRefNames(sha, Git::BRANCH));
 	v.insert(CURRENT_BRANCH, git->getCurrentBranchName());
 	v.insert(REV_REMOTE_BRANCHES, remote_branches);
-	v.insert(REV_TAGS, git->getRefName(sha, Git::TAG));
+	v.insert(REV_TAGS, git->getRefNames(sha, Git::TAG));
 	v.insert("SHA", sha);
 
 	// determine which name the user clicked on

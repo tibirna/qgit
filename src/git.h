@@ -111,7 +111,7 @@ public:
 	uint checkRef(SCRef sha, uint mask = ANY_REF) const;
 	const QString getRevInfo(SCRef sha);
 	const QString getRefSha(SCRef refName, RefType type = ANY_REF, bool askGit = true);
-	const QStringList getRefName(SCRef sha, RefType type) const;
+	const QStringList getRefNames(SCRef sha, uint mask = ANY_REF) const;
 	const QStringList getAllRefNames(uint mask, bool onlyLoaded);
 	const QStringList getAllRefSha(uint mask);
 	const QStringList sortShaListByIndex(SCList shaList);

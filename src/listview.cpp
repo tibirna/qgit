@@ -720,7 +720,7 @@ void RefNameIterator::next()
 		case Git::TAG: cur_state = Git::REF; break;
 		default: cur_state = -1; // indicate end
 		}
-		ref_names = git->getRefName(sha, (Git::RefType)cur_state);
+		ref_names = git->getRefNames(sha, (Git::RefType)cur_state);
 		cur_name = ref_names.begin();
 	}
 }
