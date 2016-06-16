@@ -801,6 +801,17 @@ void MainImpl::moveRef(const QString &target, const QString &toSHA)
 	} else if (target.startsWith("tags/")) {
 		cmd = QString("git tag -f %1 %2").arg(target.section("/",1), toSHA);
 	} else if (!target.isEmpty()) {
+		const QString &sha = git->getRefSha(target, Git::BRANCH, false);
+		if (sha.isEmpty()) return;
+		const QStringList &children = git->getChildren(sha);
+		if ((children.count() == 0 || (children.count() == 1 && children.front() == ZERO_SHA)) && // no children
+		    git->getRefNames(sha, Git::ANY_REF).count() == 1 && // last ref name
+		    QMessageBox::question(this, "move branch",
+		                          QString("This is the last reference to this branch.\n"
+		                                  "Do you really want to move '%1'?").arg(target))
+		    == QMessageBox::No)
+			return;
+
 		if (target == git->getCurrentBranchName()) // move current branch
 			cmd = QString("git checkout -q -B %1 %2").arg(target, toSHA);
 		else // move any other local branch
