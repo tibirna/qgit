@@ -560,8 +560,9 @@ void ListView::dragMoveEvent(QDragMoveEvent* e) {
 		statusMsg += "Applying patches";
 		break;
 	case DropInfo::RebaseAction:
-		statusMsg += QString("Rebasing %1onto %2")
-		        .arg(dropInfo->shas.count() > 1 ? "selection " : "")
+		statusMsg += QString("Rebasing %1 onto %2")
+		        .arg((dropInfo->sourceRefType == Git::BRANCH &&
+		              dropInfo->shas.count() == 1) ? dropInfo->sourceRef : "selection")
 		        .arg(targetRefType == Git::BRANCH ? targetRef : targetSHA);
 		break;
 	case DropInfo::MoveRefAction:
@@ -602,9 +603,13 @@ void ListView::dropEvent(QDropEvent *e) {
 		emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
 		break;
 	case DropInfo::RebaseAction:
-		emit rebase(dropInfo->shas.last(),
-		            dropInfo->sourceRef.isEmpty() ? dropInfo->shas.first() : dropInfo->sourceRef,
-		            targetRefType == Git::BRANCH ? targetRef : targetSHA);
+		if (dropInfo->sourceRefType == Git::BRANCH && dropInfo->shas.count() == 1)
+			emit rebase("", dropInfo->sourceRef, targetSHA);
+		else
+			emit rebase(dropInfo->shas.last(),
+		                dropInfo->sourceRef.isEmpty() ? dropInfo->shas.first()
+		                                              : dropInfo->sourceRef,
+		                targetSHA);
 		break;
 	case DropInfo::MergeAction:
 		emit merge(dropInfo->shas, targetRef);

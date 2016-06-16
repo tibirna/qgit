@@ -763,9 +763,14 @@ bool MainImpl::applyPatches(const QStringList &files) {
 
 void MainImpl::rebase(const QString &from, const QString &to, const QString &onto)
 {
-	QString cmd = QString("git rebase --onto %3 %1^ %2").arg(from, to, onto);
+	bool success = false;
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	if (git->run(cmd))
+	if (from.isEmpty()) {
+		success = git->run(QString("git checkout -q %1").arg(to)) &&
+		          git->run(QString("git rebase %1").arg(onto));
+	} else {
+		success = git->run(QString("git rebase --onto %3 %1^ %2").arg(from, to, onto));
+	}
 	refreshRepo(true);
 	QApplication::restoreOverrideCursor();
 }
