@@ -768,8 +768,7 @@ void MainImpl::newRevsAdded(const FileHistory* fh, const QVector<ShaString>&) {
 
 	// first rev could be a StGIT unapplied patch so check more then once
 	if (   !ActCommit->isEnabled()
-	    && (!git->isNothingToCommit() || git->isUnknownFiles())
-	    && !git->isCommittingMerge())
+	    && (!git->isNothingToCommit() || git->isUnknownFiles()))
 		ActCommit_setEnabled(true);
 }
 

@@ -88,10 +88,6 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 		if (testFlag(USE_CMT_MSG_F, FLAGS_KEY))
 			status += git->getNewCommitMsg();
 
-		// prepend commit msg with template if available
-		if (!amend)
-			status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
-
 		msg = status.trimmed();
 	} else
 		msg = lastMsgBeforeError;

@@ -961,9 +961,20 @@ const QString Git::getNewCommitMsg() {
 		dbs("ASSERT: getNewCommitMsg zero_sha not found");
 		return "";
 	}
-
 	QString status = c->longLog();
-	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	status.prepend('\n').replace(QRegExp("\\n([^#\\n]?)"), "\n#\\1"); // comment all the lines
+
+	if (isMergeHead) {
+		QFile file(QDir(gitDir).absoluteFilePath("MERGE_MSG"));
+		if (file.open(QIODevice::ReadOnly)) {
+			QTextStream in(&file);
+
+			while(!in.atEnd())
+				status.prepend(in.readLine());
+
+			file.close();
+		}
+	}
 	return status;
 }
 
