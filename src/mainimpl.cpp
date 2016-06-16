@@ -1821,7 +1821,6 @@ void MainImpl::doBranchOrTag(bool isTag) {
 	InputDialog dlg(dlgDesc, dlgVars, dlgTitle, this);
 	if (dlg.exec() != QDialog::Accepted) return;
 	const QString& ref = dlg.value("name").toString();
-	const QString& msg = dlg.value("message").toString();
 
 	bool force = false;
 	if (!git->getRefSha(ref, isTag ? Git::TAG : Git::BRANCH, false).isEmpty()) {
@@ -1836,6 +1835,7 @@ void MainImpl::doBranchOrTag(bool isTag) {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	QString cmd;
 	if (isTag) {
+		const QString& msg = dlg.value("message").toString();
 		cmd = "git tag ";
 		if (!msg.isEmpty()) cmd += "-m \"" + msg + "\" ";
 	} else {
