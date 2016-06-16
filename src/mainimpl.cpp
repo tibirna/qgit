@@ -1910,7 +1910,7 @@ void MainImpl::ActDelete_activated() {
 		else if (g.key() == "tags/") // tags
 			cmd = "git tag -d " + g.value().join(" ");
 		else // remote branches
-			cmd = "git push " + g.key() + " :" + g.value().join(" :");
+			cmd = "git push -q " + g.key() + " :" + g.value().join(" :");
 		ok &= git->run(cmd);
 	}
 	refreshRepo(true);
