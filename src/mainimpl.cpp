@@ -1949,12 +1949,16 @@ void MainImpl::ActDelete_activated() {
 	for (QStringList::const_iterator it=tags.begin(), end=tags.end(); it!=end; ++it)
 		all_names << "tags/" + *it;
 
-	// group selected names by origin
+	// group selected names by origin and determine which ref names will remain
 	QMap <QString, QStringList> groups;
+	QStringList remaining = all_names;
 	if (!selected_name.isEmpty()) {
 		groupRef(selected_name, groups);
+		remaining.removeOne(selected_name);
 	} else if (all_names.size() == 1) {
-		groupRef(all_names.first(), groups);
+		const QString &name = all_names.first();
+		groupRef(name, groups);
+		remaining.removeOne(name);
 	} else {
 		revision_variables.insert("ALL_NAMES", all_names);
 		InputDialog dlg("%listbox:_refs=$ALL_NAMES%", revision_variables,
@@ -1964,11 +1968,24 @@ void MainImpl::ActDelete_activated() {
 		if (dlg.exec() != QDialog::Accepted) return;
 
 		QModelIndexList selected = w->selectionModel()->selectedIndexes();
-		for (QModelIndexList::const_iterator it=selected.begin(), end=selected.end(); it!=end; ++it)
-			groupRef(it->data().toString(), groups);
+		for (QModelIndexList::const_iterator it=selected.begin(), end=selected.end(); it!=end; ++it) {
+			const QString &name = it->data().toString();
+			groupRef(name, groups);
+			remaining.removeOne(name);
+		}
 	}
 	if (groups.empty()) return;
 
+	// check whether all refs will be removed
+	const QString sha = revision_variables.value("SHA").toString();
+	const QStringList &children = git->getChildren(sha);
+	if ((children.count() == 0 || (children.count() == 1 && children.front() == ZERO_SHA)) && // no children
+	    remaining.count() == 0 && // all refs will be removed
+	    QMessageBox::warning(this, "remove references",
+	                         "Do you really want to remove all\nremaining references to this branch?",
+	                         QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+	    == QMessageBox::No)
+		return;
 
 	// group selected names by origin
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1976,7 +1993,7 @@ void MainImpl::ActDelete_activated() {
 	for (RefGroupMap::const_iterator g = groups.begin(), gend = groups.end(); g != gend; ++g) {
 		QString cmd;
 		if (g.key() == "") // local branches
-			cmd = "git branch -d " + g.value().join(" ");
+			cmd = "git branch -D " + g.value().join(" ");
 		else if (g.key() == "tags/") // tags
 			cmd = "git tag -d " + g.value().join(" ");
 		else // remote branches
