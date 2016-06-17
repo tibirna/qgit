@@ -65,7 +65,7 @@ protected:
 	virtual void dragLeaveEvent(QDragLeaveEvent* event);
 	virtual void dropEvent(QDropEvent* e);
 	void startDragging(QMouseEvent *e);
-	QPixmap pixmapFromSelection() const;
+	QPixmap pixmapFromSelection(const QStringList &revs, const QString &ref) const;
 
 private slots:
 	void on_customContextMenuRequested(const QPoint&);

@@ -21,6 +21,10 @@
 #include "git.h"
 #include "listview.h"
 
+void getTagMarkParams(QString &name, QStyleOptionViewItem& o,
+                      const int type, const bool isCurrent);
+uint refTypeFromName(SCRef name);
+
 using namespace QGit;
 
 ListView::ListView(QWidget* parent) : QTreeView(parent), d(NULL), git(NULL), fh(NULL), lp(NULL), dropInfo(NULL) {}
@@ -312,31 +316,41 @@ void ListView::mouseReleaseEvent(QMouseEvent* e) {
 	QTreeView::mouseReleaseEvent(e);
 }
 
-QPixmap ListView::pixmapFromSelection() const {
-	const QModelIndexList &ml = selectionModel()->selectedRows(LOG_COL);
-	const QRegion& visible = visualRegionForSelection(selectionModel()->selection());
-	QRect bbox = visible.boundingRect();
-	QRect bbox_column = visualRect(ml.first());
-	int dx=bbox.left() - bbox_column.left();
-	int dy=-bbox.top();
 
+QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &ref) const {
+	const int maxRows = 10;
+	const int dotdotRow = 5;
+	QStyleOptionViewItem opt; opt.initFrom(this);
 	ListViewDelegate *lvd = dynamic_cast<ListViewDelegate*>(itemDelegate());
-	QPixmap pixmap (bbox.adjusted(dx,0, bbox.right() - bbox_column.right(),0).size());
-	QPainter painter(&pixmap);
-	QStyleOptionViewItem opt;
-	FOREACH (QModelIndexList, it, ml) {
-		opt.rect = visualRect(*it);
-		if (!visible.contains(opt.rect)) continue;
-		opt.rect.adjust(dx,dy, dx,dy);
-		painter.fillRect(opt.rect, QPalette().color(QPalette::Background));
 
-		QPixmap* pm = lvd->getTagMarks(sha(it->row()), opt);
-		if (pm) {
-			painter.drawPixmap(opt.rect.x(), opt.rect.y()+1, *pm);
-			opt.rect.adjust(pm->width(), 0, 0, 0);
-			delete pm;
+	QFontMetrics fm(opt.font);
+	int height = fm.height()+2;
+	int row = 0, rows = std::min(revs.count() + (ref.isEmpty() ? 0 : 1), maxRows);
+	int spacing = 4;
+	QPixmap pixmap (columnWidth(LOG_COL), rows*height);
+	pixmap.fill(Qt::transparent);
+
+	QPainter painter(&pixmap);
+	// render selected ref name
+	if (!ref.isEmpty()) {
+		QStyleOptionViewItem o(opt);
+		QString dummy;
+		getTagMarkParams(dummy, o, refTypeFromName(ref), false);
+		painter.fillRect(0, 0, fm.width(ref)+2*spacing, height, o.palette.window());
+		painter.drawText(spacing, fm.ascent()+1, ref);
+		row = 1;
+	}
+
+	painter.fillRect(0, row*height, pixmap.width(), (rows-row)*height, opt.palette.window());
+	for (QStringList::const_iterator it = revs.begin(), end = revs.end(); it != end; ++it) {
+		const Rev* r = git->revLookup(it->section(" ", 0, 0));
+		if (!r) continue; // should not happen
+		painter.drawText(spacing, row*height + fm.ascent()+1, r->shortLog()); ++row;
+		// jump to last dotdotRows-1 items if necessary
+		if (rows-row == dotdotRow && end-it > dotdotRow+1) {
+			++row; // leave one line empty
+			it += end-it - dotdotRow;
 		}
-		lvd->QItemDelegate::paint(&painter, opt, *it);
 	}
 	painter.end();
 	return pixmap;
@@ -373,7 +387,7 @@ void ListView::startDragging(QMouseEvent* e) {
 		mimeData->setData("application/x-qgit-revs", mime.toUtf8());
 
 		drag->setMimeData(mimeData);
-		drag->setPixmap(pixmapFromSelection());
+		drag->setPixmap(pixmapFromSelection(selRevs, lastRefName));
 
 		if (contiguous) { // rebase enabled
 			actions |= Qt::MoveAction; // rebase (local branch) or push (remote branch)
