@@ -20,6 +20,7 @@
 #include <QTemporaryFile>
 #include <QTextStream>
 #include <QWidget>
+#include <QTextCodec>
 #include "common.h"
 #include "git.h"
 #include "annotate.h"
@@ -367,12 +368,16 @@ void QGit::restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
 // misc helpers
 bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
 
+    QTextCodec* tc = QTextCodec::codecForLocale();
+
 	if (ba.endsWith('\n')) { // optimize common case
-		*dst = ba;
+        *dst = tc->toUnicode(ba);
 
 		// handle rare case of a '\0' inside content
-		while (dst->size() < ba.size() && ba.at(dst->size()) == '\0')
-			dst->append(" ").append(ba.mid(dst->size() + 1)); // sizes should match
+        while (dst->size() < ba.size() && ba.at(dst->size()) == '\0') {
+            QString s = tc->toUnicode(ba.mid(dst->size() + 1)); // sizes should match
+            dst->append(" ").append(s);
+        }
 
 		dst->truncate(dst->size() - 1); // strip trailing '\n'
 		if (!prev->isEmpty()) {
@@ -381,10 +386,12 @@ bool QGit::stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* p
 		}
 		return true;
 	}
-	QString src(ba);
+    QString src = tc->toUnicode(ba);
 	// handle rare case of a '\0' inside content
-	while (src.size() < ba.size() && ba.at(src.size()) == '\0')
-		src.append(" ").append(ba.mid(src.size() + 1));
+    while (src.size() < ba.size() && ba.at(src.size()) == '\0') {
+        QString s = tc->toUnicode(ba.mid(src.size() + 1));
+        src.append(" ").append(s);
+    }
 
 	int idx = src.lastIndexOf('\n');
 	if (idx == -1) {
