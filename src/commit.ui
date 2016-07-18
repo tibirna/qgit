@@ -114,9 +114,10 @@
           </widget>
          </item>
          <item>
-          <widget class="QTextEdit" name="textEditMsg" >
-           <property name="toolTip" >
-            <string>Lines starting with '#' will be ignored</string>
+          <widget class="QTextEdit" name="textEditMsg">
+           <property name="toolTip">
+            <string>Lines starting with '#' will be ignored
+Press &lt;Ctrl+Enter&gt; to commit changes</string>
            </property>
            <property name="lineWrapMode" >
             <enum>QTextEdit::NoWrap</enum>

@@ -14,6 +14,7 @@
 #include <QInputDialog>
 #include <QToolTip>
 #include <QScrollBar>
+#include <QKeyEvent>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "git.h"
@@ -129,6 +130,8 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 	        this, SLOT(contextMenuPopup(const QPoint&)));
 	connect(textEditMsg, SIGNAL(cursorPositionChanged()),
 	        this, SLOT(textEditMsg_cursorPositionChanged()));
+
+    textEditMsg->installEventFilter(this);
 }
 
 void CommitImpl::closeEvent(QCloseEvent*) {
@@ -386,4 +389,23 @@ void CommitImpl::computePosition(int &col_pos, int &line_pos) {
 	// when in start position r.x() = -r.width() / 2
 	col_pos = (r.x() + hs + r.width() / 2) / ofsX;
 	line_pos = (r.y() + vs) / ofsY;
+}
+
+bool CommitImpl::eventFilter(QObject* obj, QEvent* event) {
+
+    if (obj == textEditMsg) {
+        if (event->type() == QEvent::KeyPress) {
+             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+             if (( keyEvent->key() == Qt::Key_Return
+                   || keyEvent->key() == Qt::Key_Enter
+                 )
+                 && keyEvent->modifiers() & Qt::ControlModifier) {
+
+                QMetaObject::invokeMethod(pushButtonOk, "clicked", Qt::QueuedConnection);
+                return true;
+             }
+         }
+         return false;
+    }
+    return QObject::eventFilter(obj, event);
 }

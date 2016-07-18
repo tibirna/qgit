@@ -43,6 +43,7 @@ private:
 	bool checkPatchName(QString& patchName);
 	bool checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool amend);
 	void computePosition(int &col_pos, int &line_pos);
+    bool eventFilter(QObject* obj, QEvent* event);
 
 	Git* git;
 	QString origMsg;
