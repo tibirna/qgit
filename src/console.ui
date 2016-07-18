@@ -141,6 +141,9 @@
              <property name="flat" >
               <bool>false</bool>
              </property>
+             <property name="autoDefault">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>
@@ -688,6 +691,9 @@
           <property name="text" >
            <string>&amp;Ok</string>
           </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -703,6 +709,11 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11" />
+ <tabstops>
+  <tabstop>pushButtonTerminate</tabstop>
+  <tabstop>pushButtonOk</tabstop>
+  <tabstop>textEditOutput</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc" />
  </resources>
