@@ -956,13 +956,13 @@ void MainImpl::shortCutActivated() {
 		if (key == Qt::Key_I) {
 			rv->tab()->listViewLog->on_keyUp();
 		}
-		else if (key == Qt::Key_K or key == Qt::Key_N) {
+		else if (key == (Qt::Key_K or key == Qt::Key_N)) {
 			rv->tab()->listViewLog->on_keyDown();
 		}
-		else if (key == Qt::SHIFT | Qt::Key_Up) {
+		else if (key == (Qt::SHIFT | Qt::Key_Up)) {
 			goMatch(-1);
 		}
-		else if (key == Qt::SHIFT | Qt::Key_Down) {
+		else if (key == (Qt::SHIFT | Qt::Key_Down)) {
 			goMatch(1);
 		}
 		else if (key == Qt::Key_Left) {
@@ -971,10 +971,10 @@ void MainImpl::shortCutActivated() {
 		else if (key == Qt::Key_Right) {
 			ActForward_activated();
 		}
-		else if (key == Qt::CTRL | Qt::Key_Plus) {
+		else if (key == (Qt::CTRL | Qt::Key_Plus)) {
 			adjustFontSize(1); //TODO replace magic constant
 		}
-		else if (key == Qt::CTRL | Qt::Key_Minus) {
+		else if (key == (Qt::CTRL | Qt::Key_Minus)) {
 			adjustFontSize(-1); //TODO replace magic constant
 		}
 		else if (key == Qt::Key_U) {
@@ -994,8 +994,9 @@ void MainImpl::shortCutActivated() {
 		}
 		else if (key == Qt::Key_P or key == Qt::Key_F) {
 			QWidget* cp = tabWdg->currentWidget();
-			Domain* d = key == Qt::Key_P? static_cast<Domain*>(firstTab<PatchView>(cp)) :
-						      static_cast<Domain*>(firstTab<FileView>(cp));
+			Domain* d = (key == Qt::Key_P)
+						? static_cast<Domain*>(firstTab<PatchView>(cp))
+						: static_cast<Domain*>(firstTab<FileView>(cp));
 			if (d) tabWdg->setCurrentWidget(d->tabPage());
 		}
 	}
