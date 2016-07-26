@@ -21,6 +21,7 @@
 #include <QStatusBar>
 #include <QTimer>
 #include <QWheelEvent>
+#include <QTextCodec>
 #include "config.h" // defines PACKAGE_VERSION
 #include "consoleimpl.h"
 #include "commitimpl.h"
@@ -271,14 +272,15 @@ void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QByteArray fileContent;
+	QTextCodec* tc = QTextCodec::codecForLocale();
 	QString fileSha(git->getFileSha(rv->st.fileName(), rv->st.sha()));
 	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
-	if (!writeToFile(fName1, QString(fileContent)))
+	if (!writeToFile(fName1, tc->toUnicode(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName1);
 
 	fileSha = git->getFileSha(rv->st.fileName(), prevRevSha);
 	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
-	if (!writeToFile(fName2, QString(fileContent)))
+	if (!writeToFile(fName2, tc->toUnicode(fileContent)))
 		statusBar()->showMessage("Unable to save " + fName2);
 
 	// get external diff viewer command
