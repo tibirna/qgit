@@ -1838,7 +1838,8 @@ void MainImpl::ActAbout_activated() {
 	"Copyright (c) 2014 Gregor Mi &lt;codestruct@posteo.org&gt;<br>"
 	"Copyright (c) 2014 Sbytov N.N &lt;sbytnn@gmail.com&gt;<br>"
 	"Copyright (c) 2015 Daniel Levin &lt;dendy.ua@gmail.com&gt;<br>"
-	"Copyright (c) 2016 Luigi Toscano &lt;luigi.toscano@tiscali.it&gt;"
+	"Copyright (c) 2016 Luigi Toscano &lt;luigi.toscano@tiscali.it&gt;<br>"
+	"Copyright (c) 2016 Pavel Karelin &lt;hkarel@yandex.ru&gt;"
     "</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
