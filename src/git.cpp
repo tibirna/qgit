@@ -28,6 +28,8 @@
 
 #define SHOW_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x)); EM_PROCESS_EVENTS_NO_INPUT;
 
+#define GIT_LOG_FORMAT "%m%HX%PX%n%cn<%ce>%n%an<%ae>%n%at%n%s%n"
+
 // Used on init() for reading parameters once;
 // It's OK to be unique among qgit windows.
 static bool startup = true;
@@ -2122,7 +2124,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
                         "--log-size " // FIXME broken on Windows
 #endif
                         "--parents --boundary -z "
-                        "--pretty=format:%m%HX%PX%n%cn<%ce>%n%an<%ae>%n%at%n%s%n");
+                        "--pretty=format:" GIT_LOG_FORMAT);
 
         // we don't need log message body for file history
         if (isMainHistory(fh))
@@ -2157,7 +2159,7 @@ bool Git::startUnappliedList() {
 #ifndef Q_OS_WIN32
                     "--log-size " // FIXME broken on Windows
 #endif
-                    "--pretty=format:%m%HX%PX%n%an<%ae>%n%at%n%s%n%b ^HEAD");
+                    "--pretty=format:" GIT_LOG_FORMAT "%b ^HEAD");
 
         QStringList sl(cmd.split(' '));
         sl << unAppliedShaList;
