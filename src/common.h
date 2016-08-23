@@ -234,7 +234,7 @@ namespace QGit {
 		RANGE_SELECT_F  = 1 << 13,
 		REOPEN_REPO_F   = 1 << 14,
 		USE_CMT_MSG_F   = 1 << 15,
-		OPEN_IN_EDITOR_F = 1 << 16,
+		OPEN_IN_EDITOR_F = 1 << 16
 	};
 	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F;
 
