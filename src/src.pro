@@ -78,7 +78,7 @@ FORMS += commit.ui console.ui customaction.ui fileview.ui help.ui \
 
 HEADERS += annotate.h cache.h commitimpl.h common.h config.h consoleimpl.h \
            customactionimpl.h dataloader.h domain.h exceptionmanager.h \
-           filecontent.h filelist.h fileview.h git.h help.h lanes.h \
+           filecontent.h filelist.h fileview.h git.h help.h inputdialog.h lanes.h \
            listview.h mainimpl.h myprocess.h patchcontent.h patchview.h \
            rangeselectimpl.h revdesc.h revsview.h settingsimpl.h \
            smartbrowse.h treeview.h \
@@ -86,7 +86,7 @@ HEADERS += annotate.h cache.h commitimpl.h common.h config.h consoleimpl.h \
 
 SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
            customactionimpl.cpp dataloader.cpp domain.cpp exceptionmanager.cpp \
-           filecontent.cpp filelist.cpp fileview.cpp git.cpp \
+           filecontent.cpp filelist.cpp fileview.cpp git.cpp inputdialog.cpp \
            lanes.cpp listview.cpp mainimpl.cpp myprocess.cpp namespace_def.cpp \
            patchcontent.cpp patchview.cpp qgit.cpp rangeselectimpl.cpp \
            revdesc.cpp revsview.cpp settingsimpl.cpp smartbrowse.cpp treeview.cpp \

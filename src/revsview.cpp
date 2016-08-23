@@ -278,8 +278,11 @@ bool RevsView::doUpdate(bool force) {
 			bool isDir = m()->treeView->isDir(st.fileName());
 			m()->updateContextActions(st.sha(), st.fileName(), isDir, found);
 		}
-		if (st.isChanged() || force)
+		if (st.isChanged() || force) {
+			// activate log or diff tab depending on file selection
+			tab()->tabLogDiff->setCurrentIndex(st.fileName().isEmpty() ? 0 : 1);
 			tab()->textEditDiff->centerOnFileHeader(st);
+		}
 
 		// at the end update diffs that is the slowest and must be
 		// run after update of file list for 'diff to sha' to work

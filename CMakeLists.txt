@@ -60,6 +60,7 @@ set(CPP_SOURCES
     src/git.cpp
     src/lanes.cpp
     src/listview.cpp
+    src/inputdialog.cpp
     src/mainimpl.cpp
     src/myprocess.cpp
     src/namespace_def.cpp

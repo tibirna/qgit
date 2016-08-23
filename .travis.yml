@@ -1,0 +1,24 @@
+sudo: required
+dist: trusty
+language: cpp
+compiler:
+  - gcc
+  - clang
+
+env:
+  matrix:
+    - META_MAKE="cmake"
+    - META_MAKE="qmake"
+    - META_MAKE="qmake-qt4"
+
+install: # Use this to install any prerequisites or dependencies necessary to run the build
+  - sudo apt-get -qq install qt5-default libqt4-dev qt4-qmake
+
+before_script: # build
+  - mkdir build; cd build
+  - $META_MAKE ..
+  - make
+  - sudo make install
+
+script: # run tests
+  - echo "No tests yet."

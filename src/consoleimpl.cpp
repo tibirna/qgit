@@ -61,26 +61,14 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 	QMainWindow::closeEvent(ce);
 }
 
-bool ConsoleImpl::start(const QString& cmd, const QString& cmdArgs) {
+bool ConsoleImpl::start(const QString& cmd) {
 
 	statusBar()->showMessage("Executing \'" + actionName + "\' action...");
-
-	// in case of a multi-sequence, line arguments are bounded to first command only
-	QString txt = cmd.section('\n', 0, 0).trimmed();
-	QString args = cmdArgs.trimmed();
-	QString tail(cmd.section('\n', 1).trimmed());
-
-	if (!args.isEmpty())
-		txt.append(' ' + args);
-
-	if (!tail.isEmpty()) // any one-line command followed by a newline would fail
-		txt.append('\n' + tail);
-
-	textLabelCmd->setText(txt);
-	if (tail.isEmpty())
-		proc = git->runAsync(txt, this);
+	textLabelCmd->setText(cmd);
+	if (cmd.indexOf('\n') < 0)
+		proc = git->runAsync(cmd, this);
 	else
-		proc = git->runAsScript(txt.append('\n'), this); // wrap in a script
+		proc = git->runAsScript(cmd, this); // wrap multiline cmd in a script
 
 	if (proc.isNull())
 		deleteLater();

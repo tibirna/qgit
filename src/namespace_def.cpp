@@ -154,7 +154,7 @@ const QString QGit::PATCHES_NAME = "qgit_import";
 
 // git index parameters
 const QString QGit::ZERO_SHA        = "0000000000000000000000000000000000000000";
-const QString QGit::CUSTOM_SHA      = "CUSTOM";
+const QString QGit::CUSTOM_SHA      = "*** CUSTOM * CUSTOM * CUSTOM * CUSTOM **";
 const QString QGit::ALL_MERGE_FILES = "ALL_MERGE_FILES";
 
 const QByteArray QGit::ZERO_SHA_BA(QGit::ZERO_SHA.toLatin1());
@@ -165,6 +165,7 @@ const QString QGit::ORG_KEY         = "qgit";
 const QString QGit::APP_KEY         = "qgit4";
 const QString QGit::GIT_DIR_KEY     = "msysgit_exec_dir";
 const QString QGit::EXT_DIFF_KEY    = "external_diff_viewer";
+const QString QGit::EXT_EDITOR_KEY  = "external_editor";
 const QString QGit::REC_REP_KEY     = "recent_open_repos";
 const QString QGit::STD_FNT_KEY     = "standard_font";
 const QString QGit::TYPWRT_FNT_KEY  = "typewriter_font";
@@ -194,6 +195,7 @@ const QString QGit::CMT_TEMPL_DEF   = ".git/commit-template";
 const QString QGit::EX_DEF          = ".git/info/exclude";
 const QString QGit::EX_PER_DIR_DEF  = ".gitignore";
 const QString QGit::EXT_DIFF_DEF    = "kompare";
+const QString QGit::EXT_EDITOR_DEF  = "emacs";
 
 // cache file
 const QString QGit::BAK_EXT          = ".bak";

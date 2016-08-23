@@ -238,15 +238,12 @@ uint Git::checkRef(SCRef sha, uint mask) const {
 	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 
-const QStringList Git::getRefName(SCRef sha, RefType type, QString* curBranch) const {
+const QStringList Git::getRefName(SCRef sha, RefType type) const {
 
 	if (!checkRef(sha, type))
 		return QStringList();
 
 	const Reference& rf = refsShaMap[toTempSha(sha)];
-
-	if (curBranch)
-		*curBranch = rf.currentBranch;
 
 	if (type == TAG)
 		return rf.tags;
@@ -966,9 +963,20 @@ const QString Git::getNewCommitMsg() {
 		dbs("ASSERT: getNewCommitMsg zero_sha not found");
 		return "";
 	}
-
 	QString status = c->longLog();
-	status.prepend('\n').replace(QRegExp("\\n([^#])"), "\n#\\1"); // comment all the lines
+	status.prepend('\n').replace(QRegExp("\\n([^#\\n]?)"), "\n#\\1"); // comment all the lines
+
+	if (isMergeHead) {
+		QFile file(QDir(gitDir).absoluteFilePath("MERGE_MSG"));
+		if (file.open(QIODevice::ReadOnly)) {
+			QTextStream in(&file);
+
+			while(!in.atEnd())
+				status.prepend(in.readLine());
+
+			file.close();
+		}
+	}
 	return status;
 }
 
@@ -1563,28 +1571,6 @@ exit:
 	return ret;
 }
 
-bool Git::makeBranch(SCRef sha, SCRef branchName) {
-
-	return run("git branch " + branchName + " " + sha);
-}
-
-bool Git::makeTag(SCRef sha, SCRef tagName, SCRef msg) {
-
-	if (msg.isEmpty())
-		return run("git tag " + tagName + " " + sha);
-
-	return run("git tag -m \"" + msg + "\" " + tagName + " " + sha);
-}
-
-bool Git::deleteTag(SCRef sha) {
-
-	const QStringList tags(getRefName(sha, TAG));
-	if (!tags.empty())
-		return run("git tag -d " + tags.first()); // only one
-
-	return false;
-}
-
 bool Git::stgPush(SCRef sha) {
 
 	const QStringList patch(getRefName(sha, UN_APPLIED));
@@ -1651,12 +1637,15 @@ const QStringList Git::getArgs(bool* quit, bool repoChanged) {
                         args.append(arg + ' ');
                 }
         }
-        if (testFlag(RANGE_SELECT_F) && (!startup || args.isEmpty())) {
-
-                RangeSelectImpl rs((QWidget*)parent(), &args, repoChanged, this);
-                *quit = (rs.exec() == QDialog::Rejected); // modal execution
-                if (*quit)
-                        return QStringList();
+        if (!startup || args.isEmpty()) { // need to retrieve args
+                if (testFlag(RANGE_SELECT_F)) { // open range dialog
+                        RangeSelectImpl rs((QWidget*)parent(), &args, repoChanged, this);
+                        *quit = (rs.exec() == QDialog::Rejected); // modal execution
+                        if (*quit)
+                            return QStringList();
+                } else {
+                    args = RangeSelectImpl::getDefaultArgs();
+                }
         }
         startup = false;
         return MyProcess::splitArgList(args);
@@ -1737,7 +1726,7 @@ bool Git::getRefs() {
 
         // check for a merge and read current branch sha
         isMergeHead = d.exists("MERGE_HEAD");
-        QString curBranchSHA, curBranchName;
+        QString curBranchSHA;
         if (!run("git rev-parse --revs-only HEAD", &curBranchSHA))
                 return false;
 
@@ -1747,6 +1736,8 @@ bool Git::getRefs() {
         curBranchSHA = curBranchSHA.trimmed();
         curBranchName = curBranchName.prepend('\n').section("\n*", 1);
         curBranchName = curBranchName.section('\n', 0, 0).trimmed();
+        if (curBranchName.startsWith("(detached from"))
+            curBranchName = "";
 
         // read refs, normally unsorted
         QString runOutput;
@@ -1806,10 +1797,8 @@ bool Git::getRefs() {
 
                         cur->branches.append(refName.mid(11));
                         cur->type |= BRANCH;
-                        if (curBranchSHA == revSha) {
+                        if (curBranchSHA == revSha)
                                 cur->type |= CUR_BRANCH;
-                                cur->currentBranch = curBranchName;
-                        }
                 } else if (refName.startsWith("refs/remotes/") && !refName.endsWith("HEAD")) {
 
                         cur->remoteBranches.append(refName.mid(13));
