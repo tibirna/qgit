@@ -502,14 +502,16 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 	ActSaveFile->setEnabled(fileActionsEnabled);
 	ActFilterTree->setEnabled(pathActionsEnabled || ActFilterTree->isChecked());
 
-	bool isTag, isUnApplied, isApplied;
+//	bool isTag       = false;
+	bool isUnApplied = false;
+	bool isApplied   = false;
+
 	uint ref_type = 0;
-	isTag = isUnApplied = isApplied = false;
 
 	if (found) {
 		const Rev* r = git->revLookup(newRevSha);
 		ref_type = git->checkRef(newRevSha, Git::ANY_REF);
-		isTag = ref_type & Git::TAG;
+//		isTag = ref_type & Git::TAG;
 		isUnApplied = r->isUnApplied;
 		isApplied = r->isApplied;
 	}
