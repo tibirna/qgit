@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainBase</class>
  <widget class="QMainWindow" name="MainBase">
@@ -25,7 +25,16 @@
     <property name="spacing">
      <number>6</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>9</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="rightMargin">
+     <number>9</number>
+    </property>
+    <property name="bottomMargin">
      <number>9</number>
     </property>
     <item>
@@ -101,7 +110,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="Help">
@@ -808,7 +817,10 @@
   </action>
   <action name="ActCheckout">
    <property name="text">
-    <string>&amp;Checkout</string>
+    <string>&amp;Checkout...</string>
+   </property>
+   <property name="iconText">
+    <string>Checkout</string>
    </property>
    <property name="toolTip">
     <string>Checkout selected revision</string>
@@ -1493,8 +1505,8 @@
    <slot>ActMarkDiffToSha_activated()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>452</x>
-     <y>238</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>452</x>
