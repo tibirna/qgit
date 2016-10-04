@@ -2773,10 +2773,12 @@ void Git::procFinished() {
 
 void Git::procReadyRead(const QByteArray& fileChunk) {
 
+        QTextCodec* tc = QTextCodec::codecForLocale();
+
         if (filesLoadingPending.isEmpty())
-                filesLoadingPending = fileChunk;
+                filesLoadingPending = tc->toUnicode(fileChunk);
         else
-                filesLoadingPending.append(fileChunk); // add to previous half lines
+                filesLoadingPending.append(tc->toUnicode(fileChunk)); // add to previous half lines
 
         RevFile* rf = NULL;
         if (!filesLoadingCurSha.isEmpty() && revsFiles.contains(toTempSha(filesLoadingCurSha)))
