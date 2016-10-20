@@ -18,7 +18,13 @@ namespace QGit {
 class InputDialog : public QDialog
 {
 	Q_OBJECT
-	struct WidgetItem;
+	struct WidgetItem {
+		WidgetItem();
+		void init(QWidget* w, const char *name);
+		const char *prop_name; // property name
+		QWidget *widget;
+		int start, end;
+	};
 	typedef QSharedPointer<WidgetItem> WidgetItemPtr;
 	typedef QMap<QString, WidgetItemPtr> WidgetMap;
 

@@ -13,17 +13,14 @@
 
 namespace QGit {
 
-struct InputDialog::WidgetItem {
-	WidgetItem() : widget(NULL) {}
-	void init(QWidget* w, const char *name) {
-		widget = w;
-		prop_name = name;
-	}
+InputDialog::WidgetItem::WidgetItem() : widget(NULL)
+{
+}
 
-	const char *prop_name; // property name
-	QWidget *widget;
-	int start, end;
-};
+void InputDialog::WidgetItem::init(QWidget* w, const char *name) {
+	widget = w;
+	prop_name = name;
+}
 
 QString parseString(const QString &value, const InputDialog::VariableMap &vars) {
 	if (value.startsWith('$')) return vars.value(value.mid(1), QString()).toString();
