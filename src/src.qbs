@@ -28,6 +28,8 @@ Product {
     cpp.cxxFlags: {
         var cxx = [
             "-std=c++11",
+            "-Wall",
+            "-Wextra",
             "-Wno-non-virtual-dtor",
             "-Wno-long-long",
             "-pedantic",
