@@ -2080,7 +2080,8 @@ void MainImpl::ActAbout_activated() {
 	"Copyright (c) 2015 Daniel Levin &lt;dendy.ua@gmail.com&gt;<br>"
 	"Copyright (c) 2016 Luigi Toscano &lt;luigi.toscano@tiscali.it&gt;<br>"
 	"Copyright (c) 2016 Pavel Karelin &lt;hkarel@yandex.ru&gt;<br>"
-	"Copyright (c) 2016 Zane Bitter &lt;zbitter@redhat.com&gt;"
+	"Copyright (c) 2016 Zane Bitter &lt;zbitter@redhat.com&gt;<br>"
+	"Copyright (c) 2016 Robert Haschke &lt;rhaschke@techfak.uni-bielefeld.de&gt;"
     "</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
