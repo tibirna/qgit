@@ -36,7 +36,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	if (!valid || sha.isEmpty())
 		return NULL;
 
-	AnnotateHistory::const_iterator it = ah.constFind(toTempSha(sha));
+    AnnotateHistory::const_iterator it = ah.constFind(sha);
 	if (it != ah.constEnd())
 		return &(it.value());
 
@@ -44,7 +44,7 @@ const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
 	int shaIdx;
 	const QString ancestorSha = getAncestor(sha, &shaIdx);
 	if (!ancestorSha.isEmpty()) {
-		it = ah.constFind(toTempSha(ancestorSha));
+        it = ah.constFind(ancestorSha);
 		if (it != ah.constEnd())
 			return &(it.value());
 	}
@@ -188,7 +188,7 @@ void Annotate::doAnnotate(const ShaString& ss) {
 
 FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 
-	AnnotateHistory::iterator it(ah.find(toTempSha(sha)));
+    AnnotateHistory::iterator it = ah.find(sha);
 	if (it == ah.end()) {
 		dbp("ASSERT getFileAnnotation: no revision %1", sha);
 		isError = true;
@@ -353,18 +353,14 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 	if (!r)
 		return QString();
 
-	const QString diff(r->diff());
-
-	QVector<QByteArray> ba;
-	const ShaString& ss = toPersistentSha(sha, ba);
-
-	if (ah[ss].fileSha.isEmpty() && !parentNum) {
+    const QString& diff = r->diff();
+    if (ah[sha].fileSha.isEmpty() && !parentNum) {
 
 		int idx = diff.indexOf("..");
 		if (idx != -1)
-			ah[ss].fileSha = diff.mid(idx + 2, 40);
+            ah[sha].fileSha = diff.mid(idx + 2, 40);
 		else // file mode change only, same sha of parent
-			ah[ss].fileSha = ah[r->parent(0)].fileSha;
+            ah[sha].fileSha = ah[r->parent(0)].fileSha;
 	}
 	return diff;
 }
@@ -719,12 +715,10 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 	int rangeStart = paraFrom + 1;
 	int rangeEnd = paraTo + 1;
 
-	QString ancestor(sha);
-	int shaIdx;
-	QVector<QByteArray> ba;
-	const ShaString& ss = toPersistentSha(sha, ba);
-	for (shaIdx = 0; shaIdx < histRevOrder.count(); shaIdx++)
-		if (histRevOrder[shaIdx] == ss)
+    QString ancestor = sha;
+    int shaIdx;
+    for (shaIdx = 0; shaIdx < histRevOrder.count(); ++shaIdx)
+        if (histRevOrder[shaIdx] == sha)
 			break;
 
 	if (shaIdx == histRevOrder.count()) { // not in history, find an ancestor

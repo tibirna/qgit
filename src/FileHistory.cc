@@ -259,7 +259,7 @@ QVariant FileHistory::data(const QModelIndex& index, int role) const {
   if (col == QGit::AUTH_COL)
     return r->author();
 
-  if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA_RAW) {
+  if (col == QGit::TIME_COL && r->sha() != QGit::ZERO_SHA) {
 
     if (secs != 0) // secs is 0 for absolute date
       return timeDiff(secs - r->authorDate().toULong());

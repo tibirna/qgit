@@ -235,7 +235,7 @@ uint Git::checkRef(const ShaString& sha, uint mask) const {
 
 uint Git::checkRef(SCRef sha, uint mask) const {
 
-	RefMap::const_iterator it(refsShaMap.constFind(toTempSha(sha)));
+    RefMap::const_iterator it = refsShaMap.constFind(sha);
 	return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 
@@ -245,7 +245,7 @@ const QStringList Git::getRefNames(SCRef sha, uint mask) const {
 	if (!checkRef(sha, mask))
 		return result;
 
-	const Reference& rf = refsShaMap[toTempSha(sha)];
+    const Reference& rf = refsShaMap[sha];
 
 	if (mask & TAG)
 		result << rf.tags;
@@ -395,7 +395,7 @@ const QString Git::getTagMsg(SCRef sha) {
 		dbs("ASSERT in Git::getTagMsg, tag not found");
 		return "";
 	}
-	Reference& rf = refsShaMap[toTempSha(sha)];
+    Reference& rf = refsShaMap[sha];
 
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
@@ -488,13 +488,8 @@ void Git::cancelDataLoading(const FileHistory* fh) {
 
 const Rev* Git::revLookup(SCRef sha, const FileHistory* fh) const {
 
-	return revLookup(toTempSha(sha), fh);
-}
-
-const Rev* Git::revLookup(const ShaString& sha, const FileHistory* fh) const {
-
-	const RevMap& r = (fh ? fh->revs : revData->revs);
-	return (sha.latin1() ? r.value(sha) : NULL);
+    const RevMap& r = (fh ? fh->revs : revData->revs);
+    return !sha.isEmpty() ? r.value(sha) : NULL;
 }
 
 bool Git::run(SCRef runCmd, QString* runOutput, QObject* receiver, SCRef buf) {
@@ -839,10 +834,10 @@ void Git::getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status) {
 
 bool Git::isNothingToCommit() {
 
-	if (!revsFiles.contains(ZERO_SHA_RAW))
+    if (!revsFiles.contains(ZERO_SHA))
 		return true;
 
-	const RevFile* rf = revsFiles[ZERO_SHA_RAW];
+    const RevFile* rf = revsFiles[ZERO_SHA];
 	return (rf->count() == workingDirInfo.otherFiles.count());
 }
 
@@ -1103,7 +1098,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 
 		SCRef ref = reSHA.cap(0).mid(2);
 		const Rev* r = (ref.length() == 40 ? revLookup(ref) : revLookup(getRefSha(ref)));
-		if (r && r->sha() != ZERO_SHA_RAW) {
+        if (r && r->sha() != ZERO_SHA) {
 			QString slog(r->shortLog());
 			if (slog.isEmpty()) // very rare but possible
 				slog = r->sha();
@@ -1130,7 +1125,7 @@ const RevFile* Git::insertNewFiles(SCRef sha, SCRef data) {
 	parseDiffFormat(*rf, data, fl);
 	flushFileNames(fl);
 
-	revsFiles.insert(toPersistentSha(sha, revsFilesShaBackupBuf), rf);
+    revsFiles.insert(sha, rf);
 	return rf;
 }
 
@@ -1157,8 +1152,8 @@ bool Git::runDiffTreeWithRenameDetection(SCRef runCmd, QString* runOutput) {
 const RevFile* Git::getAllMergeFiles(const Rev* r) {
 
 	SCRef mySha(ALL_MERGE_FILES + r->sha());
-	if (revsFiles.contains(toTempSha(mySha)))
-		return revsFiles[toTempSha(mySha)];
+    if (revsFiles.contains(mySha))
+        return revsFiles[mySha];
 
 	EM_PROCESS_EVENTS; // 'git diff-tree' could be slow
 
@@ -1294,7 +1289,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 	shaSet.clear();
 	QString buf;
 	FOREACH (ShaVect, it, revData->revOrder)
-		if (*it != ZERO_SHA_RAW)
+        if (*it != ZERO_SHA)
 			buf.append(*it).append('\n');
 
 	if (buf.isEmpty())
@@ -1779,7 +1774,6 @@ bool Git::getRefs() {
                 return false;
 
         refsShaMap.clear();
-        shaBackupBuf.clear(); // revs are already empty now
 
         QString prevRefSha;
         QStringList patchNames, patchShas;
@@ -1803,7 +1797,7 @@ bool Git::getRefs() {
                         continue;
                 }
                 // one rev could have many tags
-                Reference* cur = lookupOrAddReference(toPersistentSha(revSha, shaBackupBuf));
+                Reference* cur = lookupOrAddReference(revSha);
 
                 if (refName.startsWith("refs/tags/")) {
 
@@ -1820,7 +1814,7 @@ bool Git::getRefs() {
 
                                 // tagObj must be removed from ref map
                                 if (!prevRefSha.isEmpty())
-                                        refsShaMap.remove(toTempSha(prevRefSha));
+                                        refsShaMap.remove(prevRefSha);
 
                         } else
                                 cur->tags.append(refName.mid(10));
@@ -1849,7 +1843,7 @@ bool Git::getRefs() {
                 parseStGitPatches(patchNames, patchShas);
 
         // mark current head (even when detached)
-        Reference* cur = lookupOrAddReference(toPersistentSha(curBranchSHA, shaBackupBuf));
+        Reference* cur = lookupOrAddReference(curBranchSHA);
         cur->type |= CUR_BRANCH;
 
         return !refsShaMap.empty();
@@ -1877,7 +1871,7 @@ void Git::parseStGitPatches(SCList patchNames, SCList patchShas) {
                             "not found in references list.", patchName);
                         continue;
                 }
-                const ShaString& ss = toPersistentSha(patchShas.at(pos), shaBackupBuf);
+                const QString& ss = patchShas.at(pos);
                 Reference* cur = lookupOrAddReference(ss);
                 cur->stgitPatch = patchName;
                 cur->type |= (applied ? APPLIED : UN_APPLIED);
@@ -1996,13 +1990,13 @@ void Git::getDiffIndex() {
         workingDirInfo.otherFiles = getOthersFiles();
 
         // now mockup a RevFile
-        revsFiles.insert(ZERO_SHA_RAW, fakeWorkDirRevFile(workingDirInfo));
+        revsFiles.insert(ZERO_SHA, fakeWorkDirRevFile(workingDirInfo));
 
         // then mockup the corresponding Rev
         SCRef log = (isNothingToCommit() ? "Nothing to commit" : "Working directory changes");
         const Rev* r = fakeWorkDirRev(head, log, status, revData->revOrder.count(), revData);
-        revData->revs.insert(ZERO_SHA_RAW, r);
-        revData->revOrder.append(ZERO_SHA_RAW);
+        revData->revs.insert(ZERO_SHA, r);
+        revData->revOrder.append(ZERO_SHA);
         revData->earlyOutputCntBase = revData->revOrder.count();
 
         // finally send it to GUI
@@ -2207,7 +2201,7 @@ void Git::stop(bool saveCache) {
 
                 cacheNeedsUpdate = false;
                 if (!filesLoadingCurSha.isEmpty()) // we are in the middle of a loading
-                        revsFiles.remove(toTempSha(filesLoadingCurSha)); // remove partial data
+                        revsFiles.remove(filesLoadingCurSha); // remove partial data
 
                 if (!revsFiles.isEmpty()) {
                         SHOW_MSG("Saving cache. Please wait...");
@@ -2223,7 +2217,7 @@ void Git::clearRevs() {
         patchesStillToFind = 0; // TODO TEST WITH FILTERING
         firstNonStGitPatch = "";
         workingDirInfo.clear();
-        revsFiles.remove(ZERO_SHA_RAW);
+        revsFiles.remove(ZERO_SHA);
 }
 
 void Git::clearFileNames() {
@@ -2234,7 +2228,6 @@ void Git::clearFileNames() {
         dirNamesMap.clear();
         dirNamesVec.clear();
         fileNamesVec.clear();
-        revsFilesShaBackupBuf.clear();
         cacheNeedsUpdate = false;
 }
 
@@ -2512,8 +2505,7 @@ void Git::loadFileCache() {
 
                 fileCacheAccessed = true;
                 QByteArray shaBuf;
-                if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec, shaBuf)) {
-                        revsFilesShaBackupBuf.append(shaBuf);
+                if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec)) {
                         populateFileNamesMap();
                 } else
                         dbs("ERROR: unable to load file names cache");
@@ -2664,10 +2656,9 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
                 int i = 0;
                 do
                         mergeSha = QString::number(++i) + " m " + sha;
-                while (r.contains(toTempSha(mergeSha)));
+                while (r.contains(mergeSha));
 
-                const ShaString& ss = toPersistentSha(mergeSha, shaBackupBuf);
-                r.insert(ss, rev);
+                r.insert(mergeSha, rev);
         } else {
                 r.insert(sha, rev);
                 fh->revOrder.append(sha);
@@ -2721,8 +2712,8 @@ bool Git::copyDiffIndex(FileHistory* fh, SCRef parent) {
 
         // insert a custom ZERO_SHA rev with proper parent
         const Rev* rf = fakeWorkDirRev(parent, "Working directory changes", "long log\n", 0, fh);
-        fh->revs.insert(ZERO_SHA_RAW, rf);
-        fh->revOrder.append(ZERO_SHA_RAW);
+        fh->revs.insert(ZERO_SHA, rf);
+        fh->revOrder.append(ZERO_SHA);
         return true;
 }
 
@@ -2730,9 +2721,7 @@ void Git::setLane(SCRef sha, FileHistory* fh) {
 
         Lanes* l = fh->lns;
         uint i = fh->firstFreeLane;
-        QVector<QByteArray> ba;
-        const ShaString& ss = toPersistentSha(sha, ba);
-        const ShaVect& shaVec(fh->revOrder);
+        const ShaVect& shaVec = fh->revOrder;
 
         for (uint cnt = shaVec.count(); i < cnt; ++i) {
 
@@ -2741,7 +2730,7 @@ void Git::setLane(SCRef sha, FileHistory* fh) {
                 if (r->lanes.count() == 0)
                         updateLanes(*r, *l, curSha);
 
-                if (curSha == ss)
+                if (curSha == sha)
                         break;
         }
         fh->firstFreeLane = ++i;
@@ -2813,8 +2802,8 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
                 filesLoadingPending.append(tc->toUnicode(fileChunk)); // add to previous half lines
 
         RevFile* rf = NULL;
-        if (!filesLoadingCurSha.isEmpty() && revsFiles.contains(toTempSha(filesLoadingCurSha)))
-                rf = const_cast<RevFile*>(revsFiles[toTempSha(filesLoadingCurSha)]);
+        if (!filesLoadingCurSha.isEmpty() && revsFiles.contains(filesLoadingCurSha))
+                rf = const_cast<RevFile*>(revsFiles[filesLoadingCurSha]);
 
         int nextEOL = filesLoadingPending.indexOf('\n');
         int lastEOL = -1;
@@ -2825,7 +2814,7 @@ void Git::procReadyRead(const QByteArray& fileChunk) {
                         SCRef sha = line.left(40);
                         if (!rf || sha != filesLoadingCurSha) { // new commit
                                 rf = new RevFile();
-                                revsFiles.insert(toPersistentSha(sha, revsFilesShaBackupBuf), rf);
+                                revsFiles.insert(sha, rf);
                                 filesLoadingCurSha = sha;
                                 cacheNeedsUpdate = true;
                         } else

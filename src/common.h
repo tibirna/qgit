@@ -11,10 +11,10 @@
 #include <QEvent>
 #include <QFont>
 #include <QHash>
-#include <QLatin1String>
 #include <QSet>
 #include <QVariant>
 #include <QVector>
+#include "defmac.h"
 
 /*
    QVariant does not support size_t type used in Qt containers, this is
@@ -24,8 +24,9 @@
    Workaround this using a function template and a specialization.
    Function _valueOf() is used by debug macros
 */
-template<typename T> inline const QString _valueOf(const T& x) { return QVariant(x).toString(); }
-template<> inline const QString _valueOf(const QStringList& x) { return x.join(" "); }
+template<typename T>
+inline const QString  _valueOf(const T& x) { return QVariant(x).toString(); }
+inline const QString  _valueOf(const QStringList& x) { return x.join(" "); }
 inline const QString& _valueOf(const QString& x) { return x; }
 inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 
@@ -107,6 +108,9 @@ namespace QGit {
 	};
 	const int COLORS_NUM = 8;
 
+    const int SHA_LENGTH = 40; // from git ref. spec.
+    const int SHA_END_LENGTH = SHA_LENGTH + 1; // an sha key + \n
+
 	// graph helpers
 	inline bool isHead(int x) { return (x == HEAD || x == HEAD_R || x == HEAD_L); }
 	inline bool isTail(int x) { return (x == TAIL || x == TAIL_R || x == TAIL_L); }
@@ -170,10 +174,6 @@ namespace QGit {
 	// patches drag and drop
 	extern const QString PATCHES_DIR;
 	extern const QString PATCHES_NAME;
-
-	// git index parameters
-	extern const QByteArray ZERO_SHA_BA;
-	extern const ShaString  ZERO_SHA_RAW;
 
 	extern const QString ZERO_SHA;
 	extern const QString CUSTOM_SHA;
@@ -239,8 +239,8 @@ namespace QGit {
 	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F;
 
 	// ShaString helpers
-	const ShaString toTempSha(const QString&); // use as argument only, see definition
-	const ShaString toPersistentSha(const QString&, QVector<QByteArray>&);
+    //const ShaString toTempSha(const QString&); // use as argument only, see definition
+    //const ShaString toPersistentSha(const QString&, QVector<QByteArray>&);
 
 	// settings helpers
 	uint flags(SCRef flagsVariable);
@@ -266,7 +266,7 @@ namespace QGit {
 
 	// cache file
 	const uint C_MAGIC  = 0xA0B0C0D0;
-	const int C_VERSION = 15;
+    const int C_VERSION = 16;
 
 	extern const QString BAK_EXT;
 	extern const QString C_DAT_FILE;
@@ -279,45 +279,38 @@ namespace QGit {
 	extern const QString SCRIPT_EXT;
 }
 
-class ShaString : public QLatin1String {
+// Class ShaString  is necessary for overloading qHash() function.
+class ShaString : public QString {
 public:
-	inline ShaString() : QLatin1String(NULL) {}
-	inline ShaString(const ShaString& sha) : QLatin1String(sha.latin1()) {}
-	inline explicit ShaString(const char* sha) : QLatin1String(sha) {}
+    ShaString() = default;
+    ShaString(const ShaString&) = default;
+    ShaString& operator= (const ShaString&) = default;
+    ShaString(const QString& s) : QString(s) {}
+    ShaString& operator= (const QString& s) {
 
-	inline bool operator!=(const ShaString& o) const { return !operator==(o); }
-	inline bool operator==(const ShaString& o) const {
-
-		return (latin1() == o.latin1()) || !qstrcmp(latin1(), o.latin1());
-	}
+        QString::operator= (s);
+        return *this;
+    }
+    bool operator== (const QString& o) const {return QString::operator== (o);}
+    bool operator!= (const QString& o) const {return !operator== (o);}
 };
 
 class Rev {
-	// prevent implicit C++ compiler defaults
-	Rev();
-	Rev(const Rev&);
-	Rev& operator=(const Rev&);
 public:
-	Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff)
-	    : orderIdx(idx), ba(b), start(s) {
+    Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff);
+    bool  isBoundary() const;
+    uint  parentsCount() const;
+    const ShaString&  parent(int idx) const;
+    const QStringList parents() const;
+    const ShaString&  sha() const;
+    const QString&    committer() const;
+    const QString&    author() const;
+    const QString&    authorDate() const;
+    const QString&    shortLog() const;
+    const QString&    longLog() const;
+    const QString&    diff() const;
 
-		indexed = isDiffCache = isApplied = isUnApplied = false;
-		descRefsMaster = ancRefsMaster = descBrnMaster = -1;
-		*next = indexData(true, withDiff);
-	}
-	bool isBoundary() const { return (ba.at(shaStart - 1) == '-'); }
-	uint parentsCount() const { return parentsCnt; }
-	const ShaString parent(int idx) const;
-	const QStringList parents() const;
-	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
-	const QString committer() const { setup(); return mid(comStart, autStart - comStart - 1); }
-	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
-	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
-	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
-	const QString longLog() const { setup(); return mid(lLogStart, lLogLen); }
-	const QString diff() const { setup(); return mid(diffStart, diffLen); }
-
-        QVector<int> lanes, children;
+    QVector<int> lanes, children;
 	QVector<int> descRefs;     // list of descendant refs index, normally tags
 	QVector<int> ancRefs;      // list of ancestor refs index, normally tags
 	QVector<int> descBranches; // list of descendant branches index
@@ -325,19 +318,32 @@ public:
 	int ancRefsMaster;  // descBranches these are stored only once in a Rev pointed
 	int descBrnMaster;  // by corresponding index xxxMaster
 	int orderIdx;
+
+    bool isDiffCache, isApplied, isUnApplied; // put here to optimize padding
+
 private:
+    DISABLE_DEFAULT_CONSTRUCT(Rev)
+
 	inline void setup() const { if (!indexed) indexData(false, false); }
 	int indexData(bool quick, bool withDiff) const;
 	const QString mid(int start, int len) const;
 	const QString midSha(int start, int len) const;
 
-	const QByteArray& ba; // reference here!
+    const QByteArray ba;
 	const int start;
 	mutable int parentsCnt, shaStart, comStart, autStart, autDateStart;
 	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
 	mutable bool indexed;
-public:
-	bool isDiffCache, isApplied, isUnApplied; // put here to optimize padding
+
+    mutable ShaString  _sha;
+    mutable ShaVect    _parentVect;
+    mutable QString    _committer;
+    mutable QString    _author;
+    mutable QString    _authorDate;
+    mutable QString    _shortLog;
+    mutable QString    _longLog;
+    mutable QString    _diff;
+
 };
 typedef QHash<ShaString, const Rev*> RevMap;  // faster then a map
 
@@ -410,8 +416,9 @@ public:
 	*/
 		return (!extStatus.isEmpty() && idx < extStatus.count() ? extStatus.at(idx) : "");
 	}
-	const RevFile& operator>>(QDataStream&) const;
-	RevFile& operator<<(QDataStream&);
+
+    friend QDataStream& operator>>(QDataStream&, RevFile&);
+    friend QDataStream& operator<<(QDataStream&, const RevFile&);
 };
 typedef QHash<ShaString, const RevFile*> RevFileMap;
 

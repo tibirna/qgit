@@ -10,157 +10,121 @@
 #include <QDataStream>
 #include <QDir>
 #include "cache.h"
+#include "break_point.h"
 
 using namespace QGit;
 
-bool Cache::save(const QString& gitDir, const RevFileMap& rf,
+bool Cache::save(const QString& gitDir, const RevFileMap& rfm,
                  const StrVect& dirs, const StrVect& files) {
 
-	if (gitDir.isEmpty() || rf.isEmpty())
-		return false;
+    //break_point
 
-	QString path(gitDir + C_DAT_FILE);
-	QString tmpPath(path + BAK_EXT);
+    if (gitDir.isEmpty() || rfm.isEmpty())
+        return false;
 
-	QDir dir;
-	if (!dir.exists(gitDir)) {
-		dbs("Git directory not found, unable to save cache");
-		return false;
-	}
-	QFile f(tmpPath);
-	if (!f.open(QIODevice::WriteOnly | QIODevice::Unbuffered))
-		return false;
+    QString path(gitDir + C_DAT_FILE);
+    QString tmpPath(path + BAK_EXT);
 
-	dbs("Saving cache. Please wait...");
+    QDir dir;
+    if (!dir.exists(gitDir)) {
+        dbs("Git directory not found, unable to save cache");
+        return false;
+    }
+    QFile f(tmpPath);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Unbuffered))
+        return false;
 
-	// compress in memory before write to file
-	QByteArray data;
-	QDataStream stream(&data, QIODevice::WriteOnly);
+    dbs("Saving cache. Please wait...");
 
-	// Write a header with a "magic number" and a version
-	stream << (quint32)C_MAGIC;
-	stream << (qint32)C_VERSION;
+    // compress in memory before write to file
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream.setVersion(QDataStream::Qt_4_8);
 
-	stream << (qint32)dirs.count();
-	for (int i = 0; i < dirs.count(); ++i)
-		stream << dirs.at(i);
+    // Write a header with a "magic number" and a version
+    stream << (quint32)C_MAGIC;
+    stream << (qint32)C_VERSION;
 
-	stream << (qint32)files.count();
-	for (int i = 0; i < files.count(); ++i)
-		stream << files.at(i);
+    stream << dirs;
+    stream << files;
 
-	// to achieve a better compression we save the sha's as
-	// one very long string instead of feeding the stream with
-	// each one. With this trick we gain a 15% size reduction
-	// in the final compressed file. The save/load speed is
-	// almost the same.
-	uint bufSize = rf.count() * 41 + 1000; // a little bit more space then required
+    StrVect shav;
+    QVector<const RevFile*> rfv;
 
-	QByteArray buf;
-	buf.reserve(bufSize);
+    FOREACH (RevFileMap, it, rfm) {
 
-	QVector<const RevFile*> v;
-	v.reserve(rf.count());
+        const ShaString& sha = it.key();
+        if (   sha.isEmpty()
+            || sha == ZERO_SHA
+            || sha == CUSTOM_SHA
+            || sha.at(0) == QChar('A')) // ALL_MERGE_FILES + rev sha
+            continue;
 
-	QVector<QByteArray> ba;
-	ShaString CUSTOM_SHA_RAW(toPersistentSha(CUSTOM_SHA, ba));
-	unsigned int newSize = 0;
+        shav.append(sha);
+        rfv.append(it.value());
+    }
+    stream << shav;
 
-	FOREACH (RevFileMap, it, rf) {
+    int rfvCount = shav.count();
+    for (int i = 0; i < rfvCount; ++i)
+        stream << *(rfv.at(i));
 
-		const ShaString& sha = it.key();
-		if (   sha == ZERO_SHA_RAW
-		    || sha == CUSTOM_SHA_RAW
-		    || sha.latin1()[0] == 'A') // ALL_MERGE_FILES + rev sha
-			continue;
+    dbs("Compressing data...");
+    f.write(qCompress(data, 1)); // no need to encode with compressed data
+    f.close();
 
-		v.append(it.value());
-		buf.append(sha.latin1()).append('\0');
-		newSize += 41;
-		if (newSize > bufSize) {
-			dbs("ASSERT in Cache::save, out of allocated space");
-			return false;
-		}
-	}
-	buf.resize(newSize);
-	stream << (qint32)newSize;
-	stream << buf;
-
-	for (int i = 0; i < v.size(); ++i)
-		*(v.at(i)) >> stream;
-
-	dbs("Compressing data...");
-	f.write(qCompress(data, 1)); // no need to encode with compressed data
-	f.close();
-
-	// rename C_DAT_FILE + BAK_EXT -> C_DAT_FILE
-	if (dir.exists(path)) {
-		if (!dir.remove(path)) {
-			dbs("access denied to " + path);
-			dir.remove(tmpPath);
-			return false;
-		}
-	}
-	dir.rename(tmpPath, path);
-	dbs("Done.");
-	return true;
+    // rename C_DAT_FILE + BAK_EXT -> C_DAT_FILE
+    if (dir.exists(path)) {
+        if (!dir.remove(path)) {
+            dbs("access denied to " + path);
+            dir.remove(tmpPath);
+            return false;
+        }
+    }
+    dir.rename(tmpPath, path);
+    dbs("Done.");
+    return true;
 }
 
-bool Cache::load(const QString& gitDir, RevFileMap& rfm,
-                 StrVect& dirs, StrVect& files, QByteArray& revsFilesShaBuf) {
+bool Cache::load(const QString& gitDir, RevFileMap& rfm, StrVect& dirs, StrVect& files) {
 
-	// check for cache file
-	QString path(gitDir + C_DAT_FILE);
-	QFile f(path);
-	if (!f.exists())
-		return true; // no cache file is not an error
+    // check for cache file
+    QString path(gitDir + C_DAT_FILE);
+    QFile f(path);
+    if (!f.exists())
+        return true; // no cache file is not an error
 
-	if (!f.open(QIODevice::ReadOnly | QIODevice::Unbuffered))
-		return false;
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Unbuffered))
+        return false;
 
-	QDataStream stream(qUncompress(f.readAll()));
-	quint32 magic;
-	qint32 version;
-	qint32 dirsNum, filesNum, bufSize;
-	stream >> magic;
-	stream >> version;
-	if (magic != C_MAGIC || version != C_VERSION) {
-		f.close();
-		return false;
-	}
-	// read the data
-	stream >> dirsNum;
-	dirs.resize(dirsNum);
-	for (int i = 0; i < dirsNum; ++i)
-		stream >> dirs[i];
+    QDataStream stream(qUncompress(f.readAll()));
+    stream.setVersion(QDataStream::Qt_4_8);
 
-	stream >> filesNum;
-	files.resize(filesNum);
-	for (int i = 0; i < filesNum; ++i)
-		stream >> files[i];
+    quint32 magic;
+    qint32 version;
+    stream >> magic;
+    stream >> version;
+    if (magic != C_MAGIC || version != C_VERSION) {
+        f.close();
+        return false;
+    }
 
-	stream >> bufSize;
-	revsFilesShaBuf.clear();
-	revsFilesShaBuf.reserve(bufSize);
-	stream >> revsFilesShaBuf;
+    //break_point
 
-	const char* data = revsFilesShaBuf.constData();
+    stream >> dirs;
+    stream >> files;
 
-	while (!stream.atEnd()) {
+    StrVect shav;
+    stream >> shav;
 
-		RevFile* rf = new RevFile();
-		*rf << stream;
+    int rfvCount = shav.count();
+    for (int i = 0; i < rfvCount; ++i)
+    {
+        RevFile* rf = new RevFile();
+        stream >> *rf;
+        rfm.insert(shav[i], rf);
+    }
+    f.close();
 
-		ShaString sha(data);
-		rfm.insert(sha, rf);
-
-		data += 40;
-		if (*data != '\0') {
-			dbp("ASSERT in Cache::load, corrupted SHA after %1", sha);
-			return false;
-		}
-		data++;
-	}
-	f.close();
-	return true;
+    return true;
 }

@@ -16,7 +16,7 @@ public:
 	static bool save(const QString& gitDir, const RevFileMap& rf,
 	                 const StrVect& dirs, const StrVect& files);
 	static bool load(const QString& gitDir, RevFileMap& rf,
-	                 StrVect& dirs, StrVect& files, QByteArray& revsFilesShaBuf);
+                     StrVect& dirs, StrVect& files);
 };
 
 #endif

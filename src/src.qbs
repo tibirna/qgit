@@ -153,7 +153,6 @@ Product {
         "treeview.h",
         "FileHistory.cc",
         "FileHistory.h",
-        "namespace_def.cpp",
         "qgit.cpp",
     ]
 

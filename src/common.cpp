@@ -9,7 +9,502 @@
 
 #include <QDataStream>
 #include <QTextDocument>
+#include <QPixmap>
+#include <QProcess>
+#include <QSettings>
+#include <QSplitter>
+#include <QTemporaryFile>
+#include <QTextStream>
+#include <QWidget>
+#include <QTextCodec>
 #include "common.h"
+#include "break_point.h"
+
+
+static inline uint hexVal(const QChar* ch) {
+
+    return ch->unicode();
+}
+
+uint qHash(const ShaString& s) {
+
+    // for debug
+    //return qHash((QString) s);
+
+    const QChar* ch = s.unicode();
+    return (hexVal(ch     ) << 24)
+         + (hexVal(ch +  2) << 20)
+         + (hexVal(ch +  4) << 16)
+         + (hexVal(ch +  6) << 12)
+         + (hexVal(ch +  8) <<  8)
+         + (hexVal(ch + 10) <<  4)
+         +  hexVal(ch + 12);
+}
+
+namespace QGit {
+
+#ifdef Q_OS_WIN32 // *********  platform dependent code ******
+
+const QString SCRIPT_EXT = ".bat";
+
+static void adjustPath(QStringList& args, bool* winShell) {
+/*
+   To run an application/script under Windows you need
+   to wrap the command line in the shell interpreter.
+   You need this also to start native commands as 'dir'.
+   An exception is if application is 'git' in that case we
+   call with absolute path to be sure to find it.
+*/
+    if (args.first() == "git" || args.first().startsWith("git-")) {
+
+        if (!GIT_DIR.isEmpty()) // application built from sources
+            args.first().prepend(GIT_DIR + '/');
+
+        if (winShell)
+            *winShell = false;
+
+    } else if (winShell) {
+        args.prepend("/c");
+        args.prepend("cmd.exe");
+        *winShell = true;
+    }
+}
+
+#elif defined(Q_OS_MACX) // MacOS X specific code
+
+#include <sys/types.h> // used by chmod()
+#include <sys/stat.h>  // used by chmod()
+
+const QString SCRIPT_EXT = ".sh";
+
+static void adjustPath(QStringList& args, bool*) {
+/*
+    Under MacOS X, git typically doesn't live in the PATH
+    So use GIT_DIR from the settings if available
+
+    Note: I (OC) think that this should be the default behaviour,
+          but I don't want to break other platforms, so I introduced
+          the MacOS X special case. Feel free to make this the default if
+          you do feel the same.
+*/
+    if (args.first() == "git" || args.first().startsWith("git-")) {
+
+        if (!GIT_DIR.isEmpty()) // application built from sources
+            args.first().prepend(GIT_DIR + '/');
+
+    }
+}
+
+#else
+
+#include <sys/types.h> // used by chmod()
+#include <sys/stat.h>  // used by chmod()
+
+const QString SCRIPT_EXT = ".sh";
+
+static void adjustPath(QStringList&, bool*) {}
+
+#endif // *********  end of platform dependent code ******
+
+/* Value returned by this function should be used only as function argument,
+ * and not stored in a variable because 'ba' value is overwritten at each
+ * call so the returned ShaString could became stale very quickly
+ */
+//const ShaString toTempSha(const QString& sha) {
+
+//    static QByteArray ba;
+//    ba = sha.toLatin1();
+//    return ShaString(sha.isEmpty() ? NULL : ba.constData());
+//}
+
+//const ShaString oPersistentSha(const QString& sha, QVector<QByteArray>& v) {
+
+//    v.append(sha.toLatin1());
+//    return ShaString(v.last().constData());
+//}
+
+// minimum git version required
+const QString GIT_VERSION = "1.5.5";
+
+// colors
+const QColor BROWN        = QColor(150, 75, 0);
+const QColor ORANGE       = QColor(255, 160, 50);
+const QColor DARK_ORANGE  = QColor(216, 144, 0);
+const QColor LIGHT_ORANGE = QColor(255, 221, 170);
+const QColor LIGHT_BLUE   = QColor(85, 255, 255);
+const QColor PURPLE       = QColor(221, 221, 255);
+const QColor DARK_GREEN   = QColor(0, 205, 0);
+
+// initialized at startup according to system wide settings
+QColor  ODD_LINE_COL;
+QColor  EVEN_LINE_COL;
+QString GIT_DIR;
+
+/*
+   Default QFont c'tor calls static method QApplication::font() that could
+   be still NOT initialized at this time, so set a dummy font family instead,
+   it will be properly changed later, at startup
+*/
+QFont STD_FONT("Helvetica");
+QFont TYPE_WRITER_FONT("Helvetica");
+
+// patches drag and drop
+const QString PATCHES_DIR  = "/.qgit_patches_copy";
+const QString PATCHES_NAME = "qgit_import";
+
+// git index parameters
+const QString ZERO_SHA        = "0000000000000000000000000000000000000000";
+const QString CUSTOM_SHA      = "*** CUSTOM * CUSTOM * CUSTOM * CUSTOM **";
+const QString ALL_MERGE_FILES = "ALL_MERGE_FILES";
+
+//const QByteArray QGit::ZERO_SHA_BA(QGit::ZERO_SHA.toLatin1());
+//const ShaString  QGit::ZERO_SHA_RAW(QGit::ZERO_SHA_BA.constData());
+
+// settings keys
+const QString ORG_KEY         = "qgit";
+const QString APP_KEY         = "qgit4";
+const QString GIT_DIR_KEY     = "msysgit_exec_dir";
+const QString EXT_DIFF_KEY    = "external_diff_viewer";
+const QString EXT_EDITOR_KEY  = "external_editor";
+const QString REC_REP_KEY     = "recent_open_repos";
+const QString STD_FNT_KEY     = "standard_font";
+const QString TYPWRT_FNT_KEY  = "typewriter_font";
+const QString FLAGS_KEY       = "flags";
+const QString PATCH_DIR_KEY   = "Patch/last_dir";
+const QString FMT_P_OPT_KEY   = "Patch/args";
+const QString AM_P_OPT_KEY    = "Patch/args_2";
+const QString EX_KEY          = "Working_dir/exclude_file_path";
+const QString EX_PER_DIR_KEY  = "Working_dir/exclude_per_directory_file_name";
+const QString CON_GEOM_KEY    = "Console/geometry";
+const QString CMT_GEOM_KEY    = "Commit/geometry";
+const QString MAIN_GEOM_KEY   = "Top_window/geometry";
+const QString REV_GEOM_KEY    = "Rev_List_view/geometry";
+const QString CMT_TEMPL_KEY   = "Commit/template_file_path";
+const QString CMT_ARGS_KEY    = "Commit/args";
+const QString RANGE_FROM_KEY  = "RangeSelect/from";
+const QString RANGE_TO_KEY    = "RangeSelect/to";
+const QString RANGE_OPT_KEY   = "RangeSelect/options";
+const QString ACT_GEOM_KEY    = "Custom_actions/geometry";
+const QString ACT_LIST_KEY    = "Custom_actions/list";
+const QString ACT_GROUP_KEY   = "Custom_action_list/";
+const QString ACT_TEXT_KEY    = "/commands";
+const QString ACT_FLAGS_KEY   = "/flags";
+
+// settings default values
+const QString CMT_TEMPL_DEF   = ".git/commit-template";
+const QString EX_DEF          = ".git/info/exclude";
+const QString EX_PER_DIR_DEF  = ".gitignore";
+const QString EXT_DIFF_DEF    = "kompare";
+const QString EXT_EDITOR_DEF  = "emacs";
+
+// cache file
+const QString BAK_EXT          = ".bak";
+const QString C_DAT_FILE       = "/qgit_cache.dat";
+
+// misc
+const QString QUOTE_CHAR = "$";
+
+// settings helpers
+uint flags(SCRef flagsVariable) {
+
+    QSettings settings;
+    return settings.value(flagsVariable, FLAGS_DEF).toUInt();
+}
+
+bool testFlag(uint f, SCRef flagsVariable) {
+
+    return (flags(flagsVariable) & f);
+}
+
+void setFlag(uint f, bool b, SCRef flagsVariable) {
+
+    QSettings settings;
+    uint flags = settings.value(flagsVariable, FLAGS_DEF).toUInt();
+    flags = b ? flags | f : flags & ~f;
+    settings.setValue(flagsVariable, flags);
+}
+
+// tree view icons helpers
+static QHash<QString, const QPixmap*> mimePixMap;
+
+void initMimePix() {
+
+    if (!mimePixMap.empty()) // only once
+        return;
+
+    QPixmap* pm = new QPixmap(QString::fromUtf8(":/icons/resources/folder.png"));
+    mimePixMap.insert("#folder_closed", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/folder_open.png"));
+    mimePixMap.insert("#folder_open", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/misc.png"));
+    mimePixMap.insert("#default", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_c.png"));
+    mimePixMap.insert("c", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_cpp.png"));
+    mimePixMap.insert("cpp", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_h.png"));
+    mimePixMap.insert("h", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("hpp", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/txt.png"));
+    mimePixMap.insert("txt", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/shellscript.png"));
+    mimePixMap.insert("sh", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_pl.png"));
+    mimePixMap.insert("perl", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("pl", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_py.png"));
+    mimePixMap.insert("py", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/source_java.png"));
+    mimePixMap.insert("java", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("jar", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/tar.png"));
+    mimePixMap.insert("tar", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("gz", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("tgz", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("zip", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("bz", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("bz2", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/html.png"));
+    mimePixMap.insert("html", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("xml", pm);
+    pm = new QPixmap(QString::fromUtf8(":/icons/resources/image.png"));
+    mimePixMap.insert("bmp", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("gif", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("jpg", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("jpeg", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("png", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("pbm", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("pgm", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("ppm", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("svg", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("tiff", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("xbm", pm);
+    pm = new QPixmap(*pm);
+    mimePixMap.insert("xpm", pm);
+}
+
+void freeMimePix() {
+
+    qDeleteAll(mimePixMap);
+}
+
+const QPixmap* mimePix(SCRef fileName) {
+
+    SCRef ext = fileName.section('.', -1, -1).toLower();
+    if (mimePixMap.contains(ext))
+        return mimePixMap.value(ext);
+
+    return mimePixMap.value("#default");
+}
+
+// geometry settings helers
+void saveGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
+
+    QSettings settings;
+    if (w && w->isVisible())
+        settings.setValue(name + "_window", w->saveGeometry());
+
+    if (!svPtr)
+        return;
+
+    int cnt = 0;
+    FOREACH (splitVect, it, *svPtr) {
+
+        cnt++;
+        if ((*it)->sizes().contains(0))
+            continue;
+
+        QString nm(name + "_splitter_" + QString::number(cnt));
+        settings.setValue(nm, (*it)->saveState());
+    }
+}
+
+void restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
+
+    QSettings settings;
+    QString nm;
+    if (w) {
+        nm = name + "_window";
+        QVariant v = settings.value(nm);
+        if (v.isValid())
+            w->restoreGeometry(v.toByteArray());
+    }
+    if (!svPtr)
+        return;
+
+    int cnt = 0;
+    FOREACH (splitVect, it, *svPtr) {
+
+        cnt++;
+        nm = name + "_splitter_" + QString::number(cnt);
+        QVariant v = settings.value(nm);
+        if (!v.isValid())
+            continue;
+
+        (*it)->restoreState(v.toByteArray());
+    }
+}
+
+// misc helpers
+bool stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
+
+    QTextCodec* tc = QTextCodec::codecForLocale();
+
+    if (ba.endsWith('\n')) { // optimize common case
+        *dst = tc->toUnicode(ba);
+
+        // handle rare case of a '\0' inside content
+        while (dst->size() < ba.size() && ba.at(dst->size()) == '\0') {
+            QString s = tc->toUnicode(ba.mid(dst->size() + 1)); // sizes should match
+            dst->append(" ").append(s);
+        }
+
+        dst->truncate(dst->size() - 1); // strip trailing '\n'
+        if (!prev->isEmpty()) {
+            dst->prepend(*prev);
+            prev->clear();
+        }
+        return true;
+    }
+    QString src = tc->toUnicode(ba);
+    // handle rare case of a '\0' inside content
+    while (src.size() < ba.size() && ba.at(src.size()) == '\0') {
+        QString s = tc->toUnicode(ba.mid(src.size() + 1));
+        src.append(" ").append(s);
+    }
+
+    int idx = src.lastIndexOf('\n');
+    if (idx == -1) {
+        prev->append(src);
+        dst->clear();
+        return false;
+    }
+    *dst = src.left(idx).prepend(*prev); // strip trailing '\n'
+    *prev = src.mid(idx + 1); // src[idx] is '\n', skip it
+    return true;
+}
+
+bool writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        dbp("ERROR: unable to write file %1", fileName);
+        return false;
+    }
+    QString data2(data);
+    QTextStream stream(&file);
+
+#ifdef Q_OS_WIN32
+    data2.replace("\r\n", "\n"); // change windows CRLF to linux
+    data2.replace("\n", "\r\n"); // then change all linux CRLF to windows
+#endif
+    stream << data2;
+    file.close();
+
+#ifndef Q_OS_WIN32
+    if (setExecutable)
+        chmod(fileName.toLatin1().constData(), 0755);
+#endif
+    return true;
+}
+
+bool writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable) {
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        dbp("ERROR: unable to write file %1", fileName);
+        return false;
+    }
+    QDataStream stream(&file);
+    stream.writeRawData(data.constData(), data.size());
+    file.close();
+
+#ifndef Q_OS_WIN32
+    if (setExecutable)
+        chmod(fileName.toLatin1().constData(), 0755);
+#endif
+    return true;
+}
+
+bool readFromFile(SCRef fileName, QString& data) {
+
+    data = "";
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        dbp("ERROR: unable to read file %1", fileName);
+        return false;
+    }
+    QTextStream stream(&file);
+    data = stream.readAll();
+    file.close();
+    return true;
+}
+
+bool startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) {
+
+    if (!proc || args.isEmpty())
+        return false;
+
+    QStringList arguments(args);
+    adjustPath(arguments, winShell);
+
+    QString prog(arguments.first());
+    arguments.removeFirst();
+    if (!buf.isEmpty()) {
+    /*
+       On Windows buffer size of QProcess's standard input
+       pipe is quite limited and a crash can occur in case
+       a big chunk of data is written to process stdin.
+       As a workaround we use a temporary file to store data.
+       Process stdin will be redirected to this file
+    */
+        QTemporaryFile* bufFile = new QTemporaryFile(proc);
+        bufFile->open();
+        QTextStream stream(bufFile);
+        stream << buf;
+        proc->setStandardInputFile(bufFile->fileName());
+        bufFile->close();
+    }
+    QStringList env = QProcess::systemEnvironment();
+    env << "GIT_TRACE=0"; // avoid choking on debug traces
+    env << "GIT_FLUSH=0"; // skip the fflush() in 'git log'
+    proc->setEnvironment(env);
+
+    proc->start(prog, arguments); // TODO test QIODevice::Unbuffered
+    return proc->waitForStarted();
+}
+
+} // namespace QGit
+
+
+//---------------------------------- Rev ------------------------------------
+
+Rev::Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff)
+    : orderIdx(idx), ba(b), start(s) {
+
+    indexed = isDiffCache = isApplied = isUnApplied = false;
+    descRefsMaster = ancRefsMaster = descBrnMaster = -1;
+    *next = indexData(true, withDiff);
+}
 
 const QString Rev::mid(int start, int len) const {
 
@@ -25,21 +520,131 @@ const QString Rev::midSha(int start, int len) const {
         return QString::fromLatin1(data + start, len); // faster then formAscii
 }
 
-const ShaString Rev::parent(int idx) const {
+//const ShaString Rev::parent(int idx) const {
 
-        return ShaString(ba.constData() + shaStart + 41 + 41 * idx);
+//        return ShaString(ba.constData() + shaStart + 41 + 41 * idx);
+//}
+
+//const QStringList Rev::parents() const {
+
+//        QStringList p;
+//        int idx = shaStart + 41;
+
+//        for (int i = 0; i < parentsCnt; i++) {
+//                p.append(midSha(idx, 40));
+//                idx += 41;
+//        }
+//        return p;
+//}
+
+//	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
+//	const QString committer() const { setup(); return mid(comStart, autStart - comStart - 1); }
+//	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
+//	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
+//	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
+//	const QString longLog() const { setup(); return mid(lLogStart, lLogLen); }
+//	const QString diff() const { setup(); return mid(diffStart, diffLen); }
+
+
+const ShaString& Rev::sha() const {
+
+    if (_sha.isNull()) {
+        //break_point
+        //_sha = mid(shaStart, QGit::SHA_LENGTH);
+        _sha = QString::fromLatin1(ba.constData() + shaStart, QGit::SHA_LENGTH);
+    }
+    return _sha;
+}
+
+bool Rev::isBoundary() const {
+
+    return (ba.at(shaStart - 1) == '-');
+}
+
+uint Rev::parentsCount() const {
+
+    return parentsCnt;
+}
+
+const ShaString& Rev::parent(int idx) const {
+
+    if (_parentVect.at(idx).isNull()) {
+        //break_point
+        //_parentVect[idx] = mid(shaStart + QGit::SHA_END_LENGTH + QGit::SHA_END_LENGTH * idx, QGit::SHA_LENGTH);
+        const char* shift = ba.constData() + shaStart + 41 + 41 * idx;
+        _parentVect[idx] = QString::fromLatin1(shift, QGit::SHA_LENGTH);
+    }
+    return _parentVect.at(idx);
 }
 
 const QStringList Rev::parents() const {
 
-        QStringList p;
-        int idx = shaStart + 41;
+    QStringList p;
 
-        for (int i = 0; i < parentsCnt; i++) {
-                p.append(midSha(idx, 40));
-                idx += 41;
-        }
-        return p;
+//    int idx = shaStart + 41;
+//    for (int i = 0; i < parentsCnt; i++) {
+//        p.append(midSha(idx, 40));
+//        idx += 41;
+//    }
+
+    for (int i = 0; i < parentsCnt; i++)
+        p.append(parent(i));
+
+    return p;
+}
+
+const QString& Rev::committer() const {
+
+    if (_committer.isNull()) {
+        setup();
+        _committer = mid(comStart, autStart - comStart - 1);
+    }
+    return _committer;
+}
+
+const QString& Rev::author() const {
+
+    if (_author.isNull()) {
+        setup();
+        _author = mid(autStart, autDateStart - autStart - 1);
+    }
+    return _author;
+}
+
+const QString& Rev::authorDate() const {
+
+    if (_authorDate.isNull()) {
+        setup();
+        _authorDate = mid(autDateStart, 10);
+    }
+    return _authorDate;
+}
+
+const QString& Rev::shortLog() const {
+
+    if (_shortLog.isNull()) {
+        setup();
+        _shortLog = mid(sLogStart, sLogLen);
+    }
+    return _shortLog;
+}
+
+const QString& Rev::longLog() const {
+
+    if (_longLog.isNull()) {
+        setup();
+        _longLog = mid(lLogStart, lLogLen);
+    }
+    return _longLog;
+}
+
+const QString& Rev::diff() const {
+
+    if (_diff.isNull()) {
+        setup();
+        _diff = mid(diffStart, diffLen);
+    }
+    return _diff;
 }
 
 int Rev::indexData(bool quick, bool withDiff) const {
@@ -60,9 +665,9 @@ int Rev::indexData(bool quick, bool withDiff) const {
         - a terminating '\0'
 */
     static int error = -1;
-    static int shaLength = 40; // from git ref. spec.
-    static int shaEndlLength = shaLength + 1; // an sha key + \n
-    static int shaXEndlLength = shaLength + 2; // an sha key + X marker + \n
+    //static int shaLength = 40; // from git ref. spec.
+    //static int shaEndlLength = shaLength + 1; // an sha key + \n
+    static int shaXEndlLength = QGit::SHA_LENGTH + 2; // an sha key + X marker + \n
     static char finalOutputMarker = 'F'; // marks the beginning of "Final output" string
     static char logSizeMarker = 'l'; // marks the beginning of "log size" string
     static int logSizeStrLength = 9; // "log size"
@@ -102,7 +707,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
     if (logEnd > last)
         return error;
 
-    idx += shaLength; // now points to 'X' place holder
+    idx += QGit::SHA_LENGTH; // now points to 'X' place holder
 
     fixup[idx] = '\0'; // we want sha to be a '\0' terminated ascii string
 
@@ -112,7 +717,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
         ++idx;
     else do {
         parentsCnt++;
-        idx += shaEndlLength;
+        idx += QGit::SHA_END_LENGTH;
 
         if (idx + 1 >= last)
             break;
@@ -120,6 +725,8 @@ int Rev::indexData(bool quick, bool withDiff) const {
         fixup[idx] = '\0'; // we want parents '\0' terminated
 
     } while (data[idx + 1] != '\n');
+
+    _parentVect.resize(parentsCnt);
 
     ++idx; // now points to the trailing '\n' of sha line
 
@@ -211,57 +818,54 @@ int Rev::indexData(bool quick, bool withDiff) const {
 /**
  * RevFile streaming out
  */
-const RevFile& RevFile::operator>>(QDataStream& stream) const {
+QDataStream& operator<<(QDataStream& stream, const RevFile& rf) {
 
-        stream << pathsIdx;
+    stream << rf.pathsIdx;
 
-        // skip common case of only modified files
-        bool isEmpty = onlyModified;
-        stream << (quint32)isEmpty;
-        if (!isEmpty)
-                stream << status;
+    // skip common case of only modified files
+    bool isEmpty = rf.onlyModified;
+    stream << isEmpty;
+    if (!isEmpty)
+        stream << rf.status;
 
-        // skip common case of just one parent
-        isEmpty = (mergeParent.isEmpty() || mergeParent.last() == 1);
-        stream << (quint32)isEmpty;
-        if (!isEmpty)
-                stream << mergeParent;
+    // skip common case of just one parent
+    isEmpty = (rf.mergeParent.isEmpty() || rf.mergeParent.last() == 1);
+    stream << isEmpty;
+    if (!isEmpty)
+        stream << rf.mergeParent;
 
-        // skip common case of no rename/copies
-        isEmpty = extStatus.isEmpty();
-        stream << (quint32)isEmpty;
-        if (!isEmpty)
-                stream << extStatus;
+    // skip common case of no rename/copies
+    isEmpty = rf.extStatus.isEmpty();
+    stream << isEmpty;
+    if (!isEmpty)
+        stream << rf.extStatus;
 
-        return *this;
+    return stream;
 }
 
 /**
  * RevFile streaming in
  */
-RevFile& RevFile::operator<<(QDataStream& stream) {
+QDataStream& operator>>(QDataStream& stream, RevFile& rf) {
 
-        stream >> pathsIdx;
+    stream >> rf.pathsIdx;
 
-        bool isEmpty;
-        quint32 tmp;
+    bool isEmpty;
 
-        stream >> tmp;
-        onlyModified = (bool)tmp;
-        if (!onlyModified)
-                stream >> status;
+    stream >> isEmpty;
+    rf.onlyModified = isEmpty;
+    if (!rf.onlyModified)
+        stream >> rf.status;
 
-        stream >> tmp;
-        isEmpty = (bool)tmp;
-        if (!isEmpty)
-                stream >> mergeParent;
+    stream >> isEmpty;
+    if (!isEmpty)
+        stream >> rf.mergeParent;
 
-        stream >> tmp;
-        isEmpty = (bool)tmp;
-        if (!isEmpty)
-                stream >> extStatus;
+    stream >> isEmpty;
+    if (!isEmpty)
+        stream >> rf.extStatus;
 
-        return *this;
+    return stream;
 }
 
 QString qt4and5escaping(QString toescape) {
