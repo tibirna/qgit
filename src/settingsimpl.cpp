@@ -57,14 +57,14 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxMsgOnNewSHA->setChecked(f & MSG_ON_NEW_F);
 
 	QSettings set;
-	SCRef APOpt(set.value(AM_P_OPT_KEY).toString());
-	SCRef FPOpt(set.value(FMT_P_OPT_KEY).toString());
-	SCRef extDiff(set.value(EXT_DIFF_KEY, EXT_DIFF_DEF).toString());
-	SCRef extEditor(set.value(EXT_EDITOR_KEY, EXT_EDITOR_DEF).toString());
-	SCRef exFile(set.value(EX_KEY, EX_DEF).toString());
-	SCRef exPDir(set.value(EX_PER_DIR_KEY, EX_PER_DIR_DEF).toString());
-	SCRef tmplt(set.value(CMT_TEMPL_KEY, CMT_TEMPL_DEF).toString());
-	SCRef CMArgs(set.value(CMT_ARGS_KEY).toString());
+	const QString& APOpt(set.value(AM_P_OPT_KEY).toString());
+	const QString& FPOpt(set.value(FMT_P_OPT_KEY).toString());
+	const QString& extDiff(set.value(EXT_DIFF_KEY, EXT_DIFF_DEF).toString());
+	const QString& extEditor(set.value(EXT_EDITOR_KEY, EXT_EDITOR_DEF).toString());
+	const QString& exFile(set.value(EX_KEY, EX_DEF).toString());
+	const QString& exPDir(set.value(EX_PER_DIR_KEY, EX_PER_DIR_DEF).toString());
+	const QString& tmplt(set.value(CMT_TEMPL_KEY, CMT_TEMPL_DEF).toString());
+	const QString& CMArgs(set.value(CMT_ARGS_KEY).toString());
 
 	lineEditApplyPatchExtraOptions->setText(APOpt);
 	lineEditFormatPatchExtraOptions->setText(FPOpt);

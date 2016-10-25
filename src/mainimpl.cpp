@@ -46,7 +46,7 @@
 
 using namespace QGit;
 
-MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
+MainImpl::MainImpl(const QString& cd, QWidget* p) : QMainWindow(p) {
 
 	EM_INIT(exExiting, "Exiting");
 
@@ -203,7 +203,7 @@ void MainImpl::saveCurrentGeometry() {
 	QGit::saveGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
 }
 
-void MainImpl::highlightAbbrevSha(SCRef abbrevSha) {
+void MainImpl::highlightAbbrevSha(const QString& abbrevSha) {
 	// reset any previous highlight
 	if (ActSearchAndHighlight->isChecked())
 		ActSearchAndHighlight->toggle();
@@ -380,7 +380,7 @@ QStringList MainImpl::getExternalEditorArgs() {
 }
 // ********************** Repository open or changed *************************
 
-void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
+void MainImpl::setRepository(const QString& newDir, bool refresh, bool keepSelection,
                              const QStringList* passedArgs, bool overwriteArgs) {
 
 	/*
@@ -493,7 +493,7 @@ const QString REV_TAGS("REV_TAGS");
 const QString CURRENT_BRANCH("CURRENT_BRANCH");
 const QString SELECTED_NAME("SELECTED_NAME");
 
-void MainImpl::updateRevVariables(SCRef sha) {
+void MainImpl::updateRevVariables(const QString& sha) {
 	QMap<QString, QVariant> &v = revision_variables;
 	v.clear();
 
@@ -510,7 +510,7 @@ void MainImpl::updateRevVariables(SCRef sha) {
 	v.insert(SELECTED_NAME, lv->selectedRefName());
 }
 
-void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
+void MainImpl::updateContextActions(const QString& newRevSha, const QString& newFileName,
                                     bool isDir, bool found) {
 
 	bool pathActionsEnabled = !newFileName.isEmpty();
@@ -738,7 +738,7 @@ void MainImpl::applyRevisions(SCList remoteRevs, SCRef remoteRepo) {
 			       "in %s", dr.count(), qPrintable(dr.absolutePath()));
 			break;
 		}
-		SCRef fn(dr.absoluteFilePath(dr[0]));
+		const QString& fn(dr.absoluteFilePath(dr[0]));
 		bool is_applied = git->applyPatchFile(fn, fold, Git::optDragDrop);
 		dr.remove(fn);
 		if (!is_applied) {
@@ -891,7 +891,7 @@ void MainImpl::filterList(bool isOn, bool onlyHighlight) {
 	lineEditFilter->setEnabled(!isOn);
 	cmbSearch->setEnabled(!isOn);
 
-	SCRef filter(lineEditFilter->text());
+	const QString& filter(lineEditFilter->text());
 	if (filter.isEmpty())
 		return;
 
@@ -964,7 +964,7 @@ bool MainImpl::event(QEvent* e) {
 	if (!de)
 		return QWidget::event(e);
 
-	SCRef data = de->myData();
+	const QString& data = de->myData();
 	bool ret = true;
 
         switch ((EventType)e->type()) {
@@ -1254,7 +1254,7 @@ void MainImpl::updateCommitMenu(bool isStGITStack) {
 	ActAmend->setText(isStGITStack ? "Refresh St&GIT patch..." : "&Amend commit...");
 }
 
-void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
+void MainImpl::updateRecentRepoMenu(const QString& newEntry) {
 
 	// update menu of all windows
 	foreach (QWidget* widget, QApplication::topLevelWidgets()) {
@@ -1265,7 +1265,7 @@ void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
 	}
 }
 
-void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
+void MainImpl::doUpdateRecentRepoMenu(const QString& newEntry) {
 
 	QList<QAction*> al(File->actions());
 	FOREACH (QList<QAction*>, it, al) {
@@ -1312,7 +1312,7 @@ static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar 
 	}
 }
 
-void MainImpl::doContexPopup(SCRef sha) {
+void MainImpl::doContexPopup(const QString& sha) {
 
 	QMenu contextMenu(this);
 	QMenu contextBrnMenu("Branches...", this);
@@ -1393,7 +1393,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 	revision_variables.remove(SELECTED_NAME);
 }
 
-void MainImpl::doFileContexPopup(SCRef fileName, int type) {
+void MainImpl::doFileContexPopup(const QString& fileName, int type) {
 
 	QMenu contextMenu(this);
 
@@ -1437,7 +1437,7 @@ void MainImpl::goRef_triggered(QAction* act) {
 	if (!act || act->data() != "Ref")
 		return;
 
-	SCRef refSha(git->getRefSha(act->iconText()));
+	const QString& refSha(git->getRefSha(act->iconText()));
 	rv->st.setSha(refSha);
 	UPDATE_DOMAIN(rv);
 }
@@ -1477,7 +1477,7 @@ void MainImpl::ActToggleLogsDiff_activated() {
 	}
 }
 
-const QString MainImpl::getRevisionDesc(SCRef sha) {
+const QString MainImpl::getRevisionDesc(const QString& sha) {
 
 	bool showHeader = ActShowDescHeader->isChecked();
 	return git->getDesc(sha, shortLogRE, longLogRE, showHeader, NULL);
@@ -1699,7 +1699,7 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 
 void MainImpl::customAction_triggered(QAction* act) {
 
-	QString actionName = act->text();
+	const QString& actionName = act->text();
 	if (actionName == "Setup actions...")
 		return;
 
@@ -1829,7 +1829,7 @@ void MainImpl::ActCheckout_activated()
 
 		QString branch = dlg.value(branchKey).toString();
 		if (!branch.isEmpty()) {
-			SCRef refsha = git->getRefSha(branch, Git::BRANCH, true);
+			const QString& refsha = git->getRefSha(branch, Git::BRANCH, true);
 			if (refsha == sha)
 				rev = branch; // checkout existing branch, even if name wasn't directly selected
 			else if (!refsha.isEmpty()) {
@@ -2021,7 +2021,7 @@ void MainImpl::ActPush_activated() {
 		const QString tmp(QString("Pushing patch %1 of %2")
 		                  .arg(i+1).arg(selectedItems.count()));
 		statusBar()->showMessage(tmp);
-		SCRef sha = selectedItems[selectedItems.count() - i - 1];
+		const QString& sha = selectedItems[selectedItems.count() - i - 1];
 		if (!git->stgPush(sha)) {
 			statusBar()->showMessage("Failed to push patch " + sha);
 			ok = false;

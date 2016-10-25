@@ -22,9 +22,9 @@ public:
 	FileView(MainImpl* m, Git* git);
 	~FileView();
 	virtual void clear(bool complete = true);
-	void append(SCRef data);
+	void append(const QString& data);
 	void historyReady();
-	void updateHistViewer(SCRef revSha, SCRef fileName, bool fromUpstream = true);
+	void updateHistViewer(const QString& revSha, const QString& fileName, bool fromUpstream = true);
 	void eof();
 	Ui_TabFile* tab() { return fileTab; }
 
@@ -45,7 +45,7 @@ public slots:
 
 protected:
 	virtual bool doUpdate(bool force);
-	virtual bool isMatch(SCRef sha);
+	virtual bool isMatch(const QString& sha);
 	virtual bool eventFilter(QObject *obj, QEvent *e);
 
 private:

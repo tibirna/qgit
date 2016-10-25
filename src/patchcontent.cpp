@@ -159,7 +159,7 @@ int PatchContent::topToLineNum() {
 	return cursorForPosition(QPoint(1, 1)).blockNumber();
 }
 
-bool PatchContent::centerTarget(SCRef target) {
+bool PatchContent::centerTarget(const QString& target) {
 
 	moveCursor(QTextCursor::Start);
 
@@ -316,7 +316,7 @@ void PatchContent::procFinished() {
 	}
 }
 
-int PatchContent::doSearch(SCRef txt, int pos) {
+int PatchContent::doSearch(const QString& txt, int pos) {
 
 	if (isRegExp)
 		return txt.indexOf(pickAxeRE, pos);
@@ -330,7 +330,7 @@ bool PatchContent::computeMatches() {
 	if (pickAxeRE.isEmpty())
 		return false;
 
-	SCRef txt = toPlainText();
+	const QString& txt = toPlainText();
 	int pos, lastPos = 0, lastPara = 0;
 
 	// must be at the end to catch patterns across more the one chunk

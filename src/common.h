@@ -7,14 +7,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <QColor>
-#include <QEvent>
-#include <QFont>
-#include <QHash>
-#include <QSet>
-#include <QVariant>
-#include <QVector>
 #include "defmac.h"
+#include "common_types.h"
+#include <QSplitter>
 
 /*
    QVariant does not support size_t type used in Qt containers, this is
@@ -47,20 +42,6 @@ inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
                                  _e##i##_((c).constEnd()); i != _e##i##_; ++i)
 
 #define FOREACH_SL(i, c)    FOREACH(QStringList, i, c)
-
-class QDataStream;
-class QProcess;
-class QSplitter;
-class QWidget;
-class ShaString;
-
-// type shortcuts
-typedef const QString&              SCRef;
-typedef QStringList&                SList;
-typedef const QStringList&          SCList;
-typedef QVector<QString>            StrVect;
-typedef QVector<ShaString>          ShaVect;
-typedef QSet<QString>               ShaSet;
 
 uint qHash(const ShaString&); // optimized custom hash for sha strings
 
@@ -243,26 +224,26 @@ namespace QGit {
     //const ShaString toPersistentSha(const QString&, QVector<QByteArray>&);
 
 	// settings helpers
-	uint flags(SCRef flagsVariable);
-	bool testFlag(uint f, SCRef fv = FLAGS_KEY);
-	void setFlag(uint f, bool b, SCRef fv = FLAGS_KEY);
+    uint flags(const QString& flagsVariable);
+    bool testFlag(uint f, const QString& fv = FLAGS_KEY);
+    void setFlag(uint f, bool b, const QString& fv = FLAGS_KEY);
 
 	// tree view icons helpers
 	void initMimePix();
 	void freeMimePix();
-	const QPixmap* mimePix(SCRef fileName);
+    const QPixmap* mimePix(const QString& fileName);
 
 	// geometry settings helers
 	typedef QVector<QSplitter*> splitVect;
-	void saveGeometrySetting(SCRef name, QWidget* w = NULL, splitVect* svPtr = NULL);
-	void restoreGeometrySetting(SCRef name, QWidget* w = NULL, splitVect* svPtr = NULL);
+    void saveGeometrySetting(const QString& name, QWidget* w = NULL, splitVect* svPtr = NULL);
+    void restoreGeometrySetting(const QString& name, QWidget* w = NULL, splitVect* svPtr = NULL);
 
 	// misc helpers
 	bool stripPartialParaghraps(const QByteArray& src, QString* dst, QString* prev);
-	bool writeToFile(SCRef fileName, SCRef data, bool setExecutable = false);
-	bool writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable = false);
-	bool readFromFile(SCRef fileName, QString& data);
-	bool startProcess(QProcess* proc, SCList args, SCRef buf = "", bool* winShell = NULL);
+    bool writeToFile(const QString& fileName, const QString& data, bool setExecutable = false);
+    bool writeToFile(const QString& fileName, const QByteArray& data, bool setExecutable = false);
+    bool readFromFile(const QString& fileName, QString& data);
+    bool startProcess(QProcess* proc, const QStringList& args, const QString& buf = "", bool* winShell = NULL);
 
 	// cache file
 	const uint C_MAGIC  = 0xA0B0C0D0;
@@ -279,21 +260,6 @@ namespace QGit {
 	extern const QString SCRIPT_EXT;
 }
 
-// Class ShaString  is necessary for overloading qHash() function.
-class ShaString : public QString {
-public:
-    ShaString() = default;
-    ShaString(const ShaString&) = default;
-    ShaString& operator= (const ShaString&) = default;
-    ShaString(const QString& s) : QString(s) {}
-    ShaString& operator= (const QString& s) {
-
-        QString::operator= (s);
-        return *this;
-    }
-    bool operator== (const QString& o) const {return QString::operator== (o);}
-    bool operator!= (const QString& o) const {return !operator== (o);}
-};
 
 class Rev {
 public:
@@ -437,26 +403,26 @@ typedef QHash<ShaString, FileAnnotation> AnnotateHistory;
 
 class BaseEvent: public QEvent {
 public:
-	BaseEvent(SCRef d, int id) : QEvent((QEvent::Type)id), payLoad(d) {}
+    BaseEvent(const QString& d, int id) : QEvent((QEvent::Type)id), payLoad(d) {}
 	const QString myData() const { return payLoad; }
 private:
 	const QString payLoad; // passed by copy
 };
 
 #define DEF_EVENT(X, T) class X : public BaseEvent { public:        \
-                        explicit X (SCRef d) : BaseEvent(d, T) {} }
+                        explicit X (const QString& d) : BaseEvent(d, T) {} }
 
 DEF_EVENT(MessageEvent, QGit::MSG_EV);
 DEF_EVENT(AnnotateProgressEvent, QGit::ANN_PRG_EV);
 
 class DeferredPopupEvent : public BaseEvent {
 public:
-	DeferredPopupEvent(SCRef msg, int type) : BaseEvent(msg, type) {}
+    DeferredPopupEvent(const QString& msg, int type) : BaseEvent(msg, type) {}
 };
 
 class MainExecErrorEvent : public BaseEvent {
 public:
-	MainExecErrorEvent(SCRef c, SCRef e) : BaseEvent("", QGit::ERROR_EV), cmd(c), err(e) {}
+    MainExecErrorEvent(const QString& c, const QString& e) : BaseEvent("", QGit::ERROR_EV), cmd(c), err(e) {}
 	const QString command() const { return cmd; }
 	const QString report() const { return err; }
 private:

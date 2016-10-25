@@ -18,7 +18,7 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	patchTab = new Ui_TabPatch();
 	patchTab->setupUi(container);
-	SCRef ic(QString::fromUtf8(":/icons/resources/plusminus.png"));
+	const QString& ic(QString::fromUtf8(":/icons/resources/plusminus.png"));
 	patchTab->buttonFilterPatch->setIcon(QIcon(ic));
 
 	QButtonGroup* bg = new QButtonGroup(this);
@@ -129,7 +129,7 @@ void PatchView::button_clicked(int diffType) {
 
 void PatchView::on_updateRevDesc() {
 
-	SCRef d = m()->getRevisionDesc(st.sha());
+	const QString& d = m()->getRevisionDesc(st.sha());
 	patchTab->textBrowserDesc->setHtml(d);
 }
 

@@ -159,7 +159,7 @@ void CommitImpl::checkUncheck(bool checkAll) {
 	}
 }
 
-bool CommitImpl::getFiles(SList selFiles) {
+bool CommitImpl::getFiles(QStringList& selFiles) {
 
 	// check for files to commit
 	selFiles.clear();
@@ -180,7 +180,7 @@ void CommitImpl::warnNoFiles() {
 			     QMessageBox::Ok, QMessageBox::NoButton);
 }
 
-bool CommitImpl::checkFiles(SList selFiles) {
+bool CommitImpl::checkFiles(QStringList& selFiles) {
 
 	if (getFiles(selFiles))
 		return true;
@@ -232,7 +232,7 @@ bool CommitImpl::checkPatchName(QString& patchName) {
 	return false;
 }
 
-bool CommitImpl::checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool amend) {
+bool CommitImpl::checkConfirm(const QString& msg, const QString& patchName, const QStringList& selFiles, bool amend) {
 
 //	QTextCodec* tc = QTextCodec::codecForCStrings();
 //	QTextCodec::setCodecForCStrings(0); // set temporary Latin-1

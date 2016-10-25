@@ -35,8 +35,8 @@ class MainImpl : public QMainWindow, public Ui_MainBase {
 Q_OBJECT
 public:
 	MainImpl(const QString& curDir = "", QWidget* parent = 0);
-	void updateContextActions(SCRef newRevSha, SCRef newFileName, bool isDir, bool found);
-	const QString getRevisionDesc(SCRef sha);
+	void updateContextActions(const QString& newRevSha, const QString& newFileName, bool isDir, bool found);
+	const QString getRevisionDesc(const QString& sha);
 	const QString currentDir() const {return curDir;}
 
 	// not buildable with Qt designer, will be created manually
@@ -143,25 +143,25 @@ private:
 
 	virtual bool eventFilter(QObject* obj, QEvent* ev);
 	void updateGlobalActions(bool b);
-	void updateRevVariables(SCRef sha);
+	void updateRevVariables(const QString& sha);
 	void setupShortcuts();
 	int currentTabType(Domain** t);
 	void filterList(bool isOn, bool onlyHighlight);
-	bool isMatch(SCRef sha, SCRef f, int cn, const QMap<QString,bool>& sm);
-	void highlightAbbrevSha(SCRef abbrevSha);
-	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
+	bool isMatch(const QString& sha, const QString& f, int cn, const QMap<QString,bool>& sm);
+	void highlightAbbrevSha(const QString& abbrevSha);
+	void setRepository(const QString& wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
 	void getExternalDiffArgs(QStringList* args, QStringList* filenames);
 	QString copyFileToDiffIfNeeded(QStringList* filenames, QString sha);
 	QStringList getExternalEditorArgs();
-	void lineEditSHASetText(SCRef text);
+	void lineEditSHASetText(const QString& text);
 	void updateCommitMenu(bool isStGITStack);
-	void updateRecentRepoMenu(SCRef newEntry = "");
-	void doUpdateRecentRepoMenu(SCRef newEntry);
+	void updateRecentRepoMenu(const QString& newEntry = "");
+	void doUpdateRecentRepoMenu(const QString& newEntry);
 	void doUpdateCustomActionMenu(const QStringList& list);
 	void doBranchOrTag(bool isTag);
 	void ActCommit_setEnabled(bool b);
-	void doContexPopup(SCRef sha);
-	void doFileContexPopup(SCRef fileName, int type);
+	void doContexPopup(const QString& sha);
+	void doFileContexPopup(const QString& fileName, int type);
 	void adjustFontSize(int delta);
 	void scrollTextEdit(int delta);
 	void goMatch(int delta);

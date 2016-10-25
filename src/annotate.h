@@ -32,13 +32,13 @@ Q_OBJECT
 public:
 	Annotate(Git* parent, QObject* guiObj);
 	void deleteWhenDone();
-	const FileAnnotation* lookupAnnotation(SCRef sha);
+	const FileAnnotation* lookupAnnotation(const QString& sha);
 	bool start(const FileHistory* fh);
 	bool isCanceled() { return canceled; }
-	const QString getAncestor(SCRef sha, int* shaIdx);
-	bool getRange(SCRef sha, RangeInfo* r);
-	bool seekPosition(int* rangeStart, int* rangeEnd, SCRef fromSha, SCRef toSha);
-	const QString computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef target = "");
+	const QString getAncestor(const QString& sha, int* shaIdx);
+	bool getRange(const QString& sha, RangeInfo* r);
+	bool seekPosition(int* rangeStart, int* rangeEnd, const QString& fromSha, const QString& toSha);
+	const QString computeRanges(const QString& sha, int paraFrom, int paraTo, const QString& target = "");
 
 signals:
 	void annotateReady(Annotate*, bool, const QString&);
@@ -50,17 +50,17 @@ private slots:
 private:
 	void annotateFileHistory();
 	void doAnnotate(const ShaString& sha);
-	FileAnnotation* getFileAnnotation(SCRef sha);
-	void setInitialAnnotation(SCRef fileSha, FileAnnotation* fa);
-	const QString setupAuthor(SCRef origAuthor, int annId);
-	bool setAnnotation(SCRef diff, SCRef aut, SCList pAnn, SList nAnn, int ofs = 0);
-	bool getNextLine(SCRef d, int& idx, QString& line);
-	static void unify(SList dst, SCList src);
-	const QString getPatch(SCRef sha, int parentNum = 0);
-	bool getNextSection(SCRef d, int& idx, QString& sec, SCRef target);
-	void updateRange(RangeInfo* r, SCRef diff, bool reverse);
-	void updateCrossRanges(SCRef cnk, bool rev, int oStart, int oLineCnt, RangeInfo* r);
-	bool isDescendant(SCRef sha, SCRef target);
+	FileAnnotation* getFileAnnotation(const QString& sha);
+	void setInitialAnnotation(const QString& fileSha, FileAnnotation* fa);
+	const QString setupAuthor(const QString& origAuthor, int annId);
+	bool setAnnotation(const QString& diff, const QString& aut, const QStringList& pAnn, QStringList& nAnn, int ofs = 0);
+	bool getNextLine(const QString& d, int& idx, QString& line);
+	static void unify(QStringList& dst, const QStringList& src);
+	const QString getPatch(const QString& sha, int parentNum = 0);
+	bool getNextSection(const QString& d, int& idx, QString& sec, const QString& target);
+	void updateRange(RangeInfo* r, const QString& diff, bool reverse);
+	void updateCrossRanges(const QString& cnk, bool rev, int oStart, int oLineCnt, RangeInfo* r);
+	bool isDescendant(const QString& sha, const QString& target);
 
 	EM_DECLARE(exAnnCanceled);
 

@@ -31,7 +31,7 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
                   git, SIGNAL(annotateReady(Annotate*, bool, const QString&)));
 }
 
-const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {
+const FileAnnotation* Annotate::lookupAnnotation(const QString& sha) {
 
 	if (!valid || sha.isEmpty())
 		return NULL;
@@ -186,7 +186,7 @@ void Annotate::doAnnotate(const ShaString& ss) {
 	fa->isValid = true;
 }
 
-FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
+FileAnnotation* Annotate::getFileAnnotation(const QString& sha) {
 
     AnnotateHistory::iterator it = ah.find(sha);
 	if (it == ah.end()) {
@@ -197,7 +197,7 @@ FileAnnotation* Annotate::getFileAnnotation(SCRef sha) {
 	return &(*it);
 }
 
-void Annotate::setInitialAnnotation(SCRef fileSha, FileAnnotation* fa) {
+void Annotate::setInitialAnnotation(const QString& fileSha, FileAnnotation* fa) {
 
 	QByteArray fileData;
 
@@ -215,7 +215,7 @@ void Annotate::setInitialAnnotation(SCRef fileSha, FileAnnotation* fa) {
 		fa->lines.append(empty);
 }
 
-const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
+const QString Annotate::setupAuthor(const QString& origAuthor, int annId) {
 
 	QString tmp(origAuthor.section('<', 0, 0).trimmed()); // strip e-mail address
 	if (tmp.isEmpty()) { // probably only e-mail
@@ -226,8 +226,8 @@ const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 	}
 	// shrink author name if necessary
 	if (tmp.length() > MAX_AUTHOR_LEN) {
-		SCRef firstName(tmp.section(' ', 0, 0).trimmed());
-		SCRef surname(tmp.section(' ', 1).trimmed());
+        const QString& firstName(tmp.section(' ', 0, 0).trimmed());
+        const QString& surname(tmp.section(' ', 1).trimmed());
 		if (!firstName.isEmpty() && !surname.isEmpty())
 			tmp = firstName.left(1) + ". " + surname;
 
@@ -236,7 +236,7 @@ const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 	return QString("%1.%2").arg(annId, annNumLen).arg(tmp);
 }
 
-void Annotate::unify(SList dst, SCList src) {
+void Annotate::unify(QStringList& dst, const QStringList& src) {
 
 	const QString m("Merge");
 	for (int i = 0; i < dst.size(); ++i) {
@@ -245,7 +245,7 @@ void Annotate::unify(SList dst, SCList src) {
 	}
 }
 
-bool Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList newAnn, int ofs) {
+bool Annotate::setAnnotation(const QString& diff, const QString& author, const QStringList& prevAnn, QStringList& newAnn, int ofs) {
 
 	newAnn.clear();
 	QStringList::const_iterator cur(prevAnn.constBegin());
@@ -343,7 +343,7 @@ bool Annotate::setAnnotation(SCRef diff, SCRef author, SCList prevAnn, SList new
 	return true;
 }
 
-const QString Annotate::getPatch(SCRef sha, int parentNum) {
+const QString Annotate::getPatch(const QString& sha, int parentNum) {
 
 	QString mergeSha(sha);
 	if (parentNum)
@@ -365,7 +365,7 @@ const QString Annotate::getPatch(SCRef sha, int parentNum) {
 	return diff;
 }
 
-bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
+bool Annotate::getNextSection(const QString& d, int& idx, QString& sec, const QString& target) {
 
 	if (idx >= d.length())
 		return false;
@@ -384,7 +384,7 @@ bool Annotate::getNextSection(SCRef d, int& idx, QString& sec, SCRef target) {
 
 
 
-bool Annotate::getRange(SCRef sha, RangeInfo* r) {
+bool Annotate::getRange(const QString& sha, RangeInfo* r) {
 
 	if (!ranges.contains(sha) || !valid || canceled) {
 		r->clear();
@@ -394,7 +394,7 @@ bool Annotate::getRange(SCRef sha, RangeInfo* r) {
 	return true;
 }
 
-void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, RangeInfo* r) {
+void Annotate::updateCrossRanges(const QString& chunk, bool rev, int fileLen, int ofs, RangeInfo* r) {
 
 /* here the deal is to fake a file that will be modified by chunk, the
    file must contain also the whole output range.
@@ -524,7 +524,7 @@ void Annotate::updateCrossRanges(SCRef chunk, bool rev, int fileLen, int ofs, Ra
 	r->end = newEnd;
 }
 
-void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
+void Annotate::updateRange(RangeInfo* r, const QString& diff, bool reverse) {
 
 	r->modified = false;
 	if (r->start == 0)
@@ -618,7 +618,7 @@ void Annotate::updateRange(RangeInfo* r, SCRef diff, bool reverse) {
 	}
 }
 
-const QString Annotate::getAncestor(SCRef sha, int* shaIdx) {
+const QString Annotate::getAncestor(const QString& sha, int* shaIdx) {
 
 	QString fileSha;
 
@@ -674,7 +674,7 @@ const QString Annotate::getAncestor(SCRef sha, int* shaIdx) {
 	return "";
 }
 
-bool Annotate::isDescendant(SCRef sha, SCRef target) {
+bool Annotate::isDescendant(const QString& sha, const QString& target) {
 // quickly check if target is a direct descendant of sha, i.e. if starting
 // from target, sha could be reached walking along his parents. In case
 // a merge is found the search returns false because you'll need,
@@ -703,7 +703,7 @@ bool Annotate::isDescendant(SCRef sha, SCRef target) {
   Only checking for copies would fix the corner case, but implementation
   is too difficult, so better accept this design limitation for now.
 */
-const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef target) {
+const QString Annotate::computeRanges(const QString& sha, int paraFrom, int paraTo, const QString& target) {
 
 	ranges.clear();
 
@@ -781,7 +781,7 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 
 	for ( ; shaIdx >= 0; shaIdx--) {
 
-		SCRef sha(histRevOrder[shaIdx]);
+        const QString& sha(histRevOrder[shaIdx]);
 
 		if (!ranges.contains(sha)) {
 
@@ -821,7 +821,7 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 	return ancestor;
 }
 
-bool Annotate::seekPosition(int* paraFrom, int* paraTo, SCRef fromSha, SCRef toSha) {
+bool Annotate::seekPosition(int* paraFrom, int* paraTo, const QString& fromSha, const QString& toSha) {
 
 	if ((*paraFrom == 0 && *paraTo == 0) || fromSha == toSha)
 		return true;

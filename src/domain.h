@@ -108,12 +108,12 @@ public:
 	void deleteWhenDone(); // will delete when no more run() are pending
 	void showStatusBarMessage(const QString& msg, int timeout = 0);
 	void setThrowOnDelete(bool b);
-	bool isThrowOnDeleteRaised(int excpId, SCRef curContext);
+	bool isThrowOnDeleteRaised(int excpId, const QString& curContext);
 	MainImpl* m() const;
 	FileHistory* model() const { return fileHistory; }
 	bool isLinked() const { return linked; }
 	QWidget* tabPage() const { return container; }
-	virtual bool isMatch(SCRef) { return false; }
+	virtual bool isMatch(const QString&) { return false; }
 
 	StateInfo st;
 

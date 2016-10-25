@@ -56,7 +56,7 @@ void DataLoader::on_cancel() {
 	}
 }
 
-bool DataLoader::start(SCList args, SCRef wd, SCRef buf) {
+bool DataLoader::start(const QStringList& args, const QString& wd, const QString& buf) {
 
 	if (!isProcExited) {
 		dbs("ASSERT in DataLoader::start(), called while processing");

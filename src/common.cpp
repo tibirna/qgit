@@ -7,19 +7,9 @@
 
 */
 
-#include <QDataStream>
-#include <QTextDocument>
-#include <QPixmap>
-#include <QProcess>
-#include <QSettings>
-#include <QSplitter>
-#include <QTemporaryFile>
-#include <QTextStream>
-#include <QWidget>
-#include <QTextCodec>
 #include "common.h"
 #include "break_point.h"
-
+#include <QTextDocument>
 
 static inline uint hexVal(const QChar* ch) {
 
@@ -205,18 +195,18 @@ const QString C_DAT_FILE       = "/qgit_cache.dat";
 const QString QUOTE_CHAR = "$";
 
 // settings helpers
-uint flags(SCRef flagsVariable) {
+uint flags(const QString& flagsVariable) {
 
     QSettings settings;
     return settings.value(flagsVariable, FLAGS_DEF).toUInt();
 }
 
-bool testFlag(uint f, SCRef flagsVariable) {
+bool testFlag(uint f, const QString& flagsVariable) {
 
     return (flags(flagsVariable) & f);
 }
 
-void setFlag(uint f, bool b, SCRef flagsVariable) {
+void setFlag(uint f, bool b, const QString& flagsVariable) {
 
     QSettings settings;
     uint flags = settings.value(flagsVariable, FLAGS_DEF).toUInt();
@@ -307,9 +297,9 @@ void freeMimePix() {
     qDeleteAll(mimePixMap);
 }
 
-const QPixmap* mimePix(SCRef fileName) {
+const QPixmap* mimePix(const QString& fileName) {
 
-    SCRef ext = fileName.section('.', -1, -1).toLower();
+    const QString& ext = fileName.section('.', -1, -1).toLower();
     if (mimePixMap.contains(ext))
         return mimePixMap.value(ext);
 
@@ -317,7 +307,7 @@ const QPixmap* mimePix(SCRef fileName) {
 }
 
 // geometry settings helers
-void saveGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
+void saveGeometrySetting(const QString& name, QWidget* w, splitVect* svPtr) {
 
     QSettings settings;
     if (w && w->isVisible())
@@ -338,7 +328,7 @@ void saveGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
     }
 }
 
-void restoreGeometrySetting(SCRef name, QWidget* w, splitVect* svPtr) {
+void restoreGeometrySetting(const QString& name, QWidget* w, splitVect* svPtr) {
 
     QSettings settings;
     QString nm;
@@ -403,7 +393,7 @@ bool stripPartialParaghraps(const QByteArray& ba, QString* dst, QString* prev) {
     return true;
 }
 
-bool writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
+bool writeToFile(const QString& fileName, const QString& data, bool setExecutable) {
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -427,7 +417,7 @@ bool writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
     return true;
 }
 
-bool writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable) {
+bool writeToFile(const QString& fileName, const QByteArray& data, bool setExecutable) {
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -445,7 +435,7 @@ bool writeToFile(SCRef fileName, const QByteArray& data, bool setExecutable) {
     return true;
 }
 
-bool readFromFile(SCRef fileName, QString& data) {
+bool readFromFile(const QString& fileName, QString& data) {
 
     data = "";
     QFile file(fileName);
@@ -459,7 +449,7 @@ bool readFromFile(SCRef fileName, QString& data) {
     return true;
 }
 
-bool startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) {
+bool startProcess(QProcess* proc, const QStringList& args, const QString& buf, bool* winShell) {
 
     if (!proc || args.isEmpty())
         return false;

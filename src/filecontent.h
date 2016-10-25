@@ -35,8 +35,8 @@ public:
 	void goToAnnotation(int id, int direction);
 	bool goToRangeStart();
 	bool rangeFilter(bool b);
-	bool getRange(SCRef sha, RangeInfo* r);
-	bool startAnnotate(FileHistory* fh, SCRef histTime);
+	bool getRange(const QString& sha, RangeInfo* r);
+	bool startAnnotate(FileHistory* fh, const QString& histTime);
 	void setShowAnnotate(bool b);
 	void setHighlightSource(bool b);
 	void setSelection(int paraFrom, int indexFrom, int paraTo, int indexTo);
@@ -69,7 +69,7 @@ private:
 	void clear(); // declared as private, to avoid indirect access to QTextEdit::clear()
 	void clearAnnotate(bool emitSignal);
 	void clearText(bool emitSignal);
-	void findInFile(SCRef str);
+	void findInFile(const QString& str);
 	void scrollCursorToTop();
 	void scrollLineToTop(int lineNum);
 	int positionToLineNum(int pos = -1);

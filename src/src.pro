@@ -81,7 +81,7 @@ OBJECTS_DIR = $$BUILD_DIR
 FORMS += commit.ui console.ui customaction.ui fileview.ui help.ui \
          mainview.ui patchview.ui rangeselect.ui revsview.ui settings.ui
 
-HEADERS += annotate.h cache.h commitimpl.h common.h config.h consoleimpl.h \
+HEADERS += annotate.h cache.h commitimpl.h common.h common_types.h config.h consoleimpl.h \
            customactionimpl.h dataloader.h domain.h exceptionmanager.h \
            filecontent.h filelist.h fileview.h git.h help.h inputdialog.h lanes.h \
            listview.h mainimpl.h myprocess.h patchcontent.h patchview.h \

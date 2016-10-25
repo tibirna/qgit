@@ -99,8 +99,8 @@ bool FileView::eventFilter(QObject* obj, QEvent* e) {
 		QHelpEvent* h = static_cast<QHelpEvent*>(e);
 		int id = fileTab->textEditFile->itemAnnId(lw->itemAt(h->pos()));
 		QRegExp re;
-		SCRef sha(fileTab->histListView->shaFromAnnId(id));
-		SCRef d(git->getDesc(sha, re, re, false, model()));
+		const QString& sha(fileTab->histListView->shaFromAnnId(id));
+		const QString& d(git->getDesc(sha, re, re, false, model()));
 		lw->setToolTip(d);
 	}
 	return QObject::eventFilter(obj, e);
@@ -124,7 +124,7 @@ void FileView::clear(bool complete) {
 
 bool FileView::goToCurrentAnnotation(int direction) {
 
-	SCRef ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
+	const QString& ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
 	int id = (!ids.isEmpty() ? ids.toInt() : 0);
 	fileTab->textEditFile->goToAnnotation(id, direction);
 	return (id != 0);
@@ -132,7 +132,7 @@ bool FileView::goToCurrentAnnotation(int direction) {
 
 void FileView::updateSpinBoxValue() {
 
-	SCRef ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
+	const QString& ids = fileTab->histListView->currentText(QGit::ANN_ID_COL);
 	if (    ids.isEmpty()
 	    || !fileTab->spinBoxRevision->isEnabled()
 	    ||  fileTab->spinBoxRevision->value() == ids.toInt())
@@ -141,7 +141,7 @@ void FileView::updateSpinBoxValue() {
 	fileTab->spinBoxRevision->setValue(ids.toInt()); // emit QSpinBox::valueChanged()
 }
 
-bool FileView::isMatch(SCRef sha) {
+bool FileView::isMatch(const QString& sha) {
 
 	static RangeInfo r; // fast path here, avoid allocation on each call
 	if (!fileTab->textEditFile->getRange(sha, &r))
@@ -299,7 +299,7 @@ void FileView::on_spinBoxRevision_valueChanged(int id) {
 
 	if (id != fileTab->spinBoxRevision->minimum()) {
 
-		SCRef selRev(fileTab->histListView->shaFromAnnId(id));
+		const QString& selRev(fileTab->histListView->shaFromAnnId(id));
 		if (st.sha() != selRev) { // to avoid looping
 			st.setSha(selRev);
 			st.setSelectItem(true);

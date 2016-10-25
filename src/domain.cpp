@@ -156,7 +156,7 @@ void Domain::setThrowOnDelete(bool b) {
 		EM_REMOVE(exDeleteRequest);
 }
 
-bool Domain::isThrowOnDeleteRaised(int excpId, SCRef curContext) {
+bool Domain::isThrowOnDeleteRaised(int excpId, const QString& curContext) {
 
 	return EM_MATCH(excpId, exDeleteRequest, curContext);
 }

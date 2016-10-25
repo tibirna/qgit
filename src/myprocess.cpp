@@ -25,7 +25,7 @@ MyProcess::MyProcess(QObject *go, Git* g, const QString& wd, bool err) : QProces
 	canceling = async = isWinShell = isErrorExit = false;
 }
 
-bool MyProcess::runAsync(SCRef rc, QObject* rcv, SCRef buf) {
+bool MyProcess::runAsync(const QString& rc, QObject* rcv, const QString& buf) {
 
 	async = true;
 	runCmd = rc;
@@ -37,7 +37,7 @@ bool MyProcess::runAsync(SCRef rc, QObject* rcv, SCRef buf) {
 	return true;
 }
 
-bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
+bool MyProcess::runSync(const QString& rc, QByteArray* ro, QObject* rcv, const QString& buf) {
 
 	async = false;
 	runCmd = rc;
@@ -96,9 +96,9 @@ void MyProcess::sendErrorMsg(bool notStarted) {
 
 	if (!errorReportingEnabled)
 		return;
-
-	QByteArray err = readAllStandardError();
-	accError += err;
+		
+    QString err = errorDesc(readAllStandardError());
+    accError += err;
 	QString errorDesc = accError;
 
 	if (notStarted)
@@ -109,7 +109,7 @@ void MyProcess::sendErrorMsg(bool notStarted) {
 	QApplication::postEvent(guiObject, e);
 }
 
-bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
+bool MyProcess::launchMe(const QString& runCmd, const QString& buf) {
 
 	arguments = splitArgList(runCmd);
 	if (arguments.isEmpty())
@@ -194,7 +194,7 @@ void MyProcess::on_cancel() {
 	waitForFinished();
 }
 
-const QStringList MyProcess::splitArgList(SCRef cmd) {
+const QStringList MyProcess::splitArgList(const QString& cmd) {
 // return argument list handling quotes and double quotes
 // substring, as example from:
 // cmd some_arg "some thing" v='some value'

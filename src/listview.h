@@ -34,12 +34,12 @@ public:
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);
 	const QString currentText(int col);
-	int filterRows(bool, bool, SCRef = QString(), int = -1, ShaSet* = NULL);
+	int filterRows(bool, bool, const QString& = QString(), int = -1, ShaSet* = NULL);
 	const QString sha(int row) const;
-	int row(SCRef sha) const;
+	int row(const QString& sha) const;
 	QString refNameAt(const QPoint &pos);
 	const QString& selectedRefName() const {return lastRefName;}
-	void markDiffToSha(SCRef sha);
+	void markDiffToSha(const QString& sha);
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);
@@ -75,8 +75,8 @@ private slots:
 private:
 	void setupGeometry();
 	bool filterRightButtonPressed(QMouseEvent* e);
-        bool getLaneParentsChildren(SCRef sha, int x, SList p, SList c);
-	int getLaneType(SCRef sha, int pos) const;
+        bool getLaneParentsChildren(const QString& sha, int x, QStringList& p, QStringList& c);
+	int getLaneType(const QString& sha, int pos) const;
 
 	Domain* d;
 	Git* git;
@@ -111,9 +111,9 @@ private:
 	void paintLog(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraph(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
 	void paintGraphLane(QPainter* p, int type, int x1, int x2, const QColor& col, const QColor& activeCol, const QBrush& back) const;
-	QPixmap* getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const;
-	void addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const;
-	bool changedFiles(SCRef sha) const;
+	QPixmap* getTagMarks(const QString& sha, const QStyleOptionViewItem& opt) const;
+	void addTextPixmap(QPixmap** pp, const QString& txt, const QStyleOptionViewItem& opt) const;
+	bool changedFiles(const QString& sha) const;
 	qreal dpr(void) const;
 
 	Git* git;
@@ -126,7 +126,7 @@ class ListViewProxy : public QSortFilterProxyModel {
 Q_OBJECT
 public:
 	ListViewProxy(QObject* parent, Domain* d, Git* g);
-	int setFilter(bool isOn, bool highlight, SCRef filter, int colNum, ShaSet* s);
+	int setFilter(bool isOn, bool highlight, const QString& filter, int colNum, ShaSet* s);
 	bool isHighlighted(int row) const;
 
 protected:
@@ -134,7 +134,7 @@ protected:
 
 private:
 	bool isMatch(int row) const;
-	bool isMatch(SCRef sha) const;
+	bool isMatch(const QString& sha) const;
 
 	Domain* d;
 	Git* git;

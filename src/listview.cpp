@@ -77,7 +77,7 @@ const QString ListView::sha(int row) const {
 	return fh->sha(idx.row());
 }
 
-int ListView::row(SCRef sha) const {
+int ListView::row(const QString& sha) const {
 
 	if (!lp->sourceModel()) // unplugged
 		return fh->row(sha);
@@ -187,7 +187,7 @@ const QString ListView::currentText(int column) {
 	return (idx.isValid() ? idx.data().toString() : "");
 }
 
-int ListView::getLaneType(SCRef sha, int pos) const {
+int ListView::getLaneType(const QString& sha, int pos) const {
 
 	const Rev* r = git->revLookup(sha, fh);
 	return (r && pos < r->lanes.count() && pos >= 0 ? r->lanes.at(pos) : -1);
@@ -219,7 +219,7 @@ const QString ListView::shaFromAnnId(uint id) {
 	return sha(model()->rowCount() - id);
 }
 
-int ListView::filterRows(bool isOn, bool highlight, SCRef filter, int colNum, ShaSet* set) {
+int ListView::filterRows(bool isOn, bool highlight, const QString& filter, int colNum, ShaSet* set) {
 
 	setUpdatesEnabled(false);
 	int matchedNum = lp->setFilter(isOn, highlight, filter, colNum, set);
@@ -267,7 +267,7 @@ bool ListView::update() {
 
 void ListView::currentChanged(const QModelIndex& index, const QModelIndex&) {
 
-	SCRef selRev = sha(index.row());
+	const QString& selRev = sha(index.row());
 	if (st->sha() != selRev) { // to avoid looping
 		st->setSha(selRev);
 		st->setSelectItem(true);
@@ -275,7 +275,7 @@ void ListView::currentChanged(const QModelIndex& index, const QModelIndex&) {
 	}
 }
 
-void ListView::markDiffToSha(SCRef sha) {
+void ListView::markDiffToSha(const QString& sha) {
 	if (sha != st->diffToSha()) {
 		st->setDiffToSha(sha);
 		emit showStatusMessage("Marked " +  sha + " for diff. (Ctrl-RightClick)");
@@ -289,7 +289,7 @@ void ListView::markDiffToSha(SCRef sha) {
 bool ListView::filterRightButtonPressed(QMouseEvent* e) {
 
 	QModelIndex index = indexAt(e->pos());
-	SCRef selSha = sha(index.row());
+	const QString& selSha = sha(index.row());
 	if (selSha.isEmpty())
 		return false;
 
@@ -662,7 +662,7 @@ void ListView::on_customContextMenuRequested(const QPoint& pos) {
 	emit contextMenu(sha(index.row()), POPUP_LIST_EV);
 }
 
-bool ListView::getLaneParentsChildren(SCRef sha, int x, SList p, SList c) {
+bool ListView::getLaneParentsChildren(const QString& sha, int x, QStringList& p, QStringList& c) {
 
 	ListViewDelegate* lvd = static_cast<ListViewDelegate*>(itemDelegate());
 	uint lane = x / lvd->laneWidth();
@@ -677,7 +677,7 @@ bool ListView::getLaneParentsChildren(SCRef sha, int x, SList p, SList c) {
 		p = git->revLookup(sha, fh)->parents(); // pointer cannot be NULL
 		root = sha;
 	} else {
-		SCRef par(git->getLaneParent(sha, lane));
+		const QString& par(git->getLaneParent(sha, lane));
 		if (par.isEmpty()) {
                         dbs("ASSERT getLaneParentsChildren: parent not found");
 			return false;
@@ -1089,7 +1089,7 @@ void ListViewDelegate::paint(QPainter* p, const QStyleOptionViewItem& opt,
 	return QItemDelegate::paint(p, opt, index);
 }
 
-bool ListViewDelegate::changedFiles(SCRef sha) const {
+bool ListViewDelegate::changedFiles(const QString& sha) const {
 
 	const RevFile* f = git->getFiles(sha);
 	if (f)
@@ -1117,7 +1117,7 @@ void getTagMarkParams(QString &name, QStyleOptionViewItem& o,
 	o.font.setBold(isCurrent);
 }
 
-QPixmap* ListViewDelegate::getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const {
+QPixmap* ListViewDelegate::getTagMarks(const QString& sha, const QStyleOptionViewItem& opt) const {
 
 	uint rt = git->checkRef(sha);
 	if (rt == 0)
@@ -1175,7 +1175,6 @@ qreal ListViewDelegate::dpr(void) const {
 #endif
 }
 
-void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const {
 
 	QPixmap* pm = *pp;
 
@@ -1227,7 +1226,7 @@ ListViewProxy::ListViewProxy(QObject* p, Domain * dm, Git * g) : QSortFilterProx
 	setDynamicSortFilter(false);
 }
 
-bool ListViewProxy::isMatch(SCRef sha) const {
+bool ListViewProxy::isMatch(const QString& sha) const {
 
 	if (colNum == SHA_MAP_COL)
 		// in this case shaMap contains all good sha to search for
@@ -1275,7 +1274,7 @@ bool ListViewProxy::filterAcceptsRow(int source_row, const QModelIndex&) const {
 	return (isHighLight || isMatch(source_row));
 }
 
-int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
+int ListViewProxy::setFilter(bool isOn, bool h, const QString& fl, int cn, ShaSet* s) {
 
 	filter = QRegExp(fl, Qt::CaseInsensitive, QRegExp::Wildcard);
 	colNum = cn;

@@ -41,7 +41,7 @@ FileHistory::~FileHistory() {
   delete lns;
 }
 
-void FileHistory::resetFileNames(SCRef fn) {
+void FileHistory::resetFileNames(const QString& fn) {
 
   fNames.clear();
   fNames.append(fn);
@@ -58,7 +58,7 @@ bool FileHistory::hasChildren(const QModelIndex& parent) const {
   return !parent.isValid();
 }
 
-int FileHistory::row(SCRef sha) const {
+int FileHistory::row(const QString& sha) const {
 
   const Rev* r = git->revLookup(sha, this);
   return (r ? r->orderIdx : -1);

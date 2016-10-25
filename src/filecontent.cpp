@@ -227,7 +227,7 @@ void FileContent::doUpdate(bool force) {
 	}
 }
 
-bool FileContent::startAnnotate(FileHistory* fh, SCRef ht) {
+bool FileContent::startAnnotate(FileHistory* fh, const QString& ht) {
 
 	if (!isImageFile)
 		annotateObj = git->startAnnotate(fh, d); // non blocking
@@ -247,7 +247,7 @@ uint FileContent::annotateLength(const FileAnnotation* annFile) {
 	return maxLen;
 }
 
-bool FileContent::getRange(SCRef sha, RangeInfo* r) {
+bool FileContent::getRange(const QString& sha, RangeInfo* r) {
 
 	if (annotateObj)
 		return  annotateObj->getRange(sha, r);

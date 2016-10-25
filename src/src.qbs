@@ -119,6 +119,7 @@ Product {
         "cache.h",
         "common.cpp",
         "common.h",
+        "common_types.h",
         "config.h",
         "dataloader.cpp",
         "dataloader.h",

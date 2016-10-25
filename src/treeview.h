@@ -21,8 +21,8 @@ class Domain;
 
 class FileItem : public QTreeWidgetItem {
 public:
-	FileItem(FileItem* p, SCRef nm) : QTreeWidgetItem(p, QStringList(nm)) {}
-	FileItem(QTreeWidget* p, SCRef nm) : QTreeWidgetItem(p, QStringList(nm)) {}
+	FileItem(FileItem* p, const QString& nm) : QTreeWidgetItem(p, QStringList(nm)) {}
+	FileItem(QTreeWidget* p, const QString& nm) : QTreeWidgetItem(p, QStringList(nm)) {}
 
 	virtual QString fullName() const;
 	void setBold(bool b);
@@ -30,8 +30,8 @@ public:
 
 class DirItem : public FileItem {
 public:
-	DirItem(QTreeWidget* parent, SCRef ts, SCRef nm);
-	DirItem(DirItem* parent, SCRef ts, SCRef nm);
+	DirItem(QTreeWidget* parent, const QString& ts, const QString& nm);
+	DirItem(DirItem* parent, const QString& ts, const QString& nm);
 
 protected:
 	friend class TreeView;
@@ -44,14 +44,14 @@ Q_OBJECT
 public:
 	TreeView(QWidget* par) : QTreeWidget(par), d(NULL), git(NULL), treeIsValid(false) {}
 	void setup(Domain* d, Git* g);
-	void setTreeName(SCRef treeName) { rootName = treeName; }
+	void setTreeName(const QString& treeName) { rootName = treeName; }
 	void updateTree();
 	const QString fullName(QTreeWidgetItem* item);
-	bool isDir(SCRef fileName);
-	bool isModified(SCRef path, bool isDir = false);
+	bool isDir(const QString& fileName);
+	bool isModified(const QString& path, bool isDir = false);
 	void clear();
 	void getTreeSelectedItems(QStringList& selectedItems);
-	bool getTree(SCRef tSha, Git::TreeInfo& ti, bool wd, SCRef tPath);
+	bool getTree(const QString& tSha, Git::TreeInfo& ti, bool wd, const QString& tPath);
 
 	const QPixmap* folderClosed;
 	const QPixmap* folderOpen;
@@ -68,8 +68,8 @@ protected slots:
 	void on_itemCollapsed(QTreeWidgetItem*);
 
 private:
-	void setTree(SCRef treeSha);
-	void setFile(SCRef fileName);
+	void setTree(const QString& treeSha);
+	void setFile(const QString& fileName);
 	void restoreStuff();
 
 	Domain* d;

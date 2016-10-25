@@ -26,9 +26,9 @@ public:
   ~FileHistory();
   void clear(bool complete = true);
   const QString sha(int row) const;
-  int row(SCRef sha) const;
+  int row(const QString& sha) const;
   const QStringList fileNames() const { return fNames; }
-  void resetFileNames(SCRef fn);
+  void resetFileNames(const QString& fn);
   void setEarlyOutputState(bool b = true) { earlyOutputCnt = (b ? earlyOutputCntBase : -1); }
   void setAnnIdValid(bool b = true) { annIdValid = b; }
 

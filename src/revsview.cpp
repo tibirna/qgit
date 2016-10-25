@@ -229,7 +229,7 @@ void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
 void RevsView::on_updateRevDesc() {
 
-	SCRef d = m()->getRevisionDesc(st.sha());
+	const QString& d = m()->getRevisionDesc(st.sha());
 	tab()->textBrowserDesc->setHtml(d);
 }
 
@@ -323,7 +323,7 @@ void RevsView::updateLineEditSHA(bool clear) {
 	m()->ActForward->setEnabled(l->isRedoAvailable());
 }
 
-void RevsView::on_lanesContextMenuRequested(SCList parents, SCList children) {
+void RevsView::on_lanesContextMenuRequested(const QStringList& parents, const QStringList& children) {
 
 	QMenu contextMenu;
 	FOREACH_SL (it, children)
@@ -339,7 +339,7 @@ void RevsView::on_lanesContextMenuRequested(SCList parents, SCList children) {
 
 	int cc = children.count();
 	int id = contextMenu.actions().indexOf(act);
-	SCRef target(id < cc ? children[id] : parents[id - cc]);
+	const QString& target(id < cc ? children[id] : parents[id - cc]);
 	st.setSha(target);
 	UPDATE();
 }

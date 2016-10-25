@@ -35,8 +35,8 @@ void FileItem::setBold(bool b) {
 	setFont(0, fnt);
 }
 
-DirItem::DirItem(DirItem* p, SCRef ts, SCRef nm) : FileItem(p, nm), treeSha(ts) {}
-DirItem::DirItem(QTreeWidget* p, SCRef ts, SCRef nm) : FileItem(p, nm), treeSha(ts) {}
+DirItem::DirItem(DirItem* p, const QString& ts, const QString& nm) : FileItem(p, nm), treeSha(ts) {}
+DirItem::DirItem(QTreeWidget* p, const QString& ts, const QString& nm) : FileItem(p, nm), treeSha(ts) {}
 
 void TreeView::setup(Domain* dm, Git* g) {
 
@@ -67,7 +67,7 @@ void TreeView::setup(Domain* dm, Git* g) {
 void TreeView::on_currentItemChanged(QTreeWidgetItem* item, QTreeWidgetItem*) {
 
 	if (item) {
-		SCRef fn = ((FileItem*)item)->fullName();
+		const QString& fn = ((FileItem*)item)->fullName();
 		if (!ignoreCurrentChanged && fn != st->fileName()) {
 			st->setFileName(fn);
 			st->setSelectItem(true);
@@ -89,7 +89,7 @@ void TreeView::clear() {
 	QTreeWidget::clear();
 }
 
-bool TreeView::isModified(SCRef path, bool isDir) {
+bool TreeView::isModified(const QString& path, bool isDir) {
 
 	if (isDir)
 		return modifiedDirs.contains(path);
@@ -97,7 +97,7 @@ bool TreeView::isModified(SCRef path, bool isDir) {
 	return modifiedFiles.contains(path);
 }
 
-bool TreeView::isDir(SCRef fileName) {
+bool TreeView::isDir(const QString& fileName) {
 
 	// if currentItem is NULL or is different from fileName
 	// return false, because treeview is not updated while
@@ -125,7 +125,7 @@ void TreeView::getTreeSelectedItems(QStringList& selectedItems) {
 	}
 }
 
-void TreeView::setTree(SCRef treeSha) {
+void TreeView::setTree(const QString& treeSha) {
 
 	if (topLevelItemCount() == 0)
                 // get working directory info only once after each TreeView::clear()
@@ -141,7 +141,7 @@ void TreeView::setTree(SCRef treeSha) {
 	}
 }
 
-bool TreeView::getTree(SCRef treeSha, Git::TreeInfo& ti, bool wd, SCRef treePath) {
+bool TreeView::getTree(const QString& treeSha, Git::TreeInfo& ti, bool wd, const QString& treePath) {
 
 	// calls qApp->processEvents()
 	treeIsValid = git->getTree(treeSha, ti, wd, treePath);
@@ -263,7 +263,7 @@ void TreeView::updateTree() {
 				// could be a different subdirectory with the
 				// same name that appears before in tree view
 				// to be sure we need to check the names
-				SCRef fn = ((FileItem*)*item)->fullName();
+				const QString& fn = ((FileItem*)*item)->fullName();
 				if (st->fileName().startsWith(fn)) {
 
 					if (dynamic_cast<DirItem*>(*item)) {

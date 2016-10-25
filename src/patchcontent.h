@@ -61,7 +61,7 @@ private:
 	bool computeMatches();
 	bool getMatch(int para, int* indexFrom, int* indexTo);
 	void centerMatch(int id = 0);
-	bool centerTarget(SCRef target);
+	bool centerTarget(const QString& target);
 	void processData(const QByteArray& data, int* prevLineNum = NULL);
 
 	Git* git;
