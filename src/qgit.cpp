@@ -6,6 +6,7 @@
 */
 #include <QSettings>
 #include "common.h"
+#include "defmac.h"
 #include "mainimpl.h"
 
 #if defined(_MSC_VER) && defined(NDEBUG)
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
 
 	MainImpl* mainWin = new MainImpl;
 	mainWin->show();
-	QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    chk_connect_a(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
 	bool ret = app.exec();
 
 	freeMimePix();

@@ -13,8 +13,8 @@
 #include <QDateTime>
 #include <QFontMetrics>
 
+#include "defmac.h"
 #include "lanes.h"
-
 #include "git.h"
 
 using namespace QGit;
@@ -26,13 +26,13 @@ FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
   revs.reserve(QGit::MAX_DICT_SIZE);
   clear(); // after _headerInfo is set
 
-  connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
-          this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
+  chk_connect_a(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+                this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)))
 
-  connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
-          this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
+  chk_connect_a(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
+                this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-  connect(git, SIGNAL(changeFont(const QFont&)), this, SLOT(on_changeFont(const QFont&)));
+  chk_connect_a(git, SIGNAL(changeFont(const QFont&)), this, SLOT(on_changeFont(const QFont&)));
 }
 
 FileHistory::~FileHistory() {

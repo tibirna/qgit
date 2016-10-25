@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QTimer>
 #include "FileHistory.h"
+#include "defmac.h"
 #include "git.h"
 #include "myprocess.h"
 #include "annotate.h"
@@ -26,8 +27,8 @@ Annotate::Annotate(Git* parent, QObject* guiObj) : QObject(parent) {
 	cancelingAnnotate = annotateRunning = annotateActivity = false;
 	valid = canceled = isError = false;
 
-	connect(this, SIGNAL(annotateReady(Annotate*, bool, const QString&)),
-	        git, SIGNAL(annotateReady(Annotate*, bool, const QString&)));
+	chk_connect_a(this, SIGNAL(annotateReady(Annotate*, bool, const QString&)),
+                  git, SIGNAL(annotateReady(Annotate*, bool, const QString&)));
 }
 
 const FileAnnotation* Annotate::lookupAnnotation(SCRef sha) {

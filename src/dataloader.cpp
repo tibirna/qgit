@@ -8,6 +8,7 @@
 */
 #include <QDir>
 #include <QTemporaryFile>
+#include "defmac.h"
 #include "FileHistory.h"
 #include "git.h"
 #include "dataloader.h"
@@ -30,8 +31,8 @@ DataLoader::DataLoader(Git* g, FileHistory* f) : QProcess(g), git(g), fh(f) {
 	loadedBytes = 0;
 	guiUpdateTimer.setSingleShot(true);
 
-	connect(git, SIGNAL(cancelAllProcesses()), this, SLOT(on_cancel()));
-	connect(&guiUpdateTimer, SIGNAL(timeout()), this, SLOT(on_timeout()));
+    chk_connect_a(git, SIGNAL(cancelAllProcesses()), this, SLOT(on_cancel()));
+    chk_connect_a(&guiUpdateTimer, SIGNAL(timeout()), this, SLOT(on_timeout()));
 }
 
 DataLoader::~DataLoader() {
@@ -64,8 +65,8 @@ bool DataLoader::start(SCList args, SCRef wd, SCRef buf) {
 	isProcExited = false;
 	setWorkingDirectory(wd);
 
-	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+    chk_connect_a(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+                  this, SLOT(on_finished(int, QProcess::ExitStatus)));
 
 	if (!createTemporaryFile() || !QGit::startProcess(this, args, buf)) {
 		deleteLater();

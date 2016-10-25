@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include "exceptionmanager.h"
 #include "common.h"
+#include "defmac.h"
 #include "git.h"
 #include "settingsimpl.h"
 #include "commitimpl.h"
@@ -111,21 +112,21 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 			pushButtonOk->setShortcut(QKeySequence("Alt+A"));
 			pushButtonOk->setToolTip("Amend latest commit");
 		}
-		connect(pushButtonOk, SIGNAL(clicked()),
-			this, SLOT(pushButtonAmend_clicked()));
+		chk_connect_a(pushButtonOk, SIGNAL(clicked()),
+                      this, SLOT(pushButtonAmend_clicked()));
 	} else {
 		if (git->isStGITStack()) {
 			pushButtonOk->setText("&New patch");
 			pushButtonOk->setShortcut(QKeySequence("Alt+N"));
 			pushButtonOk->setToolTip("Create a new patch");
 		}
-		connect(pushButtonOk, SIGNAL(clicked()),
-			this, SLOT(pushButtonCommit_clicked()));
+		chk_connect_a(pushButtonOk, SIGNAL(clicked()),
+                      this, SLOT(pushButtonCommit_clicked()));
 	}
-	connect(treeWidgetFiles, SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(contextMenuPopup(const QPoint&)));
-	connect(textEditMsg, SIGNAL(cursorPositionChanged()),
-	        this, SLOT(textEditMsg_cursorPositionChanged()));
+	chk_connect_a(treeWidgetFiles, SIGNAL(customContextMenuRequested(const QPoint&)),
+                  this, SLOT(contextMenuPopup(const QPoint&)));
+	chk_connect_a(textEditMsg, SIGNAL(cursorPositionChanged()),
+                  this, SLOT(textEditMsg_cursorPositionChanged()));
 
     textEditMsg->installEventFilter(this);
 }
@@ -140,9 +141,9 @@ void CommitImpl::contextMenuPopup(const QPoint& pos)  {
 
 	QMenu* contextMenu = new QMenu(this);
 	QAction* a = contextMenu->addAction("Select All");
-	connect(a, SIGNAL(triggered()), this, SLOT(checkAll()));
+	chk_connect_a(a, SIGNAL(triggered()), this, SLOT(checkAll()));
 	a = contextMenu->addAction("Unselect All");
-	connect(a, SIGNAL(triggered()), this, SLOT(unCheckAll()));
+	chk_connect_a(a, SIGNAL(triggered()), this, SLOT(unCheckAll()));
 	contextMenu->popup(mapToGlobal(pos));
 }
 

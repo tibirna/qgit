@@ -35,49 +35,49 @@ FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	fileTab->listWidgetAnn->installEventFilter(this);
 
-	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
+	chk_connect_a(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	connect(m(), SIGNAL(changeFont(const QFont&)),
+	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
 	        fileTab->histListView, SLOT(on_changeFont(const QFont&)));
 
-	connect(fileTab->histListView, SIGNAL(contextMenu(const QString&, int)),
+	chk_connect_a(fileTab->histListView, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(fileTab->textEditFile, SIGNAL(annotationAvailable(bool)),
+	chk_connect_a(fileTab->textEditFile, SIGNAL(annotationAvailable(bool)),
 	        this, SLOT(on_annotationAvailable(bool)));
 
-	connect(fileTab->textEditFile, SIGNAL(fileAvailable(bool)),
+	chk_connect_a(fileTab->textEditFile, SIGNAL(fileAvailable(bool)),
 	        this, SLOT(on_fileAvailable(bool)));
 
-	connect(fileTab->textEditFile, SIGNAL(revIdSelected(int)),
+	chk_connect_a(fileTab->textEditFile, SIGNAL(revIdSelected(int)),
 	        this, SLOT(on_revIdSelected(int)));
 
-	connect(fileTab->toolButtonCopy, SIGNAL(clicked()),
+	chk_connect_a(fileTab->toolButtonCopy, SIGNAL(clicked()),
 	        this, SLOT(on_toolButtonCopy_clicked()));
 
-	connect(fileTab->toolButtonShowAnnotate, SIGNAL(toggled(bool)),
+	chk_connect_a(fileTab->toolButtonShowAnnotate, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonShowAnnotate_toggled(bool)));
 
-	connect(fileTab->toolButtonFindAnnotate, SIGNAL(toggled(bool)),
+	chk_connect_a(fileTab->toolButtonFindAnnotate, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonFindAnnotate_toggled(bool)));
 
-	connect(fileTab->toolButtonGoNext, SIGNAL(clicked()),
+	chk_connect_a(fileTab->toolButtonGoNext, SIGNAL(clicked()),
 	        this, SLOT(on_toolButtonGoNext_clicked()));
 
-	connect(fileTab->toolButtonGoPrev, SIGNAL(clicked()),
+	chk_connect_a(fileTab->toolButtonGoPrev, SIGNAL(clicked()),
 	        this, SLOT(on_toolButtonGoPrev_clicked()));
 
-	connect(fileTab->toolButtonRangeFilter, SIGNAL(toggled(bool)),
+	chk_connect_a(fileTab->toolButtonRangeFilter, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonRangeFilter_toggled(bool)));
 
-	connect(fileTab->toolButtonPin, SIGNAL(toggled(bool)),
+	chk_connect_a(fileTab->toolButtonPin, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonPin_toggled(bool)));
 
-	connect(fileTab->toolButtonHighlightText, SIGNAL(toggled(bool)),
+	chk_connect_a(fileTab->toolButtonHighlightText, SIGNAL(toggled(bool)),
 	        this, SLOT(on_toolButtonHighlightText_toggled(bool)));
 
-	connect(fileTab->spinBoxRevision, SIGNAL(valueChanged(int)),
+	chk_connect_a(fileTab->spinBoxRevision, SIGNAL(valueChanged(int)),
 	        this, SLOT(on_spinBoxRevision_valueChanged(int)));
 }
 
