@@ -114,8 +114,8 @@ void FileHistory::clear(bool complete) {
   lns->clear();
   fNames.clear();
   curFNames.clear();
-  qDeleteAll(rowData);
-  rowData.clear();
+  //qDeleteAll(rowData);
+  //rowData.clear();
 
   if (testFlag(REL_DATE_F)) {
     secs = QDateTime::currentDateTime().toTime_t();

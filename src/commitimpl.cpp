@@ -91,6 +91,8 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 			status += git->getNewCommitMsg();
 
 		msg = status.trimmed();
+        if (!amend)
+            msg.prepend('\n'); // first empty line
 	} else
 		msg = lastMsgBeforeError;
 

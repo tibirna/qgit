@@ -12,6 +12,7 @@
 #include "FileHistory.h"
 #include "git.h"
 #include "dataloader.h"
+#include "break_point.h"
 
 #define GUI_UPDATE_INTERVAL 500
 #define READ_BLOCK_SIZE     65535
@@ -24,15 +25,15 @@ public:
 
 DataLoader::DataLoader(Git* g, FileHistory* f) : QProcess(g), git(g), fh(f) {
 
-	canceling = parsing = false;
-	isProcExited = true;
-	halfChunk = NULL;
+    parsing = false;
+    canceling = false;
+    procFinished = true;
 	dataFile = NULL;
 	loadedBytes = 0;
 	guiUpdateTimer.setSingleShot(true);
 
-    chk_connect_a(git, SIGNAL(cancelAllProcesses()), this, SLOT(on_cancel()));
-    chk_connect_a(&guiUpdateTimer, SIGNAL(timeout()), this, SLOT(on_timeout()));
+	chk_connect_a(git, SIGNAL(cancelAllProcesses()), this, SLOT(on_cancel()));
+	chk_connect_a(&guiUpdateTimer, SIGNAL(timeout()), this, SLOT(on_timeout()));
 }
 
 DataLoader::~DataLoader() {
@@ -44,8 +45,8 @@ DataLoader::~DataLoader() {
 
 void DataLoader::on_cancel(const FileHistory* f) {
 
-	if (f == fh)
-		on_cancel();
+    if (f == fh)
+        on_cancel();
 }
 
 void DataLoader::on_cancel() {
@@ -58,14 +59,14 @@ void DataLoader::on_cancel() {
 
 bool DataLoader::start(const QStringList& args, const QString& wd, const QString& buf) {
 
-	if (!isProcExited) {
+    if (!procFinished) {
 		dbs("ASSERT in DataLoader::start(), called while processing");
 		return false;
 	}
-	isProcExited = false;
+    procFinished = false;
 	setWorkingDirectory(wd);
 
-    chk_connect_a(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+	chk_connect_a(this, SIGNAL(finished(int, QProcess::ExitStatus)),
                   this, SLOT(on_finished(int, QProcess::ExitStatus)));
 
 	if (!createTemporaryFile() || !QGit::startProcess(this, args, buf)) {
@@ -79,7 +80,7 @@ bool DataLoader::start(const QStringList& args, const QString& wd, const QString
 
 void DataLoader::on_finished(int, QProcess::ExitStatus) {
 
-	isProcExited = true;
+    procFinished = true;
 
 	if (parsing && guiUpdateTimer.isActive())
 		dbs("ASSERT in DataLoader: timer active while parsing");
@@ -87,8 +88,8 @@ void DataLoader::on_finished(int, QProcess::ExitStatus) {
 	if (parsing == guiUpdateTimer.isActive() && !canceling)
 		dbs("ASSERT in DataLoader: inconsistent timer");
 
-	if (guiUpdateTimer.isActive()) // no need to wait anymore
-		guiUpdateTimer.start(1);
+    if (guiUpdateTimer.isActive()) // no need to wait anymore
+        guiUpdateTimer.start(1);
 }
 
 void DataLoader::on_timeout() {
@@ -99,133 +100,70 @@ void DataLoader::on_timeout() {
 	}
 	parsing = true;
 
-	// process could exit while we are processing so save the flag now
-	bool lastBuffer = isProcExited;
-	loadedBytes += readNewData(lastBuffer);
-	emit newDataReady(fh); // inserting in list view is about 3% of total time
+    qint64 len = readNewData();
+    if (len == -1) {
+        emit loaded(fh, loadedBytes, loadTime.elapsed(), true, "", "");
+        deleteLater();
+        return;
+    }
+    else if (len > 0) {
+        loadedBytes += len;
+        emit newDataReady(fh);
+    }
 
-	if (lastBuffer) {
-		emit loaded(fh, loadedBytes, loadTime.elapsed(), true, "", "");
-		deleteLater();
-
-	} else if (isProcExited) { // exited while parsing
-		dbs("Exited while parsing!!!!");
-		guiUpdateTimer.start(1);
-	} else
-		guiUpdateTimer.start(GUI_UPDATE_INTERVAL);
+    if (procFinished) {
+        dbs("Exited while parsing!!!!");
+        guiUpdateTimer.start(1);
+    }
+    else
+        guiUpdateTimer.start(GUI_UPDATE_INTERVAL);
 
 	parsing = false;
 }
 
-void DataLoader::parseSingleBuffer(const QByteArray& ba) {
-
-	if (ba.size() == 0 || canceling)
-		return;
-
-	int ofs = 0, newOfs, bz = ba.size();
-
-	/* Due to unknown reasons randomly first byte
-	 * of 'ba' is 0, this seems to happen only when
-	 * using QFile::read(), i.e. with temporary file
-	 * interface. Until we discover the real reason
-	 * workaround this skipping the bogus byte
-	 */
-	if (ba.at(0) == 0 && bz > 1 && !halfChunk)
-		ofs++;
-
-	while (bz - ofs > 0) {
-
-		if (!halfChunk) {
-
-			newOfs = git->addChunk(fh, ba, ofs);
-			if (newOfs == -1)
-				break; // half chunk detected
-
-			ofs = newOfs;
-
-		} else { // less then 1% of cases with READ_BLOCK_SIZE = 64KB
-
-			int end = ba.indexOf('\0');
-			if (end == -1) // consecutives half chunks
-				break;
-
-			ofs = end + 1;
-			baAppend(&halfChunk, ba.constData(), ofs);
-			fh->rowData.append(halfChunk);
-			addSplittedChunks(halfChunk);
-			halfChunk = NULL;
-		}
-	}
-	// save any remaining half chunk
-	if (bz - ofs > 0)
-		baAppend(&halfChunk, ba.constData() + ofs,  bz - ofs);
-}
-
-void DataLoader::addSplittedChunks(const QByteArray* hc) {
-
-	if (hc->at(hc->size() - 1) != 0) {
-		dbs("ASSERT in DataLoader, bad half chunk");
-		return;
-	}
-	// do not assume we have only one chunk in hc
-	int ofs = 0;
-	while (ofs != -1 && ofs != (int)hc->size())
-		ofs = git->addChunk(fh, *hc, ofs);
-}
-
-void DataLoader::baAppend(QByteArray** baPtr, const char* ascii, int len) {
-
-	if (*baPtr)
-		// we cannot use QByteArray::append(const char*)
-		// because 'ascii' is not '\0' terminating
-		(*baPtr)->append(QByteArray::fromRawData(ascii, len));
-	else
-		*baPtr = new QByteArray(ascii, len);
-}
-
 // *************** git interface facility dependant code *****************************
 
-#ifdef USE_QPROCESS
+//#ifdef USE_QPROCESS
 
-ulong DataLoader::readNewData(bool lastBuffer) {
+//ulong DataLoader::readNewData(bool lastBuffer) {
 
-	/*
-	   QByteArray copy c'tor uses shallow copy, but there is a deep copy in
-	   QProcess::readStdout(), from an internal buffers list to return value.
+//	/*
+//	   QByteArray copy c'tor uses shallow copy, but there is a deep copy in
+//	   QProcess::readStdout(), from an internal buffers list to return value.
 
-	   Qt uses a select() to detect new data is ready, copies immediately the
-	   data to the heap with a read() and stores the pointer to new data in a
-	   pointer list, from qprocess_unix.cpp:
+//	   Qt uses a select() to detect new data is ready, copies immediately the
+//	   data to the heap with a read() and stores the pointer to new data in a
+//	   pointer list, from qprocess_unix.cpp:
 
-		const int basize = 4096;
-		QByteArray *ba = new QByteArray(basize);
-		n = ::read(fd, ba->data(), basize);
-		buffer->append(ba); // added to a QPtrList<QByteArray> pointer list
+//		const int basize = 4096;
+//		QByteArray *ba = new QByteArray(basize);
+//		n = ::read(fd, ba->data(), basize);
+//		buffer->append(ba); // added to a QPtrList<QByteArray> pointer list
 
-	   When we call QProcess::readStdout() data from buffers pointed by the
-	   pointer list is memcpy() to the function return value, from qprocess.cpp:
+//	   When we call QProcess::readStdout() data from buffers pointed by the
+//	   pointer list is memcpy() to the function return value, from qprocess.cpp:
 
-		....
-		return buf->readAll(); // memcpy() here
-	*/
-	QByteArray* ba = new QByteArray(readAllStandardOutput());
-	if (lastBuffer)
-		ba->append('\0'); // be sure stream is null terminated
+//		....
+//		return buf->readAll(); // memcpy() here
+//	*/
+//	QByteArray* ba = new QByteArray(readAllStandardOutput());
+//	if (lastBuffer)
+//		ba->append('\0'); // be sure stream is null terminated
 
-	if (ba->size() == 0) {
-		delete ba;
-		return 0;
-	}
-	fh->rowData.append(ba);
-	parseSingleBuffer(*ba);
-	return ba->size();
-}
+//	if (ba->size() == 0) {
+//		delete ba;
+//		return 0;
+//	}
+//	fh->rowData.append(ba);
+//	parseSingleBuffer(*ba);
+//	return ba->size();
+//}
 
-bool DataLoader::createTemporaryFile() { return true; }
+//bool DataLoader::createTemporaryFile() { return true; }
 
-#else // temporary file as data exchange facility
+//#else // temporary file as data exchange facility
 
-ulong DataLoader::readNewData(bool lastBuffer) {
+qint64 DataLoader::readNewData() {
 
 	bool ok = dataFile &&
 	         (dataFile->isOpen() || (dataFile->exists() && dataFile->unbufOpen()));
@@ -233,44 +171,37 @@ ulong DataLoader::readNewData(bool lastBuffer) {
 	if (!ok)
 		return 0;
 
-	ulong cnt = 0;
-	qint64 readPos = dataFile->pos();
+    QByteArray ba;
+    ba.resize(READ_BLOCK_SIZE);
+    qint64 len = dataFile->read((char*) ba.constData(), READ_BLOCK_SIZE);
 
-	while (true) {
-		// this is the ONLY deep copy involved in the whole loading
-		// QFile::read() calls standard C read() function when
-		// file is open with Unbuffered flag, or fread() otherwise
-		QByteArray* ba = new QByteArray();
-		ba->resize(READ_BLOCK_SIZE);
-        int len = static_cast<int>(dataFile->read(ba->data(), READ_BLOCK_SIZE));
+    QTextCodec* tc = QTextCodec::codecForLocale();
 
-		if (len <= 0) {
-			delete ba;
-			break;
+    if (len == 0) {
+        bool atEnd = dataFile->atEnd();
+        if (procFinished && atEnd) {
+            if (!rawBuff.isEmpty()) {
+                rawBuff.append('\0');
+                QString s = tc->toUnicode(rawBuff);
+                git->addChunk(fh, s);
+            }
+            return -1;
+        }
+        return 0;
+    }
+    if (len < ba.size())
+        ba.resize(len);
 
-		} else if (len < ba->size()) // unlikely
-			ba->resize(len);
+    rawBuff.append(ba);
 
-		// current read position must be updated manually, it's
-		// not correctly incremented by read() if the producer
-		// process has already finished
-		readPos += len;
-		dataFile->seek(readPos);
-
-		cnt += len;
-		fh->rowData.append(ba);
-		parseSingleBuffer(*ba);
-
-		// avoid reading small chunks if data producer is still running
-		if (len < READ_BLOCK_SIZE && !lastBuffer)
-			break;
-	}
-	if (lastBuffer) { // be sure stream is null terminated
-		QByteArray* zb = new QByteArray(1, '\0');
-		fh->rowData.append(zb);
-		parseSingleBuffer(*zb);
-	}
-	return cnt;
+    int pos = -1;
+    while ((pos = rawBuff.indexOf('\0')) != -1) {
+        QByteArray b = QByteArray::fromRawData(rawBuff.constData(), pos + 1);
+        QString s = tc->toUnicode(b);
+        git->addChunk(fh, s);
+        rawBuff.remove(0, pos + 1);
+    }
+    return len;
 }
 
 bool DataLoader::createTemporaryFile() {
@@ -317,4 +248,4 @@ bool DataLoader::createTemporaryFile() {
 	return true;
 }
 
-#endif // USE_QPROCESS
+//#endif // USE_QPROCESS

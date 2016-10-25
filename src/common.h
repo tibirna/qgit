@@ -4,8 +4,8 @@
 	Copyright: See COPYING file that comes with this distribution
 
 */
-#ifndef COMMON_H
-#define COMMON_H
+
+#pragma once
 
 #include "defmac.h"
 #include "common_types.h"
@@ -88,9 +88,6 @@ namespace QGit {
 		LANE_TYPES_NUM
 	};
 	const int COLORS_NUM = 8;
-
-    const int SHA_LENGTH = 40; // from git ref. spec.
-    const int SHA_END_LENGTH = SHA_LENGTH + 1; // an sha key + \n
 
 	// graph helpers
 	inline bool isHead(int x) { return (x == HEAD || x == HEAD_R || x == HEAD_L); }
@@ -219,10 +216,6 @@ namespace QGit {
 	};
 	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F;
 
-	// ShaString helpers
-    //const ShaString toTempSha(const QString&); // use as argument only, see definition
-    //const ShaString toPersistentSha(const QString&, QVector<QByteArray>&);
-
 	// settings helpers
     uint flags(const QString& flagsVariable);
     bool testFlag(uint f, const QString& fv = FLAGS_KEY);
@@ -258,57 +251,64 @@ namespace QGit {
 	const int MAX_RECENT_REPOS = 7;
 	extern const QString QUOTE_CHAR;
 	extern const QString SCRIPT_EXT;
-}
+
+    const int SHA_LENGTH = 40; // from git ref. spec.
+    const int SHA_END_LENGTH = SHA_LENGTH + 1; // an sha key + \n
+
+} // namespace QGit {
 
 
 class Rev {
 public:
-    Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff);
-    bool  isBoundary() const;
-    uint  parentsCount() const;
-    const ShaString&  parent(int idx) const;
+    Rev() = default;
+    Rev(const QString& sha, const QStringList& parents, const QString& committer,
+        const QString& author, const QString& authorDate,
+        const QString& shortLog, const QString& longLog,
+        const QString& diff, int orderIdx);
+
+    int parse(const QString& str, int start, int orderIdx, bool withDiff);
+
     const QStringList parents() const;
-    const ShaString&  sha() const;
-    const QString&    committer() const;
-    const QString&    author() const;
-    const QString&    authorDate() const;
-    const QString&    shortLog() const;
-    const QString&    longLog() const;
-    const QString&    diff() const;
+    bool  isBoundary() const {return _isBoundary;}
+    uint  parentsCount() const {return _parents.count();}
+    const ShaString& sha() const {return _sha;}
+    const ShaString& parent(int idx) const {return _parents.at(idx);}
+    const QString&   committer() const {return _committer;}
+    const QString&   author() const {return _author;}
+    const QString&   authorDate() const {return _authorDate;}
+    const QString&   diff() const {return _diff;}
+    const QString&   shortLog() const {return _shortLog;}
+    const QString&   longLog() const {return _longLog;}
 
-    QVector<int> lanes, children;
-	QVector<int> descRefs;     // list of descendant refs index, normally tags
-	QVector<int> ancRefs;      // list of ancestor refs index, normally tags
-	QVector<int> descBranches; // list of descendant branches index
-	int descRefsMaster; // in case of many Rev have the same descRefs, ancRefs or
-	int ancRefsMaster;  // descBranches these are stored only once in a Rev pointed
-	int descBrnMaster;  // by corresponding index xxxMaster
-	int orderIdx;
+    QVector<int> lanes;
+    QVector<int> children;
+    QVector<int> descRefs;     // list of descendant refs index, normally tags
+    QVector<int> ancRefs;      // list of ancestor refs index, normally tags
+    QVector<int> descBranches; // list of descendant branches index
+    int descRefsMaster = {-1}; // in case of many Rev have the same descRefs, ancRefs or
+    int ancRefsMaster  = {-1}; // descBranches these are stored only once in a Rev pointed
+    int descBrnMaster  = {-1}; // by corresponding index xxxMaster
+    int orderIdx = {-1};
 
-    bool isDiffCache, isApplied, isUnApplied; // put here to optimize padding
+    bool isDiffCache = {false}; // put here to optimize padding
+    bool isApplied   = {false}; //
+    bool isUnApplied = {false}; //
 
 private:
-    DISABLE_DEFAULT_CONSTRUCT(Rev)
+    Rev(const Rev&) = delete;
+    Rev& operator== (const Rev&) = delete;
 
-	inline void setup() const { if (!indexed) indexData(false, false); }
-	int indexData(bool quick, bool withDiff) const;
-	const QString mid(int start, int len) const;
-	const QString midSha(int start, int len) const;
+    QString mid(const QString& s, int start, int len) const;
 
-    const QByteArray ba;
-	const int start;
-	mutable int parentsCnt, shaStart, comStart, autStart, autDateStart;
-	mutable int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
-	mutable bool indexed;
-
-    mutable ShaString  _sha;
-    mutable ShaVect    _parentVect;
-    mutable QString    _committer;
-    mutable QString    _author;
-    mutable QString    _authorDate;
-    mutable QString    _shortLog;
-    mutable QString    _longLog;
-    mutable QString    _diff;
+    bool       _isBoundary = {false};
+    ShaString  _sha;
+    ShaVect    _parents;
+    QString    _committer;
+    QString    _author;
+    QString    _authorDate;
+    QString    _shortLog;
+    QString    _longLog;
+    QString    _diff;
 
 };
 typedef QHash<ShaString, const Rev*> RevMap;  // faster then a map
@@ -428,7 +428,5 @@ public:
 private:
 	const QString cmd, err;
 };
-
-#endif
 
 QString qt4and5escaping(QString toescape);

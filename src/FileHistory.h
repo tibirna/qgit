@@ -61,7 +61,7 @@ private:
   ShaVect revOrder;
   Lanes* lns;
   uint firstFreeLane;
-  QList<QByteArray*> rowData;
+  //QList<QByteArray*> rowData;
   QList<QVariant> headerInfo;
   int rowCnt;
   bool annIdValid;

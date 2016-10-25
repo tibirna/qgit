@@ -144,7 +144,7 @@ MainImpl::MainImpl(const QString& cd, QWidget* p) : QMainWindow(p) {
 	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
 
 	// manual adjust lineEditSHA width
-	QString tmp(41, '8');
+    QString tmp(QGit::SHA_END_LENGTH, '8');
 	int wd = lineEditSHA->fontMetrics().boundingRect(tmp).width();
 	lineEditSHA->setMinimumWidth(wd);
 

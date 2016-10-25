@@ -96,23 +96,6 @@ static void adjustPath(QStringList&, bool*) {}
 
 #endif // *********  end of platform dependent code ******
 
-/* Value returned by this function should be used only as function argument,
- * and not stored in a variable because 'ba' value is overwritten at each
- * call so the returned ShaString could became stale very quickly
- */
-//const ShaString toTempSha(const QString& sha) {
-
-//    static QByteArray ba;
-//    ba = sha.toLatin1();
-//    return ShaString(sha.isEmpty() ? NULL : ba.constData());
-//}
-
-//const ShaString oPersistentSha(const QString& sha, QVector<QByteArray>& v) {
-
-//    v.append(sha.toLatin1());
-//    return ShaString(v.last().constData());
-//}
-
 // minimum git version required
 const QString GIT_VERSION = "1.5.5";
 
@@ -488,157 +471,45 @@ bool startProcess(QProcess* proc, const QStringList& args, const QString& buf, b
 
 //---------------------------------- Rev ------------------------------------
 
-Rev::Rev(const QByteArray& b, uint s, int idx, int* next, bool withDiff)
-    : orderIdx(idx), ba(b), start(s) {
+Rev::Rev(const QString& sha, const QStringList& parents, const QString& committer,
+         const QString& author, const QString& authorDate,
+         const QString& shortLog, const QString& longLog,
+         const QString& diff, int orderIdx) {
 
-    indexed = isDiffCache = isApplied = isUnApplied = false;
-    descRefsMaster = ancRefsMaster = descBrnMaster = -1;
-    *next = indexData(true, withDiff);
+    _sha = sha;
+    for (const QString& p : parents)
+        _parents.append(p);
+    _committer = committer;
+    _author = author;
+    _authorDate = authorDate;
+    _shortLog = shortLog;
+    _longLog = longLog;
+    _diff = diff;
+    this->orderIdx = orderIdx;
 }
 
-const QString Rev::mid(int start, int len) const {
+QString Rev::mid(const QString& s, int start, int len) const {
 
-        // warning no sanity check is done on arguments
-        const char* data = ba.constData();
-        return QString::fromLocal8Bit(data + start, len);
-}
-
-const QString Rev::midSha(int start, int len) const {
-
-        // warning no sanity check is done on arguments
-        const char* data = ba.constData();
-        return QString::fromLatin1(data + start, len); // faster then formAscii
-}
-
-//const ShaString Rev::parent(int idx) const {
-
-//        return ShaString(ba.constData() + shaStart + 41 + 41 * idx);
-//}
-
-//const QStringList Rev::parents() const {
-
-//        QStringList p;
-//        int idx = shaStart + 41;
-
-//        for (int i = 0; i < parentsCnt; i++) {
-//                p.append(midSha(idx, 40));
-//                idx += 41;
-//        }
-//        return p;
-//}
-
-//	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
-//	const QString committer() const { setup(); return mid(comStart, autStart - comStart - 1); }
-//	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
-//	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
-//	const QString shortLog() const { setup(); return mid(sLogStart, sLogLen); }
-//	const QString longLog() const { setup(); return mid(lLogStart, lLogLen); }
-//	const QString diff() const { setup(); return mid(diffStart, diffLen); }
-
-
-const ShaString& Rev::sha() const {
-
-    if (_sha.isNull()) {
-        //break_point
-        //_sha = mid(shaStart, QGit::SHA_LENGTH);
-        _sha = QString::fromLatin1(ba.constData() + shaStart, QGit::SHA_LENGTH);
-    }
-    return _sha;
-}
-
-bool Rev::isBoundary() const {
-
-    return (ba.at(shaStart - 1) == '-');
-}
-
-uint Rev::parentsCount() const {
-
-    return parentsCnt;
-}
-
-const ShaString& Rev::parent(int idx) const {
-
-    if (_parentVect.at(idx).isNull()) {
-        //break_point
-        //_parentVect[idx] = mid(shaStart + QGit::SHA_END_LENGTH + QGit::SHA_END_LENGTH * idx, QGit::SHA_LENGTH);
-        const char* shift = ba.constData() + shaStart + 41 + 41 * idx;
-        _parentVect[idx] = QString::fromLatin1(shift, QGit::SHA_LENGTH);
-    }
-    return _parentVect.at(idx);
+    const QChar* data = s.constData();
+    return QString(data + start, len);
 }
 
 const QStringList Rev::parents() const {
 
     QStringList p;
-
-//    int idx = shaStart + 41;
-//    for (int i = 0; i < parentsCnt; i++) {
-//        p.append(midSha(idx, 40));
-//        idx += 41;
-//    }
-
-    for (int i = 0; i < parentsCnt; i++)
-        p.append(parent(i));
-
+    for (int i = 0; i < _parents.count(); i++)
+        p.append(_parents.at(i));
     return p;
 }
 
-const QString& Rev::committer() const {
+int Rev::parse(const QString& str, int start, int orderIdx, bool withDiff) {
 
-    if (_committer.isNull()) {
-        setup();
-        _committer = mid(comStart, autStart - comStart - 1);
-    }
-    return _committer;
-}
+    this->orderIdx = orderIdx;
+    _isBoundary = false;
+    isDiffCache = isApplied = isUnApplied = false;
+    descRefsMaster = ancRefsMaster = descBrnMaster = -1;
 
-const QString& Rev::author() const {
-
-    if (_author.isNull()) {
-        setup();
-        _author = mid(autStart, autDateStart - autStart - 1);
-    }
-    return _author;
-}
-
-const QString& Rev::authorDate() const {
-
-    if (_authorDate.isNull()) {
-        setup();
-        _authorDate = mid(autDateStart, 10);
-    }
-    return _authorDate;
-}
-
-const QString& Rev::shortLog() const {
-
-    if (_shortLog.isNull()) {
-        setup();
-        _shortLog = mid(sLogStart, sLogLen);
-    }
-    return _shortLog;
-}
-
-const QString& Rev::longLog() const {
-
-    if (_longLog.isNull()) {
-        setup();
-        _longLog = mid(lLogStart, lLogLen);
-    }
-    return _longLog;
-}
-
-const QString& Rev::diff() const {
-
-    if (_diff.isNull()) {
-        setup();
-        _diff = mid(diffStart, diffLen);
-    }
-    return _diff;
-}
-
-int Rev::indexData(bool quick, bool withDiff) const {
-    /*
+/*
   This is what 'git log' produces:
 
         - a possible one line with "Final output:\n" in case of --early-output option
@@ -655,27 +526,30 @@ int Rev::indexData(bool quick, bool withDiff) const {
         - a terminating '\0'
 */
     static int error = -1;
-    //static int shaLength = 40; // from git ref. spec.
-    //static int shaEndlLength = shaLength + 1; // an sha key + \n
     static int shaXEndlLength = QGit::SHA_LENGTH + 2; // an sha key + X marker + \n
-    static char finalOutputMarker = 'F'; // marks the beginning of "Final output" string
-    static char logSizeMarker = 'l'; // marks the beginning of "log size" string
+    static QChar finalOutputMarker('F'); // marks the beginning of "Final output" string
+    static QChar logSizeMarker('l'); // marks the beginning of "log size" string
     static int logSizeStrLength = 9; // "log size"
     static int asciiPosOfZeroChar = 48; // char "0" has value 48 in ascii table
 
-    const int last = ba.size() - 1;
+    const int last = str.size() - 1;
     int logSize = 0, idx = start;
     int logEnd, revEnd;
 
+    int shaStart, comStart, autStart, autDateStart;
+    int sLogStart, sLogLen, lLogStart, lLogLen, diffStart, diffLen;
+
+    //if (str.contains(">e2f8a9883b84db38bdcd2dfca27ebe2bc2934ecb"))
+    //    break_point
+
     // direct access is faster then QByteArray.at()
-    const char* data = ba.constData();
-    char* fixup = const_cast<char*>(data); // to build '\0' terminating strings
+    const QChar* data = str.constData();
 
     if (start + shaXEndlLength > last) // at least sha header must be present
         return -1;
 
     if (data[start] == finalOutputMarker) // "Final output", let caller handle this
-        return (ba.indexOf('\n', start) != -1 ? -2 : -1);
+        return (str.indexOf(QChar('\n'), start) != -1) ? -2 : -1;
 
     // parse   'log size xxx\n'   if present -- from git ref. spec.
     if (data[idx] == logSizeMarker) {
@@ -683,7 +557,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
         // parse log size value
         int digit;
-        while ((digit = data[idx++]) != '\n')
+        while ((digit = data[idx++].toLatin1()) != '\n')
             logSize = logSize * 10 + digit - asciiPosOfZeroChar;
     }
     // idx points to the boundary information, which has the same length as an sha header.
@@ -692,31 +566,28 @@ int Rev::indexData(bool quick, bool withDiff) const {
 
     shaStart = idx;
 
+    _isBoundary = (str.at(shaStart - 1) == '-');
+    _sha = mid(str, shaStart, QGit::SHA_LENGTH);
+
     // ok, now shaStart is valid but msgSize could be still 0 if not available
     logEnd = shaStart - 1 + logSize;
     if (logEnd > last)
-        return error;
+        logEnd = last;
 
     idx += QGit::SHA_LENGTH; // now points to 'X' place holder
 
-    fixup[idx] = '\0'; // we want sha to be a '\0' terminated ascii string
-
-    parentsCnt = 0;
+    //parentsCnt = 0;
 
     if (data[idx + 2] == '\n') // initial revision
         ++idx;
     else do {
-        parentsCnt++;
+        _parents.append(mid(str, idx + 1, QGit::SHA_LENGTH));
         idx += QGit::SHA_END_LENGTH;
 
         if (idx + 1 >= last)
             break;
 
-        fixup[idx] = '\0'; // we want parents '\0' terminated
-
     } while (data[idx + 1] != '\n');
-
-    _parentVect.resize(parentsCnt);
 
     ++idx; // now points to the trailing '\n' of sha line
 
@@ -724,9 +595,9 @@ int Rev::indexData(bool quick, bool withDiff) const {
     if (withDiff || !logSize) {
 
         revEnd = (logEnd > idx) ? logEnd - 1: idx;
-        revEnd = ba.indexOf('\0', revEnd + 1);
+        revEnd = str.indexOf(QChar('\0'), revEnd + 1);
         if (revEnd == -1)
-            return -1;
+            return error;
 
     } else
         revEnd = logEnd;
@@ -737,41 +608,49 @@ int Rev::indexData(bool quick, bool withDiff) const {
     // ok, now revEnd is valid but logEnd could be not if !logSize
     // in case of diff we are sure content will be consumed so
     // we go all the way
-    if (quick && !withDiff)
-        return ++revEnd;
+    //if (/*quick && */!withDiff) {
+    //    //break_point
+    //    return ++revEnd;
+    //}
 
     // commiter
     comStart = ++idx;
-    idx = ba.indexOf('\n', idx); // committer line end
+    idx = str.indexOf(QChar('\n'), idx); // committer line end
     if (idx == -1) {
         dbs("ASSERT in indexData: unexpected end of data");
-        return -1;
+        return error;
     }
 
     // author
     autStart = ++idx;
-    idx = ba.indexOf('\n', idx); // author line end
+    idx = str.indexOf(QChar('\n'), idx); // author line end
     if (idx == -1) {
         dbs("ASSERT in indexData: unexpected end of data");
-        return -1;
+        return error;
     }
+    _committer = mid(str, comStart, autStart - comStart - 1);
 
     // author date in Unix format (seconds since epoch)
     autDateStart = ++idx;
-    idx = ba.indexOf('\n', idx); // author date end without '\n'
+    idx = str.indexOf(QChar('\n'), idx); // author date end without '\n'
     if (idx == -1) {
         dbs("ASSERT in indexData: unexpected end of data");
-        return -1;
+        return error;
     }
+    _author = mid(str, autStart, autDateStart - autStart - 1);
+    _authorDate = mid(str, autDateStart, 10);
+
     // if no error, point to trailing \n
     ++idx;
 
     diffStart = diffLen = 0;
     if (withDiff) {
-        diffStart = logSize ? logEnd : ba.indexOf("\ndiff ", idx);
+        diffStart = logSize ? logEnd : str.indexOf(QLatin1String("\ndiff "), idx);
 
-        if (diffStart != -1 && diffStart < revEnd)
+        if (diffStart != -1 && diffStart < revEnd) {
             diffLen = revEnd - ++diffStart;
+            _diff = mid(str, diffStart, diffLen);
+        }
         else
             diffStart = 0;
     }
@@ -786,7 +665,7 @@ int Rev::indexData(bool quick, bool withDiff) const {
         sLogStart = sLogLen = 0;
         lLogStart = lLogLen = 0;
     } else {
-        lLogStart = ba.indexOf('\n', sLogStart);
+        lLogStart = str.indexOf(QChar('\n'), sLogStart);
         if (lLogStart != -1 && lLogStart < logEnd - 1) {
 
             sLogLen = lLogStart - sLogStart; // skip sLog trailing '\n'
@@ -800,7 +679,12 @@ int Rev::indexData(bool quick, bool withDiff) const {
             lLogStart = lLogLen = 0;
         }
     }
-    indexed = true;
+    if (sLogLen)
+        _shortLog = mid(str, sLogStart, sLogLen);
+
+    if (lLogLen)
+        _longLog = mid(str, lLogStart, lLogLen);
+
     return ++revEnd;
 }
 

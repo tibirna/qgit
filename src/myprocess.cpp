@@ -161,7 +161,8 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	// in Window shell interpreter.
 	//
 	// So to detect a failing command we check also if stderr is not empty.
-	QByteArray err = readAllStandardError();
+	QTextCodec* tc = QTextCodec::codecForLocale();
+	QString err = tc->toUnicode(readAllStandardError())
 	accError += err;
 
 	isErrorExit =   (exitStatus != QProcess::NormalExit)

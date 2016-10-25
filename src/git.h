@@ -213,15 +213,15 @@ private:
 	bool startUnappliedList();
 	bool startParseProc(const QStringList& initCmd, FileHistory* fh, const QString& buf);
 	bool tryFollowRenames(FileHistory* fh);
-	bool populateRenamedPatches(const QString& sha, const QStringList& nn, FileHistory* fh, QStringList* on, bool bt);
+    bool populateRenamedPatches(const QString& sha, const QStringList& nn,
+                                FileHistory* fh, QStringList* on, bool bt);
 	bool filterEarlyOutputRev(FileHistory* fh, Rev* rev);
-	int addChunk(FileHistory* fh, const QByteArray& ba, int ofs);
+    int addChunk(FileHistory* fh, const QString& str);
 	void parseDiffFormat(RevFile& rf, const QString& buf, FileNamesLoader& fl);
 	void parseDiffFormatLine(RevFile& rf, const QString& line, int parNum, FileNamesLoader& fl);
 	void getDiffIndex();
-	Rev* fakeRevData(const QString& sha, const QStringList& parents, const QString& author, const QString& date, const QString& log,
-                         const QString& longLog, const QString& patch, int idx, FileHistory* fh);
-	const Rev* fakeWorkDirRev(const QString& parent, const QString& log, const QString& longLog, int idx, FileHistory* fh);
+    const Rev* fakeWorkDirRev(const QString& parent, const QString& log,
+                              const QString& longLog, int idx, FileHistory* fh);
 	const RevFile* fakeWorkDirRevFile(const WorkingDirInfo& wd);
 	bool copyDiffIndex(FileHistory* fh, const QString& parent);
 	const RevFile* insertNewFiles(const QString& sha, const QString& data);

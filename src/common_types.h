@@ -14,9 +14,14 @@ public:
         QString::operator= (s);
         return *this;
     }
-    bool operator== (const QString& o) const {return QString::operator== (o);}
-    bool operator!= (const QString& o) const {return !operator== (o);}
 };
+
+inline bool operator== (const ShaString& s1, const QString& s2) {
+    return ((QString)s1 == s2);
+}
+inline bool operator!= (const ShaString& s1, const QString& s2) {
+    return !(s1 == s2);
+}
 
 typedef QVector<QString>    StrVect;
 typedef QVector<ShaString>  ShaVect;

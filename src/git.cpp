@@ -26,6 +26,7 @@
 #include "lanes.h"
 #include "myprocess.h"
 #include "rangeselectimpl.h"
+#include "break_point.h"
 
 #define SHOW_MSG(x) QApplication::postEvent(parent(), new MessageEvent(x)); EM_PROCESS_EVENTS_NO_INPUT;
 
@@ -496,9 +497,10 @@ bool Git::run(const QString& runCmd, QString* runOutput, QObject* receiver, cons
 
 	QByteArray ba;
 	bool ret = run(runOutput ? &ba : NULL, runCmd, receiver, buf);
-	if (runOutput)
-		*runOutput = ba;
-
+    if (runOutput) {
+        QTextCodec* tc = QTextCodec::codecForLocale();
+        *runOutput = tc->toUnicode(ba);
+    }
 	return ret;
 }
 
@@ -1778,8 +1780,8 @@ bool Git::getRefs() {
         const QStringList rLst(runOutput.split('\n', QString::SkipEmptyParts));
         FOREACH_SL (it, rLst) {
 
-                const QString& revSha = (*it).left(40);
-                const QString& refName = (*it).mid(41);
+                const QString& revSha = (*it).left(QGit::SHA_LENGTH);
+                const QString& refName = (*it).mid(QGit::SHA_END_LENGTH);
 
                 if (refName.startsWith("refs/patches/")) {
 
@@ -1899,33 +1901,8 @@ const QStringList Git::getOthersFiles() {
         return runOutput.split('\n', QString::SkipEmptyParts);
 }
 
-Rev* Git::fakeRevData(const QString& sha, const QStringList& parents, const QString& author, const QString& date, const QString& log, const QString& longLog,
-                      const QString& patch, int idx, FileHistory* fh) {
-
-        QString data('>' + sha + 'X' + parents.join(" ") + " \n");
-        data.append(author + '\n' + author + '\n' + date + '\n');
-        data.append(log + '\n' + longLog);
-
-        QString header("log size " + QString::number(QByteArray(data.toLatin1()).length() - 1) + '\n');
-        data.prepend(header);
-        if (!patch.isEmpty())
-                data.append('\n' + patch);
-
-#if QT_VERSION >= 0x050000
-        QTextCodec* tc = QTextCodec::codecForLocale();
-        QByteArray* ba = new QByteArray(tc->fromUnicode(data));
-#else
-        QByteArray* ba = new QByteArray(data.toLatin1());
-#endif
-        ba->append('\0');
-
-        fh->rowData.append(ba);
-        int dummy;
-        Rev* c = new Rev(*ba, 0, idx, &dummy, !isMainHistory(fh));
-        return c;
-}
-
-const Rev* Git::fakeWorkDirRev(const QString& parent, const QString& log, const QString& longLog, int idx, FileHistory* fh) {
+const Rev* Git::fakeWorkDirRev(const QString& parent, const QString& log,
+                               const QString& longLog, int idx, FileHistory* fh) {
 
         QString patch;
         if (!isMainHistory(fh))
@@ -1934,7 +1911,7 @@ const Rev* Git::fakeWorkDirRev(const QString& parent, const QString& log, const 
         QString date(QString::number(QDateTime::currentDateTime().toTime_t()));
         QString author("-");
         QStringList parents(parent);
-        Rev* c = fakeRevData(ZERO_SHA, parents, author, date, log, longLog, patch, idx, fh);
+        Rev* c = new Rev(ZERO_SHA, parents, author, author, date, log, longLog, patch, idx);
         c->isDiffCache = true;
         c->lanes.append(EMPTY);
         return c;
@@ -2435,8 +2412,8 @@ bool Git::tryFollowRenames(FileHistory* fh) {
         return startRevList(args, fh);
 }
 
-bool Git::populateRenamedPatches(const QString& renamedSha, const QStringList& newNames, FileHistory* fh,
-                                 QStringList* oldNames, bool backTrack) {
+bool Git::populateRenamedPatches(const QString& renamedSha, const QStringList& newNames,
+                                 FileHistory* fh, QStringList* oldNames, bool backTrack) {
 
         QString runOutput;
         if (!run("git diff-tree -r -M " + renamedSha, &runOutput))
@@ -2557,25 +2534,31 @@ bool Git::filterEarlyOutputRev(FileHistory* fh, Rev* rev) {
         return false;
 }
 
-int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
+int Git::addChunk(FileHistory* fh, const QString& str) {
 
         RevMap& r = fh->revs;
-        int nextStart;
         Rev* rev;
+        int start = 0;
+        int nextStart;
 
         do {
                 // only here we create a new rev
-                rev = new Rev(ba, start, fh->revOrder.count(), &nextStart, !isMainHistory(fh));
+                rev = new Rev();
+                nextStart = rev->parse(str, start, fh->revOrder.count(), !isMainHistory(fh));
 
                 if (nextStart == -2) {
+                        // if got here - it is necessary to clarify and remove the cause
+                        break_point
                         delete rev;
                         fh->setEarlyOutputState(true);
-                        start = ba.indexOf('\n', start) + 1;
+                        start = str.indexOf('\n', start) + 1;
                 }
 
         } while (nextStart == -2);
 
-        if (nextStart == -1) { // half chunk detected
+        if (nextStart == -1) {
+                // if got here - it is necessary to clarify and remove the cause
+                break_point
                 delete rev;
                 return -1;
         }
@@ -2635,9 +2618,14 @@ int Git::addChunk(FileHistory* fh, const QByteArray& ba, int start) {
                 // this is the new rev with renamed file, the rev is correct but
                 // the patch, create a new rev with proper patch and use that instead
                 const Rev* prevSha = revLookup(sha, fh);
-                Rev* c = fakeRevData(sha, rev->parents(), rev->author(),
-                                     rev->authorDate(), rev->shortLog(), rev->longLog(),
-                                     fh->renamedPatches[sha], prevSha->orderIdx, fh);
+                //Rev* c = fakeRevData(sha, rev->parents(), rev->author(),
+                //                     rev->authorDate(), rev->shortLog(), rev->longLog(),
+                //                     fh->renamedPatches[sha], prevSha->orderIdx, fh);
+                const QString& committer = rev->author();
+                Rev* c = new Rev(sha, rev->parents(), committer,
+                                 rev->author(), rev->authorDate(),
+                                 rev->shortLog(), rev->longLog(),
+                                 fh->renamedPatches[sha], prevSha->orderIdx);
 
                 r.insert(sha, c); // overwrite old content
                 fh->renamedPatches.remove(sha);
