@@ -12,6 +12,7 @@
 #include <QDir>
 #include "exceptionmanager.h"
 #include "common.h"
+#include "defmac.h"
 #include "ui_mainview.h"
 
 class QAction;
@@ -198,8 +199,8 @@ public:
 	ExternalDiffProc(const QStringList& f, QObject* p)
 		: QProcess(p), filenames(f) {
 
-		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+		chk_connect_a(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+                      this, SLOT(on_finished(int, QProcess::ExitStatus)));
 	}
 	~ExternalDiffProc() {
 
@@ -230,8 +231,8 @@ public:
 	ExternalEditorProc(QObject* p)
 	    : QProcess(p) {
 
-		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+		chk_connect_a(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+                      this, SLOT(on_finished(int, QProcess::ExitStatus)));
 	}
 	~ExternalEditorProc() {
 		terminate();

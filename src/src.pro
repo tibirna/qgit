@@ -53,6 +53,11 @@ macx {
     RC_FILE = resources/qgit.icns
 }
 
+CONFIG(release, debug|release) {
+    #This is a release build
+    DEFINES += NDEBUG
+}
+
 HAVE_GCC {
 	QMAKE_CXXFLAGS_RELEASE += -s -O2 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion
 	QMAKE_CXXFLAGS_DEBUG += -g3 -ggdb -O0 -Wno-non-virtual-dtor -Wno-long-long -pedantic -Wconversion

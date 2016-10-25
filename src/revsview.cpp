@@ -40,24 +40,24 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	v << tab()->horizontalSplitter << tab()->verticalSplitter;
 	QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
 
-	connect(m(), SIGNAL(typeWriterFontChanged()),
+	chk_connect_a(m(), SIGNAL(typeWriterFontChanged()),
 	        tab()->textEditDiff, SLOT(typeWriterFontChanged()));
 
-	connect(m(), SIGNAL(flagChanged(uint)),
+	chk_connect_a(m(), SIGNAL(flagChanged(uint)),
 	        sb, SLOT(flagChanged(uint)));
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+	chk_connect_a(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
 	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
-	connect(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
+	chk_connect_a(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
 	        this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	connect(m(), SIGNAL(changeFont(const QFont&)),
+	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
 	        tab()->listViewLog, SLOT(on_changeFont(const QFont&)));
 
-	connect(m(), SIGNAL(updateRevDesc()), this, SLOT(on_updateRevDesc()));
+	chk_connect_a(m(), SIGNAL(updateRevDesc()), this, SLOT(on_updateRevDesc()));
 
-	connect(tab()->listViewLog, SIGNAL(lanesContextMenuRequested(const QStringList&,
+	chk_connect_a(tab()->listViewLog, SIGNAL(lanesContextMenuRequested(const QStringList&,
 	        const QStringList&)), this, SLOT(on_lanesContextMenuRequested
 	       (const QStringList&, const QStringList&)));
 
@@ -73,19 +73,19 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(tab()->listViewLog, SIGNAL(moveRef(QString,QString)),
 	        m(), SLOT(moveRef(QString,QString)));
 
-	connect(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
+	chk_connect_a(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(m()->treeView, SIGNAL(contextMenu(const QString&, int)),
+	chk_connect_a(m()->treeView, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
+	chk_connect_a(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(m(), SIGNAL(changeFont(const QFont&)),
+	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
 	       tab()->fileList, SLOT(on_changeFont(const QFont&)));
 
-	connect(m(), SIGNAL(highlightPatch(const QString&, bool)),
+	chk_connect_a(m(), SIGNAL(highlightPatch(const QString&, bool)),
 	        tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));
 }
 
@@ -192,14 +192,14 @@ void RevsView::viewPatch(bool newTab) {
 		linkedPatchView = pv;
 		linkDomain(linkedPatchView);
 
-		connect(m(), SIGNAL(highlightPatch(const QString&, bool)),
+		chk_connect_a(m(), SIGNAL(highlightPatch(const QString&, bool)),
 			pv->tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));
 
-		connect(pv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+		chk_connect_a(pv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 			m(), SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 	}
-	connect(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
-	connect(m(), SIGNAL(closeAllTabs()), pv, SLOT(on_closeAllTabs()));
+	chk_connect_a(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
+	chk_connect_a(m(), SIGNAL(closeAllTabs()), pv, SLOT(on_closeAllTabs()));
 	pv->st = st;
 	UPDATE_DM_MASTER(pv, false);
 }

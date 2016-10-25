@@ -8,16 +8,17 @@
 #include <QContextMenuEvent>
 #include <QRegExp>
 #include <QClipboard>
+#include "defmac.h"
 #include "domain.h"
 #include "revdesc.h"
 
 RevDesc::RevDesc(QWidget* p) : QTextBrowser(p), d(NULL) {
 
-	connect(this, SIGNAL(anchorClicked(const QUrl&)),
-	        this, SLOT(on_anchorClicked(const QUrl&)));
+	chk_connect_a(this, SIGNAL(anchorClicked(const QUrl&)),
+                  this, SLOT(on_anchorClicked(const QUrl&)));
 
-	connect(this, SIGNAL(highlighted(const QUrl&)),
-	        this, SLOT(on_highlighted(const QUrl&)));
+	chk_connect_a(this, SIGNAL(highlighted(const QUrl&)),
+                  this, SLOT(on_highlighted(const QUrl&)));
 }
 
 void RevDesc::on_anchorClicked(const QUrl& link) {
@@ -47,7 +48,7 @@ void RevDesc::contextMenuEvent(QContextMenuEvent* e) {
 	QMenu* menu = createStandardContextMenu();
 	if (!highlightedLink.isEmpty()) {
 		QAction* act = menu->addAction("Copy link SHA1");
-		connect(act, SIGNAL(triggered()), this, SLOT(on_linkCopy()));
+		chk_connect_a(act, SIGNAL(triggered()), this, SLOT(on_linkCopy()));
 	}
 	menu->exec(e->globalPos());
 	delete menu;

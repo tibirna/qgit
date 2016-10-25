@@ -124,6 +124,7 @@ Product {
         "dataloader.h",
         "domain.cpp",
         "domain.h",
+        "defmac.h",
         "exceptionmanager.cpp",
         "exceptionmanager.h",
         "filecontent.cpp",

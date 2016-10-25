@@ -20,6 +20,7 @@
 #include "FileHistory.h"
 #include "annotate.h"
 #include "cache.h"
+#include "defmac.h"
 #include "dataloader.h"
 #include "git.h"
 #include "lanes.h"
@@ -536,7 +537,7 @@ MyProcess* Git::runAsScript(SCRef runCmd, QObject* receiver, SCRef buf) {
 
 	MyProcess* p = runAsync(scriptFile, receiver, buf);
 	if (p)
-		connect(p, SIGNAL(eof()), this, SLOT(on_runAsScript_eof()));
+        chk_connect_a(p, SIGNAL(eof()), this, SLOT(on_runAsScript_eof()));
 	return p;
 }
 
@@ -740,7 +741,7 @@ MyProcess* Git::getHighlightedFile(SCRef fileSha, QObject* receiver, QString* re
 	}
 	MyProcess* p = runAsync(runCmd, receiver);
 	if (p)
-		connect(p, SIGNAL(eof()), this, SLOT(on_getHighlightedFile_eof()));
+        chk_connect_a(p, SIGNAL(eof()), this, SLOT(on_getHighlightedFile_eof()));
 	return p;
 }
 
@@ -2125,16 +2126,14 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
         DataLoader* dl = new DataLoader(this, fh); // auto-deleted when done
 
-        connect(this, SIGNAL(cancelLoading(const FileHistory*)),
-                dl, SLOT(on_cancel(const FileHistory*)));
+        chk_connect_a(this, SIGNAL(cancelLoading(const FileHistory*)),
+                      dl, SLOT(on_cancel(const FileHistory*)));
 
-        connect(dl, SIGNAL(newDataReady(const FileHistory*)),
-                this, SLOT(on_newDataReady(const FileHistory*)));
+        chk_connect_a(dl, SIGNAL(newDataReady(const FileHistory*)),
+                      this, SLOT(on_newDataReady(const FileHistory*)));
 
-        connect(dl, SIGNAL(loaded(FileHistory*, ulong, int,
-                bool, const QString&, const QString&)), this,
-                SLOT(on_loaded(FileHistory*, ulong, int,
-                bool, const QString&, const QString&)));
+        chk_connect_a(dl, SIGNAL(loaded(FileHistory*, ulong, int, bool, QString, QString)),
+                      this, SLOT(on_loaded(FileHistory*, ulong, int, bool, QString, QString)));
 
         return dl->start(initCmd, workDir, buf);
 }

@@ -14,6 +14,7 @@
 #include <QClipboard>
 #include <QTemporaryFile>
 #include <QAbstractTextDocumentLayout>
+#include "defmac.h"
 #include "domain.h"
 #include "myprocess.h"
 #include "mainimpl.h"
@@ -82,23 +83,23 @@ void FileContent::setup(Domain* dm, Git* g, QListWidget* lw) {
 
 	clearAll(!optEmitSignal);
 
-	connect(d->m(), SIGNAL(typeWriterFontChanged()),
-	        this, SLOT(typeWriterFontChanged()));
+	chk_connect_a(d->m(), SIGNAL(typeWriterFontChanged()),
+                  this, SLOT(typeWriterFontChanged()));
 
-	connect(git, SIGNAL(annotateReady(Annotate*, bool, const QString&)),
-	        this, SLOT(on_annotateReady(Annotate*, bool, const QString&)));
+	chk_connect_a(git, SIGNAL(annotateReady(Annotate*, bool, const QString&)),
+                  this, SLOT(on_annotateReady(Annotate*, bool, const QString&)));
 
-	connect(listWidgetAnn, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-	        this, SLOT(on_list_doubleClicked(QListWidgetItem*)));
+	chk_connect_a(listWidgetAnn, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+                  this, SLOT(on_list_doubleClicked(QListWidgetItem*)));
 
 	QScrollBar* vsb = verticalScrollBar();
-	connect(vsb, SIGNAL(valueChanged(int)),
-	        this, SLOT(on_scrollBar_valueChanged(int)));
+	chk_connect_a(vsb, SIGNAL(valueChanged(int)),
+                  this, SLOT(on_scrollBar_valueChanged(int)));
         vsb->setSingleStep(fontMetrics().lineSpacing());
 
 	vsb = listWidgetAnn->verticalScrollBar();
-	connect(vsb, SIGNAL(valueChanged(int)),
-	        this, SLOT(on_listScrollBar_valueChanged(int)));
+	chk_connect_a(vsb, SIGNAL(valueChanged(int)),
+                  this, SLOT(on_listScrollBar_valueChanged(int)));
         vsb->setSingleStep(fontMetrics().lineSpacing());
 }
 

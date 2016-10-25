@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QTreeWidgetItemIterator>
 #include "git.h"
+#include "defmac.h"
 #include "domain.h"
 #include "mainimpl.h"
 #include "treeview.h"
@@ -50,17 +51,17 @@ void TreeView::setup(Domain* dm, Git* g) {
 	folderOpen   = QGit::mimePix(".#folder_open");
 	fileDefault  = QGit::mimePix(".#default");
 
-	connect(this, SIGNAL(itemExpanded(QTreeWidgetItem*)),
-	        this, SLOT(on_itemExpanded(QTreeWidgetItem*)));
+	chk_connect_a(this, SIGNAL(itemExpanded(QTreeWidgetItem*)),
+                  this, SLOT(on_itemExpanded(QTreeWidgetItem*)));
 
-	connect(this, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
-	        this, SLOT(on_itemCollapsed(QTreeWidgetItem*)));
+	chk_connect_a(this, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
+                  this, SLOT(on_itemCollapsed(QTreeWidgetItem*)));
 
-	connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-	        this, SLOT(on_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+	chk_connect_a(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+                  this, SLOT(on_currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
+	chk_connect_a(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+                  this, SLOT(on_customContextMenuRequested(const QPoint&)));
 }
 
 void TreeView::on_currentItemChanged(QTreeWidgetItem* item, QTreeWidgetItem*) {

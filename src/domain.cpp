@@ -180,7 +180,7 @@ void Domain::setTabCaption(const QString& caption) {
 void Domain::unlinkDomain(Domain* d) {
 
 	d->linked = false;
-	while (d->disconnect(SIGNAL(updateRequested(StateInfo)), this))
+    while (d->disconnect(SIGNAL(updateRequested(StateInfo)), this))
 		;// a signal is emitted for every connection you make,
 		 // so if you duplicate a connection, two signals will be emitted.
 }
@@ -188,7 +188,7 @@ void Domain::unlinkDomain(Domain* d) {
 void Domain::linkDomain(Domain* d) {
 
 	unlinkDomain(d); // be sure only one connection is active
-	connect(d, SIGNAL(updateRequested(StateInfo)), this, SLOT(on_updateRequested(StateInfo)));
+	chk_connect_a(d, SIGNAL(updateRequested(StateInfo)), this, SLOT(on_updateRequested(StateInfo)));
 	d->linked = true;
 }
 

@@ -10,6 +10,7 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
+#include "defmac.h"
 #include "git.h"
 #include "domain.h"
 #include "filelist.h"
@@ -24,11 +25,11 @@ void FileList::setup(Domain* dm, Git* g) {
 
 	setFont(QGit::STD_FONT);
 
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
+	chk_connect_a(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+                  this, SLOT(on_customContextMenuRequested(const QPoint&)));
 
-	connect(this, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-	        this, SLOT(on_currentItemChanged(QListWidgetItem*, QListWidgetItem*)));
+	chk_connect_a(this, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+                  this, SLOT(on_currentItemChanged(QListWidgetItem*, QListWidgetItem*)));
 }
 
 void FileList::addItem(const QString& label, const QColor& clr) {

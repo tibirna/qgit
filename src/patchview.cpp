@@ -25,25 +25,25 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	bg->addButton(patchTab->radioButtonParent, DIFF_TO_PARENT);
 	bg->addButton(patchTab->radioButtonHead, DIFF_TO_HEAD);
 	bg->addButton(patchTab->radioButtonSha, DIFF_TO_SHA);
-	connect(bg, SIGNAL(buttonClicked(int)), this, SLOT(button_clicked(int)));
+	chk_connect_a(bg, SIGNAL(buttonClicked(int)), this, SLOT(button_clicked(int)));
 
 	patchTab->textBrowserDesc->setup(this);
 	patchTab->textEditDiff->setup(this, git);
 	patchTab->fileList->setup(this, git);
 
-	connect(m(), SIGNAL(typeWriterFontChanged()),
+	chk_connect_a(m(), SIGNAL(typeWriterFontChanged()),
 	        patchTab->textEditDiff, SLOT(typeWriterFontChanged()));
 
-	connect(m(), SIGNAL(changeFont(const QFont&)),
+	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
 	       patchTab->fileList, SLOT(on_changeFont(const QFont&)));
 
-	connect(patchTab->lineEditDiff, SIGNAL(returnPressed()),
+	chk_connect_a(patchTab->lineEditDiff, SIGNAL(returnPressed()),
 	        this, SLOT(lineEditDiff_returnPressed()));
 
-	connect(patchTab->fileList, SIGNAL(contextMenu(const QString&, int)),
+	chk_connect_a(patchTab->fileList, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));
 
-	connect(patchTab->buttonFilterPatch, SIGNAL(clicked()),
+	chk_connect_a(patchTab->buttonFilterPatch, SIGNAL(clicked()),
 	        this, SLOT(buttonFilterPatch_clicked()));
 }
 
