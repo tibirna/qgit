@@ -1777,8 +1777,8 @@ bool Git::getRefs() {
         curBranchSHA = curBranchSHA.trimmed();
         curBranchName = curBranchName.prepend('\n').section("\n*", 1);
         curBranchName = curBranchName.section('\n', 0, 0).trimmed();
-        if (curBranchName.contains(" detached "))
-            curBranchName = "";
+        //if (curBranchName.startsWith("(detached from"))
+        //    curBranchName = "";
 
         // read refs, normally unsorted
         QString runOutput;
@@ -1835,10 +1835,12 @@ bool Git::getRefs() {
 
                 } else if (refName.startsWith("refs/heads/")) {
 
-                        cur->branches.append(refName.mid(11));
+                        QString branchName = refName.mid(11);
+                        cur->branches.append(branchName);
                         cur->type |= BRANCH;
-                        if (curBranchSHA == revSha)
+                        if ((curBranchSHA == revSha) && (curBranchName == branchName))
                                 cur->type |= CUR_BRANCH;
+
                 } else if (refName.startsWith("refs/remotes/") && !refName.endsWith("HEAD")) {
 
                         cur->remoteBranches.append(refName.mid(13));
@@ -1856,7 +1858,8 @@ bool Git::getRefs() {
 
         // mark current head (even when detached)
         Reference* cur = lookupOrAddReference(curBranchSHA);
-        cur->type |= CUR_BRANCH;
+        if ((cur->type & CUR_BRANCH) != CUR_BRANCH)
+                cur->type |= HEAD_DETACHED;
 
         return !refsShaMap.empty();
 }
