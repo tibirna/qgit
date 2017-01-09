@@ -146,6 +146,7 @@ private:
 	void highlightAbbrevSha(SCRef abbrevSha);
 	void setRepository(SCRef wd, bool = false, bool = false, const QStringList* = NULL, bool = false);
 	void getExternalDiffArgs(QStringList* args, QStringList* filenames);
+	QString copyFileToDiffIfNeeded(QStringList* filenames, QString sha);
 	QStringList getExternalEditorArgs();
 	void lineEditSHASetText(SCRef text);
 	void updateCommitMenu(bool isStGITStack);
@@ -181,8 +182,10 @@ private:
 	QString textToFind;
 	QRegExp shortLogRE;
 	QRegExp longLogRE;
+	static const QRegExp emptySha;
 	QMap<QString, QVariant> revision_variables; // variables used in generic input dialogs
 	bool setRepositoryBusy;
+
 };
 
 class ExternalDiffProc : public QProcess {
@@ -209,8 +212,10 @@ private:
 
 		if (!filenames.empty()) {
 			QDir d; // remove temporary files to diff on
-			d.remove(filenames[0]);
-			d.remove(filenames[1]);
+			for (int i = 0; i < filenames.size(); i++)
+			{
+				d.remove(filenames[i]);
+			}
 		}
 	}
 };

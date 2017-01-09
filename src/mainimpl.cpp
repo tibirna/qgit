@@ -258,33 +258,48 @@ void MainImpl::ActExternalDiff_activated() {
 	}
 }
 
+const QRegExp MainImpl::emptySha("0*");
+
+QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
+	if (emptySha.exactMatch(sha))
+	{
+		return QString(curDir + "/" + rv->st.fileName());
+	}
+
+	QFileInfo f(rv->st.fileName());
+	QFileInfo fi(f);
+
+	QString fName(curDir + "/" + sha.left(6) + "_" + fi.fileName());
+
+	QByteArray fileContent;
+	QTextCodec* tc = QTextCodec::codecForLocale();
+
+	QString fileSha(git->getFileSha(rv->st.fileName(), sha));
+	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
+	if (!writeToFile(fName, tc->toUnicode(fileContent)))
+	{
+		statusBar()->showMessage("Unable to save " + fName);
+	}
+
+	filenames->append(fName);
+
+	return fName;
+
+}
+
 void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
 
-	// save files to diff in working directory,
-	// will be removed by ExternalDiffProc on exit
-	QFileInfo f(rv->st.fileName());
 	QString prevRevSha(rv->st.diffToSha());
 	if (prevRevSha.isEmpty()) { // default to first parent
 		const Rev* r = git->revLookup(rv->st.sha());
 		prevRevSha = (r && r->parentsCount() > 0 ? r->parent(0) : rv->st.sha());
 	}
-	QFileInfo fi(f);
-	QString fName1(curDir + "/" + rv->st.sha().left(6) + "_" + fi.fileName());
-	QString fName2(curDir + "/" + prevRevSha.left(6) + "_" + fi.fileName());
+	// save files to diff in working directory,
+	// will be removed by ExternalDiffProc on exit
+	QString fName1 = copyFileToDiffIfNeeded(filenames, rv->st.sha());
+	QString fName2 = copyFileToDiffIfNeeded(filenames, prevRevSha);
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	QByteArray fileContent;
-	QTextCodec* tc = QTextCodec::codecForLocale();
-	QString fileSha(git->getFileSha(rv->st.fileName(), rv->st.sha()));
-	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
-	if (!writeToFile(fName1, tc->toUnicode(fileContent)))
-		statusBar()->showMessage("Unable to save " + fName1);
-
-	fileSha = git->getFileSha(rv->st.fileName(), prevRevSha);
-	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
-	if (!writeToFile(fName2, tc->toUnicode(fileContent)))
-		statusBar()->showMessage("Unable to save " + fName2);
 
 	// get external diff viewer command
 	QSettings settings;
@@ -314,9 +329,6 @@ void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
 		args->append(curArg);
 	}
 
-	// set filenames so that they can be deleted when the process completes
-	filenames->append(fName1);
-	filenames->append(fName2);
 }
 
 // *************************** ExternalEditor ***************************
