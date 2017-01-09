@@ -966,7 +966,19 @@ const QString Git::getLastCommitMsg() {
 		return "";
 	}
 
-	return c->shortLog() + "\n\n" + c->longLog().trimmed();
+    QString shortLog = c->shortLog().trimmed();
+    if (shortLog[shortLog.length() - 1] != QChar('\n'))
+        shortLog += "\n";
+
+    QString longLog = c->longLog().trimmed();
+    if (!longLog.isEmpty())
+    {
+        if (longLog[0] != QChar('\n'))
+            longLog.prepend('\n');
+        if (longLog[longLog.length() - 1] != QChar('\n'))
+            longLog += "\n";
+    }
+    return shortLog + longLog;
 }
 
 const QString Git::getNewCommitMsg() {

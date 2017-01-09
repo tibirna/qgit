@@ -92,7 +92,7 @@ CommitImpl::CommitImpl(Git* g, bool amend) : git(g) {
 
 		msg = status.trimmed();
         if (!amend)
-            msg.prepend('\n'); // first empty line
+            msg.prepend("\n\n"); // two first lines is empty
 	} else
 		msg = lastMsgBeforeError;
 
