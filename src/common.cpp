@@ -290,45 +290,76 @@ const QPixmap* mimePix(const QString& fileName) {
 }
 
 // geometry settings helers
-void saveGeometrySetting(const QString& name, QWidget* w, splitVect* svPtr) {
+void saveGeometrySetting(const QString& name, QWidget* w) {
 
     QSettings settings;
     if (w && w->isVisible())
         settings.setValue(name + "_window", w->saveGeometry());
+}
 
-    if (!svPtr)
-        return;
+void saveGeometrySetting(const QString& name, SplitVect* svPtr) {
 
+    QSettings settings;
     int cnt = 0;
-    FOREACH (splitVect, it, *svPtr) {
+    FOREACH (SplitVect, it, *svPtr) {
 
         cnt++;
         if ((*it)->sizes().contains(0))
             continue;
 
-        QString nm(name + "_splitter_" + QString::number(cnt));
+        QString nm = name + "_splitter_" + QString::number(cnt);
         settings.setValue(nm, (*it)->saveState());
     }
 }
 
-void restoreGeometrySetting(const QString& name, QWidget* w, splitVect* svPtr) {
+void saveGeometrySetting(const QString& name, HeaderVect* hvPtr) {
 
     QSettings settings;
-    QString nm;
+    int cnt = 0;
+    FOREACH (HeaderVect, it, *hvPtr) {
+
+        cnt++;
+        QString nm = name + "_header_" + QString::number(cnt);
+        settings.setValue(nm, (*it)->saveState());
+    }
+}
+
+
+void restoreGeometrySetting(const QString& name, QWidget* w) {
+
+    QSettings settings;
     if (w) {
-        nm = name + "_window";
+        QString nm = name + "_window";
         QVariant v = settings.value(nm);
         if (v.isValid())
             w->restoreGeometry(v.toByteArray());
     }
-    if (!svPtr)
-        return;
+}
 
+void restoreGeometrySetting(const QString& name, SplitVect* svPtr) {
+
+    QSettings settings;
     int cnt = 0;
-    FOREACH (splitVect, it, *svPtr) {
+    FOREACH (SplitVect, it, *svPtr) {
 
         cnt++;
-        nm = name + "_splitter_" + QString::number(cnt);
+        QString nm = name + "_splitter_" + QString::number(cnt);
+        QVariant v = settings.value(nm);
+        if (!v.isValid())
+            continue;
+
+        (*it)->restoreState(v.toByteArray());
+    }
+}
+
+void restoreGeometrySetting(const QString& name, HeaderVect* hvPtr) {
+
+    QSettings settings;
+    int cnt = 0;
+    FOREACH (HeaderVect, it, *hvPtr) {
+
+        cnt++;
+        QString nm = name + "_header_" + QString::number(cnt);
         QVariant v = settings.value(nm);
         if (!v.isValid())
             continue;

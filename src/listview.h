@@ -40,6 +40,7 @@ public:
 	QString refNameAt(const QPoint &pos);
 	const QString& selectedRefName() const {return lastRefName;}
 	void markDiffToSha(const QString& sha);
+    void saveGeometry();
 
 signals:
 	void lanesContextMenuRequested(const QStringList&, const QStringList&);

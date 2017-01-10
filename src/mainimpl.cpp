@@ -131,8 +131,9 @@ MainImpl::MainImpl(const QString& cd, QWidget* p) : QMainWindow(p) {
 	pbFileNamesLoading->hide();
 	statusBar()->addPermanentWidget(pbFileNamesLoading);
 
-	QVector<QSplitter*> v(1, treeSplitter);
-	QGit::restoreGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
+    QGit::SplitVect v {1, treeSplitter};
+    QGit::restoreGeometrySetting(QGit::MAIN_GEOM_KEY, this);
+    QGit::restoreGeometrySetting(QGit::MAIN_GEOM_KEY, &v);
 	treeView->hide();
 
 	// set-up menu for recent visited repositories
@@ -199,8 +200,9 @@ void MainImpl::initWithEventLoopActive() {
 
 void MainImpl::saveCurrentGeometry() {
 
-	QVector<QSplitter*> v(1, treeSplitter);
-	QGit::saveGeometrySetting(QGit::MAIN_GEOM_KEY, this, &v);
+    QGit::SplitVect v {1, treeSplitter};
+    QGit::saveGeometrySetting(QGit::MAIN_GEOM_KEY, this);
+    QGit::saveGeometrySetting(QGit::MAIN_GEOM_KEY, &v);
 }
 
 void MainImpl::highlightAbbrevSha(const QString& abbrevSha) {

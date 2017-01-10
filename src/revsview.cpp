@@ -36,9 +36,9 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	SmartBrowse* sb = new SmartBrowse(this);
 
 	// restore geometry
-	QVector<QSplitter*> v;
-	v << tab()->horizontalSplitter << tab()->verticalSplitter;
-	QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
+    QGit::SplitVect v;
+    v << tab()->horizontalSplitter << tab()->verticalSplitter;
+    QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, &v);
 
 	chk_connect_a(m(), SIGNAL(typeWriterFontChanged()),
                   tab()->textEditDiff, SLOT(typeWriterFontChanged()));
@@ -93,9 +93,11 @@ RevsView::~RevsView() {
 	if (!parent())
 		return;
 
-	QVector<QSplitter*> v;
-	v << tab()->horizontalSplitter << tab()->verticalSplitter;
-	QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, NULL, &v);
+    QGit::SplitVect v;
+    v << tab()->horizontalSplitter << tab()->verticalSplitter;
+    QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, &v);
+
+    tab()->listViewLog->saveGeometry();
 
 	// manually delete before container is removed in Domain
 	// d'tor to avoid a crash due to spurious events in

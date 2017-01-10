@@ -110,8 +110,20 @@ void ListView::setupGeometry() {
 	hv->resizeSection(AUTH_COL, DEF_AUTH_COL_WIDTH);
 	hv->resizeSection(TIME_COL, DEF_TIME_COL_WIDTH);
 
-	if (git->isMainHistory(fh))
-		hideColumn(ANN_ID_COL);
+    if (git->isMainHistory(fh))
+    {
+        QGit::HeaderVect v {1, header()};
+        QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, &v);
+        hideColumn(ANN_ID_COL);
+    }
+}
+
+void ListView::saveGeometry()
+{
+    if (git->isMainHistory(fh)) {
+        QGit::HeaderVect v {1, header()};
+        QGit::saveGeometrySetting(QGit::REV_GEOM_KEY, &v);
+    }
 }
 
 void ListView::scrollToNextHighlighted(int direction) {

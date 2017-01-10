@@ -10,6 +10,7 @@
 #include "defmac.h"
 #include "common_types.h"
 #include <QSplitter>
+#include <QHeaderView>
 
 /*
    QVariant does not support size_t type used in Qt containers, this is
@@ -227,9 +228,14 @@ namespace QGit {
     const QPixmap* mimePix(const QString& fileName);
 
 	// geometry settings helers
-	typedef QVector<QSplitter*> splitVect;
-    void saveGeometrySetting(const QString& name, QWidget* w = NULL, splitVect* svPtr = NULL);
-    void restoreGeometrySetting(const QString& name, QWidget* w = NULL, splitVect* svPtr = NULL);
+    typedef QVector<QSplitter*> SplitVect;
+    typedef QVector<QHeaderView*> HeaderVect;
+    void saveGeometrySetting(const QString& name, QWidget*);
+    void saveGeometrySetting(const QString& name, SplitVect*);
+    void saveGeometrySetting(const QString& name, HeaderVect*);
+    void restoreGeometrySetting(const QString& name, QWidget*);
+    void restoreGeometrySetting(const QString& name, SplitVect*);
+    void restoreGeometrySetting(const QString& name, HeaderVect*);
 
 	// misc helpers
 	bool stripPartialParaghraps(const QByteArray& src, QString* dst, QString* prev);
