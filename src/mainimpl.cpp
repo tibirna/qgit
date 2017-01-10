@@ -162,15 +162,15 @@ MainImpl::MainImpl(const QString& cd, QWidget* p) : QMainWindow(p) {
 
 	// connect cross-domain update signals
 	chk_connect_a(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
-	        this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
+                  this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
 	chk_connect_a(rv->tab()->listViewLog, SIGNAL(showStatusMessage(const QString&,int)),
-	        statusBar(), SLOT(showMessage(QString,int)));
+                  statusBar(), SLOT(showMessage(QString,int)));
 
 	chk_connect_a(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
+                  this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 
 	chk_connect_a(treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
-	        this, SLOT(treeView_doubleClicked(QTreeWidgetItem*, int)));
+                  this, SLOT(treeView_doubleClicked(QTreeWidgetItem*, int)));
 
 	// use most recent repo as startup dir if it exists and user opted to do so
 	QStringList recents(settings.value(REC_REP_KEY).toStringList());
@@ -646,7 +646,7 @@ void MainImpl::openFileTab(FileView* fv) {
 		tabWdg->addTab(fv->tabPage(), "File");
 
 		chk_connect_a(fv->tab()->histListView, SIGNAL(doubleClicked(const QModelIndex&)),
-		        this, SLOT(histListView_doubleClicked(const QModelIndex&)));
+                      this, SLOT(histListView_doubleClicked(const QModelIndex&)));
 
 		chk_connect_a(this, SIGNAL(closeAllTabs()), fv, SLOT(on_closeAllTabs()));
 
@@ -1648,10 +1648,10 @@ void MainImpl::ActSettings_activated() {
 
 	SettingsImpl setView(this, git);
 	chk_connect_a(&setView, SIGNAL(typeWriterFontChanged()),
-	        this, SIGNAL(typeWriterFontChanged()));
+                  this, SIGNAL(typeWriterFontChanged()));
 
 	chk_connect_a(&setView, SIGNAL(flagChanged(uint)),
-	        this, SIGNAL(flagChanged(uint)));
+                  this, SIGNAL(flagChanged(uint)));
 
 	setView.exec();
 
@@ -1666,7 +1666,7 @@ void MainImpl::ActCustomActionSetup_activated() {
 
 	chk_connect_a(this, SIGNAL(closeAllWindows()), ca, SLOT(close()));
 	chk_connect_a(ca, SIGNAL(listChanged(const QStringList&)),
-	        this, SLOT(customActionListChanged(const QStringList&)));
+                  this, SLOT(customActionListChanged(const QStringList&)));
 
 	ca->show();
 }
@@ -1732,11 +1732,11 @@ void MainImpl::customAction_triggered(QAction* act) {
 	ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WA_DeleteOnClose attribute
 
 	chk_connect_a(this, SIGNAL(typeWriterFontChanged()),
-	        c, SLOT(typeWriterFontChanged()));
+                  c, SLOT(typeWriterFontChanged()));
 
 	chk_connect_a(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
 	chk_connect_a(c, SIGNAL(customAction_exited(const QString&)),
-	        this, SLOT(customAction_exited(const QString&)));
+                  this, SLOT(customAction_exited(const QString&)));
 
 	if (c->start(cmd))
 		c->show();

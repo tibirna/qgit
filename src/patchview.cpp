@@ -32,19 +32,19 @@ PatchView::PatchView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 	patchTab->fileList->setup(this, git);
 
 	chk_connect_a(m(), SIGNAL(typeWriterFontChanged()),
-	        patchTab->textEditDiff, SLOT(typeWriterFontChanged()));
+                  patchTab->textEditDiff, SLOT(typeWriterFontChanged()));
 
 	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
-	       patchTab->fileList, SLOT(on_changeFont(const QFont&)));
+                  patchTab->fileList, SLOT(on_changeFont(const QFont&)));
 
 	chk_connect_a(patchTab->lineEditDiff, SIGNAL(returnPressed()),
-	        this, SLOT(lineEditDiff_returnPressed()));
+                  this, SLOT(lineEditDiff_returnPressed()));
 
 	chk_connect_a(patchTab->fileList, SIGNAL(contextMenu(const QString&, int)),
-	        this, SLOT(on_contextMenu(const QString&, int)));
+                  this, SLOT(on_contextMenu(const QString&, int)));
 
 	chk_connect_a(patchTab->buttonFilterPatch, SIGNAL(clicked()),
-	        this, SLOT(buttonFilterPatch_clicked()));
+                  this, SLOT(buttonFilterPatch_clicked()));
 }
 
 PatchView::~PatchView() {
