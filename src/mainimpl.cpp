@@ -1465,7 +1465,7 @@ void MainImpl::openRecent_triggered(QAction* act) {
 			setRepository(workDir);
 		else
 			statusBar()->showMessage("Directory '" + workDir +
-			                         "' does not seem to exsist anymore");
+			                         "' does not seem to exist anymore");
 	}
 }
 
