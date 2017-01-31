@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=qgit
+GenericName=QGit
+Comment=A git GUI viewer
+Exec=qgit
+Icon=qgit
+Categories=Development;RevisionControl;Qt
+Terminal=false
