@@ -116,8 +116,8 @@ available commands and a 'quick jump' tag list.
 *Key bindings*::
 
 `-------------`----------------------------------
-r             Go to revisions list page
-p             Go to patch page
+<CTRL-r>      Go to revisions list page
+<CTRL-p>      Go to patch page
 f             Go to file page
 <Alt+wheel>   Go to next/previous page
 t             Toggle tree view
