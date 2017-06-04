@@ -1035,7 +1035,7 @@ void MainImpl::shortCutActivated() {
 		if (key == Qt::Key_I) {
 			rv->tab()->listViewLog->on_keyUp();
 		}
-		else if (key == (Qt::Key_K or key == Qt::Key_N)) {
+		else if ((key == Qt::Key_K) or (key == Qt::Key_N)) {
 			rv->tab()->listViewLog->on_keyDown();
 		}
 		else if (key == (Qt::SHIFT | Qt::Key_Up)) {

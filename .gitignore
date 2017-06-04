@@ -18,3 +18,5 @@ qrc_*.cpp
 ui_*.h
 qgit.pro.*
 qgit.qbs.*
+src/release
+.qmake.stash
