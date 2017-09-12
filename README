@@ -30,11 +30,11 @@ Main features
 Installation
 ------------
 
-You need Qt developer libraries, version 4.3 or later, already installed.
-Be sure compiler, qmake (Qt4 version) and Qt4 bin tools are in path.
+You need Qt developer libraries, version 5.0 or later, already installed.
+Be sure compiler, qmake (Qt5 version) and Qt5 bin tools are in path.
 
-NOTE: Correct qmake for Qt4 (/usr/lib/qt4/bin/qmake) must be called, in
-case also Qt3 version is in path the former must be explicitly invoked.
+NOTE: Correct qmake for Qt5 (/usr/lib/qt5/bin/qmake) must be called, in
+case also Qt4 version is in path the former must be explicitly invoked.
 
 To compile, install and start qgit:
 
