@@ -1372,7 +1372,7 @@ void MainImpl::goRef_triggered(QAction* act) {
 	if (!act || act->data() != "Ref")
 		return;
 
-	SCRef refSha(git->getRefSha(act->text()));
+	SCRef refSha(git->getRefSha(act->iconText()));
 	rv->st.setSha(refSha);
 	UPDATE_DOMAIN(rv);
 }
