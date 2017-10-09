@@ -1035,7 +1035,7 @@ void MainImpl::shortCutActivated() {
 		if (key == Qt::Key_I) {
 			rv->tab()->listViewLog->on_keyUp();
 		}
-		else if ((key == Qt::Key_K) or (key == Qt::Key_N)) {
+		else if ((key == Qt::Key_K) || (key == Qt::Key_N)) {
 			rv->tab()->listViewLog->on_keyDown();
 		}
 		else if (key == (Qt::SHIFT | Qt::Key_Up)) {
@@ -1062,7 +1062,7 @@ void MainImpl::shortCutActivated() {
 		else if (key == Qt::Key_D) {
 			scrollTextEdit(18); //TODO replace magic constant
 		}
-		else if (key == Qt::Key_Delete or key == Qt::Key_B or key == Qt::Key_Backspace) {
+		else if (key == Qt::Key_Delete || key == Qt::Key_B || key == Qt::Key_Backspace) {
 			scrollTextEdit(-1); //TODO replace magic constant
 		}
 		else if (key == Qt::Key_Space) {
@@ -1071,7 +1071,7 @@ void MainImpl::shortCutActivated() {
 		else if (key == Qt::Key_R) {
 			tabWdg->setCurrentWidget(rv->tabPage());
 		}
-		else if (key == Qt::Key_P or key == Qt::Key_F) {
+		else if (key == Qt::Key_P || key == Qt::Key_F) {
 			QWidget* cp = tabWdg->currentWidget();
 			Domain* d = (key == Qt::Key_P)
 						? static_cast<Domain*>(firstTab<PatchView>(cp))
