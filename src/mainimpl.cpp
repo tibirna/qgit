@@ -1734,7 +1734,7 @@ void MainImpl::ActCheckout_activated()
 	const QStringList &local_branches = revision_variables.value(REV_LOCAL_BRANCHES).toStringList();
 
 	if (!selected_name.isEmpty() &&
-	    local_branches.contains(selected_name) > 0 &&
+	    local_branches.contains(selected_name) &&
 	    selected_name != current_branch) {
 		// standard branch switching: directly checkout selected branch
 		rev = selected_name;
