@@ -1634,12 +1634,13 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 
 void MainImpl::customAction_triggered(QAction* act) {
 
-	SCRef actionName = act->text();
+	QString actionName = act->text();
 	if (actionName == "Setup actions...")
 		return;
 
 	QSettings set;
-	if (!set.value(ACT_LIST_KEY).toStringList().contains(actionName)) {
+	QStringList actionsList = set.value(ACT_LIST_KEY).toStringList();
+	if (!(actionsList.contains(actionName) || actionsList.contains(actionName.remove(QChar('&'))))) {
 		dbp("ASSERT in customAction_activated, action %1 not found", actionName);
 		return;
 	}
