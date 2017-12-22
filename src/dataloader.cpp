@@ -190,7 +190,7 @@ qint64 DataLoader::readNewData() {
         return 0;
     }
     if (len < ba.size())
-        ba.resize(len);
+        ba.resize(int(len));
 
     rawBuff.append(ba);
 

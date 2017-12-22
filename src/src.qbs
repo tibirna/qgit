@@ -18,6 +18,7 @@ Product {
     }
 
     Probe {
+        id: productProbe
         configure: {
             if (QbsFunctions.versionIsAtLeast(minimumQtVersion, Qt.core.version))
                 throw Error("The minimum required version Qt: " + minimumQtVersion
@@ -48,6 +49,9 @@ Product {
     cpp.includePaths: [
         "./",
     ]
+
+    // Suppression a Qt warnings
+    cpp.systemIncludePaths: Qt.core.cpp.includePaths
 
     Group {
         name: "resources"
