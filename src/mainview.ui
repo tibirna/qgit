@@ -301,7 +301,7 @@
     <string>Commit changes</string>
    </property>
    <property name="shortcut">
-    <string>#</string>
+    <string>!</string>
    </property>
   </action>
   <action name="ActTag">
