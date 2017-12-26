@@ -28,6 +28,8 @@ Product {
     cpp.cxxFlags: {
         var cxx = [
             "-std=c++11",
+            "-Wall",
+            "-Wextra",
             "-Wno-non-virtual-dtor",
             "-Wno-long-long",
             "-pedantic",
@@ -122,6 +124,7 @@ Product {
         "dataloader.h",
         "domain.cpp",
         "domain.h",
+        "defmac.h",
         "exceptionmanager.cpp",
         "exceptionmanager.h",
         "filecontent.cpp",

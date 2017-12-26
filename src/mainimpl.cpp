@@ -62,8 +62,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	toolBar->addWidget(lineEditSHA);
 	QAction* act = toolBar->insertWidget(ActSearchAndFilter, lineEditFilter);
 	toolBar->insertWidget(act, cmbSearch);
-	connect(lineEditSHA, SIGNAL(returnPressed()), this, SLOT(lineEditSHA_returnPressed()));
-	connect(lineEditFilter, SIGNAL(returnPressed()), this, SLOT(lineEditFilter_returnPressed()));
+	chk_connect_a(lineEditSHA, SIGNAL(returnPressed()), this, SLOT(lineEditSHA_returnPressed()));
+	chk_connect_a(lineEditFilter, SIGNAL(returnPressed()), this, SLOT(lineEditFilter_returnPressed()));
 
 	// create light and dark colors for alternate background
 	ODD_LINE_COL = palette().color(QPalette::Base);
@@ -112,8 +112,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	ct->setToolTip("Close tab");
 	ct->setEnabled(false);
 	tabWdg->setCornerWidget(ct);
-	connect(ct, SIGNAL(clicked()), this, SLOT(pushButtonCloseTab_clicked()));
-	connect(this, SIGNAL(closeTabButtonEnabled(bool)), ct, SLOT(setEnabled(bool)));
+	chk_connect_a(ct, SIGNAL(clicked()), this, SLOT(pushButtonCloseTab_clicked()));
+	chk_connect_a(this, SIGNAL(closeTabButtonEnabled(bool)), ct, SLOT(setEnabled(bool)));
 
 	// set-up file names loading progress bar
 	pbFileNamesLoading = new QProgressBar(statusBar());
@@ -127,11 +127,11 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	treeView->hide();
 
 	// set-up menu for recent visited repositories
-	connect(File, SIGNAL(triggered(QAction*)), this, SLOT(openRecent_triggered(QAction*)));
+	chk_connect_a(File, SIGNAL(triggered(QAction*)), this, SLOT(openRecent_triggered(QAction*)));
 	doUpdateRecentRepoMenu("");
 
 	// set-up menu for custom actions
-	connect(Actions, SIGNAL(triggered(QAction*)), this, SLOT(customAction_triggered(QAction*)));
+	chk_connect_a(Actions, SIGNAL(triggered(QAction*)), this, SLOT(customAction_triggered(QAction*)));
 	doUpdateCustomActionMenu(settings.value(ACT_LIST_KEY).toStringList());
 
 	// manual adjust lineEditSHA width
@@ -142,25 +142,25 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	// disable all actions
 	updateGlobalActions(false);
 
-	connect(git, SIGNAL(fileNamesLoad(int, int)), this, SLOT(fileNamesLoad(int, int)));
+	chk_connect_a(git, SIGNAL(fileNamesLoad(int, int)), this, SLOT(fileNamesLoad(int, int)));
 
-	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+	chk_connect_a(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
 	        this, SLOT(newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
-	connect(this, SIGNAL(typeWriterFontChanged()), this, SIGNAL(updateRevDesc()));
+	chk_connect_a(this, SIGNAL(typeWriterFontChanged()), this, SIGNAL(updateRevDesc()));
 
-	connect(this, SIGNAL(changeFont(const QFont&)), git, SIGNAL(changeFont(const QFont&)));
+	chk_connect_a(this, SIGNAL(changeFont(const QFont&)), git, SIGNAL(changeFont(const QFont&)));
 
 	// connect cross-domain update signals
-	connect(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
+	chk_connect_a(rv->tab()->listViewLog, SIGNAL(doubleClicked(const QModelIndex&)),
 	        this, SLOT(listViewLog_doubleClicked(const QModelIndex&)));
-	connect(rv->tab()->listViewLog, SIGNAL(showStatusMessage(const QString&)),
+	chk_connect_a(rv->tab()->listViewLog, SIGNAL(showStatusMessage(const QString&)),
 	        statusBar(), SLOT(showMessage(const QString&)));
 
-	connect(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+	chk_connect_a(rv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 	        this, SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
 
-	connect(treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+	chk_connect_a(treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
 	        this, SLOT(treeView_doubleClicked(QTreeWidgetItem*, int)));
 
 	// use most recent repo as startup dir if it exists and user opted to do so
@@ -624,10 +624,10 @@ void MainImpl::openFileTab(FileView* fv) {
 		fv = new FileView(this, git);
 		tabWdg->addTab(fv->tabPage(), "File");
 
-		connect(fv->tab()->histListView, SIGNAL(doubleClicked(const QModelIndex&)),
+		chk_connect_a(fv->tab()->histListView, SIGNAL(doubleClicked(const QModelIndex&)),
 		        this, SLOT(histListView_doubleClicked(const QModelIndex&)));
 
-		connect(this, SIGNAL(closeAllTabs()), fv, SLOT(on_closeAllTabs()));
+		chk_connect_a(this, SIGNAL(closeAllTabs()), fv, SLOT(on_closeAllTabs()));
 
 		ActViewFileNewTab->setEnabled(ActViewFile->isEnabled());
 	}
@@ -1220,7 +1220,7 @@ void MainImpl::doContexPopup(SCRef sha) {
 	QMenu contextTagMenu("More tags...", this);
 	QMenu contextRmtMenu("Remote branches...", this);
 
-	connect(&contextMenu, SIGNAL(triggered(QAction*)), this, SLOT(goRef_triggered(QAction*)));
+	chk_connect_a(&contextMenu, SIGNAL(triggered(QAction*)), this, SLOT(goRef_triggered(QAction*)));
 
 	Domain* t;
 	int tt = currentTabType(&t);
@@ -1582,10 +1582,10 @@ void MainImpl::ActCheckWorkDir_toggled(bool b) {
 void MainImpl::ActSettings_activated() {
 
 	SettingsImpl setView(this, git);
-	connect(&setView, SIGNAL(typeWriterFontChanged()),
+	chk_connect_a(&setView, SIGNAL(typeWriterFontChanged()),
 	        this, SIGNAL(typeWriterFontChanged()));
 
-	connect(&setView, SIGNAL(flagChanged(uint)),
+	chk_connect_a(&setView, SIGNAL(flagChanged(uint)),
 	        this, SIGNAL(flagChanged(uint)));
 
 	setView.exec();
@@ -1599,8 +1599,8 @@ void MainImpl::ActCustomActionSetup_activated() {
 
 	CustomActionImpl* ca = new CustomActionImpl(); // has Qt::WA_DeleteOnClose
 
-	connect(this, SIGNAL(closeAllWindows()), ca, SLOT(close()));
-	connect(ca, SIGNAL(listChanged(const QStringList&)),
+	chk_connect_a(this, SIGNAL(closeAllWindows()), ca, SLOT(close()));
+	chk_connect_a(ca, SIGNAL(listChanged(const QStringList&)),
 	        this, SLOT(customActionListChanged(const QStringList&)));
 
 	ca->show();
@@ -1666,11 +1666,11 @@ void MainImpl::customAction_triggered(QAction* act) {
 
 	ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WA_DeleteOnClose attribute
 
-	connect(this, SIGNAL(typeWriterFontChanged()),
+	chk_connect_a(this, SIGNAL(typeWriterFontChanged()),
 	        c, SLOT(typeWriterFontChanged()));
 
-	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
-	connect(c, SIGNAL(customAction_exited(const QString&)),
+	chk_connect_a(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
+	chk_connect_a(c, SIGNAL(customAction_exited(const QString&)),
 	        this, SLOT(customAction_exited(const QString&)));
 
 	if (c->start(cmd))
@@ -1687,16 +1687,16 @@ void MainImpl::customAction_exited(const QString& name) {
 void MainImpl::ActCommit_activated() {
 
 	CommitImpl* c = new CommitImpl(git, false); // has Qt::WA_DeleteOnClose attribute
-	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
-	connect(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
+	chk_connect_a(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
+	chk_connect_a(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
 	c->show();
 }
 
 void MainImpl::ActAmend_activated() {
 
 	CommitImpl* c = new CommitImpl(git, true); // has Qt::WA_DeleteOnClose attribute
-	connect(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
-	connect(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
+	chk_connect_a(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
+	chk_connect_a(c, SIGNAL(changesCommitted(bool)), this, SLOT(changesCommitted(bool)));
 	c->show();
 }
 
@@ -2044,7 +2044,7 @@ void MainImpl::ActHelp_activated() {
 	Ui::HelpBase ui;
 	ui.setupUi(dlg);
 	ui.textEditHelp->setHtml(QString::fromLatin1(helpInfo)); // defined in help.h
-	connect(this, SIGNAL(closeAllWindows()), dlg, SLOT(close()));
+	chk_connect_a(this, SIGNAL(closeAllWindows()), dlg, SLOT(close()));
 	dlg->show();
 	dlg->raise();
 }

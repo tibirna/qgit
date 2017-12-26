@@ -10,6 +10,7 @@
 #include <QTime>
 #include "exceptionmanager.h"
 #include "common.h"
+#include "defmac.h"
 #include "domain.h"
 #include "myprocess.h"
 
@@ -67,28 +68,28 @@ bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
 
 void MyProcess::setupSignals() {
 
-	connect(git, SIGNAL(cancelAllProcesses()),
-	        this, SLOT(on_cancel()));
+	chk_connect_a(git, SIGNAL(cancelAllProcesses()),
+                 this, SLOT(on_cancel()));
 
-	connect(this, SIGNAL(readyReadStandardOutput()),
-	        this, SLOT(on_readyReadStandardOutput()));
+    chk_connect_a(this, SIGNAL(readyReadStandardOutput()),
+                  this, SLOT(on_readyReadStandardOutput()));
 
-	connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-	        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+	chk_connect_a(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+                  this, SLOT(on_finished(int, QProcess::ExitStatus)));
 
 	if (receiver) {
 
-		connect(this, SIGNAL(readyReadStandardError ()),
-		        this, SLOT(on_readyReadStandardError()));
+		chk_connect_a(this, SIGNAL(readyReadStandardError ()),
+                      this, SLOT(on_readyReadStandardError()));
 
-		connect(this, SIGNAL(procDataReady(const QByteArray&)),
-		        receiver, SLOT(procReadyRead(const QByteArray&)));
+		chk_connect_a(this, SIGNAL(procDataReady(const QByteArray&)),
+                      receiver, SLOT(procReadyRead(const QByteArray&)));
 
-		connect(this, SIGNAL(eof()), receiver, SLOT(procFinished()));
+		chk_connect_a(this, SIGNAL(eof()), receiver, SLOT(procFinished()));
 	}
 	Domain* d = git->curContext();
 	if (d)
-		connect(d, SIGNAL(cancelDomainProcesses()), this, SLOT(on_cancel()));
+		chk_connect_a(d, SIGNAL(cancelDomainProcesses()), this, SLOT(on_cancel()));
 }
 
 void MyProcess::sendErrorMsg(bool notStarted, SCRef err) {

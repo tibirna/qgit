@@ -14,6 +14,7 @@
 #include <QPixmap>
 #include <QShortcut>
 #include "FileHistory.h"
+#include "defmac.h"
 #include "domain.h"
 #include "git.h"
 #include "listview.h"
@@ -47,12 +48,12 @@ void ListView::setup(Domain* dm, Git* g) {
 	new QShortcut(Qt::Key_Up,   this, SLOT(on_keyUp()));
 	new QShortcut(Qt::Key_Down, this, SLOT(on_keyDown()));
 
-	connect(lvd, SIGNAL(updateView()), viewport(), SLOT(update()));
+	chk_connect_a(lvd, SIGNAL(updateView()), viewport(), SLOT(update()));
 
-	connect(this, SIGNAL(diffTargetChanged(int)), lvd, SLOT(diffTargetChanged(int)));
+	chk_connect_a(this, SIGNAL(diffTargetChanged(int)), lvd, SLOT(diffTargetChanged(int)));
 
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-	        this, SLOT(on_customContextMenuRequested(const QPoint&)));
+	chk_connect_a(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+                  this, SLOT(on_customContextMenuRequested(const QPoint&)));
 }
 
 ListView::~ListView() {

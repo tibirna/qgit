@@ -9,6 +9,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QWheelEvent>
+#include "defmac.h"
 #include "revsview.h"
 #include "smartbrowse.h"
 
@@ -99,23 +100,23 @@ SmartBrowse::SmartBrowse(RevsView* par) : QObject(par) {
 	log->horizontalScrollBar()->installEventFilter(this);
 	diff->horizontalScrollBar()->installEventFilter(this);
 
-	connect(vsbLog, SIGNAL(valueChanged(int)),
-	        this, SLOT(updateVisibility()));
+	chk_connect_a(vsbLog, SIGNAL(valueChanged(int)),
+                  this, SLOT(updateVisibility()));
 
-	connect(vsbDiff, SIGNAL(valueChanged(int)),
-	        this, SLOT(updateVisibility()));
+	chk_connect_a(vsbDiff, SIGNAL(valueChanged(int)),
+                  this, SLOT(updateVisibility()));
 
-	connect(logTopLbl, SIGNAL(linkActivated(const QString&)),
-	        this, SLOT(linkActivated(const QString&)));
+	chk_connect_a(logTopLbl, SIGNAL(linkActivated(const QString&)),
+                  this, SLOT(linkActivated(const QString&)));
 
-	connect(logBottomLbl, SIGNAL(linkActivated(const QString&)),
-	        this, SLOT(linkActivated(const QString&)));
+	chk_connect_a(logBottomLbl, SIGNAL(linkActivated(const QString&)),
+                  this, SLOT(linkActivated(const QString&)));
 
-	connect(diffTopLbl, SIGNAL(linkActivated(const QString&)),
-	        this, SLOT(linkActivated(const QString&)));
+	chk_connect_a(diffTopLbl, SIGNAL(linkActivated(const QString&)),
+                  this, SLOT(linkActivated(const QString&)));
 
-	connect(diffBottomLbl, SIGNAL(linkActivated(const QString&)),
-	        this, SLOT(linkActivated(const QString&)));
+	chk_connect_a(diffBottomLbl, SIGNAL(linkActivated(const QString&)),
+                  this, SLOT(linkActivated(const QString&)));
 }
 
 void SmartBrowse::setVisible(bool b) {

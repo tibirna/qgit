@@ -1,5 +1,6 @@
 #include "inputdialog.h"
 #include "common.h"
+#include "defmac.h"
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QComboBox>
@@ -114,7 +115,7 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 			if (opts.contains("ref")) {
 				w->setValidator(new RefNameValidator(opts.contains("empty")));
 				validators.insert(name, w->validator());
-				connect(w, SIGNAL(editTextChanged(QString)), this, SLOT(validate()));
+				chk_connect_a(w, SIGNAL(editTextChanged(QString)), this, SLOT(validate()));
 			}
 			item->init(w, "currentText");
 		} else if (type == "listbox") {
@@ -130,7 +131,7 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 			if (opts.contains("ref")) {
 				w->setValidator(new RefNameValidator(opts.contains("empty")));
 				validators.insert(name, w->validator());
-				connect(w, SIGNAL(textEdited(QString)), this, SLOT(validate()));
+				chk_connect_a(w, SIGNAL(textEdited(QString)), this, SLOT(validate()));
 			}
 			item->init(w, "text");
 		} else if (type == "textedit") {
@@ -154,8 +155,8 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	layout->addWidget(buttons, row, 0, 1, 2);
 	okButton = buttons->button(QDialogButtonBox::Ok);
 
-	connect(okButton, SIGNAL(pressed()), this, SLOT(accept()));
-	connect(buttons->button(QDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
+	chk_connect_a(okButton, SIGNAL(pressed()), this, SLOT(accept()));
+	chk_connect_a(buttons->button(QDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
 	validate();
 }
 
