@@ -91,7 +91,7 @@ private:
 	QPointer<MyProcess> proc;
 	QPointer<Annotate> annotateObj; // valid from beginning of annotation loading
 	const FileAnnotation* curAnn; // valid at the end of annotation loading
-	QByteArray fileRowData;
+    QString fileRowData;
 	QString histTime;
 	bool isFileAvail;
 	bool isAnnotationLoading;

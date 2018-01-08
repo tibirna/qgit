@@ -494,8 +494,9 @@ void FileContent::typeWriterFontChanged() {
 
 void FileContent::procReadyRead(const QByteArray& fileChunk) {
 
-	fileRowData.append(fileChunk);
-	// set text at the end of loading, much faster
+    QTextCodec* tc = QTextCodec::codecForLocale();
+    fileRowData.append(tc->toUnicode(fileChunk));
+    // set text at the end of loading, much faster
 }
 
 void FileContent::procFinished(bool emitSignal) {
