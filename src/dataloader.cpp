@@ -38,9 +38,11 @@ DataLoader::DataLoader(Git* g, FileHistory* f) : QProcess(g), git(g), fh(f) {
 
 DataLoader::~DataLoader() {
 
-	// avoid a Qt warning in case we are
-	// destroyed while still running
-	waitForFinished(1000);
+    if (!procFinished) {
+        // avoid a Qt warning in case we are
+        // destroyed while still running
+        waitForFinished(1000);
+    }
 }
 
 void DataLoader::on_cancel(const FileHistory* f) {
@@ -74,6 +76,7 @@ bool DataLoader::start(const QStringList& args, const QString& wd, const QString
 		return false;
 	}
 	loadTime.start();
+    timerCallCounter = 0;
 	guiUpdateTimer.start(GUI_UPDATE_INTERVAL);
 	return true;
 }
@@ -89,12 +92,14 @@ void DataLoader::on_finished(int, QProcess::ExitStatus) {
 		dbs("ASSERT in DataLoader: inconsistent timer");
 
     if (guiUpdateTimer.isActive()) // no need to wait anymore
-        guiUpdateTimer.start(1);
+        guiUpdateTimer.start(0);
 }
 
 void DataLoader::on_timeout() {
 
-	if (canceling) {
+    ++timerCallCounter;
+
+    if (canceling) {
 		deleteLater();
 		return; // we leave with guiUpdateTimer not active
 	}
@@ -108,15 +113,16 @@ void DataLoader::on_timeout() {
     }
     else if (len > 0) {
         loadedBytes += len;
-        emit newDataReady(fh);
+        if (timerCallCounter <= 3)
+            emit newDataReady(fh);
     }
 
     if (procFinished) {
         dbs("Exited while parsing!!!!");
-        guiUpdateTimer.start(1);
+        guiUpdateTimer.start(0);
     }
     else
-        guiUpdateTimer.start(GUI_UPDATE_INTERVAL);
+        guiUpdateTimer.start(GUI_UPDATE_INTERVAL / 2);
 
 	parsing = false;
 }

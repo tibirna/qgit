@@ -49,6 +49,7 @@ private:
 	UnbufferedTemporaryFile* dataFile;
 	QTime loadTime;
 	QTimer guiUpdateTimer;
+    int timerCallCounter;
     qint64 loadedBytes;
 	bool parsing;
 	bool canceling;
