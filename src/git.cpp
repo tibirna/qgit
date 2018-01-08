@@ -2841,7 +2841,7 @@ void Git::flushFileNames(FileNamesLoader& fl) {
         QVector<int>& dirs = fl.rfDirs;
 
         b.clear();
-        b.resize(2 * dirs.size() * static_cast<int>(sizeof(int)));
+        b.resize(2 * dirs.size() * int(sizeof(int)));
 
         int* d = (int*)(b.data());
 
