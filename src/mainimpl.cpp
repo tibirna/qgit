@@ -1701,7 +1701,7 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 
 void MainImpl::customAction_triggered(QAction* act) {
 
-	const QString& actionName = act->text();
+	QString actionName = act->text();
 	if (actionName == "Setup actions...")
 		return;
 
