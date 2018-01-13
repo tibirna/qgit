@@ -96,7 +96,7 @@ void SettingsImpl::userInfo() {
     }
     bool found = false;
     int idx = 0;
-    FOREACH_SL(it, _uInfo) {
+    FOREACH(it, _uInfo) {
         comboBoxUserSrc->addItem(*it);
         ++it;
         if (!found && !(*it).isEmpty())
@@ -132,16 +132,16 @@ void SettingsImpl::readGitConfig(const QString& source) {
  
     populatingGitConfig = true;
     treeWidgetGitConfig->clear();
-    QStringList options(git->getGitConfigList(source == "Global"));    
+    QStringList options = git->getGitConfigList(source == "Global");
     options.sort();
 
-    FOREACH_SL(it, options) {
+    for (const QString& s : options) {
 
-        QStringList paths = it->split("=").at(0).split(".");
-        QString value = it->split("=").at(1);
+        QStringList paths = s.split("=").at(0).split(".");
+        QString value = s.split("=").at(1);
 
         if (paths.isEmpty() || value.isEmpty()) {
-            dbp("SettingsImpl::readGitConfig Unable to parse line %1", *it);
+            dbp("SettingsImpl::readGitConfig Unable to parse line %1", s);
             continue;
         }
         QString name(paths.first());

@@ -1276,13 +1276,12 @@ void MainImpl::updateRecentRepoMenu(const QString& newEntry) {
 
 void MainImpl::doUpdateRecentRepoMenu(const QString& newEntry) {
 
-    QList<QAction*> al(File->actions());
-    FOREACH (QList<QAction*>, it, al) {
-        if ((*it)->data().toString().startsWith("RECENT"))
-            File->removeAction(*it);
+    for (QAction* act : File->actions()) {
+        if (act->data().toString().startsWith("RECENT"))
+            File->removeAction(act);
     }
     QSettings settings;
-    QStringList recents(settings.value(REC_REP_KEY).toStringList());
+    QStringList recents = settings.value(REC_REP_KEY).toStringList();
     int idx = recents.indexOf(newEntry);
     if (idx != -1)
         recents.removeAt(idx);
@@ -1292,10 +1291,10 @@ void MainImpl::doUpdateRecentRepoMenu(const QString& newEntry) {
 
     idx = 1;
     QStringList newRecents;
-    FOREACH_SL (it, recents) {
-        QAction* newAction = File->addAction(QString::number(idx++) + " " + *it);
-        newAction->setData(QString("RECENT ") + *it);
-        newRecents << *it;
+    for (const QString& s : recents) {
+        QAction* newAction = File->addAction(QString::number(idx++) + " " + s);
+        newAction->setData(QString("RECENT ") + s);
+        newRecents << s;
         if (idx > MAX_RECENT_REPOS)
             break;
     }
@@ -1702,8 +1701,8 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
         return;
 
     Actions->addSeparator();
-    FOREACH_SL (it, list)
-        Actions->addAction(*it);
+    for (const QString& s : list)
+        Actions->addAction(s);
 }
 
 void MainImpl::customAction_triggered(QAction* act) {

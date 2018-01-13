@@ -39,10 +39,8 @@ inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 #define dbRestart dbp("Elapsed time is %1 ms", _t.restart())
 
 // some syntactic sugar
-#define FOREACH(type, i, c) for (type::const_iterator i((c).constBegin()),    \
-                                 _e##i##_((c).constEnd()); i != _e##i##_; ++i)
-
-#define FOREACH_SL(i, c)    FOREACH(QStringList, i, c)
+#define FOREACH(i, c) \
+    for (auto i = (c).constBegin(), _e##i##_ = (c).constEnd(); i != _e##i##_; ++i)
 
 uint qHash(const ShaString&); // optimized custom hash for sha strings
 

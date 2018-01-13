@@ -626,9 +626,8 @@ const QString Annotate::getAncestor(const QString& sha, int* shaIdx) {
         annotateActivity = true;
         EM_REGISTER(exAnnCanceled);
 
-        QStringList fn(fh->fileNames());
-        FOREACH_SL (it, fn) {
-            fileSha = git->getFileSha(*it, sha); // calls qApp->processEvents()
+        for (const QString& s : fh->fileNames()) {
+            fileSha = git->getFileSha(s, sha); // calls qApp->processEvents()
             if (!fileSha.isEmpty())
                 break;
         }

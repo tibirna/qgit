@@ -119,8 +119,8 @@ void TreeView::getTreeSelectedItems(QStringList& selectedItems) {
 
     selectedItems.clear();
     QList<QTreeWidgetItem*> ls = QTreeWidget::selectedItems();
-    FOREACH (QList<QTreeWidgetItem*>, it, ls) {
-        FileItem* f = static_cast<FileItem*>(*it);
+    for (QTreeWidgetItem* twi : ls) {
+        FileItem* f = static_cast<FileItem*>(twi);
         selectedItems.append(f->fullName());
     }
 }
@@ -251,19 +251,19 @@ void TreeView::updateTree() {
         return;
     }
     setUpdatesEnabled(false);
-    const QStringList lst(st->fileName().split("/"));
+    const QStringList lst {st->fileName().split("/")};
 
     QTreeWidgetItemIterator item(this);
     ++item; // first item is repository name
-    FOREACH_SL (it, lst) {
+    for (const QString& s : lst) {
         while (*item && treeIsValid) {
 
-            if ((*item)->text(0) == *it) {
+            if ((*item)->text(0) == s) {
 
                 // could be a different subdirectory with the
                 // same name that appears before in tree view
                 // to be sure we need to check the names
-                const QString& fn = ((FileItem*)*item)->fullName();
+                const QString& fn = static_cast<FileItem*>(*item)->fullName();
                 if (st->fileName().startsWith(fn)) {
 
                     if (dynamic_cast<DirItem*>(*item)) {

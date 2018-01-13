@@ -51,7 +51,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rfm,
     StrVect shav;
     QVector<const RevFile*> rfv;
 
-    FOREACH (RevFileMap, it, rfm) {
+    FOREACH(it, rfm) {
 
         const ShaString& sha = it.key();
         if (   sha.isEmpty()

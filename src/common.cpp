@@ -301,14 +301,13 @@ void saveGeometrySetting(const QString& name, SplitVect* svPtr) {
 
     QSettings settings;
     int cnt = 0;
-    FOREACH (SplitVect, it, *svPtr) {
-
+    for (QSplitter* split : *svPtr) {
         cnt++;
-        if ((*it)->sizes().contains(0))
+        if (split->sizes().contains(0))
             continue;
 
         QString nm = name + "_splitter_" + QString::number(cnt);
-        settings.setValue(nm, (*it)->saveState());
+        settings.setValue(nm, split->saveState());
     }
 }
 
@@ -316,11 +315,10 @@ void saveGeometrySetting(const QString& name, HeaderVect* hvPtr) {
 
     QSettings settings;
     int cnt = 0;
-    FOREACH (HeaderVect, it, *hvPtr) {
-
+    for (QHeaderView* header : *hvPtr) {
         cnt++;
         QString nm = name + "_header_" + QString::number(cnt);
-        settings.setValue(nm, (*it)->saveState());
+        settings.setValue(nm, header->saveState());
     }
 }
 
@@ -340,15 +338,14 @@ void restoreGeometrySetting(const QString& name, SplitVect* svPtr) {
 
     QSettings settings;
     int cnt = 0;
-    FOREACH (SplitVect, it, *svPtr) {
-
+    for (QSplitter* split : *svPtr) {
         cnt++;
         QString nm = name + "_splitter_" + QString::number(cnt);
         QVariant v = settings.value(nm);
         if (!v.isValid())
             continue;
 
-        (*it)->restoreState(v.toByteArray());
+        split->restoreState(v.toByteArray());
     }
 }
 
@@ -356,15 +353,14 @@ void restoreGeometrySetting(const QString& name, HeaderVect* hvPtr) {
 
     QSettings settings;
     int cnt = 0;
-    FOREACH (HeaderVect, it, *hvPtr) {
-
+    for (QHeaderView* header : *hvPtr) {
         cnt++;
         QString nm = name + "_header_" + QString::number(cnt);
         QVariant v = settings.value(nm);
         if (!v.isValid())
             continue;
 
-        (*it)->restoreState(v.toByteArray());
+        header->restoreState(v.toByteArray());
     }
 }
 

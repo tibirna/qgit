@@ -240,9 +240,9 @@ bool FileContent::startAnnotate(FileHistory* fh, const QString& ht) {
 uint FileContent::annotateLength(const FileAnnotation* annFile) {
 
     int maxLen = 0;
-    FOREACH_SL (it, annFile->lines)
-        if ((*it).length() > maxLen)
-            maxLen = (*it).length();
+    for (const QString& s : annFile->lines)
+        if (s.length() > maxLen)
+            maxLen = s.length();
 
     return maxLen;
 }
@@ -603,8 +603,8 @@ void FileContent::setAnnList() {
     QBrush back(Qt::lightGray);
     QFont f(listWidgetAnn->font());
     f.setBold(true);
-    FOREACH (QVector<int>, it, curIdLines) {
-        QListWidgetItem* item = listWidgetAnn->item(*it);
+    for (int i : curIdLines) {
+        QListWidgetItem* item = listWidgetAnn->item(i);
         item->setForeground(fore);
         item->setBackground(back);
         item->setFont(f);

@@ -269,7 +269,7 @@ const QStringList Git::getRefNames(SCRef sha, uint mask) const {
 const QStringList Git::getAllRefSha(uint mask) {
 
     QStringList shas;
-    FOREACH (RefMap, it, refsShaMap)
+    FOREACH(it, refsShaMap)
         if ((*it).type & mask)
             shas.append(it.key());
     return shas;
@@ -279,7 +279,7 @@ const QString Git::getRefSha(const QString& refName, RefType type, bool askGit) 
 
     bool any = (type == ANY_REF);
 
-    FOREACH (RefMap, it, refsShaMap) {
+    FOREACH (it, refsShaMap) {
 
         const Reference& rf = *it;
         if ((any || type == TAG) && rf.tags.contains(refName))
@@ -316,8 +316,8 @@ void Git::appendNamesWithId(QStringList& names, const QString& sha, const QStrin
 
     if (onlyLoaded) { // prepare for later sorting
         const QString& cap = QString("%1 ").arg(r->orderIdx, 6);
-        FOREACH_SL (it, data)
-            names.append(cap + *it);
+        for (const QString& s : data)
+            names.append(cap + s);
     } else
         names += data;
 }
@@ -326,7 +326,7 @@ const QStringList Git::getAllRefNames(uint mask, bool onlyLoaded) {
 // returns reference names sorted by loading order if 'onlyLoaded' is set
 
     QStringList names;
-    FOREACH (RefMap, it, refsShaMap) {
+    FOREACH (it, refsShaMap) {
 
         if (mask & TAG)
             appendNamesWithId(names, it.key(), (*it).tags, onlyLoaded);
@@ -747,10 +747,10 @@ MyProcess* Git::getHighlightedFile(const QString& fileSha, QObject* receiver, QS
 
 void Git::on_getHighlightedFile_eof() {
 
-    QDir dir(workDir);
-    const QStringList sl(dir.entryList(QStringList() << "qgit_hlght_input*"));
-    FOREACH_SL (it, sl)
-        dir.remove(*it);
+    QDir dir {workDir};
+    const QStringList sl = dir.entryList(QStringList() << "qgit_hlght_input*");
+    for (const QString& s : sl)
+        dir.remove(s);
 }
 
 bool Git::saveFile(const QString& fileSha, const QString& fileName, const QString& path) {
@@ -772,14 +772,14 @@ bool Git::getTree(const QString& treeSha, TreeInfo& ti, bool isWorkingDir, const
         QStringList unknowns, dummy;
         getWorkDirFiles(unknowns, dummy, RevFile::UNKNOWN);
 
-        FOREACH_SL (it, unknowns) {
+        for (const QString& s : unknowns) {
 
             // don't add files under other directories
-            QFileInfo f(*it);
-            const QString& d(f.dir().path());
+            QFileInfo f {s};
+            const QString& d = f.dir().path();
 
             if (d == path || (path.isEmpty() && d == ".")) {
-                TreeEntry te(f.fileName(), "", "?");
+                TreeEntry te {f.fileName(), "", "?"};
                 ti.append(te);
             }
         }
@@ -797,15 +797,15 @@ bool Git::getTree(const QString& treeSha, TreeInfo& ti, bool isWorkingDir, const
     if (!tree.isEmpty() && !run("git ls-tree " + tree, &runOutput))
         return false;
 
-    const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
-    FOREACH_SL (it, sl) {
+    const QStringList sl {runOutput.split('\n', QString::SkipEmptyParts)};
+    for (const QString& s : sl) {
 
         // append any not deleted file
-        const QString& fn((*it).section('\t', 1, 1));
-        const QString& fp(path.isEmpty() ? fn : path + '/' + fn);
+        const QString& fn = s.section('\t', 1, 1);
+        const QString& fp {path.isEmpty() ? fn : path + '/' + fn};
 
         if (deleted.empty() || (deleted.indexOf(fp) == -1)) {
-            TreeEntry te(fn, (*it).mid(12, 40), (*it).mid(7, 4));
+            TreeEntry te {fn, s.mid(12, 40), s.mid(7, 4)};
             ti.append(te);
         }
     }
@@ -1285,16 +1285,16 @@ void Git::getFileFilter(const QString& path, ShaSet& shaSet) const {
 
     shaSet.clear();
     QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);
-    FOREACH (ShaVect, it, revData->revOrder) {
+    for (const ShaString& sha : revData->revOrder) {
 
-        if (!revsFiles.contains(*it))
+        if (!revsFiles.contains(sha))
             continue;
 
         // case insensitive, wildcard search
-        const RevFile* rf = revsFiles[*it];
+        const RevFile* rf = revsFiles[sha];
         for (int i = 0; i < rf->count(); ++i)
             if (filePath(*rf, i).contains(rx)) {
-                shaSet.insert(*it);
+                shaSet.insert(sha);
                 break;
             }
     }
@@ -1304,9 +1304,9 @@ bool Git::getPatchFilter(const QString& exp, bool isRegExp, ShaSet& shaSet) {
 
     shaSet.clear();
     QString buf;
-    FOREACH (ShaVect, it, revData->revOrder)
-        if (*it != ZERO_SHA)
-            buf.append(*it).append('\n');
+    for (const ShaString& sha : revData->revOrder)
+        if (sha != ZERO_SHA)
+            buf.append(sha).append('\n');
 
     if (buf.isEmpty())
         return true;
@@ -1321,9 +1321,9 @@ bool Git::getPatchFilter(const QString& exp, bool isRegExp, ShaSet& shaSet) {
     if (!run(runCmd, &runOutput, NULL, buf))
         return false;
 
-    const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
-    FOREACH_SL (it, sl)
-        shaSet.insert(*it);
+    const QStringList sl = runOutput.split('\n', QString::SkipEmptyParts);
+    for (const QString& s : sl)
+        shaSet.insert(s);
 
     return true;
 }
@@ -1381,15 +1381,17 @@ bool Git::merge(SCRef into, SCList sources, QString *error)
 const QStringList Git::sortShaListByIndex(const QStringList& shaList) {
 
     QStringList orderedShaList;
-    FOREACH_SL (it, shaList)
-        appendNamesWithId(orderedShaList, *it, QStringList(*it), true);
+    for (const QString& s : shaList)
+        appendNamesWithId(orderedShaList, s, QStringList(s), true);
 
     orderedShaList.sort();
-    QStringList::iterator itN(orderedShaList.begin());
-    for ( ; itN != orderedShaList.end(); ++itN) // strip 'idx'
-        (*itN) = (*itN).section(' ', -1, -1);
+    //QStringList::iterator itN(orderedShaList.begin());
+    //for ( ; itN != orderedShaList.end(); ++itN) // strip 'idx'
+    //    (*itN) = (*itN).section(' ', -1, -1);
+    for (QString& s : orderedShaList)
+        s = s.section(' ', -1, -1);
 
-        return orderedShaList;
+    return orderedShaList;
 }
 
 bool Git::formatPatch(const QStringList& shaList, const QString& dirPath, const QString& remoteDir) {
@@ -1440,12 +1442,12 @@ bool Git::updateIndex(const QStringList& selFiles) {
     const RevFile* files = getFiles(ZERO_SHA); // files != NULL
 
     QStringList toAdd, toRemove;
-    FOREACH_SL (it, selFiles) {
-        int idx = findFileIndex(*files, *it);
+    for (const QString& s : selFiles) {
+        int idx = findFileIndex(*files, s);
         if (files->statusCmp(idx, RevFile::DELETED))
-            toRemove << *it;
+            toRemove << s;
         else
-            toAdd << *it;
+            toAdd << s;
     }
     if (!toRemove.isEmpty() && !run("git rm --cached --ignore-unmatch -- " + quote(toRemove)))
         return false;
@@ -1793,11 +1795,11 @@ bool Git::getRefs() {
 
     QString prevRefSha;
     QStringList patchNames, patchShas;
-    const QStringList rLst(runOutput.split('\n', QString::SkipEmptyParts));
-    FOREACH_SL (it, rLst) {
+    const QStringList rLst = runOutput.split('\n', QString::SkipEmptyParts);
+    for (const QString& s : rLst) {
 
-        const QString& revSha = (*it).left(QGit::SHA_LENGTH);
-        const QString& refName = (*it).mid(QGit::SHA_END_LENGTH);
+        const QString& revSha = s.left(QGit::SHA_LENGTH);
+        const QString& refName = s.mid(QGit::SHA_END_LENGTH);
 
         if (refName.startsWith("refs/patches/")) {
 
@@ -1878,11 +1880,11 @@ void Git::parseStGitPatches(const QStringList& patchNames, const QStringList& pa
     if (!run("stg series", &runOutput))
         return;
 
-    const QStringList pl(runOutput.split('\n', QString::SkipEmptyParts));
-    FOREACH_SL (it, pl) {
+    const QStringList pl = runOutput.split('\n', QString::SkipEmptyParts);
+    for (const QString& s : pl) {
 
-        const QString& status = (*it).left(1);
-        const QString& patchName = (*it).mid(2);
+        const QString& status = s.left(1);
+        const QString& patchName = s.mid(2);
 
         bool applied = (status == "+" || status == ">");
         int pos = patchNames.indexOf(patchName);
@@ -1944,9 +1946,9 @@ const RevFile* Git::fakeWorkDirRevFile(const WorkingDirInfo& wd) {
     parseDiffFormat(*rf, wd.diffIndex, fl);
     rf->onlyModified = false;
 
-    FOREACH_SL (it, wd.otherFiles) {
+    for (const QString& s : wd.otherFiles) {
 
-        appendFileName(*rf, *it, fl);
+        appendFileName(*rf, s, fl);
         rf->status.append(RevFile::UNKNOWN);
         rf->mergeParent.append(1);
     }
@@ -2446,14 +2448,14 @@ bool Git::populateRenamedPatches(const QString& renamedSha, const QStringList& n
 
     // find the first renamed file with the new file name in renamedFiles list
     QString line;
-    FOREACH_SL (it, newNames) {
+    for (const QString& s : newNames) {
         if (backTrack) {
-            line = runOutput.section('\t' + *it + '\t', 0, 0,
+            line = runOutput.section('\t' + s + '\t', 0, 0,
                                      QString::SectionIncludeTrailingSep);
             line.chop(1);
         }
         else
-            line = runOutput.section('\t' + *it + '\n', 0, 0);
+            line = runOutput.section('\t' + s + '\n', 0, 0);
 
         if (!line.isEmpty())
             break;

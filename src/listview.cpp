@@ -215,7 +215,7 @@ void ListView::getSelectedItems(QStringList& selectedItems) {
 
     selectedItems.clear();
     QModelIndexList ml = selectionModel()->selectedRows();
-    FOREACH (QModelIndexList, it, ml)
+    FOREACH(it, ml)
         selectedItems.append(sha((*it).row()));
 
     // selectedRows() returns the items in an unspecified order,

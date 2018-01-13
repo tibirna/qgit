@@ -98,9 +98,9 @@ void RangeSelectImpl::orderRefs(const QStringList& src, QStringList& dst) {
     QRegExp verRE("([^\\d])(\\d{1,2})(?=[^\\d])");
     OrderedMap map;
 
-    FOREACH_SL (it, src) {
+    for (const QString& s : src) {
 
-        QString tmpStr(*it);
+        QString tmpStr = s;
 
         if (re.indexIn(tmpStr) != -1)
             tmpStr.insert(re.pos(1), rcMark);
@@ -115,10 +115,10 @@ void RangeSelectImpl::orderRefs(const QStringList& src, QStringList& dst) {
         while (tmpStr.contains(verRE))
             tmpStr.replace(verRE, "\\10\\2");
 
-        map[tmpStr] = *it;
+        map[tmpStr] = s;
     }
     dst.clear();
-    FOREACH (OrderedMap, it, map)
+    FOREACH(it, map)
         dst.prepend(it.value());
 }
 
