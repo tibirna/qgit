@@ -17,41 +17,41 @@ namespace QGit {
  */
 class InputDialog : public QDialog
 {
-	Q_OBJECT
-	struct WidgetItem {
-		WidgetItem();
-		void init(QWidget* w, const char *name);
-		const char *prop_name; // property name
-		QWidget *widget;
-		int start, end;
-	};
-	typedef QSharedPointer<WidgetItem> WidgetItemPtr;
-	typedef QMap<QString, WidgetItemPtr> WidgetMap;
+    Q_OBJECT
+    struct WidgetItem {
+        WidgetItem();
+        void init(QWidget* w, const char *name);
+        const char *prop_name; // property name
+        QWidget *widget;
+        int start, end;
+    };
+    typedef QSharedPointer<WidgetItem> WidgetItemPtr;
+    typedef QMap<QString, WidgetItemPtr> WidgetMap;
 
-	// map from token names to
-	WidgetMap widgets;
-	QString cmd;
-	QMap<QString, const QValidator*> validators;
-	QPushButton *okButton;
+    // map from token names to
+    WidgetMap widgets;
+    QString cmd;
+    QMap<QString, const QValidator*> validators;
+    QPushButton *okButton;
 
 public:
-	typedef QMap<QString, QVariant> VariableMap;
-	explicit InputDialog(const QString &cmd, const VariableMap &variables,
-	                     const QString &title="",
-	                     QWidget *parent = 0, Qt::WindowFlags f = 0);
+    typedef QMap<QString, QVariant> VariableMap;
+    explicit InputDialog(const QString &cmd, const VariableMap &variables,
+                         const QString &title="",
+                         QWidget *parent = 0, Qt::WindowFlags f = 0);
 
-	/// any widgets defined?
-	bool empty() const {return widgets.empty();}
+    /// any widgets defined?
+    bool empty() const {return widgets.empty();}
 
-	/// retrieve widget of given token
-	QWidget *widget(const QString &token);
-	/// retrieve value of given token
-	QVariant value(const QString &token) const;
-	/// replace all tokens in cmd by their values
-	QString replace(const VariableMap &variables) const;
+    /// retrieve widget of given token
+    QWidget *widget(const QString &token);
+    /// retrieve value of given token
+    QVariant value(const QString &token) const;
+    /// replace all tokens in cmd by their values
+    QString replace(const VariableMap &variables) const;
 
 public Q_SLOTS:
-	virtual bool validate();
+    virtual bool validate();
 };
 
 } // namespace QGit

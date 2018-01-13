@@ -1,7 +1,7 @@
 /*
-	Author: Marco Costalba (C) 2005-2007
+    Author: Marco Costalba (C) 2005-2007
 
-	Copyright: See COPYING file that comes with this distribution
+    Copyright: See COPYING file that comes with this distribution
 
 */
 #include <QSettings>
@@ -10,35 +10,35 @@
 #include "mainimpl.h"
 
 #if defined(_MSC_VER) && defined(NDEBUG)
-	#pragma comment(linker,"/entry:mainCRTStartup")
-	#pragma comment(linker,"/subsystem:windows")
+    #pragma comment(linker,"/entry:mainCRTStartup")
+    #pragma comment(linker,"/subsystem:windows")
 #endif
 
 using namespace QGit;
 
 int main(int argc, char* argv[]) {
 
-	QApplication app(argc, argv);
+    QApplication app(argc, argv);
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 #endif
     QCoreApplication::setOrganizationName(ORG_KEY);
-	QCoreApplication::setApplicationName(APP_KEY);
+    QCoreApplication::setApplicationName(APP_KEY);
 
-	/* On Windows msysgit exec directory is set up
-	 * during installation so to always find git.exe
-	 * also if not in PATH
-	 */
-	QSettings set;
-	GIT_DIR = set.value(GIT_DIR_KEY).toString();
+    /* On Windows msysgit exec directory is set up
+     * during installation so to always find git.exe
+     * also if not in PATH
+     */
+    QSettings set;
+    GIT_DIR = set.value(GIT_DIR_KEY).toString();
 
-	initMimePix();
+    initMimePix();
 
-	MainImpl* mainWin = new MainImpl;
-	mainWin->show();
+    MainImpl* mainWin = new MainImpl;
+    mainWin->show();
     chk_connect_a(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
-	bool ret = app.exec();
+    bool ret = app.exec();
 
-	freeMimePix();
-	return ret;
+    freeMimePix();
+    return ret;
 }

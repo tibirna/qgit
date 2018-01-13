@@ -1,9 +1,9 @@
 /*
-	Description: qgit revision list view
+    Description: qgit revision list view
 
-	Author: Marco Costalba (C) 2005-2007
+    Author: Marco Costalba (C) 2005-2007
 
-	Copyright: See COPYING file that comes with this distribution
+    Copyright: See COPYING file that comes with this distribution
 
 */
 #include <QMenu>
@@ -22,40 +22,40 @@
 
 RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 
-	revTab = new Ui_TabRev();
-	revTab->setupUi(container);
+    revTab = new Ui_TabRev();
+    revTab->setupUi(container);
 
-	tab()->listViewLog->setup(this, g);
-	tab()->textBrowserDesc->setup(this);
-	tab()->textEditDiff->setup(this, git);
-	tab()->fileList->setup(this, git);
-	m()->treeView->setup(this, git);
+    tab()->listViewLog->setup(this, g);
+    tab()->textBrowserDesc->setup(this);
+    tab()->textEditDiff->setup(this, git);
+    tab()->fileList->setup(this, git);
+    m()->treeView->setup(this, git);
 
-	setTabLogDiffVisible(QGit::testFlag(QGit::LOG_DIFF_TAB_F));
+    setTabLogDiffVisible(QGit::testFlag(QGit::LOG_DIFF_TAB_F));
 
-	SmartBrowse* sb = new SmartBrowse(this);
+    SmartBrowse* sb = new SmartBrowse(this);
 
-	// restore geometry
+    // restore geometry
     QGit::SplitVect v;
     v << tab()->horizontalSplitter << tab()->verticalSplitter;
     QGit::restoreGeometrySetting(QGit::REV_GEOM_KEY, &v);
 
-	chk_connect_a(m(), SIGNAL(typeWriterFontChanged()),
+    chk_connect_a(m(), SIGNAL(typeWriterFontChanged()),
                   tab()->textEditDiff, SLOT(typeWriterFontChanged()));
 
-	chk_connect_a(m(), SIGNAL(flagChanged(uint)),
+    chk_connect_a(m(), SIGNAL(flagChanged(uint)),
                   sb, SLOT(flagChanged(uint)));
 
-	chk_connect_a(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
+    chk_connect_a(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
                   this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
-	chk_connect_a(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
+    chk_connect_a(git, SIGNAL(loadCompleted(const FileHistory*, const QString&)),
                   this, SLOT(on_loadCompleted(const FileHistory*, const QString&)));
 
-	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
+    chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
                   tab()->listViewLog, SLOT(on_changeFont(const QFont&)));
 
-	chk_connect_a(m(), SIGNAL(updateRevDesc()), this, SLOT(on_updateRevDesc()));
+    chk_connect_a(m(), SIGNAL(updateRevDesc()), this, SLOT(on_updateRevDesc()));
 
     chk_connect_a(tab()->listViewLog, SIGNAL(lanesContextMenuRequested(const QStringList&, const QStringList&)),
                   this, SLOT(on_lanesContextMenuRequested(const QStringList&, const QStringList&)));
@@ -72,26 +72,26 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
     chk_connect_a(tab()->listViewLog, SIGNAL(moveRef(QString,QString)),
                   m(), SLOT(moveRef(QString,QString)));
 
-	chk_connect_a(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
+    chk_connect_a(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
                   this, SLOT(on_contextMenu(const QString&, int)));
 
-	chk_connect_a(m()->treeView, SIGNAL(contextMenu(const QString&, int)),
+    chk_connect_a(m()->treeView, SIGNAL(contextMenu(const QString&, int)),
                   this, SLOT(on_contextMenu(const QString&, int)));
 
-	chk_connect_a(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
+    chk_connect_a(tab()->fileList, SIGNAL(contextMenu(const QString&, int)),
                   this, SLOT(on_contextMenu(const QString&, int)));
 
-	chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
+    chk_connect_a(m(), SIGNAL(changeFont(const QFont&)),
                   tab()->fileList, SLOT(on_changeFont(const QFont&)));
 
-	chk_connect_a(m(), SIGNAL(highlightPatch(const QString&, bool)),
+    chk_connect_a(m(), SIGNAL(highlightPatch(const QString&, bool)),
                   tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));
 }
 
 RevsView::~RevsView() {
 
-	if (!parent())
-		return;
+    if (!parent())
+        return;
 
     QGit::SplitVect v;
     v << tab()->horizontalSplitter << tab()->verticalSplitter;
@@ -99,248 +99,248 @@ RevsView::~RevsView() {
 
     tab()->listViewLog->saveGeometry();
 
-	// manually delete before container is removed in Domain
-	// d'tor to avoid a crash due to spurious events in
-	// SmartBrowse::eventFilter()
-	delete tab()->textBrowserDesc;
-	delete tab()->textEditDiff;
+    // manually delete before container is removed in Domain
+    // d'tor to avoid a crash due to spurious events in
+    // SmartBrowse::eventFilter()
+    delete tab()->textBrowserDesc;
+    delete tab()->textEditDiff;
 
-	delete linkedPatchView;
-	delete revTab;
+    delete linkedPatchView;
+    delete revTab;
 }
 
 void RevsView::clear(bool complete) {
 
-	Domain::clear(complete);
+    Domain::clear(complete);
 
-	tab()->textBrowserDesc->clear();
-	tab()->textEditDiff->clear();
-	tab()->fileList->clear();
-	m()->treeView->clear();
-	updateLineEditSHA(true);
-	if (linkedPatchView)
-		linkedPatchView->clear();
+    tab()->textBrowserDesc->clear();
+    tab()->textEditDiff->clear();
+    tab()->fileList->clear();
+    m()->treeView->clear();
+    updateLineEditSHA(true);
+    if (linkedPatchView)
+        linkedPatchView->clear();
 }
 
 void RevsView::setEnabled(bool b) {
 
-	container->setEnabled(b);
-	if (linkedPatchView)
-		linkedPatchView->tabPage()->setEnabled(b);
+    container->setEnabled(b);
+    if (linkedPatchView)
+        linkedPatchView->tabPage()->setEnabled(b);
 }
 
 void RevsView::toggleDiffView() {
 
-	QStackedWidget* s = tab()->stackedPanes;
-	QTabWidget* t = tab()->tabLogDiff;
+    QStackedWidget* s = tab()->stackedPanes;
+    QTabWidget* t = tab()->tabLogDiff;
 
-	bool isTabPage = (s->currentIndex() == 0);
-	int idx = (isTabPage ? t->currentIndex() : s->currentIndex());
+    bool isTabPage = (s->currentIndex() == 0);
+    int idx = (isTabPage ? t->currentIndex() : s->currentIndex());
 
-	bool old = container->updatesEnabled();
-	container->setUpdatesEnabled(false);
+    bool old = container->updatesEnabled();
+    container->setUpdatesEnabled(false);
 
-	if (isTabPage)
-		t->setCurrentIndex(1 - idx);
-	else
-		s->setCurrentIndex(3 - idx);
+    if (isTabPage)
+        t->setCurrentIndex(1 - idx);
+    else
+        s->setCurrentIndex(3 - idx);
 
-	container->setUpdatesEnabled(old);
+    container->setUpdatesEnabled(old);
 }
 
 void RevsView::setTabLogDiffVisible(bool b) {
 
-	QStackedWidget* s = tab()->stackedPanes;
-	QTabWidget* t = tab()->tabLogDiff;
+    QStackedWidget* s = tab()->stackedPanes;
+    QTabWidget* t = tab()->tabLogDiff;
 
-	bool isTabPage = (s->currentIndex() == 0);
-	int idx = (isTabPage ? t->currentIndex() : s->currentIndex());
+    bool isTabPage = (s->currentIndex() == 0);
+    int idx = (isTabPage ? t->currentIndex() : s->currentIndex());
 
-	container->setUpdatesEnabled(false);
+    container->setUpdatesEnabled(false);
 
-	if (b && !isTabPage) {
+    if (b && !isTabPage) {
 
-		t->addTab(tab()->textBrowserDesc, "Log");
-		t->addTab(tab()->textEditDiff, "Diff");
+        t->addTab(tab()->textBrowserDesc, "Log");
+        t->addTab(tab()->textEditDiff, "Diff");
 
-		t->setCurrentIndex(idx - 1);
-		s->setCurrentIndex(0);
-	}
-	if (!b && isTabPage) {
+        t->setCurrentIndex(idx - 1);
+        s->setCurrentIndex(0);
+    }
+    if (!b && isTabPage) {
 
-		s->addWidget(tab()->textBrowserDesc);
-		s->addWidget(tab()->textEditDiff);
+        s->addWidget(tab()->textBrowserDesc);
+        s->addWidget(tab()->textEditDiff);
 
-		// manually remove the two remaining empty pages
-		t->removeTab(0); t->removeTab(0);
+        // manually remove the two remaining empty pages
+        t->removeTab(0); t->removeTab(0);
 
-		s->setCurrentIndex(idx + 1);
-	}
-	container->setUpdatesEnabled(true);
+        s->setCurrentIndex(idx + 1);
+    }
+    container->setUpdatesEnabled(true);
 }
 
 void RevsView::viewPatch(bool newTab) {
 
-	if (!newTab && linkedPatchView) {
-		m()->tabWdg->setCurrentWidget(linkedPatchView->tabPage());
-		return;
-	}
-	PatchView* pv = new PatchView(m(), git);
-	m()->tabWdg->addTab(pv->tabPage(), "&Patch");
-	m()->tabWdg->setCurrentWidget(pv->tabPage());
+    if (!newTab && linkedPatchView) {
+        m()->tabWdg->setCurrentWidget(linkedPatchView->tabPage());
+        return;
+    }
+    PatchView* pv = new PatchView(m(), git);
+    m()->tabWdg->addTab(pv->tabPage(), "&Patch");
+    m()->tabWdg->setCurrentWidget(pv->tabPage());
 
-	if (!newTab) { // linkedPatchView == NULL
-		linkedPatchView = pv;
-		linkDomain(linkedPatchView);
+    if (!newTab) { // linkedPatchView == NULL
+        linkedPatchView = pv;
+        linkDomain(linkedPatchView);
 
-		chk_connect_a(m(), SIGNAL(highlightPatch(const QString&, bool)),
+        chk_connect_a(m(), SIGNAL(highlightPatch(const QString&, bool)),
                       pv->tab()->textEditDiff, SLOT(on_highlightPatch(const QString&, bool)));
 
-		chk_connect_a(pv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+        chk_connect_a(pv->tab()->fileList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
                       m(), SLOT(fileList_itemDoubleClicked(QListWidgetItem*)));
-	}
-	chk_connect_a(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
-	chk_connect_a(m(), SIGNAL(closeAllTabs()), pv, SLOT(on_closeAllTabs()));
-	pv->st = st;
-	UPDATE_DM_MASTER(pv, false);
+    }
+    chk_connect_a(m(), SIGNAL(updateRevDesc()), pv, SLOT(on_updateRevDesc()));
+    chk_connect_a(m(), SIGNAL(closeAllTabs()), pv, SLOT(on_closeAllTabs()));
+    pv->st = st;
+    UPDATE_DM_MASTER(pv, false);
 }
 
 void RevsView::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString>&) {
 
-	if (!git->isMainHistory(fh) || !st.sha().isEmpty())
-		return;
+    if (!git->isMainHistory(fh) || !st.sha().isEmpty())
+        return;
 
-	ListView* lv = tab()->listViewLog;
-	if (lv->model()->rowCount() == 0)
-		return;
+    ListView* lv = tab()->listViewLog;
+    if (lv->model()->rowCount() == 0)
+        return;
 
-	st.setSha(lv->sha(0));
-	st.setSelectItem(true);
-	UPDATE(); // give feedback to user as soon as possible
+    st.setSha(lv->sha(0));
+    st.setSelectItem(true);
+    UPDATE(); // give feedback to user as soon as possible
 }
 
 void RevsView::on_loadCompleted(const FileHistory* fh, const QString& stats) {
 
-	if (!git->isMainHistory(fh))
-		return;
+    if (!git->isMainHistory(fh))
+        return;
 
-	UPDATE(); // restore revision after a refresh
-	QApplication::postEvent(this, new MessageEvent(stats));
+    UPDATE(); // restore revision after a refresh
+    QApplication::postEvent(this, new MessageEvent(stats));
 }
 
 void RevsView::on_updateRevDesc() {
 
-	const QString& d = m()->getRevisionDesc(st.sha());
-	tab()->textBrowserDesc->setHtml(d);
+    const QString& d = m()->getRevisionDesc(st.sha());
+    tab()->textBrowserDesc->setHtml(d);
 }
 
 bool RevsView::doUpdate(bool force) {
 
-	force = force || m()->lineEditSHA->text().isEmpty();
+    force = force || m()->lineEditSHA->text().isEmpty();
 
-	bool found = tab()->listViewLog->update();
+    bool found = tab()->listViewLog->update();
 
-	if (!found && !st.sha().isEmpty()) {
+    if (!found && !st.sha().isEmpty()) {
 
-		const QString tmp("Sorry, revision " + st.sha() +
-		                  " has not been found in main view");
-		showStatusBarMessage(tmp);
+        const QString tmp("Sorry, revision " + st.sha() +
+                          " has not been found in main view");
+        showStatusBarMessage(tmp);
 
-	} else { // sha could be NULL
+    } else { // sha could be NULL
 
-		if (st.isChanged(StateInfo::SHA) || force) {
+        if (st.isChanged(StateInfo::SHA) || force) {
 
-			updateLineEditSHA();
-			on_updateRevDesc();
-			showStatusBarMessage(git->getRevInfo(st.sha()));
+            updateLineEditSHA();
+            on_updateRevDesc();
+            showStatusBarMessage(git->getRevInfo(st.sha()));
 
-			if (   testFlag(QGit::MSG_ON_NEW_F)
-			    && tab()->textEditDiff->isVisible())
-				toggleDiffView();
-		}
-		const RevFile* files = NULL;
-		bool newFiles = false;
+            if (   testFlag(QGit::MSG_ON_NEW_F)
+                && tab()->textEditDiff->isVisible())
+                toggleDiffView();
+        }
+        const RevFile* files = NULL;
+        bool newFiles = false;
 
-		if (st.isChanged(StateInfo::ANY & ~StateInfo::FILE_NAME) || force) {
+        if (st.isChanged(StateInfo::ANY & ~StateInfo::FILE_NAME) || force) {
 
-			tab()->fileList->clear();
+            tab()->fileList->clear();
 
-			if (linkedPatchView) // give some feedback while waiting
-				linkedPatchView->clear();
+            if (linkedPatchView) // give some feedback while waiting
+                linkedPatchView->clear();
 
-			// blocking call, could be slow in case of all merge files
-			files = git->getFiles(st.sha(), st.diffToSha(), st.allMergeFiles());
-			newFiles = true;
+            // blocking call, could be slow in case of all merge files
+            files = git->getFiles(st.sha(), st.diffToSha(), st.allMergeFiles());
+            newFiles = true;
 
-			tab()->textEditDiff->update(st);
-		}
-		// call always to allow a simple refresh
-		tab()->fileList->update(files, newFiles);
+            tab()->textEditDiff->update(st);
+        }
+        // call always to allow a simple refresh
+        tab()->fileList->update(files, newFiles);
 
-		// update the tree at startup or when releasing a no-match toolbar search
-		if (m()->treeView->isVisible() || st.sha(false).isEmpty())
-			m()->treeView->updateTree(); // blocking call
+        // update the tree at startup or when releasing a no-match toolbar search
+        if (m()->treeView->isVisible() || st.sha(false).isEmpty())
+            m()->treeView->updateTree(); // blocking call
 
-		if (st.selectItem()) {
-			bool isDir = m()->treeView->isDir(st.fileName());
-			m()->updateContextActions(st.sha(), st.fileName(), isDir, found);
-		}
-		if (st.isChanged() || force) {
-			// activate log or diff tab depending on file selection
+        if (st.selectItem()) {
+            bool isDir = m()->treeView->isDir(st.fileName());
+            m()->updateContextActions(st.sha(), st.fileName(), isDir, found);
+        }
+        if (st.isChanged() || force) {
+            // activate log or diff tab depending on file selection
 			bool sha_changed = st.sha(true) != st.sha(false);
 			tab()->tabLogDiff->setCurrentIndex(sha_changed ? 0 : 1);
-			tab()->textEditDiff->centerOnFileHeader(st);
-		}
+            tab()->textEditDiff->centerOnFileHeader(st);
+        }
 
-		// at the end update diffs that is the slowest and must be
-		// run after update of file list for 'diff to sha' to work
-		if (linkedPatchView) {
-			linkedPatchView->st = st;
-			UPDATE_DM_MASTER(linkedPatchView, force); // async call
-		}
-	}
-	return (found || st.sha().isEmpty());
+        // at the end update diffs that is the slowest and must be
+        // run after update of file list for 'diff to sha' to work
+        if (linkedPatchView) {
+            linkedPatchView->st = st;
+            UPDATE_DM_MASTER(linkedPatchView, force); // async call
+        }
+    }
+    return (found || st.sha().isEmpty());
 }
 
 void RevsView::updateLineEditSHA(bool clear) {
 
-	QLineEdit* l = m()->lineEditSHA;
+    QLineEdit* l = m()->lineEditSHA;
 
-	if (clear)
-		l->setText(""); // clears history
+    if (clear)
+        l->setText(""); // clears history
 
-	else if (l->text() != st.sha()) {
+    else if (l->text() != st.sha()) {
 
-		if (l->text().isEmpty())
-			l->setText(st.sha()); // first rev clears history
-		else {
-			// setText() clears undo/redo history so
-			// we use clear() + insert() instead
-			l->clear();
-			l->insert(st.sha());
-		}
-	}
-	m()->ActBack->setEnabled(l->isUndoAvailable());
-	m()->ActForward->setEnabled(l->isRedoAvailable());
+        if (l->text().isEmpty())
+            l->setText(st.sha()); // first rev clears history
+        else {
+            // setText() clears undo/redo history so
+            // we use clear() + insert() instead
+            l->clear();
+            l->insert(st.sha());
+        }
+    }
+    m()->ActBack->setEnabled(l->isUndoAvailable());
+    m()->ActForward->setEnabled(l->isRedoAvailable());
 }
 
 void RevsView::on_lanesContextMenuRequested(const QStringList& parents, const QStringList& children) {
 
-	QMenu contextMenu;
-	FOREACH_SL (it, children)
-		contextMenu.addAction("Child: " + git->getShortLog(*it));
+    QMenu contextMenu;
+    FOREACH_SL (it, children)
+        contextMenu.addAction("Child: " + git->getShortLog(*it));
 
-	FOREACH_SL (it, parents) {
-		QString log(git->getShortLog(*it));
-		contextMenu.addAction("Parent: " + (log.isEmpty() ? *it : log));
-	}
-	QAction* act = contextMenu.exec(QCursor::pos()); // modal exec
-	if (!act)
-		return;
+    FOREACH_SL (it, parents) {
+        QString log(git->getShortLog(*it));
+        contextMenu.addAction("Parent: " + (log.isEmpty() ? *it : log));
+    }
+    QAction* act = contextMenu.exec(QCursor::pos()); // modal exec
+    if (!act)
+        return;
 
-	int cc = children.count();
-	int id = contextMenu.actions().indexOf(act);
-	const QString& target(id < cc ? children[id] : parents[id - cc]);
-	st.setSha(target);
-	UPDATE();
+    int cc = children.count();
+    int id = contextMenu.actions().indexOf(act);
+    const QString& target(id < cc ? children[id] : parents[id - cc]);
+    st.setSha(target);
+    UPDATE();
 }

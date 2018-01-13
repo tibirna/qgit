@@ -1,7 +1,7 @@
 /*
-	Author: Marco Costalba (C) 2005-2007
+    Author: Marco Costalba (C) 2005-2007
 
-	Copyright: See COPYING file that comes with this distribution
+    Copyright: See COPYING file that comes with this distribution
 
 */
 #ifndef FILEVIEW_H
@@ -18,47 +18,47 @@ class FileHistory;
 class FileView: public Domain {
 Q_OBJECT
 public:
-	FileView() {}
-	FileView(MainImpl* m, Git* git);
-	~FileView();
-	virtual void clear(bool complete = true);
-	void append(const QString& data);
-	void historyReady();
-	void updateHistViewer(const QString& revSha, const QString& fileName, bool fromUpstream = true);
-	void eof();
-	Ui_TabFile* tab() { return fileTab; }
+    FileView() {}
+    FileView(MainImpl* m, Git* git);
+    ~FileView();
+    virtual void clear(bool complete = true);
+    void append(const QString& data);
+    void historyReady();
+    void updateHistViewer(const QString& revSha, const QString& fileName, bool fromUpstream = true);
+    void eof();
+    Ui_TabFile* tab() { return fileTab; }
 
 public slots:
-	void on_toolButtonCopy_clicked();
-	void on_toolButtonShowAnnotate_toggled(bool);
-	void on_toolButtonFindAnnotate_toggled(bool);
-	void on_toolButtonGoNext_clicked();
-	void on_toolButtonGoPrev_clicked();
-	void on_toolButtonRangeFilter_toggled(bool);
-	void on_toolButtonPin_toggled(bool);
-	void on_toolButtonHighlightText_toggled(bool);
-	void on_spinBoxRevision_valueChanged(int);
-	void on_loadCompleted(const FileHistory*, const QString&);
-	void on_annotationAvailable(bool);
-	void on_fileAvailable(bool);
-	void on_revIdSelected(int);
+    void on_toolButtonCopy_clicked();
+    void on_toolButtonShowAnnotate_toggled(bool);
+    void on_toolButtonFindAnnotate_toggled(bool);
+    void on_toolButtonGoNext_clicked();
+    void on_toolButtonGoPrev_clicked();
+    void on_toolButtonRangeFilter_toggled(bool);
+    void on_toolButtonPin_toggled(bool);
+    void on_toolButtonHighlightText_toggled(bool);
+    void on_spinBoxRevision_valueChanged(int);
+    void on_loadCompleted(const FileHistory*, const QString&);
+    void on_annotationAvailable(bool);
+    void on_fileAvailable(bool);
+    void on_revIdSelected(int);
 
 protected:
-	virtual bool doUpdate(bool force);
-	virtual bool isMatch(const QString& sha);
-	virtual bool eventFilter(QObject *obj, QEvent *e);
+    virtual bool doUpdate(bool force);
+    virtual bool isMatch(const QString& sha);
+    virtual bool eventFilter(QObject *obj, QEvent *e);
 
 private:
-	friend class MainImpl;
-	friend class FileHighlighter;
+    friend class MainImpl;
+    friend class FileHighlighter;
 
-	void showAnnotation();
-	bool goToCurrentAnnotation(int direction = 0);
-	void filterOnRange(bool b);
-	void updateSpinBoxValue();
-	void updateEnabledButtons();
+    void showAnnotation();
+    bool goToCurrentAnnotation(int direction = 0);
+    void filterOnRange(bool b);
+    void updateSpinBoxValue();
+    void updateEnabledButtons();
 
-	Ui_TabFile* fileTab;
+    Ui_TabFile* fileTab;
 };
 
 #endif

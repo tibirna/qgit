@@ -1,9 +1,9 @@
 /*
-	Description: file names persistent cache
+    Description: file names persistent cache
 
-	Author: Marco Costalba (C) 2005-2007
+    Author: Marco Costalba (C) 2005-2007
 
-	Copyright: See COPYING file that comes with this distribution
+    Copyright: See COPYING file that comes with this distribution
 
 */
 #include <QFile>
