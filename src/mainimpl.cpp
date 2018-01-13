@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QWheelEvent>
 #include <QTextCodec>
+#include <QUuid>
 #include <assert.h>
 #include "config.h" // defines PACKAGE_VERSION
 #include "consoleimpl.h"
@@ -275,15 +276,21 @@ QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
 	if (emptySha.exactMatch(sha))
 	{
 		return QString(curDir + "/" + rv->st.fileName());
+            prevRevSha = r->parent(0);
 	}
 
 	QFileInfo f(rv->st.fileName());
-	QFileInfo fi(f);
+    QString fTmpl = curDir + "/%1_" + fi.fileName();
+    if (prevRevSha.isEmpty())
+        fName2 = fTmpl.arg("root_" + QUuid::createUuid().toString().mid(1, 6));
+    else
+        fName2 = fTmpl.arg(prevRevSha.left(6));
 
 	QString fName(curDir + "/" + sha.left(6) + "_" + fi.fileName());
 
 	QByteArray fileContent;
 	QTextCodec* tc = QTextCodec::codecForLocale();
+    QString fileSha = git->getFileSha(rv->st.fileName(), rv->st.sha());
 
 	QString fileSha(git->getFileSha(rv->st.fileName(), sha));
 	git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());

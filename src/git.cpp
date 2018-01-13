@@ -630,7 +630,7 @@ MyProcess* Git::getDiff(const QString& sha, QObject* receiver, const QString& di
 
 	QString runCmd;
 	if (sha != ZERO_SHA) {
-		runCmd = "git diff-tree --no-color -r --patch-with-stat ";
+        runCmd = "git diff-tree --no-color --root -r --patch-with-stat ";
 		runCmd.append(combined ? "-c " : "-C -m "); // TODO rename for combined
 
         const Rev* r = revLookup(sha);
@@ -666,14 +666,18 @@ const QString Git::getWorkDirDiff(const QString& fileName) {
 
 const QString Git::getFileSha(const QString& file, const QString& revSha) {
 
+    if (revSha.isEmpty())
+        return "";
+
 	if (revSha == ZERO_SHA) {
 		QStringList files, dummy;
 		getWorkDirFiles(files, dummy, RevFile::ANY);
 		if (files.contains(file))
 			return ZERO_SHA; // it is unknown to git
 	}
-	const QString sha(revSha == ZERO_SHA ? "HEAD" : revSha);
-	QString runCmd("git ls-tree -r " + sha + " " + quote(file)), runOutput;
+    const QString sha = (revSha == ZERO_SHA) ? QString("HEAD") : revSha;
+    QString runCmd = "git ls-tree -r " + sha + " " + quote(file);
+    QString runOutput;
 	if (!run(runCmd, &runOutput))
 		return "";
 
@@ -1183,8 +1187,8 @@ const RevFile* Git::getFiles(const QString& sha, const QString& diffToSha, bool 
 	if (!r)
 		return NULL;
 
-	if (r->parentsCount() == 0) // skip initial rev
-		return NULL;
+    if (r->parentsCount() == 0)
+        return revsFiles.contains(r->sha()) ? revsFiles[r->sha()] : NULL;
 
 	if (r->parentsCount() > 1 && diffToSha.isEmpty() && allFiles)
 		return getAllMergeFiles(r);
@@ -2504,28 +2508,28 @@ void Git::loadFileCache() {
 
 void Git::loadFileNames() {
 
-        indexTree(); // we are sure data loading is finished at this point
+    indexTree(); // we are sure data loading is finished at this point
 
-        int revCnt = 0;
-        QString diffTreeBuf;
-        FOREACH (ShaVect, it, revData->revOrder) {
+    int revCnt = 0;
+    QString diffTreeBuf;
+    for (const ShaString& sha : revData->revOrder) {
 
-                if (!revsFiles.contains(*it)) {
-                        const Rev* c = revLookup(*it);
-                        if (c->parentsCount() == 1) { // skip initials and merges
-                                diffTreeBuf.append(*it).append('\n');
-                                revCnt++;
-                        }
-                }
+        if (!revsFiles.contains(sha)) {
+            const Rev* c = revLookup(sha);
+            if (c->parentsCount() <= 1) { // skip merges
+                diffTreeBuf.append(sha).append('\n');
+                revCnt++;
+            }
         }
-        if (!diffTreeBuf.isEmpty()) {
-                filesLoadingPending = filesLoadingCurSha = "";
-                filesLoadingStartOfs = revsFiles.count();
-                emit fileNamesLoad(3, revCnt);
+    }
+    if (!diffTreeBuf.isEmpty()) {
+        filesLoadingPending = filesLoadingCurSha = "";
+        filesLoadingStartOfs = revsFiles.count();
+        emit fileNamesLoad(3, revCnt);
 
-                const QString runCmd("git diff-tree --no-color -r -C --stdin");
-                runAsync(runCmd, this, diffTreeBuf);
-        }
+        const QString runCmd("git diff-tree --no-color --root -r -C --stdin");
+        runAsync(runCmd, this, diffTreeBuf);
+    }
 }
 
 bool Git::filterEarlyOutputRev(FileHistory* fh, Rev* rev) {
