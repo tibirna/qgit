@@ -884,7 +884,16 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
         int pw = fm.boundingRect(txt).width() + 2 * spacing;
         int ph = fm.height();
 
-	QPixmap* newPm = new QPixmap(ofs + pw, ph);
+    QSize pixmapSize(ofs + pw, ph);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    qreal dpr = qApp->devicePixelRatio();
+	QPixmap* newPm = new QPixmap(pixmapSize * dpr);
+    newPm->setDevicePixelRatio(dpr);
+#else
+    QPixmap* newPm = new QPixmap(pixmapSize);
+#endif
+
 	QPainter p;
 	p.begin(newPm);
 	if (!pm->isNull()) {
