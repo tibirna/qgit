@@ -1062,7 +1062,7 @@ const QString Git::getDesc(const QString& sha, QRegExp& shortLogRE, QRegExp& lon
                 "td.h { font-weight: bold; }\n"
                 "table { background-color: " << QPalette().color(QPalette::Button).name() << "; }\n"
                 "span.h { font-weight: bold; font-size: medium; }\n"
-                "div.l { white-space: pre; "
+                "div.l { white-space: pre-wrap; "
                 "font-family: " << TYPE_WRITER_FONT.family() << ";"
                 "font-size: " << TYPE_WRITER_FONT.pointSize() << "pt;}\n"
                 "</style></head><body><div class='t'>\n"
