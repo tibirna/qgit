@@ -280,7 +280,8 @@ bool RevsView::doUpdate(bool force) {
 		}
 		if (st.isChanged() || force) {
 			// activate log or diff tab depending on file selection
-			tab()->tabLogDiff->setCurrentIndex(st.fileName().isEmpty() ? 0 : 1);
+			bool sha_changed = st.sha(true) != st.sha(false);
+			tab()->tabLogDiff->setCurrentIndex(sha_changed ? 0 : 1);
 			tab()->textEditDiff->centerOnFileHeader(st);
 		}
 
