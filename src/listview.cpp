@@ -250,7 +250,6 @@ void ListView::currentChanged(const QModelIndex& index, const QModelIndex&) {
 	SCRef selRev = sha(index.row());
 	if (st->sha() != selRev) { // to avoid looping
 		st->setSha(selRev);
-		st->setFileName("");
 		st->setSelectItem(true);
 		UPDATE_DOMAIN(d);
 	}
