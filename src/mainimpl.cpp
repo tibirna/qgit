@@ -1202,23 +1202,31 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 	settings.setValue(REC_REP_KEY, newRecents);
 }
 
-static int cntMenuEntries(const QMenu& menu) {
+static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar sep = '/') {
 
-	int cnt = 0;
-	QList<QAction*> al(menu.actions());
-	FOREACH (QList<QAction*>, it, al) {
-		if (!(*it)->isSeparator())
-			cnt++;
+	FOREACH_SL (it, refs) {
+		const QStringList& parts(it->split(sep, QString::SkipEmptyParts));
+		QMenu* add_here = menu;
+		FOREACH_SL (pit, parts) {
+			if (pit == parts.end() - 1) break;
+			QMenu* found = add_here->findChild<QMenu*>(*pit, Qt::FindDirectChildrenOnly);
+			if(!found) {
+				found = add_here->addMenu(*pit);
+				found->setObjectName(*pit);
+			}
+			add_here = found;
+		}
+		QAction* act = add_here->addAction(*it);
+		act->setData("Ref");
 	}
-	return cnt;
 }
 
 void MainImpl::doContexPopup(SCRef sha) {
 
 	QMenu contextMenu(this);
-	QMenu contextBrnMenu("More branches...", this);
-	QMenu contextTagMenu("More tags...", this);
+	QMenu contextBrnMenu("Branches...", this);
 	QMenu contextRmtMenu("Remote branches...", this);
+	QMenu contextTagMenu("Tags...", this);
 
 	connect(&contextMenu, SIGNAL(triggered(QAction*)), this, SLOT(goRef_triggered(QAction*)));
 
@@ -1263,63 +1271,29 @@ void MainImpl::doContexPopup(SCRef sha) {
 		if (ActPop->isEnabled())
 			contextMenu.addAction(ActPop);
 
-		const QStringList& bn(git->getAllRefNames(Git::BRANCH, Git::optOnlyLoaded));
-		const QStringList& rbn(git->getAllRefNames(Git::RMT_BRANCH, Git::optOnlyLoaded));
-		const QStringList& tn(git->getAllRefNames(Git::TAG, Git::optOnlyLoaded));
-		QAction* act = NULL;
+		contextMenu.addSeparator();
 
-		FOREACH_SL (it, rbn) {
-			act = contextRmtMenu.addAction(*it);
-			act->setData("Ref");
-		}
+		QStringList bn(git->getAllRefNames(Git::BRANCH, Git::optOnlyLoaded));
+		bn.sort();
+		prepareRefSubmenu(&contextBrnMenu, bn);
+		contextMenu.addMenu(&contextBrnMenu);
+		contextBrnMenu.setEnabled(bn.size() > 0);
 
-		// halve the possible remaining entries for branches and tags
-		int remainingEntries = (MAX_MENU_ENTRIES - cntMenuEntries(contextMenu));
-		if (!contextRmtMenu.isEmpty()) --remainingEntries;
-		int tagEntries = remainingEntries / 2;
-		int brnEntries = remainingEntries - tagEntries;
+		QStringList rbn(git->getAllRefNames(Git::RMT_BRANCH, Git::optOnlyLoaded));
+		rbn.sort();
+		prepareRefSubmenu(&contextRmtMenu, rbn);
+		contextMenu.addMenu(&contextRmtMenu);
+		contextRmtMenu.setEnabled(rbn.size() > 0);
 
-		// display more branches, if there are few tags
-		if (tagEntries > tn.count())
-			tagEntries = tn.count();
+		QStringList tn(git->getAllRefNames(Git::TAG, Git::optOnlyLoaded));
+		tn.sort();
+		prepareRefSubmenu(&contextTagMenu, tn);
+		contextMenu.addSeparator();
+		contextMenu.addMenu(&contextTagMenu);
+		contextTagMenu.setEnabled(tn.size() > 0);
 
-		// one branch less because of the "More branches..." submenu
-		if ((bn.count() > brnEntries) && tagEntries)
-			tagEntries++;
-
-		if (!bn.empty())
-			contextMenu.addSeparator();
-
-		FOREACH_SL (it, bn) {
-			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES - tagEntries
-			    || (*it == bn.last() && contextBrnMenu.isEmpty()))
-				act = contextMenu.addAction(*it);
-			else
-				act = contextBrnMenu.addAction(*it);
-
-			act->setData("Ref");
-		}
-		if (!contextBrnMenu.isEmpty())
-			contextMenu.addMenu(&contextBrnMenu);
-
-		if (!contextRmtMenu.isEmpty())
-			contextMenu.addMenu(&contextRmtMenu);
-
-		if (!tn.empty())
-			contextMenu.addSeparator();
-
-		FOREACH_SL (it, tn) {
-			if (   cntMenuEntries(contextMenu) < MAX_MENU_ENTRIES
-			    || (*it == tn.last() && contextTagMenu.isEmpty()))
-				act = contextMenu.addAction(*it);
-			else
-				act = contextTagMenu.addAction(*it);
-
-			act->setData("Ref");
-		}
-		if (!contextTagMenu.isEmpty())
-			contextMenu.addMenu(&contextTagMenu);
 	}
+
 	QPoint p = QCursor::pos();
 	p += QPoint(10, 10);
 	contextMenu.exec(p);
