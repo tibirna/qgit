@@ -633,6 +633,11 @@ MyProcess* Git::getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool comb
 	if (sha != ZERO_SHA) {
 		runCmd = "git diff-tree --no-color -r --patch-with-stat ";
 		runCmd.append(combined ? "-c " : "-C -m "); // TODO rename for combined
+
+        const Rev* r = revLookup(sha);
+        if (r->parentsCount() == 0)
+            runCmd.append("--root ");
+
 		runCmd.append(diffToSha + " " + sha); // diffToSha could be empty
 	} else
 		runCmd = "git diff-index --no-color -r -m --patch-with-stat HEAD";
