@@ -1028,13 +1028,12 @@ void MainImpl::shortCutActivated() {
 	if (se) {
 		#if QT_VERSION >= 0x050000
 			const QKeySequence& keys = se->key();
-			const int key = keys[0];//This only checks the primary key sequence. There are four posiable.
+			const int key = keys[0];//This only checks the primary key sequence. There are four possiable.
 		#else
 			const int key = se->key();
 		#endif
 
-		switch(key)
-		{
+		switch(key) {
 			case Qt::Key_I:
 				rv->tab()->listViewLog->on_keyUp();
 				break;
