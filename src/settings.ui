@@ -29,592 +29,567 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QHBoxLayout">
-   <property name="spacing">
-    <number>6</number>
-   </property>
-   <property name="margin">
-    <number>9</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout">
-     <property name="spacing">
-      <number>6</number>
+    <widget class="QTabWidget" name="tabDialog">
+     <property name="currentIndex">
+      <number>5</number>
      </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QTabWidget" name="tabDialog">
-       <property name="currentIndex">
-        <number>5</number>
+     <widget class="QWidget" name="General">
+      <attribute name="title">
+       <string>&amp;General</string>
+      </attribute>
+      <layout class="QHBoxLayout">
+       <property name="spacing">
+        <number>6</number>
        </property>
-       <widget class="QWidget" name="General">
-        <attribute name="title">
-         <string>&amp;General</string>
-        </attribute>
-        <layout class="QHBoxLayout">
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>9</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <item>
+        <layout class="QVBoxLayout">
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin">
-          <number>9</number>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
          </property>
          <item>
-          <layout class="QVBoxLayout">
-           <property name="spacing">
-            <number>6</number>
+          <widget class="QFrame" name="frame">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
            </property>
-           <property name="margin">
-            <number>0</number>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
-           <item>
-            <widget class="QFrame" name="frame">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout">
+           <layout class="QHBoxLayout">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <property name="rightMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout">
               <property name="spacing">
                <number>6</number>
               </property>
-              <property name="margin">
-               <number>9</number>
-              </property>
-              <item>
-               <layout class="QVBoxLayout">
-                <property name="spacing">
-                 <number>6</number>
-                </property>
-                <property name="margin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxRelativeDate">
-                  <property name="toolTip">
-                   <string>Check to see commit author date as relative time from now</string>
-                  </property>
-                  <property name="text">
-                   <string>Relati&amp;ve time in date column</string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+V</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxRangeSelectDialog">
-                  <property name="toolTip">
-                   <string>Check to view range select dialog at repository opening</string>
-                  </property>
-                  <property name="text">
-                   <string>Show range select when opening a repositor&amp;y</string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+Y</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxReopenLastRepo">
-                  <property name="text">
-                   <string>Reopen last repository on startup</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxOpenInEditor">
-                  <property name="text">
-                   <string>Double click opens file in editor</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>21</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QGridLayout">
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>4</number>
-             </property>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="pushButtonExtDiff">
-               <property name="maximumSize">
-                <size>
-                 <width>40</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Browse directories</string>
-               </property>
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="shortcut">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditTypeWriterFont">
-               <property name="toolTip">
-                <string>Typewriter (fixed width) font used by patch and file viewers</string>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="textLabelTypewriterFont">
-               <property name="text">
-                <string>Fixed width font</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditTypeWriterFont</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditExternalDiffViewer">
-               <property name="toolTip">
-                <string>Set path of the external diff tool</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="textLabelExternalDiffViewer">
-               <property name="text">
-                <string>&amp;External diff tool</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditExternalDiffViewer</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="lineEditExternalEditor">
-               <property name="toolTip">
-                <string>Set path of the external editor</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="textLabelExternalEditor">
-               <property name="text">
-                <string>&amp;External editor</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditExternalEditor</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QPushButton" name="pushButtonExtEditor">
-               <property name="maximumSize">
-                <size>
-                 <width>40</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Browse directories</string>
-               </property>
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="shortcut">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="pushButtonFont">
-               <property name="maximumSize">
-                <size>
-                 <width>40</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Choose font</string>
-               </property>
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="shortcut">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="labelDiffHint">
-               <property name="text">
-                <string>Use %1 and %2 to denote files to diff.</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLabel" name="labelEditorHint">
-               <property name="text">
-                <string>Use %1 to denote files to edit.</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QHBoxLayout">
-             <property name="spacing">
-              <number>4</number>
-             </property>
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="textLabelCodecs">
-               <property name="toolTip">
-                <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
-               </property>
-               <property name="text">
-                <string>Te&amp;xt codec</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>comboBoxCodecs</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="comboBoxCodecs">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                 <horstretch>1</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="Browse">
-        <attribute name="title">
-         <string>&amp;Browse</string>
-        </attribute>
-        <layout class="QHBoxLayout">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="margin">
-          <number>9</number>
-         </property>
-         <item>
-          <layout class="QVBoxLayout">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QFrame" name="frame_5">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout">
-              <property name="spacing">
+              <property name="leftMargin">
                <number>0</number>
               </property>
-              <property name="margin">
-               <number>2</number>
-              </property>
-              <item>
-               <layout class="QVBoxLayout">
-                <property name="spacing">
-                 <number>4</number>
-                </property>
-                <property name="margin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxLogDiffTab">
-                  <property name="toolTip">
-                   <string>Check to see tabbed revision log / diff pane</string>
-                  </property>
-                  <property name="text">
-                   <string>Show tabbed revision msg / diff pane</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxSmartLabels">
-                  <property name="toolTip">
-                   <string>Check to show smart jump labels on revision description pane</string>
-                  </property>
-                  <property name="text">
-                   <string>Show smart labels</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxMsgOnNewSHA">
-                  <property name="toolTip">
-                   <string>Check to see always the revision description in main view when browsing the repo. Patch content will be visible after request.</string>
-                  </property>
-                  <property name="text">
-                   <string>Show always revision message as first </string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+Y</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>71</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="Patch">
-        <attribute name="title">
-         <string>Patc&amp;h</string>
-        </attribute>
-        <layout class="QHBoxLayout">
-         <item>
-          <layout class="QVBoxLayout">
-           <item>
-            <widget class="QFrame" name="frame_2">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout">
-              <property name="spacing">
+              <property name="topMargin">
                <number>0</number>
               </property>
-              <property name="margin">
-               <number>2</number>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
               <item>
-               <layout class="QVBoxLayout">
-                <property name="spacing">
-                 <number>4</number>
+               <widget class="QCheckBox" name="checkBoxRelativeDate">
+                <property name="toolTip">
+                 <string>Check to see commit author date as relative time from now</string>
                 </property>
-                <property name="margin">
-                 <number>0</number>
+                <property name="text">
+                 <string>Relati&amp;ve time in date column</string>
                 </property>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxNumbers">
-                  <property name="toolTip">
-                   <string>Check to see patch numbers on patch series header</string>
-                  </property>
-                  <property name="text">
-                   <string>Num&amp;bered patches</string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+B</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxSign">
-                  <property name="toolTip">
-                   <string>Check to add a 'Signed-off-by:' line if not already existent</string>
-                  </property>
-                  <property name="text">
-                   <string>&amp;Sign off patch</string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+S</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+                <property name="shortcut">
+                 <string>Alt+V</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxRangeSelectDialog">
+                <property name="toolTip">
+                 <string>Check to view range select dialog at repository opening</string>
+                </property>
+                <property name="text">
+                 <string>Show range select when opening a repositor&amp;y</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+Y</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxReopenLastRepo">
+                <property name="text">
+                 <string>Reopen last repository on startup</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxOpenInEditor">
+                <property name="text">
+                 <string>Double click opens file in editor</string>
+                </property>
+               </widget>
               </item>
              </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>21</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="pushButtonExtDiff">
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Browse directories</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="shortcut">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditTypeWriterFont">
+             <property name="toolTip">
+              <string>Typewriter (fixed width) font used by patch and file viewers</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="textLabelTypewriterFont">
+             <property name="text">
+              <string>&amp;Fixed width font</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditTypeWriterFont</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditExternalDiffViewer">
+             <property name="toolTip">
+              <string>Set path of the external diff tool</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="textLabelExternalDiffViewer">
+             <property name="text">
+              <string>&amp;External diff tool</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditExternalDiffViewer</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEditExternalEditor">
+             <property name="toolTip">
+              <string>Set path of the external editor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="textLabelExternalEditor">
+             <property name="text">
+              <string>&amp;External editor</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditExternalEditor</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QPushButton" name="pushButtonExtEditor">
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Browse directories</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="shortcut">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="pushButtonFont">
+             <property name="maximumSize">
+              <size>
+               <width>40</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Choose font</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="shortcut">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="labelDiffHint">
+             <property name="text">
+              <string>Use %1 and %2 to denote files to diff.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="labelEditorHint">
+             <property name="text">
+              <string>Use %1 to denote files to edit.</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QHBoxLayout">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="textLabelCodecs">
+             <property name="toolTip">
+              <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
+             </property>
+             <property name="text">
+              <string>Te&amp;xt codec</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>comboBoxCodecs</cstring>
+             </property>
             </widget>
            </item>
            <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+            <widget class="QComboBox" name="comboBoxCodecs">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>1</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>399</width>
-               <height>91</height>
-              </size>
+             <property name="toolTip">
+              <string>Select text codec to use. You need to refresh the view (F5) after a codec change</string>
              </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QGridLayout">
-             <item row="0" column="0">
-              <widget class="QLabel" name="textLabelApplyPatchExtraOptions">
-               <property name="text">
-                <string>&amp;Apply patch extra options</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditApplyPatchExtraOptions</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditApplyPatchExtraOptions">
-               <property name="toolTip">
-                <string>Extra options to pass to 'git am'</string>
-               </property>
-               <property name="maxLength">
-                <number>32767</number>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="textLabelFormatPatchExtraOptions">
-               <property name="text">
-                <string>&amp;Format patch extra options</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditFormatPatchExtraOptions</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditFormatPatchExtraOptions">
-               <property name="toolTip">
-                <string>Extra options to pass to 'git format-patch'</string>
-               </property>
-               <property name="maxLength">
-                <number>32767</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            </widget>
            </item>
           </layout>
          </item>
         </layout>
-       </widget>
-       <widget class="QWidget" name="WorkingDir">
-        <attribute name="title">
-         <string>&amp;Working directory</string>
-        </attribute>
-        <layout class="QHBoxLayout">
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Browse">
+      <attribute name="title">
+       <string>&amp;Browse</string>
+      </attribute>
+      <layout class="QHBoxLayout">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>9</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <item>
+        <layout class="QVBoxLayout">
          <property name="spacing">
-          <number>6</number>
+          <number>0</number>
          </property>
-         <property name="margin">
-          <number>9</number>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
          </property>
          <item>
-          <layout class="QVBoxLayout">
-           <property name="spacing">
-            <number>0</number>
+          <widget class="QFrame" name="frame_5">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
            </property>
-           <property name="margin">
-            <number>0</number>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
-           <item>
-            <widget class="QFrame" name="frame_3">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout">
+           <layout class="QHBoxLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout">
               <property name="spacing">
                <number>4</number>
               </property>
-              <property name="margin">
-               <number>5</number>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
               <item>
-               <widget class="QCheckBox" name="checkBoxDiffCache">
+               <widget class="QCheckBox" name="checkBoxLogDiffTab">
                 <property name="toolTip">
-                 <string>Check to see git status. You need this to commit changes</string>
+                 <string>Check to see tabbed revision log / diff pane</string>
                 </property>
                 <property name="text">
-                 <string>Diff again&amp;st working directory</string>
+                 <string>Show tabbed revision msg / diff pane</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxSmartLabels">
+                <property name="toolTip">
+                 <string>Check to show smart jump labels on revision description pane</string>
+                </property>
+                <property name="text">
+                 <string>Show smart labels</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxMsgOnNewSHA">
+                <property name="toolTip">
+                 <string>Check to see always the revision description in main view when browsing the repo. Patch content will be visible after request.</string>
+                </property>
+                <property name="text">
+                 <string>Show always revision message as first </string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+Y</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>71</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Patch">
+      <attribute name="title">
+       <string>Patc&amp;h</string>
+      </attribute>
+      <layout class="QHBoxLayout">
+       <item>
+        <layout class="QVBoxLayout">
+         <item>
+          <widget class="QFrame" name="frame_2">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QHBoxLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout">
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="checkBoxNumbers">
+                <property name="toolTip">
+                 <string>Check to see patch numbers on patch series header</string>
+                </property>
+                <property name="text">
+                 <string>Num&amp;bered patches</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+B</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxSign">
+                <property name="toolTip">
+                 <string>Check to add a 'Signed-off-by:' line if not already existent</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Sign off patch</string>
                 </property>
                 <property name="shortcut">
                  <string>Alt+S</string>
@@ -622,401 +597,576 @@
                </widget>
               </item>
              </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QGridLayout">
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>4</number>
-             </property>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditExcludePerDir">
-               <property name="toolTip">
-                <string>Exclude patterns file that apply only to the
-	directory and its subdirectories</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditExcludeFile">
-               <property name="toolTip">
-                <string>Exclude patterns are read from this file one per line</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="textLabelExcludePerDir">
-               <property name="text">
-                <string>E&amp;xclude per dir</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditExcludePerDir</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="textLabelExcludeFile">
-               <property name="text">
-                <string>&amp;Exclude file path</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditExcludeFile</cstring>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+            </item>
+           </layout>
+          </widget>
          </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="Commit">
-        <attribute name="title">
-         <string>&amp;Commit</string>
-        </attribute>
-        <layout class="QHBoxLayout">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="margin">
-          <number>9</number>
-         </property>
          <item>
-          <layout class="QVBoxLayout">
-           <property name="spacing">
-            <number>0</number>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-           <property name="margin">
-            <number>0</number>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>399</width>
+             <height>91</height>
+            </size>
            </property>
-           <item>
-            <widget class="QFrame" name="frame_4">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QHBoxLayout">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="margin">
-               <number>2</number>
-              </property>
-              <item>
-               <layout class="QVBoxLayout">
-                <property name="spacing">
-                 <number>4</number>
-                </property>
-                <property name="margin">
-                 <number>3</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxCommitSign">
-                  <property name="toolTip">
-                   <string>Check to add -s option to git commit-script</string>
-                  </property>
-                  <property name="text">
-                   <string>&amp;Sign off commit</string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+S</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxCommitVerify">
-                  <property name="toolTip">
-                   <string>Check to add -v option to git commit-script</string>
-                  </property>
-                  <property name="text">
-                   <string>&amp;Verify commit</string>
-                  </property>
-                  <property name="shortcut">
-                   <string>Alt+V</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBoxCommitUseDefMsg">
-                  <property name="text">
-                   <string>Use default commit message</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>21</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QGridLayout">
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>4</number>
-             </property>
-             <item row="0" column="2">
-              <widget class="QLabel" name="textLabelComboUsr">
-               <property name="text">
-                <string>Defined in:                           </string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="textLabelAuthor">
-               <property name="text">
-                <string>Author</string>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditAuthor</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QComboBox" name="comboBoxUserSrc"/>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditAuthor">
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditMail">
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="textLabelAuthor_2">
-               <property name="text">
-                <string>E-mail</string>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditMail</cstring>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>21</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QGridLayout">
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>4</number>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="textLabelTemplate">
-               <property name="text">
-                <string>Ms&amp;g template</string>
-               </property>
-               <property name="textFormat">
-                <enum>Qt::PlainText</enum>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditAuthor</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="textLabelDiffTreeArgs_2">
-               <property name="text">
-                <string>&amp;Extra options</string>
-               </property>
-               <property name="wordWrap">
-                <bool>false</bool>
-               </property>
-               <property name="buddy">
-                <cstring>lineEditCommitExtraOptions</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditTemplate">
-               <property name="toolTip">
-                <string>Commit message template file</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditCommitExtraOptions">
-               <property name="toolTip">
-                <string>Extra options to pass to git commit-script</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+          </spacer>
          </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="GitConfig">
-        <attribute name="title">
-         <string>Gi&amp;t config</string>
-        </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="textLabelGitConfigSource">
-               <property name="text">
-                <string>Git options source:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="comboBoxGitConfigSource">
-               <item>
-                <property name="text">
-                 <string>Local</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Global</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QTreeWidget" name="treeWidgetGitConfig">
-             <property name="columnCount">
-              <number>2</number>
+          <layout class="QGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="textLabelApplyPatchExtraOptions">
+             <property name="text">
+              <string>&amp;Apply patch extra options</string>
              </property>
-             <column>
-              <property name="text">
-               <string notr="true">Parameter</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Value</string>
-              </property>
-             </column>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditApplyPatchExtraOptions</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditApplyPatchExtraOptions">
+             <property name="toolTip">
+              <string>Extra options to pass to 'git am'</string>
+             </property>
+             <property name="maxLength">
+              <number>32767</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="textLabelFormatPatchExtraOptions">
+             <property name="text">
+              <string>&amp;Format patch extra options</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditFormatPatchExtraOptions</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditFormatPatchExtraOptions">
+             <property name="toolTip">
+              <string>Extra options to pass to 'git format-patch'</string>
+             </property>
+             <property name="maxLength">
+              <number>32767</number>
+             </property>
             </widget>
            </item>
           </layout>
          </item>
         </layout>
-       </widget>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item>
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>181</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="buttonOk">
-         <property name="text">
-          <string>O&amp;K</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+K</string>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-        </widget>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+     <widget class="QWidget" name="WorkingDir">
+      <attribute name="title">
+       <string>&amp;Working directory</string>
+      </attribute>
+      <layout class="QHBoxLayout">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>9</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <item>
+        <layout class="QVBoxLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QFrame" name="frame_3">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QHBoxLayout">
+            <property name="spacing">
+             <number>4</number>
+            </property>
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="checkBoxDiffCache">
+              <property name="toolTip">
+               <string>Check to see git status. You need this to commit changes</string>
+              </property>
+              <property name="text">
+               <string>Diff again&amp;st working directory</string>
+              </property>
+              <property name="shortcut">
+               <string>Alt+S</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditExcludePerDir">
+             <property name="toolTip">
+              <string>Exclude patterns file that apply only to the
+	directory and its subdirectories</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditExcludeFile">
+             <property name="toolTip">
+              <string>Exclude patterns are read from this file one per line</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="textLabelExcludePerDir">
+             <property name="text">
+              <string>E&amp;xclude per dir</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditExcludePerDir</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="textLabelExcludeFile">
+             <property name="text">
+              <string>&amp;Exclude file path</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditExcludeFile</cstring>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Commit">
+      <attribute name="title">
+       <string>&amp;Commit</string>
+      </attribute>
+      <layout class="QHBoxLayout">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>9</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <item>
+        <layout class="QVBoxLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QFrame" name="frame_4">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QHBoxLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout">
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="checkBoxCommitSign">
+                <property name="toolTip">
+                 <string>Check to add -s option to git commit-script</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Sign off commit</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+S</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxCommitVerify">
+                <property name="toolTip">
+                 <string>Check to add -v option to git commit-script</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Verify commit</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+V</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxCommitUseDefMsg">
+                <property name="text">
+                 <string>Use default commit message</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>21</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <item row="0" column="2">
+            <widget class="QLabel" name="textLabelComboUsr">
+             <property name="text">
+              <string>Defined in:                           </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="textLabelAuthor">
+             <property name="text">
+              <string>Author</string>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditAuthor</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QComboBox" name="comboBoxUserSrc"/>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditAuthor">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditMail">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="textLabelAuthor_2">
+             <property name="text">
+              <string>E-mail</string>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditMail</cstring>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>21</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="textLabelTemplate">
+             <property name="text">
+              <string>Ms&amp;g template</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditAuthor</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="textLabelDiffTreeArgs_2">
+             <property name="text">
+              <string>&amp;Extra options</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+             <property name="buddy">
+              <cstring>lineEditCommitExtraOptions</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditTemplate">
+             <property name="toolTip">
+              <string>Commit message template file</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditCommitExtraOptions">
+             <property name="toolTip">
+              <string>Extra options to pass to git commit-script</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="GitConfig">
+      <attribute name="title">
+       <string>Gi&amp;t config</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="textLabelGitConfigSource">
+             <property name="text">
+              <string>Git options source:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBoxGitConfigSource">
+             <item>
+              <property name="text">
+               <string>Local</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Global</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QTreeWidget" name="treeWidgetGitConfig">
+           <property name="columnCount">
+            <number>2</number>
+           </property>
+           <column>
+            <property name="text">
+             <string notr="true">Parameter</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Value</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -1025,22 +1175,6 @@
   <include location="icons.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>buttonOk</sender>
-   <signal>clicked()</signal>
-   <receiver>settingsBase</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>501</x>
-     <y>365</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>checkBoxNumbers</sender>
    <signal>toggled(bool)</signal>
@@ -1486,6 +1620,22 @@
     <hint type="destinationlabel">
      <x>147</x>
      <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>settingsBase</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>451</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>236</y>
     </hint>
    </hints>
   </connection>
