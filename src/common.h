@@ -388,8 +388,8 @@ public:
 	 */
 	QByteArray pathsIdx;
 
-	int dirAt(uint idx) const { return ((int*)pathsIdx.constData())[idx]; }
-	int nameAt(uint idx) const { return ((int*)pathsIdx.constData())[count() + idx]; }
+	int dirAt(uint idx) const { return ((const int*)pathsIdx.constData())[idx]; }
+	int nameAt(uint idx) const { return ((const int*)pathsIdx.constData())[count() + idx]; }
 
 	QVector<int> mergeParent;
 
