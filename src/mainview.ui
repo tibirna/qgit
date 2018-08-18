@@ -196,7 +196,7 @@
   </widget>
   <action name="ActOpenRepo">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="document-open-folder" resource="icons.qrc">
      <normaloff>:/icons/resources/folder_open.png</normaloff>:/icons/resources/folder_open.png</iconset>
    </property>
    <property name="text">
@@ -210,6 +210,9 @@
    </property>
   </action>
   <action name="ActExit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
@@ -221,6 +224,10 @@
    </property>
   </action>
   <action name="ActAbout">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;About QGit</string>
    </property>
@@ -236,7 +243,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="mail-send" resource="icons.qrc">
      <normaloff>:/icons/resources/mail_send.png</normaloff>:/icons/resources/mail_send.png</iconset>
    </property>
    <property name="text">
@@ -251,7 +258,7 @@
   </action>
   <action name="ActHelp">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="help-contents" resource="icons.qrc">
      <normaloff>:/icons/resources/help.png</normaloff>:/icons/resources/help.png</iconset>
    </property>
    <property name="text">
@@ -266,7 +273,7 @@
   </action>
   <action name="ActSettings">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="configure" resource="icons.qrc">
      <normaloff>:/icons/resources/configure.png</normaloff>:/icons/resources/configure.png</iconset>
    </property>
    <property name="text">
@@ -301,6 +308,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme="tag"/>
+   </property>
    <property name="text">
     <string>Make &amp;tag...</string>
    </property>
@@ -315,6 +325,9 @@
    </property>
   </action>
   <action name="ActOpenRepoNewWindow">
+   <property name="icon">
+    <iconset theme="window-new"/>
+   </property>
    <property name="text">
     <string>Open in a &amp;new window...</string>
    </property>
@@ -326,6 +339,9 @@
    </property>
   </action>
   <action name="ActClose">
+   <property name="icon">
+    <iconset theme="window-close"/>
+   </property>
    <property name="text">
     <string>&amp;Close</string>
    </property>
@@ -341,7 +357,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="mail-receive" resource="icons.qrc">
      <normaloff>:/icons/resources/mail_get.png</normaloff>:/icons/resources/mail_get.png</iconset>
    </property>
    <property name="text">
@@ -390,7 +406,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="view-refresh" resource="icons.qrc">
      <normaloff>:/icons/resources/reload.png</normaloff>:/icons/resources/reload.png</iconset>
    </property>
    <property name="iconText">
@@ -447,6 +463,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme="document-save-as"/>
+   </property>
    <property name="text">
     <string>Save file as...</string>
    </property>
@@ -468,7 +487,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="tools-wizard" resource="icons.qrc">
      <normaloff>:/icons/resources/wizard.png</normaloff>:/icons/resources/wizard.png</iconset>
    </property>
    <property name="text">
@@ -489,7 +508,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="view-list-tree" resource="icons.qrc">
      <normaloff>:/icons/resources/view_tree.png</normaloff>:/icons/resources/view_tree.png</iconset>
    </property>
    <property name="text">
@@ -509,6 +528,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme="edit-delete"/>
+   </property>
    <property name="text">
     <string>Delete references...</string>
    </property>
@@ -525,6 +547,9 @@
    </property>
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="folder-sync"/>
    </property>
    <property name="text">
     <string>Check working directory</string>
@@ -594,7 +619,7 @@
   </action>
   <action name="ActSplitView">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="view-split-top-bottom" resource="icons.qrc">
      <normaloff>:/icons/resources/view_top_bottom.png</normaloff>:/icons/resources/view_top_bottom.png</iconset>
    </property>
    <property name="text">
@@ -611,6 +636,9 @@
    </property>
   </action>
   <action name="ActFind">
+   <property name="icon">
+    <iconset theme="edit-find"/>
+   </property>
    <property name="text">
     <string>Find...</string>
    </property>
@@ -640,7 +668,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="go-next" resource="icons.qrc">
      <normaloff>:/icons/resources/next.png</normaloff>:/icons/resources/next.png</iconset>
    </property>
    <property name="text">
@@ -658,7 +686,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="go-previous" resource="icons.qrc">
      <normaloff>:/icons/resources/previous.png</normaloff>:/icons/resources/previous.png</iconset>
    </property>
    <property name="text">
@@ -673,7 +701,7 @@
   </action>
   <action name="ActCustomActionSetup">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="bookmarks" resource="icons.qrc">
      <normaloff>:/icons/resources/bookmark.png</normaloff>:/icons/resources/bookmark.png</iconset>
    </property>
    <property name="text">
@@ -686,6 +714,9 @@
   <action name="ActViewFileNewTab">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="tab-new"/>
    </property>
    <property name="text">
     <string>View file in new tab</string>
@@ -700,6 +731,9 @@
   <action name="ActViewDiffNewTab">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="tab-new"/>
    </property>
    <property name="text">
     <string>View patch in new tab</string>
@@ -719,7 +753,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="view-filter" resource="icons.qrc">
      <normaloff>:/icons/resources/filter.png</normaloff>:/icons/resources/filter.png</iconset>
    </property>
    <property name="text">
@@ -737,7 +771,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="edit-find" resource="icons.qrc">
      <normaloff>:/icons/resources/find.png</normaloff>:/icons/resources/find.png</iconset>
    </property>
    <property name="text">
@@ -783,7 +817,7 @@
   </action>
   <action name="ActRangeDlg">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset theme="edit-select" resource="icons.qrc">
      <normaloff>:/icons/resources/range_select.png</normaloff>:/icons/resources/range_select.png</iconset>
    </property>
    <property name="text">
@@ -794,6 +828,9 @@
    </property>
   </action>
   <action name="ActAmend">
+   <property name="icon">
+    <iconset theme="edit-entry"/>
+   </property>
    <property name="text">
     <string>Amend commit...</string>
    </property>

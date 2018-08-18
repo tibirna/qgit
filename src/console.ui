@@ -14,7 +14,7 @@
    <string>Action output window - QGit</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset theme="utilities-terminal" resource="icons.qrc">
     <normaloff>:/icons/resources/openterm.png</normaloff>:/icons/resources/openterm.png</iconset>
   </property>
   <widget class="QWidget" name="widget">
@@ -100,7 +100,7 @@
          <string>&amp;Terminate</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset theme="dialog-cancel" resource="icons.qrc">
           <normaloff>:/icons/resources/cancel.png</normaloff>:/icons/resources/cancel.png</iconset>
         </property>
         <property name="autoDefault">

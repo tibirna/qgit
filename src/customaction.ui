@@ -14,7 +14,7 @@
    <string>Actions builder</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset theme="bookmarks" resource="icons.qrc">
     <normaloff>:/icons/resources/bookmark.png</normaloff>:/icons/resources/bookmark.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -39,7 +39,7 @@
          <string>&amp;New</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset theme="bookmark-new" resource="icons.qrc">
           <normaloff>:/icons/resources/bookmark_add.png</normaloff>:/icons/resources/bookmark_add.png</iconset>
         </property>
         <property name="shortcut">
@@ -53,7 +53,7 @@
          <string>&amp;Rename</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset theme="edit-rename" resource="icons.qrc">
           <normaloff>:/icons/resources/pencil.png</normaloff>:/icons/resources/pencil.png</iconset>
         </property>
         <property name="shortcut">
@@ -67,7 +67,7 @@
          <string>R&amp;emove</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset theme="edit-delete" resource="icons.qrc">
           <normaloff>:/icons/resources/remove.png</normaloff>:/icons/resources/remove.png</iconset>
         </property>
         <property name="shortcut">
@@ -84,7 +84,7 @@
          <string>Move &amp;up</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset theme="arrow-up" resource="icons.qrc">
           <normaloff>:/icons/resources/1uparrow.png</normaloff>:/icons/resources/1uparrow.png</iconset>
         </property>
         <property name="shortcut">
@@ -98,7 +98,7 @@
          <string>Move &amp;down</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
+         <iconset theme="arrow-down" resource="icons.qrc">
           <normaloff>:/icons/resources/1downarrow.png</normaloff>:/icons/resources/1downarrow.png</iconset>
         </property>
         <property name="shortcut">

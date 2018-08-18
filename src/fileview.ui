@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>TabFile</class>
- <widget class="QWidget" name="TabFile" >
-  <property name="geometry" >
+ <widget class="QWidget" name="TabFile">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,225 +10,232 @@
     <height>480</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>File</string>
   </property>
-  <layout class="QHBoxLayout" >
-   <property name="spacing" >
+  <layout class="QHBoxLayout">
+   <property name="spacing">
     <number>0</number>
    </property>
-   <property name="leftMargin" >
+   <property name="leftMargin">
     <number>0</number>
    </property>
-   <property name="topMargin" >
+   <property name="topMargin">
     <number>0</number>
    </property>
-   <property name="rightMargin" >
+   <property name="rightMargin">
     <number>0</number>
    </property>
-   <property name="bottomMargin" >
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" >
-     <property name="spacing" >
+    <layout class="QVBoxLayout">
+     <property name="spacing">
       <number>0</number>
      </property>
-     <property name="leftMargin" >
+     <property name="leftMargin">
       <number>0</number>
      </property>
-     <property name="topMargin" >
+     <property name="topMargin">
       <number>0</number>
      </property>
-     <property name="rightMargin" >
+     <property name="rightMargin">
       <number>0</number>
      </property>
-     <property name="bottomMargin" >
+     <property name="bottomMargin">
       <number>0</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" >
-       <property name="spacing" >
+      <layout class="QHBoxLayout">
+       <property name="spacing">
         <number>0</number>
        </property>
-       <property name="leftMargin" >
+       <property name="leftMargin">
         <number>0</number>
        </property>
-       <property name="topMargin" >
+       <property name="topMargin">
         <number>0</number>
        </property>
-       <property name="rightMargin" >
+       <property name="rightMargin">
         <number>0</number>
        </property>
-       <property name="bottomMargin" >
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
-        <widget class="QToolButton" name="toolButtonCopy" >
-         <property name="minimumSize" >
+        <widget class="QToolButton" name="toolButtonCopy">
+         <property name="minimumSize">
           <size>
            <width>30</width>
            <height>30</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Copy selection to the clipboard stripping line headers (CTRL+C)</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/editcopy.png</iconset>
+         <property name="icon">
+          <iconset theme="edit-copy" resource="icons.qrc">
+           <normaloff>:/icons/resources/editcopy.png</normaloff>:/icons/resources/editcopy.png</iconset>
          </property>
-         <property name="shortcut" >
+         <property name="shortcut">
           <string>Ctrl+C</string>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonShowAnnotate" >
-         <property name="enabled" >
+        <widget class="QToolButton" name="toolButtonShowAnnotate">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="minimumSize" >
+         <property name="minimumSize">
           <size>
            <width>30</width>
            <height>30</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Hide/show file annotation</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/view_choose.png</iconset>
+         <property name="icon">
+          <iconset theme="view-sidetree" resource="icons.qrc">
+           <normaloff>:/icons/resources/view_choose.png</normaloff>:/icons/resources/view_choose.png</iconset>
          </property>
-         <property name="checkable" >
+         <property name="checkable">
           <bool>true</bool>
          </property>
-         <property name="checked" >
+         <property name="checked">
           <bool>true</bool>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonFindAnnotate" >
-         <property name="enabled" >
+        <widget class="QToolButton" name="toolButtonFindAnnotate">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="minimumSize" >
+         <property name="minimumSize">
           <size>
            <width>30</width>
            <height>30</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Lock selection to first tagged line of current revision (CTRL + L)</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/encrypted.png</iconset>
+         <property name="icon">
+          <iconset theme="object-locked" resource="icons.qrc">
+           <normaloff>:/icons/resources/encrypted.png</normaloff>:/icons/resources/encrypted.png</iconset>
          </property>
-         <property name="checkable" >
+         <property name="checkable">
           <bool>true</bool>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonGoPrev" >
-         <property name="enabled" >
+        <widget class="QToolButton" name="toolButtonGoPrev">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Go to previous annotation line</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/1uparrow.png</iconset>
+         <property name="icon">
+          <iconset theme="go-previous" resource="icons.qrc">
+           <normaloff>:/icons/resources/1uparrow.png</normaloff>:/icons/resources/1uparrow.png</iconset>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonGoNext" >
-         <property name="enabled" >
+        <widget class="QToolButton" name="toolButtonGoNext">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Go to next annotation line</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/1downarrow.png</iconset>
+         <property name="icon">
+          <iconset theme="go-next" resource="icons.qrc">
+           <normaloff>:/icons/resources/1downarrow.png</normaloff>:/icons/resources/1downarrow.png</iconset>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonRangeFilter" >
-         <property name="enabled" >
+        <widget class="QToolButton" name="toolButtonRangeFilter">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="minimumSize" >
+         <property name="minimumSize">
           <size>
            <width>30</width>
            <height>30</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Filter revisions on selected line range</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/filter.png</iconset>
+         <property name="icon">
+          <iconset theme="view-filter" resource="icons.qrc">
+           <normaloff>:/icons/resources/filter.png</normaloff>:/icons/resources/filter.png</iconset>
          </property>
-         <property name="checkable" >
+         <property name="checkable">
           <bool>true</bool>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButtonHighlightText" >
-         <property name="enabled" >
+        <widget class="QToolButton" name="toolButtonHighlightText">
+         <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="minimumSize" >
+         <property name="minimumSize">
           <size>
            <width>30</width>
            <height>30</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Source highlight (%1)</string>
          </property>
-         <property name="icon" >
-          <iconset resource="icons.qrc" >:/icons/resources/colorize.png</iconset>
+         <property name="icon">
+          <iconset theme="format-text-color" resource="icons.qrc">
+           <normaloff>:/icons/resources/colorize.png</normaloff>:/icons/resources/colorize.png</iconset>
          </property>
-         <property name="checkable" >
+         <property name="checkable">
           <bool>true</bool>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>300</width>
            <height>20</height>
@@ -236,68 +244,69 @@
         </spacer>
        </item>
        <item>
-        <widget class="QFrame" name="frame" >
-         <property name="frameShape" >
+        <widget class="QFrame" name="frame">
+         <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" >
-          <property name="spacing" >
+         <layout class="QHBoxLayout">
+          <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin" >
+          <property name="leftMargin">
            <number>2</number>
           </property>
-          <property name="topMargin" >
+          <property name="topMargin">
            <number>2</number>
           </property>
-          <property name="rightMargin" >
+          <property name="rightMargin">
            <number>2</number>
           </property>
-          <property name="bottomMargin" >
+          <property name="bottomMargin">
            <number>2</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" >
-            <property name="spacing" >
+           <layout class="QHBoxLayout">
+            <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin" >
+            <property name="leftMargin">
              <number>0</number>
             </property>
-            <property name="topMargin" >
+            <property name="topMargin">
              <number>0</number>
             </property>
-            <property name="rightMargin" >
+            <property name="rightMargin">
              <number>0</number>
             </property>
-            <property name="bottomMargin" >
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QToolButton" name="toolButtonPin" >
-              <property name="toolTip" >
+             <widget class="QToolButton" name="toolButtonPin">
+              <property name="toolTip">
                <string>Pin View (Alt-V)</string>
               </property>
-              <property name="text" >
+              <property name="text">
                <string/>
               </property>
-              <property name="icon" >
-               <iconset resource="icons.qrc" >:/icons/resources/ok.png</iconset>
+              <property name="icon">
+               <iconset theme="dialog-ok-apply" resource="icons.qrc">
+                <normaloff>:/icons/resources/ok.png</normaloff>:/icons/resources/ok.png</iconset>
               </property>
-              <property name="checkable" >
+              <property name="checkable">
                <bool>true</bool>
               </property>
-              <property name="autoRaise" >
+              <property name="autoRaise">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBoxRevision" >
-              <property name="maximum" >
+             <widget class="QSpinBox" name="spinBoxRevision">
+              <property name="maximum">
                <number>65535</number>
               </property>
              </widget>
@@ -310,101 +319,101 @@
       </layout>
      </item>
      <item>
-      <widget class="QSplitter" name="splitter" >
-       <property name="orientation" >
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="ListView" name="histListView" >
-        <property name="contextMenuPolicy" >
+       <widget class="ListView" name="histListView">
+        <property name="contextMenuPolicy">
          <enum>Qt::CustomContextMenu</enum>
         </property>
-        <property name="alternatingRowColors" >
+        <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
-        <property name="rootIsDecorated" >
+        <property name="rootIsDecorated">
          <bool>false</bool>
         </property>
-        <property name="uniformRowHeights" >
+        <property name="uniformRowHeights">
          <bool>true</bool>
         </property>
-        <property name="itemsExpandable" >
+        <property name="itemsExpandable">
          <bool>false</bool>
         </property>
-        <property name="allColumnsShowFocus" >
+        <property name="allColumnsShowFocus">
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QFrame" name="frame_2" >
-        <property name="frameShape" >
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="frameShadow" >
+        <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
         </property>
-        <layout class="QHBoxLayout" >
-         <property name="spacing" >
+        <layout class="QHBoxLayout">
+         <property name="spacing">
           <number>0</number>
          </property>
-         <property name="leftMargin" >
+         <property name="leftMargin">
           <number>0</number>
          </property>
-         <property name="topMargin" >
+         <property name="topMargin">
           <number>0</number>
          </property>
-         <property name="rightMargin" >
+         <property name="rightMargin">
           <number>0</number>
          </property>
-         <property name="bottomMargin" >
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" >
-           <property name="spacing" >
+          <layout class="QHBoxLayout">
+           <property name="spacing">
             <number>1</number>
            </property>
-           <property name="leftMargin" >
+           <property name="leftMargin">
             <number>0</number>
            </property>
-           <property name="topMargin" >
+           <property name="topMargin">
             <number>0</number>
            </property>
-           <property name="rightMargin" >
+           <property name="rightMargin">
             <number>0</number>
            </property>
-           <property name="bottomMargin" >
+           <property name="bottomMargin">
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="listWidgetAnn" >
-             <property name="frameShape" >
+            <widget class="QListWidget" name="listWidgetAnn">
+             <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="verticalScrollBarPolicy" >
+             <property name="verticalScrollBarPolicy">
               <enum>Qt::ScrollBarAlwaysOff</enum>
              </property>
-             <property name="horizontalScrollBarPolicy" >
+             <property name="horizontalScrollBarPolicy">
               <enum>Qt::ScrollBarAlwaysOff</enum>
              </property>
-             <property name="verticalScrollMode" >
+             <property name="verticalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
-             <property name="horizontalScrollMode" >
+             <property name="horizontalScrollMode">
               <enum>QAbstractItemView::ScrollPerPixel</enum>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="FileContent" name="textEditFile" >
-             <property name="frameShape" >
+            <widget class="FileContent" name="textEditFile">
+             <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="undoRedoEnabled" >
+             <property name="undoRedoEnabled">
               <bool>false</bool>
              </property>
-             <property name="lineWrapMode" >
+             <property name="lineWrapMode">
               <enum>QTextEdit::NoWrap</enum>
              </property>
-             <property name="readOnly" >
+             <property name="readOnly">
               <bool>true</bool>
              </property>
             </widget>
@@ -419,7 +428,7 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>ListView</class>
@@ -433,7 +442,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc" />
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>
