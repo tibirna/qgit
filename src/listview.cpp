@@ -775,8 +775,8 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 	}
 	QStyleOptionViewItem newOpt(opt); // we need a copy
 	if (pm) {
-                p->drawPixmap(newOpt.rect.x(), newOpt.rect.y() + 1, *pm); // +1 means leave a pixel spacing above the pixmap
-		newOpt.rect.adjust(pm->width(), 0, 0, 0);
+		p->drawPixmap(newOpt.rect.x(), newOpt.rect.y() + 1, *pm); // +1 means leave a pixel spacing above the pixmap
+		newOpt.rect.adjust(pm->width() / dpr(), 0, 0, 0);
 		delete pm;
 	}
 	if (isHighlighted)
@@ -874,36 +874,52 @@ QString ListView::refNameAt(const QPoint &pos)
 	return QString();
 }
 
+/*
+ * Return the device pixel ratio
+ */
+const qreal ListViewDelegate::dpr(void) const {
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    return qApp->devicePixelRatio();
+#else
+    return 1.0;
+#endif
+}
+
 void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const {
 
 	QPixmap* pm = *pp;
-	int ofs = pm->isNull() ? 0 : pm->width() + 2;
-        int spacing = 4;
-        QFontMetrics fm(opt.font);
-        int pw = fm.boundingRect(txt).width() + 2 * spacing;
-        int ph = fm.height();
 
-    QSize pixmapSize(ofs + pw, ph);
+	const unsigned int mark_spacing = 2; // Space between markers in pixels
+	unsigned int offset = pm->isNull() ? 0 : (pm->width() / dpr()) + mark_spacing; // Marker's offset in the base pixmap
 
+	QFontMetrics fm(opt.font);
+	const unsigned int text_spacing = 4;
+	unsigned int text_width = fm.boundingRect(txt).width() + 2 * text_spacing;
+	unsigned int text_height = fm.height();
+
+	// Define size of the new Pixmap
+	QSize pixmapSize((offset + text_width) * dpr(),
+			 (text_height) * dpr());
+
+	QPixmap* newPm = new QPixmap(pixmapSize);
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-    qreal dpr = qApp->devicePixelRatio();
-	QPixmap* newPm = new QPixmap(pixmapSize * dpr);
-    newPm->setDevicePixelRatio(dpr);
-#else
-    QPixmap* newPm = new QPixmap(pixmapSize);
+    newPm->setDevicePixelRatio(dpr());
 #endif
 
 	QPainter p;
 	p.begin(newPm);
+
 	if (!pm->isNull()) {
 		newPm->fill(opt.palette.base().color());
 		p.drawPixmap(0, 0, *pm);
 	}
+
 	p.setPen(opt.palette.color(QPalette::WindowText));
 	p.setBrush(opt.palette.color(QPalette::Window));
-        p.setFont(opt.font);
-	p.drawRect(ofs, 0, pw - 1, ph - 1);
-	p.drawText(ofs + spacing, fm.ascent(), txt);
+	p.setFont(opt.font);
+
+	p.drawRect(offset, 0, text_width - 1, text_height - 1);
+	p.drawText(offset + text_spacing, fm.ascent(), txt);
 	p.end();
 
 	delete pm;

@@ -104,6 +104,7 @@ private:
 	QPixmap* getTagMarks(SCRef sha, const QStyleOptionViewItem& opt) const;
 	void addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const;
 	bool changedFiles(SCRef sha) const;
+	const qreal dpr(void) const;
 
 	Git* git;
 	ListViewProxy* lp;
