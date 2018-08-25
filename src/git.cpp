@@ -1741,7 +1741,7 @@ bool Git::getRefs() {
         curBranchSHA = curBranchSHA.trimmed();
         curBranchName = curBranchName.prepend('\n').section("\n*", 1);
         curBranchName = curBranchName.section('\n', 0, 0).trimmed();
-        if (curBranchName.startsWith("(detached from"))
+        if (curBranchName.contains(" detached "))
             curBranchName = "";
 
         // read refs, normally unsorted
