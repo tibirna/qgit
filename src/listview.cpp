@@ -776,7 +776,7 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
 	QStyleOptionViewItem newOpt(opt); // we need a copy
 	if (pm) {
 		p->drawPixmap(newOpt.rect.x(), newOpt.rect.y() + 1, *pm); // +1 means leave a pixel spacing above the pixmap
-		newOpt.rect.adjust(pm->width() / dpr(), 0, 0, 0);
+		newOpt.rect.adjust(pm->width() / static_cast<int>(dpr()), 0, 0, 0);
 		delete pm;
 	}
 	if (isHighlighted)
@@ -890,7 +890,7 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 	QPixmap* pm = *pp;
 
 	const unsigned int mark_spacing = 2; // Space between markers in pixels
-	unsigned int offset = pm->isNull() ? 0 : (pm->width() / dpr()) + mark_spacing; // Marker's offset in the base pixmap
+	unsigned int offset = pm->isNull() ? 0 : (pm->width() / static_cast<uint>(dpr())) + mark_spacing; // Marker's offset in the base pixmap
 
 	QFontMetrics fm(opt.font);
 	const unsigned int text_spacing = 4;
@@ -898,8 +898,8 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 	unsigned int text_height = fm.height();
 
 	// Define size of the new Pixmap
-	QSize pixmapSize((offset + text_width) * dpr(),
-			 (text_height) * dpr());
+	QSize pixmapSize((offset + text_width) * static_cast<int>(dpr()),
+			 (text_height) * static_cast<int>(dpr()));
 
 	QPixmap* newPm = new QPixmap(pixmapSize);
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
