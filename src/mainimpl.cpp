@@ -117,7 +117,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 	// set-up tab corner widget ('close tab' button)
 	QToolButton* ct = new QToolButton(tabWdg);
-	ct->setIcon(QIcon(QString::fromUtf8(":/icons/resources/tab_remove.png")));
+    ct->setIcon(QIcon(QString::fromUtf8(":/icons/resources/window-close.svg")));
 	ct->setToolTip("Close tab");
 	ct->setEnabled(false);
 	tabWdg->setCornerWidget(ct);

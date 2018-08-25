@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>HelpBase</class>
- <widget class="QWidget" name="HelpBase" >
-  <property name="geometry" >
+ <widget class="QWidget" name="HelpBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,59 +10,87 @@
     <height>451</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Help</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/icons/resources/help.png</iconset>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/resources/question.svg</normaloff>:/icons/resources/question.svg</iconset>
   </property>
-  <layout class="QHBoxLayout" >
-   <property name="margin" >
+  <layout class="QHBoxLayout">
+   <property name="spacing">
     <number>0</number>
    </property>
-   <property name="spacing" >
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
+    <layout class="QVBoxLayout">
+     <property name="spacing">
       <number>5</number>
      </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
-      <widget class="QSplitter" name="splitter" >
-       <property name="orientation" >
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QTextEdit" name="textEditHelp" >
-        <property name="undoRedoEnabled" >
+       <widget class="QTextEdit" name="textEditHelp">
+        <property name="undoRedoEnabled">
          <bool>false</bool>
         </property>
-        <property name="readOnly" >
+        <property name="readOnly">
          <bool>true</bool>
         </property>
        </widget>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" >
-       <property name="margin" >
+      <layout class="QHBoxLayout">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <property name="leftMargin">
         <number>0</number>
        </property>
-       <property name="spacing" >
-        <number>6</number>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType" >
+         <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>20</height>
@@ -70,23 +99,23 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="buttonOk" >
-         <property name="minimumSize" >
+        <widget class="QPushButton" name="buttonOk">
+         <property name="minimumSize">
           <size>
            <width>80</width>
            <height>0</height>
           </size>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>O&amp;K</string>
          </property>
-         <property name="shortcut" >
+         <property name="shortcut">
           <string>Alt+K</string>
          </property>
-         <property name="autoDefault" >
+         <property name="autoDefault">
           <bool>true</bool>
          </property>
-         <property name="default" >
+         <property name="default">
           <bool>true</bool>
          </property>
         </widget>
@@ -97,9 +126,9 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="icons.qrc" />
+  <include location="icons.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -108,11 +137,11 @@
    <receiver>HelpBase</receiver>
    <slot>close()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
