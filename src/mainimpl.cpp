@@ -86,17 +86,26 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	// set-up standard revisions and files list font
 	QSettings settings;
 	QString font(settings.value(STD_FNT_KEY).toString());
-	if (font.isEmpty())
+	if (font.isEmpty()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
+		font = QFontDatabase::systemFont(QFontDatabase::GeneralFont).toString();
+#else
 		font = QApplication::font().toString();
+#endif
+	}
 	QGit::STD_FONT.fromString(font);
 
 	// set-up typewriter (fixed width) font
 	font = settings.value(TYPWRT_FNT_KEY).toString();
 	if (font.isEmpty()) { // choose a sensible default
+#if (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
+		QFont fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+#else
 		QFont fnt = QApplication::font();
 		fnt.setStyleHint(QFont::TypeWriter, QFont::PreferDefault);
 		fnt.setFixedPitch(true);
 		fnt.setFamily(fnt.defaultFamily()); // the family corresponding
+#endif
 		font = fnt.toString();              // to current style hint
 	}
 	QGit::TYPE_WRITER_FONT.fromString(font);
