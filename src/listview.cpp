@@ -321,7 +321,7 @@ QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &re
 	const int maxRows = 10;
 	const int dotdotRow = 5;
 	QStyleOptionViewItem opt; opt.initFrom(this);
-	ListViewDelegate *lvd = dynamic_cast<ListViewDelegate*>(itemDelegate());
+//	ListViewDelegate *lvd = dynamic_cast<ListViewDelegate*>(itemDelegate());
 
 	QFontMetrics fm(opt.font);
 	int height = fm.height()+2;
@@ -356,7 +356,7 @@ QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &re
 	return pixmap;
 }
 
-void ListView::startDragging(QMouseEvent* e) {
+void ListView::startDragging(QMouseEvent* /*e*/) {
 
 	QStringList selRevs;
 	getSelectedItems(selRevs);
@@ -438,7 +438,7 @@ struct ListView::DropInfo {
 		case RebaseAction: return "rebasing";
 		case MoveRefAction: return "moving";
 		case MergeAction: return "merging";
-		default: "This should not happen.";
+		default: return "This should not happen.";
 		}
 	}
 };
@@ -591,9 +591,10 @@ void ListView::dragMoveEvent(QDragMoveEvent* e) {
 	e->setDropAction(static_cast<Qt::DropAction>(action & 0x7));
 }
 
-void ListView::dragLeaveEvent(QDragLeaveEvent *e)
+void ListView::dragLeaveEvent(QDragLeaveEvent* /*e*/)
 {
-	if (dropInfo) delete dropInfo; dropInfo = NULL;
+    if (dropInfo) delete dropInfo;
+    dropInfo = NULL;
 	showStatusMessage("");
 }
 
@@ -610,7 +611,7 @@ void ListView::dropEvent(QDropEvent *e) {
 	}
 
 	SCRef targetRef = refNameAt(e->pos());
-	uint  targetRefType = refTypeFromName(targetRef);
+//	uint  targetRefType = refTypeFromName(targetRef);
 	SCRef targetSHA = sha(indexAt(e->pos()).row());
 	switch(dropInfo->action) {
 	case DropInfo::PatchAction:

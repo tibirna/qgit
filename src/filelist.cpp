@@ -116,7 +116,7 @@ void FileList::on_customContextMenuRequested(const QPoint&) {
 	emit contextMenu(currentText(), QGit::POPUP_FILE_EV);
 }
 
-bool FileList::startDragging(QMouseEvent* e) {
+bool FileList::startDragging(QMouseEvent* /*e*/) {
 	const QString& dragFileName = currentText();
 	if (dragFileName.isEmpty()) return false;
 

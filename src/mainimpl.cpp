@@ -771,6 +771,9 @@ void MainImpl::rebase(const QString &from, const QString &to, const QString &ont
 	} else {
 		success = git->run(QString("git rebase --onto %3 %1^ %2").arg(from, to, onto));
 	}
+    if (!success) {
+        // TODO say something about rebase failure
+    }
 	refreshRepo(true);
 	QApplication::restoreOverrideCursor();
 }
