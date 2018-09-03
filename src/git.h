@@ -83,6 +83,7 @@ public:
 	bool isTextHighlighter() const { return isTextHighlighterFound; }
 	const QString textHighlighterVersion() const { return textHighlighterVersionFound; }
 	bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
+	bool isContiguous(const QStringList &revs);
 	MyProcess* getDiff(SCRef sha, QObject* receiver, SCRef diffToSha, bool combined);
 	const QString getWorkDirDiff(SCRef fileName = "");
 	MyProcess* getFile(SCRef fileSha, QObject* receiver, QByteArray* result, SCRef fileName);
@@ -110,7 +111,7 @@ public:
 	uint checkRef(SCRef sha, uint mask = ANY_REF) const;
 	const QString getRevInfo(SCRef sha);
 	const QString getRefSha(SCRef refName, RefType type = ANY_REF, bool askGit = true);
-	const QStringList getRefName(SCRef sha, RefType type) const;
+	const QStringList getRefNames(SCRef sha, uint mask = ANY_REF) const;
 	const QStringList getAllRefNames(uint mask, bool onlyLoaded);
 	const QStringList getAllRefSha(uint mask);
 	const QStringList sortShaListByIndex(SCList shaList);
@@ -121,6 +122,7 @@ public:
 	bool commitFiles(SCList files, SCRef msg, bool amend);
 	bool applyPatchFile(SCRef patchPath, bool fold, bool sign);
 	bool resetCommits(int parentDepth);
+	bool merge(SCRef into, SCList sources, QString* error=NULL);
 	bool stgCommit(SCList selFiles, SCRef msg, SCRef patchName, bool fold);
 	bool stgPush(SCRef sha);
 	bool stgPop(SCRef sha);

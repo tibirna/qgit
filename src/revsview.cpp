@@ -61,11 +61,17 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	        const QStringList&)), this, SLOT(on_lanesContextMenuRequested
 	       (const QStringList&, const QStringList&)));
 
-	connect(tab()->listViewLog, SIGNAL(revisionsDragged(const QStringList&)),
-	        m(), SLOT(revisionsDragged(const QStringList&)));
+	connect(tab()->listViewLog, SIGNAL(applyRevisions(const QStringList&, const QString&)),
+	        m(), SLOT(applyRevisions(const QStringList&, const QString&)));
+	connect(tab()->listViewLog, SIGNAL(applyPatches(QStringList)),
+	        m(), SLOT(applyPatches(const QStringList&)));
 
-	connect(tab()->listViewLog, SIGNAL(revisionsDropped(const QStringList&)),
-	        m(), SLOT(revisionsDropped(const QStringList&)));
+	connect(tab()->listViewLog, SIGNAL(rebase(QString,QString,QString)),
+	        m(), SLOT(rebase(QString,QString,QString)));
+	connect(tab()->listViewLog, SIGNAL(merge(QStringList,QString)),
+	        m(), SLOT(merge(QStringList,QString)));
+	connect(tab()->listViewLog, SIGNAL(moveRef(QString,QString)),
+	        m(), SLOT(moveRef(QString,QString)));
 
 	connect(tab()->listViewLog, SIGNAL(contextMenu(const QString&, int)),
 	        this, SLOT(on_contextMenu(const QString&, int)));

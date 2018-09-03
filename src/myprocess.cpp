@@ -91,13 +91,14 @@ void MyProcess::setupSignals() {
 		connect(d, SIGNAL(cancelDomainProcesses()), this, SLOT(on_cancel()));
 }
 
-void MyProcess::sendErrorMsg(bool notStarted, SCRef err) {
+void MyProcess::sendErrorMsg(bool notStarted) {
 
 	if (!errorReportingEnabled)
 		return;
 
-	QString errorDesc(readAllStandardError());
-	errorDesc.prepend(err);
+	QByteArray err = readAllStandardError();
+	accError += err;
+	QString errorDesc = accError;
 
 	if (notStarted)
 		errorDesc = QString::fromLatin1("Unable to start the process!");
@@ -138,9 +139,11 @@ void MyProcess::on_readyReadStandardError() {
 	if (canceling)
 		return;
 
-	if (receiver)
-		emit procDataReady(readAllStandardError()); // redirect to stdout
-	else
+	if (receiver) {
+		QByteArray err = readAllStandardError();
+		accError += err;
+		emit procDataReady(err); // redirect to stdout
+	} else
 		dbs("ASSERT in myReadFromStderr: NULL receiver");
 }
 
@@ -157,11 +160,12 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	// in Window shell interpreter.
 	//
 	// So to detect a failing command we check also if stderr is not empty.
-	QString errorDesc(readAllStandardError());
+	QByteArray err = readAllStandardError();
+	accError += err;
 
 	isErrorExit =   (exitStatus != QProcess::NormalExit)
 	             || (exitCode != 0 && isWinShell)
-	             || !errorDesc.isEmpty()
+	             || !accError.isEmpty()
 	             ||  canceling;
 
 	if (!canceling) { // no more noise after cancel
@@ -170,7 +174,7 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 			emit eof();
 
 		if (isErrorExit)
-			sendErrorMsg(false, errorDesc);
+			sendErrorMsg(false);
 	}
 	busy = false;
 	if (async)
