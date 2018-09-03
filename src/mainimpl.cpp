@@ -2163,7 +2163,6 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2017 <a href='mailto:luigi.toscano@tiscali.it'>Luigi Toscano</a>,</nobr> "
 	"<nobr>2016 <a href='mailto:hkarel@yandex.ru'>Pavel Karelin</a>,</nobr> "
 	"<nobr>2016 <a href='mailto:zbitter@redhat.com'>Zane Bitter</a>,</nobr> "
-	"<nobr>2016 <a href='mailto:rhaschke@techfak.uni-bielefeld.de'>Robert Haschke</a>,</nobr> "
 	"<nobr>2017 <a href='mailto:wrar@wrar.name'>Andrey Rahmatullin</a>,</nobr> "
 	"<nobr>2017 <a href='mailto:alex-github@wenlex.nl'>Alex Hermann</a>,</nobr> "
 	"<nobr>2017 <a href='mailto:shalokshalom@protonmail.ch'>Matthias Schuster</a>,</nobr> "
@@ -2171,7 +2170,11 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2017 <a href='mailto:patrick.m.lacasse@gmail.com'>Patrick Lacasse</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:deveee@gmail.com'>Deve</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:asturm@gentoo.org'>Andreas Sturmlechner</a>,</nobr> "
-	"<nobr>2018 <a href='mailto:kde@davidedmundson.co.uk'>David Edmundson</a></nobr>"
+	"<nobr>2018 <a href='mailto:kde@davidedmundson.co.uk'>David Edmundson</a>,</nobr> "
+	"<nobr>2016-2018 <a href='mailto:rhaschke@techfak.uni-bielefeld.de'>Robert Haschke</a>,</nobr> "
+	"<nobr>2018 <a href='mailto:filipe.rinaldi@gmail.com'>Filipe Rinaldi</a>,</nobr> "
+	"<nobr>2018 <a href='mailto:balbusm@gmail.com'>Mateusz Balbus</a>,</nobr> "
+
 	"</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
