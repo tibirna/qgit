@@ -140,6 +140,18 @@ void ListView::scrollToNextHighlighted(int direction) {
 	setCurrentIndex(idx);
 }
 
+void ListView::scrollToNext(int direction) {
+	// Depending on the value of direction, scroll to:
+	// -1 = the next child in history
+	//  1 = the previous parent in history
+	SCRef s = sha(currentIndex().row());
+	const Rev* r = git->revLookup(s);
+	if (!r) return;
+	const QStringList& next = direction < 0 ? git->getChildren(s) : r->parents();
+	if (next.size() >= 1)
+		setCurrentIndex(model()->index(row(next.first()), 0));
+}
+
 void ListView::scrollToCurrent(ScrollHint hint) {
 
 	if (currentIndex().isValid())

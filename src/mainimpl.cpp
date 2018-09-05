@@ -1174,6 +1174,8 @@ void MainImpl::goMatch(int delta) {
 
 	if (ActSearchAndHighlight->isChecked())
 		rv->tab()->listViewLog->scrollToNextHighlighted(delta);
+	else
+		rv->tab()->listViewLog->scrollToNext(delta);
 }
 
 QTextEdit* MainImpl::getCurrentTextEdit() {
