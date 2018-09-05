@@ -1275,6 +1275,7 @@ int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 
 	ListView* lv = static_cast<ListView*>(parent());
 	FileHistory* fh = d->model();
+	SCRef cur = lv->sha(lv->currentIndex().row());
 
 	if (!isOn && sourceModel()){
 		lv->setModel(fh);
@@ -1284,5 +1285,6 @@ int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 		setSourceModel(fh); // trigger a rows scanning
 		lv->setModel(this);
 	}
+	lv->setCurrentIndex(lv->model()->index(lv->row(cur), 0));
 	return (sourceModel() ? rowCount() : 0);
 }
