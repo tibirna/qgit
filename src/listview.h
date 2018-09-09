@@ -29,6 +29,7 @@ public:
 	void showIdValues();
 	void scrollToCurrent(ScrollHint hint = EnsureVisible);
 	void scrollToNextHighlighted(int direction);
+	void scrollToNext(int direction);
 	void getSelectedItems(QStringList& selectedItems);
 	bool update();
 	void addNewRevs(const QVector<QString>& shaVec);

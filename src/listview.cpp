@@ -140,6 +140,18 @@ void ListView::scrollToNextHighlighted(int direction) {
 	setCurrentIndex(idx);
 }
 
+void ListView::scrollToNext(int direction) {
+	// Depending on the value of direction, scroll to:
+	// -1 = the next child in history
+	//  1 = the previous parent in history
+	SCRef s = sha(currentIndex().row());
+	const Rev* r = git->revLookup(s);
+	if (!r) return;
+	const QStringList& next = direction < 0 ? git->getChildren(s) : r->parents();
+	if (next.size() >= 1)
+		setCurrentIndex(model()->index(row(next.first()), 0));
+}
+
 void ListView::scrollToCurrent(ScrollHint hint) {
 
 	if (currentIndex().isValid())
@@ -1275,6 +1287,7 @@ int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 
 	ListView* lv = static_cast<ListView*>(parent());
 	FileHistory* fh = d->model();
+	SCRef cur = lv->sha(lv->currentIndex().row());
 
 	if (!isOn && sourceModel()){
 		lv->setModel(fh);
@@ -1284,5 +1297,6 @@ int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 		setSourceModel(fh); // trigger a rows scanning
 		lv->setModel(this);
 	}
+	lv->setCurrentIndex(lv->model()->index(lv->row(cur), 0));
 	return (sourceModel() ? rowCount() : 0);
 }
