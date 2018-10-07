@@ -273,35 +273,29 @@ void MainImpl::ActExternalDiff_activated() {
 const QRegExp MainImpl::emptySha("0*");
 
 QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
-	if (emptySha.exactMatch(sha))
-	{
-		return QString(curDir + "/" + rv->st.fileName());
-            prevRevSha = r->parent(0);
+    if (emptySha.exactMatch(sha))
+    {
+        return QString(curDir + "/" + rv->st.fileName());
     }
 
-	QFileInfo f(rv->st.fileName());
-    QString fTmpl = curDir + "/%1_" + fi.fileName();
-    if (prevRevSha.isEmpty())
-        fName2 = fTmpl.arg("root_" + QUuid::createUuid().toString().mid(1, 6));
-    else
-        fName2 = fTmpl.arg(prevRevSha.left(6));
+    QFileInfo f(rv->st.fileName());
+    QFileInfo fi(f);
 
-	QString fName(curDir + "/" + sha.left(6) + "_" + fi.fileName());
+    QString fName(curDir + "/" + sha.left(6) + "_" + fi.fileName());
 
     QByteArray fileContent;
     QTextCodec* tc = QTextCodec::codecForLocale();
-    QString fileSha = git->getFileSha(rv->st.fileName(), rv->st.sha());
 
-	QString fileSha(git->getFileSha(rv->st.fileName(), sha));
+    QString fileSha(git->getFileSha(rv->st.fileName(), sha));
     git->getFile(fileSha, NULL, &fileContent, rv->st.fileName());
-	if (!writeToFile(fName, tc->toUnicode(fileContent)))
-	{
-		statusBar()->showMessage("Unable to save " + fName);
-	}
+    if (!writeToFile(fName, tc->toUnicode(fileContent)))
+    {
+        statusBar()->showMessage("Unable to save " + fName);
+    }
 
-	filenames->append(fName);
+    filenames->append(fName);
 
-	return fName;
+    return fName;
 
 }
 
@@ -707,7 +701,7 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
     return QWidget::eventFilter(obj, ev);
 }
 
-void MainImpl::applyRevisions(SCList remoteRevs, SCRef remoteRepo) {
+void MainImpl::applyRevisions(const QStringList& remoteRevs, const QString& remoteRepo) {
 	// remoteRevs is already sanity checked to contain some possible valid data
 
     QDir dr(curDir + QGit::PATCHES_DIR);
@@ -733,9 +727,9 @@ void MainImpl::applyRevisions(SCList remoteRevs, SCRef remoteRepo) {
     QStringList::const_iterator it(remoteRevs.constEnd());
     do {
         --it;
-		SCRef sha = *it;
-		statusBar()->showMessage(QString("Importing revision %1 of %2: %3")
-		                         .arg(++revNum).arg(remoteRevs.count()).arg(sha));
+        QString sha = *it;
+        QString msg = QString("Importing revision %1 of %2: %3");
+        statusBar()->showMessage(msg.arg(++revNum).arg(remoteRevs.count()).arg(sha));
 
         // we create patches one by one
         if (!git->formatPatch(QStringList(sha), dr.absolutePath(), remoteRepo))
@@ -1303,19 +1297,25 @@ void MainImpl::doUpdateRecentRepoMenu(const QString& newEntry) {
 
 static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar sep = '/') {
 
-	FOREACH_SL (it, refs) {
-		const QStringList& parts(it->split(sep, QString::SkipEmptyParts));
+    for (const QString& ref : refs) {
+        QStringList parts = ref.split(sep, QString::SkipEmptyParts);
 		QMenu* add_here = menu;
-		FOREACH_SL (pit, parts) {
-			if (pit == parts.end() - 1) break;
-			QMenu* found = add_here->findChild<QMenu*>(*pit, Qt::FindDirectChildrenOnly);
+        for (const QString& pit : parts) {
+            if (pit == parts.last())
+                break;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+            QMenu* found = add_here->findChild<QMenu*>(pit, Qt::FindDirectChildrenOnly);
+#else
+            QMenu* found = add_here->findChild<QMenu*>(pit);
+#endif
 			if(!found) {
-				found = add_here->addMenu(*pit);
-				found->setObjectName(*pit);
+                found = add_here->addMenu(pit);
+                found->setObjectName(pit);
 			}
 			add_here = found;
 		}
-		QAction* act = add_here->addAction(*it);
+        QAction* act = add_here->addAction(ref);
 		act->setData("Ref");
     }
 }

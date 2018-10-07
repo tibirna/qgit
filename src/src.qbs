@@ -17,15 +17,6 @@ Product {
         condition: Qt.core.versionMajor >= 5
     }
 
-    Probe {
-        id: productProbe
-        configure: {
-            if (QbsFunctions.versionIsAtLeast(minimumQtVersion, Qt.core.version))
-                throw Error("The minimum required version Qt: " + minimumQtVersion
-                            + ". The current Qt version: " + Qt.core.version);
-        }
-    }
-
     cpp.cxxFlags: {
         var cxx = [
             "-std=c++11",

@@ -240,7 +240,7 @@ uint Git::checkRef(const QString& sha, uint mask) const {
     return (it != refsShaMap.constEnd() ? (*it).type & mask : 0);
 }
 
-const QStringList Git::getRefNames(SCRef sha, uint mask) const {
+const QStringList Git::getRefNames(const QString& sha, uint mask) const {
 
 	QStringList result;
 	if (!checkRef(sha, mask))
@@ -875,6 +875,7 @@ bool Git::isContiguous(const QStringList &revs)
 	return true;
 }
 
+bool Git::isSameFiles(const QString& tree1Sha, const QString& tree2Sha) {
 
     // early skip common case of browsing with up and down arrows, i.e.
     // going from parent(child) to child(parent). In this case we can
@@ -1335,7 +1336,7 @@ bool Git::resetCommits(int parentDepth) {
     return run(runCmd);
 }
 
-bool Git::merge(SCRef into, SCList sources, QString *error)
+bool Git::merge(const QString& into, const QStringList& sources, QString *error)
 {
 	if (error) *error = "";
 	if (!run(QString("git checkout -q %1").arg(into)))
@@ -1352,6 +1353,7 @@ bool Git::merge(SCRef into, SCList sources, QString *error)
 	return false;
 }
 
+bool Git::applyPatchFile(const QString& patchPath, bool fold, bool isDragDrop) {
 
     if (isStGIT) {
         if (fold) {
@@ -1362,7 +1364,7 @@ bool Git::merge(SCRef into, SCList sources, QString *error)
         } else
             return run("stg import --mail " + quote(patchPath));
     }
-	QString runCmd("git am ");
+    QString runCmd("git am ");
 
     QSettings settings;
     const QString APOpt(settings.value(AM_P_OPT_KEY).toString());

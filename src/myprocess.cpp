@@ -97,7 +97,8 @@ void MyProcess::sendErrorMsg(bool notStarted) {
     if (!errorReportingEnabled)
         return;
 		
-    QString err = errorDesc(readAllStandardError());
+    QTextCodec* tc = QTextCodec::codecForLocale();
+    QString err = tc->toUnicode(readAllStandardError());
     accError += err;
 	QString errorDesc = accError;
 
@@ -162,7 +163,7 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
     //
     // So to detect a failing command we check also if stderr is not empty.
 	QTextCodec* tc = QTextCodec::codecForLocale();
-	QString err = tc->toUnicode(readAllStandardError())
+    QString err = tc->toUnicode(readAllStandardError());
 	accError += err;
 
     isErrorExit =   (exitStatus != QProcess::NormalExit)

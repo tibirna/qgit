@@ -85,6 +85,7 @@ public:
     const QString textHighlighterVersion() const { return textHighlighterVersionFound; }
     bool isMainHistory(const FileHistory* fh) { return (fh == revData); }
 	bool isContiguous(const QStringList &revs);
+    MyProcess* getDiff(const QString& sha, QObject* receiver, const QString& diffToSha, bool combined);
     const QString getWorkDirDiff(const QString& fileName = "");
     MyProcess* getFile(const QString& fileSha, QObject* receiver, QByteArray* result, const QString& fileName);
     MyProcess* getHighlightedFile(const QString& fileSha, QObject* receiver, QString* result, const QString& fileName);
@@ -110,7 +111,7 @@ public:
     uint checkRef(const QString& sha, uint mask = ANY_REF) const;
     const QString getRevInfo(const QString& sha);
     const QString getRefSha(const QString& refName, RefType type = ANY_REF, bool askGit = true);
-	const QStringList getRefNames(SCRef sha, uint mask = ANY_REF) const;
+    const QStringList getRefNames(const QString& sha, uint mask = ANY_REF) const;
     const QStringList getAllRefNames(uint mask, bool onlyLoaded);
     const QStringList getAllRefSha(uint mask);
     const QStringList sortShaListByIndex(const QStringList& shaList);
@@ -121,7 +122,8 @@ public:
     bool commitFiles(const QStringList& files, const QString& msg, bool amend);
     bool applyPatchFile(const QString& patchPath, bool fold, bool sign);
     bool resetCommits(int parentDepth);
-	bool merge(SCRef into, SCList sources, QString* error=NULL);
+    bool merge(const QString& into, const QStringList& sources, QString* error=NULL);
+    bool stgCommit(const QStringList& selFiles, const QString& msg, const QString& patchName, bool fold);
     bool stgPush(const QString& sha);
     bool stgPop(const QString& sha);
     void setTextCodec(QTextCodec* tc);

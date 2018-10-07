@@ -24,7 +24,7 @@
 
 void getTagMarkParams(QString &name, QStyleOptionViewItem& o,
                       const int type, const bool isCurrent);
-uint refTypeFromName(SCRef name);
+uint refTypeFromName(const QString& name);
 
 using namespace QGit;
 
@@ -157,7 +157,7 @@ void ListView::scrollToNext(int direction) {
 	// Depending on the value of direction, scroll to:
 	// -1 = the next child in history
 	//  1 = the previous parent in history
-	SCRef s = sha(currentIndex().row());
+    QString s = sha(currentIndex().row());
 	const Rev* r = git->revLookup(s);
 	if (!r) return;
 	const QStringList& next = direction < 0 ? git->getChildren(s) : r->parents();
@@ -468,7 +468,7 @@ struct ListView::DropInfo {
 	}
 };
 
-uint refTypeFromName(SCRef name) {
+uint refTypeFromName(const QString& name) {
 	if (name.startsWith("tags/")) return Git::TAG;
 	if (name.startsWith("remotes/")) return Git::RMT_BRANCH;
 	if (!name.isEmpty()) return Git::BRANCH;
@@ -498,7 +498,7 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 
 	dropInfo = new DropInfo(DropInfo::REV_LIST);
 
-	SCRef revsText(e->mimeData()->data("application/x-qgit-revs"));
+    QString revsText(e->mimeData()->data("application/x-qgit-revs"));
 	QString header = revsText.section("\n", 0, 0);
 	dropInfo->shas = revsText.section("\n", 1).split('\n', QString::SkipEmptyParts);
 	// extract refname and sha from first entry again
@@ -533,10 +533,10 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 void ListView::dragMoveEvent(QDragMoveEvent* e) {
 	// When getting here, dragEnterEvent already accepted the drag in general
 
-	SCRef targetRef = refNameAt(e->pos());
+    QString targetRef = refNameAt(e->pos());
 	uint targetRefType = refTypeFromName(targetRef);
 	QModelIndex idx = indexAt(e->pos());
-	SCRef targetSHA = sha(idx.row());
+    QString targetSHA = sha(idx.row());
 	uint   accepted_actions = DropInfo::PatchAction; // applying patches is always allowed
 	DropInfo::Action  action, default_action = DropInfo::PatchAction;
 
@@ -628,16 +628,16 @@ void ListView::dropEvent(QDropEvent *e) {
 	if (dropInfo->flags & DropInfo::PATCHES) {
 		QStringList files;
 		QList<QUrl> urls = e->mimeData()->urls();
-		FOREACH(QList<QUrl>, it, urls)
-		    files << it->toLocalFile();
+        FOREACH(url, urls)
+            files << url->toLocalFile();
 
 		emit applyPatches(files);
 		return;
 	}
 
-	SCRef targetRef = refNameAt(e->pos());
+    QString targetRef = refNameAt(e->pos());
 //	uint  targetRefType = refTypeFromName(targetRef);
-	SCRef targetSHA = sha(indexAt(e->pos()).row());
+    QString targetSHA = sha(indexAt(e->pos()).row());
 	switch(dropInfo->action) {
 	case DropInfo::PatchAction:
 		emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
@@ -1077,8 +1077,8 @@ void ListViewDelegate::paintLog(QPainter* p, const QStyleOptionViewItem& opt,
     }
     QStyleOptionViewItem newOpt(opt); // we need a copy
     if (pm) {
-		p->drawPixmap(newOpt.rect.x(), newOpt.rect.y() + 1, *pm); // +1 means leave a pixel spacing above the pixmap
-		newOpt.rect.adjust(pm->width() / static_cast<int>(dpr()), 0, 0, 0);
+        p->drawPixmap(newOpt.rect.x(), newOpt.rect.y() + 1, *pm); // +1 means leave a pixel spacing above the pixmap
+        newOpt.rect.adjust(pm->width() / static_cast<int>(dpr()), 0, 0, 0);
         delete pm;
     }
     if (isHighlighted)
@@ -1187,22 +1187,23 @@ qreal ListViewDelegate::dpr(void) const {
 #endif
 }
 
+void ListViewDelegate::addTextPixmap(QPixmap** pp, const QString& txt, const QStyleOptionViewItem& opt) const {
 
     QPixmap* pm = *pp;
 
-	const unsigned int mark_spacing = 2; // Space between markers in pixels
-	unsigned int offset = pm->isNull() ? 0 : (pm->width() / static_cast<uint>(dpr())) + mark_spacing; // Marker's offset in the base pixmap
+    const unsigned int mark_spacing = 2; // Space between markers in pixels
+    unsigned int offset = pm->isNull() ? 0 : (pm->width() / static_cast<uint>(dpr())) + mark_spacing; // Marker's offset in the base pixmap
 
-	QFontMetrics fm(opt.font);
-	const unsigned int text_spacing = 4;
-	unsigned int text_width = fm.boundingRect(txt).width() + 2 * text_spacing;
-	unsigned int text_height = fm.height();
+    QFontMetrics fm(opt.font);
+    const unsigned int text_spacing = 4;
+    unsigned int text_width = fm.boundingRect(txt).width() + 2 * text_spacing;
+    unsigned int text_height = fm.height();
 
-	// Define size of the new Pixmap
-	QSize pixmapSize((offset + text_width) * static_cast<int>(dpr()),
-			 (text_height) * static_cast<int>(dpr()));
+    // Define size of the new Pixmap
+    QSize pixmapSize((offset + text_width) * static_cast<int>(dpr()),
+             (text_height) * static_cast<int>(dpr()));
 
-	QPixmap* newPm = new QPixmap(pixmapSize);
+    QPixmap* newPm = new QPixmap(pixmapSize);
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     newPm->setDevicePixelRatio(dpr());
 #endif
@@ -1217,10 +1218,10 @@ qreal ListViewDelegate::dpr(void) const {
 
     p.setPen(opt.palette.color(QPalette::WindowText));
     p.setBrush(opt.palette.color(QPalette::Window));
-	p.setFont(opt.font);
+    p.setFont(opt.font);
 
-	p.drawRect(offset, 0, text_width - 1, text_height - 1);
-	p.drawText(offset + text_spacing, fm.ascent(), txt);
+    p.drawRect(offset, 0, text_width - 1, text_height - 1);
+    p.drawText(offset + text_spacing, fm.ascent(), txt);
     p.end();
 
     delete pm;
@@ -1299,7 +1300,7 @@ int ListViewProxy::setFilter(bool isOn, bool h, const QString& fl, int cn, ShaSe
 
     ListView* lv = static_cast<ListView*>(parent());
     FileHistory* fh = d->model();
-	SCRef cur = lv->sha(lv->currentIndex().row());
+    QString cur = lv->sha(lv->currentIndex().row());
 
     if (!isOn && sourceModel()){
         lv->setModel(fh);
