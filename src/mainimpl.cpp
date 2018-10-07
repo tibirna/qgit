@@ -24,7 +24,6 @@
 #include <QUuid>
 #include <assert.h>
 #include "config.h" // defines PACKAGE_VERSION
-#include "consoleimpl.h"
 #include "commitimpl.h"
 #include "common.h"
 #include "customactionimpl.h"
@@ -970,14 +969,18 @@ bool MainImpl::event(QEvent* e) {
     const QString& data = de->myData();
     bool ret = true;
 
-        switch ((EventType)e->type()) {
+    switch ((EventType)e->type()) {
     case ERROR_EV: {
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
         EM_PROCESS_EVENTS;
         MainExecErrorEvent* me = (MainExecErrorEvent*)e;
         QString text("An error occurred while executing command:\n\n");
         text.append(me->command() + "\n\nGit says: \n\n" + me->report());
-        QMessageBox::warning(this, "Error - QGit", text);
+
+        // Display message only if console window is not shown
+        if (console == 0)
+            QMessageBox::warning(this, "Error - QGit", text);
+
         QApplication::restoreOverrideCursor(); }
         break;
     case MSG_EV:
@@ -1171,6 +1174,11 @@ void MainImpl::shortCutActivated() {
             if (d) tabWdg->setCurrentWidget(d->tabPage());
         }
     }
+}
+
+void MainImpl::consoleDestroyed(QObject*)
+{
+    console = 0;
 }
 
 void MainImpl::goMatch(int delta) {
@@ -1737,17 +1745,20 @@ void MainImpl::customAction_triggered(QAction* act) {
     if (cmd.isEmpty())
         return;
 
-    ConsoleImpl* c = new ConsoleImpl(actionName, git); // has Qt::WA_DeleteOnClose attribute
+    console = new ConsoleImpl(actionName, git); // has Qt::WA_DeleteOnClose attribute
 
     chk_connect_a(this, SIGNAL(typeWriterFontChanged()),
-                  c, SLOT(typeWriterFontChanged()));
+                  console, SLOT(typeWriterFontChanged()));
 
-    chk_connect_a(this, SIGNAL(closeAllWindows()), c, SLOT(close()));
-    chk_connect_a(c, SIGNAL(customAction_exited(const QString&)),
+    chk_connect_a(this, SIGNAL(closeAllWindows()),
+                  console, SLOT(close()));
+    chk_connect_a(console, SIGNAL(customAction_exited(const QString&)),
                   this, SLOT(customAction_exited(const QString&)));
+    chk_connect_a(console, SIGNAL(destroyed(QObject*)),
+                  this, SLOT(consoleDestroyed(QObject*)));
 
-    if (c->start(cmd))
-        c->show();
+    if (console->start(cmd))
+        console->show();
 }
 
 void MainImpl::customAction_exited(const QString& name) {

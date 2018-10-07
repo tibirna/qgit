@@ -97,9 +97,9 @@ void MyProcess::sendErrorMsg(bool notStarted) {
     if (!errorReportingEnabled)
         return;
 		
+    QByteArray err = readAllStandardError();
     QTextCodec* tc = QTextCodec::codecForLocale();
-    QString err = tc->toUnicode(readAllStandardError());
-    accError += err;
+    accError += tc->toUnicode(err);
 	QString errorDesc = accError;
 
     if (notStarted)
@@ -143,7 +143,8 @@ void MyProcess::on_readyReadStandardError() {
 
 	if (receiver) {
 		QByteArray err = readAllStandardError();
-		accError += err;
+        QTextCodec* tc = QTextCodec::codecForLocale();
+        accError += tc->toUnicode(err);
 		emit procDataReady(err); // redirect to stdout
 	} else
         dbs("ASSERT in myReadFromStderr: NULL receiver");
@@ -162,13 +163,13 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
     // in Window shell interpreter.
     //
     // So to detect a failing command we check also if stderr is not empty.
+    QByteArray err = readAllStandardError();
 	QTextCodec* tc = QTextCodec::codecForLocale();
-    QString err = tc->toUnicode(readAllStandardError());
-	accError += err;
+    accError += tc->toUnicode(err);
 
     isErrorExit =   (exitStatus != QProcess::NormalExit)
                  || (exitCode != 0 && isWinShell)
-	             || !accError.isEmpty()
+                 || !accError.isEmpty()
                  ||  canceling;
 
     if (!canceling) { // no more noise after cancel

@@ -13,6 +13,7 @@
 #include "exceptionmanager.h"
 #include "common.h"
 #include "defmac.h"
+#include "consoleimpl.h"
 #include "ui_mainview.h"
 
 class QAction;
@@ -75,6 +76,7 @@ private slots:
 	void merge(const QStringList& shas, const QString& into);
 	void moveRef(const QString& refName, const QString& toSHA);
     void shortCutActivated();
+    void consoleDestroyed(QObject*);
 
 protected:
     virtual bool event(QEvent* e);
@@ -177,6 +179,8 @@ private:
     Git* git;
     RevsView* rv;
     QProgressBar* pbFileNamesLoading;
+
+    ConsoleImpl* console;
 
     // curDir is the repository working directory, could be different from qgit running
     // directory QDir::current(). Note that qgit could be run from subdirectory
