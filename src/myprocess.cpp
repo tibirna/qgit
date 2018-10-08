@@ -69,7 +69,7 @@ bool MyProcess::runSync(const QString& rc, QByteArray* ro, QObject* rcv, const Q
 void MyProcess::setupSignals() {
 
     chk_connect_a(git, SIGNAL(cancelAllProcesses()),
-                 this, SLOT(on_cancel()));
+                  this, SLOT(on_cancel()));
 
     chk_connect_a(this, SIGNAL(readyReadStandardOutput()),
                   this, SLOT(on_readyReadStandardOutput()));
@@ -78,8 +78,7 @@ void MyProcess::setupSignals() {
                   this, SLOT(on_finished(int, QProcess::ExitStatus)));
 
     if (receiver) {
-
-        chk_connect_a(this, SIGNAL(readyReadStandardError ()),
+        chk_connect_a(this, SIGNAL(readyReadStandardError()),
                       this, SLOT(on_readyReadStandardError()));
 
         chk_connect_a(this, SIGNAL(procDataReady(const QByteArray&)),
@@ -205,7 +204,7 @@ const QStringList MyProcess::splitArgList(const QString& cmd) {
 // sl = <cmd,some_arg,some thing,v='some value'>
 
     // early exit the common case
-    if (!(   cmd.contains(QGit::QUOTE_CHAR)
+    if (!(cmd.contains(QGit::QUOTE_CHAR)
           || cmd.contains("\"")
           || cmd.contains("\'")))
         return cmd.split(' ', QString::SkipEmptyParts);
@@ -215,7 +214,7 @@ const QStringList MyProcess::splitArgList(const QString& cmd) {
     const QString sepList("#%&!?"); // separator candidates
     int i = 0;
     while (cmd.contains(sepList[i]) && i < sepList.length())
-        i++;
+        ++i;
 
     if (i == sepList.length()) {
         dbs("ASSERT no unique separator found.");
@@ -239,12 +238,11 @@ const QStringList MyProcess::splitArgList(const QString& cmd) {
     // QProcess::setArguments doesn't want quote
     // delimited arguments, so remove trailing quotes
     QStringList sl(newCmd.split(sepChar, QString::SkipEmptyParts));
-    QStringList::iterator it(sl.begin());
-    for ( ; it != sl.end(); ++it) {
-        if (((*it).left(1) == "\"" && (*it).right(1) == "\"") ||
-           ((*it).left(1) == "\'" && (*it).right(1) == "\'"))
-            *it = (*it).mid(1, (*it).length() - 2);
-    }
+    for (QString& s : sl)
+        if ((s.left(1) == "\"" && s.right(1) == "\"")
+            || (s.left(1) == "\'" && s.right(1) == "\'"))
+            s = s.mid(1, s.length() - 2);
+
     return sl;
 }
 
@@ -257,7 +255,7 @@ void MyProcess::restoreSpaces(QString& newCmd, const QChar& sepChar) {
 
         const QChar& c = newCmd[i];
 
-        if (    !replace
+        if (!replace
             && (c == QGit::QUOTE_CHAR[0] || c == '\"' || c == '\'')
             && (newCmd.count(c) % 2 == 0)) {
 
