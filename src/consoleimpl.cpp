@@ -63,7 +63,7 @@ void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 
 bool ConsoleImpl::start(const QString& cmd) {
 
-    statusBar()->showMessage("Executing \'" + actionName + "\' action...");
+    textLabelEnd->setText("Executing \'" + actionName + "\' action...");
     textLabelCmd->setText(cmd);
     if (cmd.indexOf('\n') < 0)
         proc = git->runAsync(cmd, this);
@@ -92,7 +92,7 @@ void ConsoleImpl::procFinished() {
     textEditOutput->append(inpBuf);
     inpBuf = "";
     QApplication::restoreOverrideCursor();
-    statusBar()->showMessage("End of \'" + actionName + "\' execution.");
+    textLabelEnd->setText("End of \'" + actionName + "\' execution.");
     pushButtonTerminate->setEnabled(false);
     emit customAction_exited(actionName);
 }

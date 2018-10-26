@@ -19,6 +19,21 @@
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>9</number>
+    </property>
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>6</number>
+    </property>
     <item>
      <layout class="QHBoxLayout">
       <property name="spacing">
@@ -276,6 +291,31 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="textLabelEnd">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Shows action definition</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
