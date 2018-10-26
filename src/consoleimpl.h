@@ -32,8 +32,8 @@ public slots:
 
 protected slots:
     virtual void closeEvent(QCloseEvent* ce);
-    void pushButtonTerminate_clicked();
-    void pushButtonOk_clicked();
+    void on_pushButtonTerminate_clicked(bool);
+    void on_pushButtonOk_clicked(bool);
 
 private:
     Git* git;

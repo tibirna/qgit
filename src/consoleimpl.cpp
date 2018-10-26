@@ -33,12 +33,12 @@ void ConsoleImpl::typeWriterFontChanged() {
     te->moveCursor(QTextCursor::End);
 }
 
-void ConsoleImpl::pushButtonOk_clicked() {
+void ConsoleImpl::on_pushButtonOk_clicked(bool) {
 
     close();
 }
 
-void ConsoleImpl::pushButtonTerminate_clicked() {
+void ConsoleImpl::on_pushButtonTerminate_clicked(bool) {
 
     git->cancelProcess(proc);
     procFinished();
