@@ -33,6 +33,9 @@ class InputDialog : public QDialog
     QString cmd;
     QMap<QString, const QValidator*> validators;
     QPushButton *okButton;
+    QPushButton *cancelButton;
+
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 public:
     typedef QMap<QString, QVariant> VariableMap;

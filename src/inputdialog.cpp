@@ -11,6 +11,7 @@
 #include <QCompleter>
 #include <QListView>
 #include <QStringListModel>
+#include <QKeyEvent>
 
 namespace QGit {
 
@@ -120,10 +121,12 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
             item->init(w, "currentText");
         } else if (type == "listbox") {
             QListView *w = new QListView(this);
+            w->installEventFilter(this);
             w->setModel(new QStringListModel(parseStringList(value, variables)));
             item->init(w, NULL);
         } else if (type == "lineedit" || type == "") {
             QLineEdit *w = new QLineEdit(this);
+            w->installEventFilter(this);
             w->setText(parseString(value, variables));
             QStringList values = parseStringList(value, variables);
             if (!values.isEmpty()) // use default string list as
@@ -136,7 +139,9 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
             item->init(w, "text");
         } else if (type == "textedit") {
             QTextEdit *w = new QTextEdit(this);
+            w->installEventFilter(this);
             w->setText(parseString(value, variables));
+            w->selectAll();
             item->init(w, "plainText");
         } else {
             dbs("unknown widget type: " + type);
@@ -151,12 +156,13 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
         }
         ++row;
     }
-    QDialogButtonBox *buttons =    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     layout->addWidget(buttons, row, 0, 1, 2);
     okButton = buttons->button(QDialogButtonBox::Ok);
+    cancelButton = buttons->button(QDialogButtonBox::Cancel);
 
     chk_connect_a(okButton, SIGNAL(pressed()), this, SLOT(accept()));
-    chk_connect_a(buttons->button(QDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
+    chk_connect_a(cancelButton, SIGNAL(pressed()), this, SLOT(reject()));
     validate();
 }
 
@@ -178,13 +184,14 @@ QVariant InputDialog::value(const QString &token) const
 
 bool InputDialog::validate()
 {
-    bool result=true;
+    bool result = true;
     for (QMap<QString, const QValidator*>::const_iterator
-         it=validators.begin(), end=validators.end(); result && it != end; ++it) {
+         it = validators.begin(), end = validators.end(); result && it != end; ++it) {
+
         QString val = value(it.key()).toString();
-        int pos=0;
+        int pos = 0;
         if (it.value()->validate(val, pos) != QValidator::Acceptable)
-            result=false;
+            result = false;
     }
     okButton->setEnabled(result);
     return result;
@@ -207,6 +214,25 @@ QString InputDialog::replace(const VariableMap &variables) const
         result.replace(token, val);
     }
     return result;
+}
+
+bool InputDialog::eventFilter(QObject* obj, QEvent* event) {
+
+    if (obj != this) {
+        if (event->type() == QEvent::KeyPress) {
+             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+             if (( keyEvent->key() == Qt::Key_Return
+                   || keyEvent->key() == Qt::Key_Enter
+                 )
+                 && keyEvent->modifiers() & Qt::ControlModifier) {
+
+                QMetaObject::invokeMethod(this, "accept", Qt::QueuedConnection);
+                return true;
+             }
+         }
+         return false;
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 } // namespace QGit
