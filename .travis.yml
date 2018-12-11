@@ -14,12 +14,12 @@ env:
 install: # Use this to install any prerequisites or dependencies necessary to run the build
   - sudo apt-get -qq install qt5-default libqt4-dev qt4-qmake
 
-before_script: # build
+script: # build
   - mkdir build; cd build
-  - if [ "META_MAKE" != "qmake-qt4" ] ; then $META_MAKE .. ; fi
-  - if [ "META_MAKE" != "qmake-qt4" ] ; then make -j$(nproc) ; fi
+  - if [ "$META_MAKE" != "qmake-qt4" ] ; then $META_MAKE .. ; fi
+  - if [ "$META_MAKE" != "qmake-qt4" ] ; then make -j$(nproc) ; fi
   - |
-    if [ "META_MAKE" == "qmake-qt4" ] ; then
+    if [ "$META_MAKE" == "qmake-qt4" ] ; then
       qmake .. CONFIG+=release PREFIX=/usr
       make -j$(nproc)
       make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
