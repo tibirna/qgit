@@ -9,16 +9,36 @@ env:
   matrix:
     - META_MAKE="cmake"
     - META_MAKE="qmake"
-    - META_MAKE="qmake-qt4"
+#   - META_MAKE="qmake-qt4"
 
 install: # Use this to install any prerequisites or dependencies necessary to run the build
-  - sudo apt-get -qq install qt5-default libqt4-dev qt4-qmake
+  - sudo apt-get -y install qt5-default # libqt4-dev qt4-qmake
 
-before_script: # build
+script: # build
   - mkdir build; cd build
-  - $META_MAKE ..
-  - make
-  - sudo make install
+  - if [ "$META_MAKE" != "qmake" ] ; then $META_MAKE .. ; fi
+  - if [ "$META_MAKE" != "qmake" ] ; then make -j$(nproc) ; fi
+  - |
+    if [ "$META_MAKE" == "qmake" ] ; then
+      qmake .. CONFIG+=release PREFIX=/usr
+      make -j$(nproc)
+      # FIXME: The following 3 lines should go away, https://github.com/probonopd/linuxdeployqt#fix-for-make-nothing-to-be-done-for-install
+      mkdir -p appdir/usr/bin ; cp ./bin/qgit appdir/usr/bin/ # FIXME
+      mkdir -p appdir/usr/share/applications ; cp ../qgit.desktop appdir/usr/share/applications/ # FIXME
+      mkdir -p appdir/usr/share/icons/hicolor/scalable/apps ; cp ../src/resources/qgit.svg appdir/usr/share/icons/hicolor/scalable/apps/ # FIXME
+      find appdir/
+      wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+      chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+      export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
+      ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
+      find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+      # curl --upload-file QGit*.AppImage https://transfer.sh/QGit-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+      wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+      bash upload.sh QGit*.AppImage*
+    fi
 
-script: # run tests
-  - echo "No tests yet."
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous)/
