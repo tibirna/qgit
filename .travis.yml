@@ -23,7 +23,7 @@ script: # build
       qmake .. CONFIG+=release PREFIX=/usr
       make -j$(nproc)
       # FIXME: The following 3 lines should go away, https://github.com/probonopd/linuxdeployqt#fix-for-make-nothing-to-be-done-for-install
-      mkdir -p appdir/usr/bin ; cp qgit appdir/usr/bin/qgit # FIXME
+      mkdir -p appdir/usr/bin ; cp ../bin/qgit appdir/usr/bin/qgit # FIXME
       mkdir -p appdir/usr/share/applications ; cp ../qgit.desktop appdir/usr/share/applications/ # FIXME
       mkdir -p appdir/usr/share/icons/hicolor/scalable/apps ; touch appdir/usr/share/icons/hicolor/scalable/apps/qgit.svg # FIXME
       find appdir/
