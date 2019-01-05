@@ -426,10 +426,10 @@ void ListView::startDragging(QMouseEvent* /*e*/) {
 
 void ListView::mouseMoveEvent(QMouseEvent* e) {
 
-	if (e->buttons() == Qt::LeftButton) {
-		startDragging(e);
-		return;
-	}
+    //if (e->buttons() == Qt::LeftButton) {
+    //	startDragging(e);
+    //	return;
+    //}
 
     QTreeView::mouseMoveEvent(e);
 }
