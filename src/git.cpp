@@ -2167,6 +2167,9 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
         } else
                 {} // initCmd << QString("--early-output"); currently disabled
 
+        if (gitVersion >= "2.10.0")
+                initCmd << "--no-show-signature";
+
         return startParseProc(initCmd + args, fh, QString());
 }
 
@@ -2186,6 +2189,10 @@ bool Git::startUnappliedList() {
                     "--pretty=format:" GIT_LOG_FORMAT "%b ^HEAD");
 
         QStringList sl(cmd.split(' '));
+
+        if (gitVersion >= "2.10.0")
+                sl << "--no-show-signature";
+
         sl << unAppliedShaList;
         return startParseProc(sl, revData, QString());
 }
