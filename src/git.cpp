@@ -73,12 +73,12 @@ void Git::checkEnvironment() {
 	if (run("git --version", &version)) {
 
 		version = version.section(' ', -1, -1).section('.', 0, 2);
-		if (version < GIT_VERSION) {
+		if (version < GIT_VERSION_REQUIRED) {
 
 			// simply send information, the 'not compatible version'
 			// policy should be implemented upstream
 			const QString cmd("Current git version is " + version +
-			      " but is required " + GIT_VERSION + " or better");
+			      " but is required " + GIT_VERSION_REQUIRED + " or better");
 
 			const QString errorDesc("Your installed git is too old."
 			      "\nPlease upgrade to avoid possible misbehaviours.");
