@@ -267,6 +267,7 @@ private:
 	QString curBranchName;
 	int filesLoadingStartOfs;
 	bool cacheNeedsUpdate;
+	QString gitVersion;
 	bool errorReportingEnabled;
 	bool isMergeHead;
 	bool isStGIT;

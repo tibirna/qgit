@@ -86,6 +86,7 @@ void Git::checkEnvironment() {
 			MainExecErrorEvent* e = new MainExecErrorEvent(cmd, errorDesc);
 			QApplication::postEvent(parent(), e);
 		}
+		gitVersion = version;
 	} else {
 		dbs("Cannot find git files");
 		return;
