@@ -61,13 +61,8 @@
         </property>
         <property name="font">
          <font>
-          <family>Sans Serif</family>
-          <pointsize>9</pointsize>
           <weight>75</weight>
-          <italic>false</italic>
           <bold>true</bold>
-          <underline>false</underline>
-          <strikeout>false</strikeout>
          </font>
         </property>
         <property name="toolTip">
@@ -80,7 +75,7 @@
          <enum>Qt::PlainText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -309,7 +304,7 @@
          <enum>Qt::PlainText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

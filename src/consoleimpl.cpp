@@ -92,7 +92,7 @@ void ConsoleImpl::procFinished() {
     textEditOutput->append(inpBuf);
     inpBuf = "";
     QApplication::restoreOverrideCursor();
-    textLabelEnd->setText("End of \'" + actionName + "\' execution.");
+    textLabelEnd->setText("End of \'" + actionName + "\' execution");
     pushButtonTerminate->setEnabled(false);
     emit customAction_exited(actionName);
 }
