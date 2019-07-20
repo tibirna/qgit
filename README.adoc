@@ -7,6 +7,7 @@ and changed files, graphically following different development branches.
 Bugs or feature requests should be sent to the git@vger.kernel.org
 mailing list.
 
+
 Main features
 -------------
 
@@ -82,6 +83,7 @@ define in 'src/dataloader.h' before to compile.
 
 Command line arguments
 ----------------------
+
 Run qgit from a git working directory, command line arguments
 are filtered by 'git log'. Some examples:
 
@@ -102,6 +104,7 @@ data loading to chosen revisions.
 
 Main view
 ---------
+
 You can navigate through logs, file names, file history, archive tree.
 All the views will be updated accordingly.
 
@@ -259,6 +262,7 @@ Edit->Settings->Commit to define template file path.
 
 Patch viewer
 ------------
+
 To open patch tab use context menu, double click on a revision or file in
 main view or select View->'View patch' menu (CTRL+P). The patch shown is
 the diff of current selected commit against:
@@ -276,6 +280,7 @@ release the filter.
 With the 'filter' button at the right of the tool bar it is possible to
 toggle the display of removed code lines. This can be useful to easy
 reading of the patch.
+
 
 External diff tool
 ------------------
@@ -362,6 +367,7 @@ site for the list of supported languages and additional documentation.
 
 Actions
 -------
+
 Actions can be added/removed using a dedicated dialog invoked
 from 'Actions->Setup actions...' menu. Actions can be activated
 clicking on their name from the Actions menu.
@@ -398,6 +404,7 @@ define a script and associate your action to it.
 
 Integration with StGIT
 ----------------------
+
 When a StGIT stack is found on top of a git archive, qgit transparently
 handles the added information.
 
