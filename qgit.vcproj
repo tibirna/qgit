@@ -563,7 +563,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\README"
+			RelativePath=".\README.adoc"
 			>
 		</File>
 		<File

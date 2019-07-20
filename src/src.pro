@@ -94,7 +94,7 @@ SOURCES += annotate.cpp cache.cpp commitimpl.cpp consoleimpl.cpp \
     common.cpp
 
 DISTFILES += app_icon.rc helpgen.sh resources/* Src.vcproj todo.txt
-DISTFILES += ../COPYING ../exception_manager.txt ../README ../README_WIN.txt
+DISTFILES += ../COPYING ../exception_manager.txt ../README.adoc ../README_WIN.txt
 DISTFILES += ../qgit_inno_setup.iss ../QGit4.sln
 
 # Here we generate a batch called start_qgit.bat used, under Windows only,

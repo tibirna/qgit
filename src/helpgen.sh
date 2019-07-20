@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Generate help.h from README
+# Generate help.h from README.adoc
 
 set -e
 
@@ -16,7 +16,7 @@ sed -n -e 's/"/\\"/g' -e '/Command line arguments/,$s/^.*$/"&\\n"/p' \
 	"$tmpfile1" >"$tmpfile2"
 
 cat >"$outfile" <<EOF
-/* Help content is generated automatically from README by helpgen script */
+/* Help content is generated automatically from README.adoc by helpgen script */
 
 static const char* helpInfo =
 "<qt>\n"
