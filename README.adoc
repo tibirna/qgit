@@ -115,30 +115,30 @@ available commands and a 'quick jump' tag list.
 
 *Key bindings*::
 
-`-------------`----------------------------------
-r             Go to revisions list page
-p             Go to patch page
-f             Go to file page
-<Alt+wheel>   Go to next/previous page
-t             Toggle tree view
-s             Toggle view of secondary panes
-h             Toggle view of revision header
-<Home>        Move to first revision
-<End>         Move to last revision
-i             Move up one revision in main view (global scope)
-n, k          Move down one revision in main view (global scope)
-<Shift-Up>    Move to previous highlighted line
-<Shift-Down>  Move to next highlighted line
-<Left>	      Go back in history list
-<Right>	      Go forward in history list
-<CTRL-plus>   Increase font size
-<CTRL-minus>  Decrease font size
-<Delete>, b   Scroll content up one page
-<Backspace>   Scroll content up one page
-<Space>       Scroll content down one page
-u             Scroll content up 18 lines
-d             Scroll content down 18 lines
--------------------------------------------------
+|=============================================================================
+|r             |Go to revisions list page
+|p             |Go to patch page
+|f             |Go to file page
+|<Alt+wheel>   |Go to next/previous page
+|t             |Toggle tree view
+|s             |Toggle view of secondary panes
+|h             |Toggle view of revision header
+|<Home>        |Move to first revision
+|<End>         |Move to last revision
+|i             |Move up one revision in main view (global scope)
+|n, k          |Move down one revision in main view (global scope)
+|<Shift-Up>    |Move to previous highlighted line
+|<Shift-Down>  |Move to next highlighted line
+|<Left>        |Go back in history list
+|<Right>       |Go forward in history list
+|<CTRL-plus>   |Increase font size
+|<CTRL-minus>  |Decrease font size
+|<Delete>, b   |Scroll content up one page
+|<Backspace>   |Scroll content up one page
+|<Space>       |Scroll content down one page
+|u             |Scroll content up 18 lines
+|d             |Scroll content down 18 lines
+|=============================================================================
 
 *Directory tree*::
 From menu or toolbar button it is possible to show a side panel with
