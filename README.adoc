@@ -278,7 +278,7 @@ toggle the display of removed code lines. This can be useful to easy
 reading of the patch.
 
 External diff tool
---------------------
+------------------
 
 From 'View->External diff' it is possible to invoke an external diff tool,
 as example to view the diffs in a two vertical tiled windows.
@@ -361,7 +361,7 @@ site for the list of supported languages and additional documentation.
 
 
 Actions
-------
+-------
 Actions can be added/removed using a dedicated dialog invoked
 from 'Actions->Setup actions...' menu. Actions can be activated
 clicking on their name from the Actions menu.
