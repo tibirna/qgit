@@ -85,10 +85,13 @@ Command line arguments
 Run qgit from a git working directory, command line arguments
 are filtered by 'git log'. Some examples:
 
-	qgit --no-merges
-	qgit v2.6.18.. include/scsi drivers/scsi
-	qgit --since="2 weeks ago" -- kernel/
-	qgit -r --name-status release..test
+[source,shell]
+------------------------------------------------------------------------------
+qgit --no-merges
+qgit v2.6.18.. include/scsi drivers/scsi
+qgit --since="2 weeks ago" -- kernel/
+qgit -r --name-status release..test
+------------------------------------------------------------------------------
 
 If qgit is launched without arguments or if you change archive with
 'open' menu, a dialog for range select is shown.
@@ -375,13 +378,19 @@ to allow for maximum flexibility.
 NOTE: command line arguments are always appended to the first command only.
 This lets you define an action like:
 
-  git fetch
-  git merge
+[source,shell]
+------------------------------------------------------------------------------
+git fetch
+git merge
+------------------------------------------------------------------------------
 
 And if you type 'origin' when prompted, the action executed will be:
 
-  git fetch origin
-  git merge
+[source,shell]
+------------------------------------------------------------------------------
+git fetch origin
+git merge
+------------------------------------------------------------------------------
 
 If you need a more complex arguments passing with a shell like notation
 define a script and associate your action to it.
