@@ -102,7 +102,7 @@ Product {
         name: "others"
         files: [
             "../exception_manager.txt",
-            "../README",
+            "../README.adoc",
             "../README_WIN.txt",
             "../qgit_inno_setup.iss",
             "helpgen.sh",

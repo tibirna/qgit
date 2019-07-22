@@ -7,6 +7,7 @@ and changed files, graphically following different development branches.
 Bugs or feature requests should be sent to the git@vger.kernel.org
 mailing list.
 
+
 Main features
 -------------
 
@@ -82,13 +83,17 @@ define in 'src/dataloader.h' before to compile.
 
 Command line arguments
 ----------------------
+
 Run qgit from a git working directory, command line arguments
 are filtered by 'git log'. Some examples:
 
-	qgit --no-merges
-	qgit v2.6.18.. include/scsi drivers/scsi
-	qgit --since="2 weeks ago" -- kernel/
-	qgit -r --name-status release..test
+[source,shell]
+------------------------------------------------------------------------------
+qgit --no-merges
+qgit v2.6.18.. include/scsi drivers/scsi
+qgit --since="2 weeks ago" -- kernel/
+qgit -r --name-status release..test
+------------------------------------------------------------------------------
 
 If qgit is launched without arguments or if you change archive with
 'open' menu, a dialog for range select is shown.
@@ -99,6 +104,7 @@ data loading to chosen revisions.
 
 Main view
 ---------
+
 You can navigate through logs, file names, file history, archive tree.
 All the views will be updated accordingly.
 
@@ -115,30 +121,30 @@ available commands and a 'quick jump' tag list.
 
 *Key bindings*::
 
-`-------------`----------------------------------
-r             Go to revisions list page
-p             Go to patch page
-f             Go to file page
-<Alt+wheel>   Go to next/previous page
-t             Toggle tree view
-s             Toggle view of secondary panes
-h             Toggle view of revision header
-<Home>        Move to first revision
-<End>         Move to last revision
-i             Move up one revision in main view (global scope)
-n, k          Move down one revision in main view (global scope)
-<Shift-Up>    Move to previous highlighted line
-<Shift-Down>  Move to next highlighted line
-<Left>	      Go back in history list
-<Right>	      Go forward in history list
-<CTRL-plus>   Increase font size
-<CTRL-minus>  Decrease font size
-<Delete>, b   Scroll content up one page
-<Backspace>   Scroll content up one page
-<Space>       Scroll content down one page
-u             Scroll content up 18 lines
-d             Scroll content down 18 lines
--------------------------------------------------
+|=============================================================================
+|r             |Go to revisions list page
+|p             |Go to patch page
+|f             |Go to file page
+|<Alt+wheel>   |Go to next/previous page
+|t             |Toggle tree view
+|s             |Toggle view of secondary panes
+|h             |Toggle view of revision header
+|<Home>        |Move to first revision
+|<End>         |Move to last revision
+|i             |Move up one revision in main view (global scope)
+|n, k          |Move down one revision in main view (global scope)
+|<Shift-Up>    |Move to previous highlighted line
+|<Shift-Down>  |Move to next highlighted line
+|<Left>        |Go back in history list
+|<Right>       |Go forward in history list
+|<CTRL-plus>   |Increase font size
+|<CTRL-minus>  |Decrease font size
+|<Delete>, b   |Scroll content up one page
+|<Backspace>   |Scroll content up one page
+|<Space>       |Scroll content down one page
+|u             |Scroll content up 18 lines
+|d             |Scroll content down 18 lines
+|=============================================================================
 
 *Directory tree*::
 From menu or toolbar button it is possible to show a side panel with
@@ -256,6 +262,7 @@ Edit->Settings->Commit to define template file path.
 
 Patch viewer
 ------------
+
 To open patch tab use context menu, double click on a revision or file in
 main view or select View->'View patch' menu (CTRL+P). The patch shown is
 the diff of current selected commit against:
@@ -274,8 +281,9 @@ With the 'filter' button at the right of the tool bar it is possible to
 toggle the display of removed code lines. This can be useful to easy
 reading of the patch.
 
+
 External diff tool
---------------------
+------------------
 
 From 'View->External diff' it is possible to invoke an external diff tool,
 as example to view the diffs in a two vertical tiled windows.
@@ -358,7 +366,8 @@ site for the list of supported languages and additional documentation.
 
 
 Actions
-------
+-------
+
 Actions can be added/removed using a dedicated dialog invoked
 from 'Actions->Setup actions...' menu. Actions can be activated
 clicking on their name from the Actions menu.
@@ -375,13 +384,19 @@ to allow for maximum flexibility.
 NOTE: command line arguments are always appended to the first command only.
 This lets you define an action like:
 
-  git fetch
-  git merge
+[source,shell]
+------------------------------------------------------------------------------
+git fetch
+git merge
+------------------------------------------------------------------------------
 
 And if you type 'origin' when prompted, the action executed will be:
 
-  git fetch origin
-  git merge
+[source,shell]
+------------------------------------------------------------------------------
+git fetch origin
+git merge
+------------------------------------------------------------------------------
 
 If you need a more complex arguments passing with a shell like notation
 define a script and associate your action to it.
@@ -389,6 +404,7 @@ define a script and associate your action to it.
 
 Integration with StGIT
 ----------------------
+
 When a StGIT stack is found on top of a git archive, qgit transparently
 handles the added information.
 
