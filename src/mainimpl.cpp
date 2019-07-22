@@ -2142,7 +2142,7 @@ void MainImpl::ActAbout_activated() {
 	static const char* aboutMsg =
 	"<p><b>QGit version " PACKAGE_VERSION "</b></p>"
 	"<p>Copyright (c) 2005, 2007, 2008 Marco Costalba<br>"
-	"Copyright (c) 2011-2018 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
+	"Copyright (c) 2011-2019 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
 	"<p>Use and redistribute under the terms of the<br>"
 	"<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU General Public License Version 2</a></p>"
 	"<p>Contributors:<br>"
@@ -2176,6 +2176,7 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2016-2018 <a href='mailto:rhaschke@techfak.uni-bielefeld.de'>Robert Haschke</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:filipe.rinaldi@gmail.com'>Filipe Rinaldi</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:balbusm@gmail.com'>Mateusz Balbus</a>,</nobr> "
+	"<nobr>2019 <a href='mailto:sebastian@pipping.org'>Sebastian Pipping</a>,</nobr> "
 
 	"</p>"
 
