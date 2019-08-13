@@ -1496,6 +1496,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>pushButtonExtEditor</sender>
+   <signal>clicked()</signal>
+   <receiver>settingsBase</receiver>
+   <slot>pushButtonExtEditor_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>250</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>188</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>pushButtonFont</sender>
    <signal>clicked()</signal>
    <receiver>settingsBase</receiver>
