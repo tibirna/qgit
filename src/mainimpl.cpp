@@ -185,6 +185,21 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 		startUpDir = (cd.isEmpty() ? QDir::current().absolutePath() : cd);
 	}
 
+	// handle --view-file=* or --view-file * argument
+	QStringList arglist = qApp->arguments();
+	// Remove first argument which is the path of the current executable
+	arglist.removeFirst();
+	bool retainNext = false;
+	foreach (QString arg, arglist) {
+		if (retainNext) {
+			retainNext = false;
+			startUpFile = arg;
+		} else if (arg == "--view-file")
+			retainNext = true;
+		else if (arg.startsWith("--view-file="))
+			startUpFile = arg.mid(12);
+	}
+
 	// MainImpl c'tor is called before to enter event loop,
 	// but some stuff requires event loop to init properly
 	QTimer::singleShot(10, this, SLOT(initWithEventLoopActive()));
@@ -195,6 +210,14 @@ void MainImpl::initWithEventLoopActive() {
 	git->checkEnvironment();
 	setRepository(startUpDir);
 	startUpDir = ""; // one shot
+
+	// handle --view-file=* or --view-file * argument
+	if (!startUpFile.isEmpty()) {
+		rv->st.setSha("HEAD");
+		rv->st.setFileName(startUpFile);
+		openFileTab();
+		startUpFile = QString(); // one shot
+	}
 }
 
 void MainImpl::saveCurrentGeometry() {

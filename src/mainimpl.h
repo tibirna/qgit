@@ -183,6 +183,7 @@ private:
 	// we are sure is correct.
 	QString curDir;
 	QString startUpDir;
+	QString startUpFile;
 	QString textToFind;
 	QRegExp shortLogRE;
 	QRegExp longLogRE;
