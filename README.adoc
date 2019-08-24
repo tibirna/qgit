@@ -101,6 +101,10 @@ You can select top and bottom rev tags from the list or paste a
 specific revision. Values are passed to 'git log' to narrow
 data loading to chosen revisions.
 
+As a special command-line argument, '--view-file foo' or '--view-file=foo' is
+not passed to 'git log', but opens the file 'foo' in the QGit file viewer,
+showing the history and the annotated ('blame') view for the file.
+
 
 Main view
 ---------

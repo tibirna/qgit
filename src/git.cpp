@@ -1661,7 +1661,19 @@ const QStringList Git::getArgs(bool* quit, bool repoChanged) {
         arglist.removeFirst();
 
         if (startup) {
+                bool ignoreNext = false;
                 foreach (QString arg, arglist) {
+                        // ignore --view-file=* and --view-file * QGit arguments
+                        if (ignoreNext) {
+                                ignoreNext = false;
+                                continue;
+                        } else if (arg.startsWith("--view-file="))
+                                continue;
+                        else if (arg == "--view-file") {
+                                ignoreNext = true;
+                                continue;
+                        }
+
                         // in arguments with spaces double quotes
                         // are stripped by Qt, so re-add them
                         if (arg.contains(' '))
