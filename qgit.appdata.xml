@@ -17,8 +17,8 @@
   <screenshots>
     <screenshot type="default"/>
   </screenshots>
-  <url type="homepage">http://libre.tibirna.org/projects/qgit</url>
-  <url type="bugtracker">http://libre.tibirna.org/projects/qgit/issues</url>
+  <url type="homepage">https://github.com/tibirna/qgit</url>
+  <url type="bugtracker">https://github.com/tibirna/qgit/issues</url>
   <provides>
     <binary>qgit</binary>
   </provides>
