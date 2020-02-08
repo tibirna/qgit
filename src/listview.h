@@ -25,7 +25,7 @@ public:
 	ListView(QWidget* parent);
 	~ListView();
 	void setup(Domain* d, Git* g);
-	const QString shaFromAnnId(uint id);
+	const QString shaFromAnnId(int id);
 	void showIdValues();
 	void scrollToCurrent(ScrollHint hint = EnsureVisible);
 	void scrollToNextHighlighted(int direction);
