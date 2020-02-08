@@ -210,7 +210,7 @@ void ListView::getSelectedItems(QStringList& selectedItems) {
 	selectedItems = git->sortShaListByIndex(selectedItems);
 }
 
-const QString ListView::shaFromAnnId(uint id) {
+const QString ListView::shaFromAnnId(int id) {
 
 	if (git->isMainHistory(fh))
 		return "";
