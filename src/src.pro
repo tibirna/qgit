@@ -51,6 +51,11 @@ macx {
     target.path = ~/bin
     #CONFIG += x86 ppc
     RC_FILE = resources/qgit.icns
+    # Import the CocoaInitializer class
+    QT += macextras  # widgets-private gui-private core-private
+    LIBS += -framework Cocoa
+    OBJECTIVE_SOURCES += \
+        cocoainitializer.mm
 }
 
 HAVE_GCC {

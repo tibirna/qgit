@@ -20,3 +20,5 @@ qgit.pro.*
 qgit.qbs.*
 src/release
 .qmake.stash
+.DS_Store
+src/qmake*
