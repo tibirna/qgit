@@ -1,0 +1,44 @@
+[editor]
+line_wrapping=false
+auto_continue_multiline=false
+line_break_column=80
+
+[file_prefs]
+final_new_line=false
+ensure_convert_new_lines=false
+strip_trailing_spaces=true
+replace_tabs=false
+
+[indentation]
+indent_width=2
+indent_type=1
+indent_hard_tab_width=4
+detect_indent=true
+detect_indent_width=true
+indent_mode=3
+
+[project]
+name=dropbear
+base_path=src/
+description=QT Git Browser
+file_patterns=*.c;*.cpp;*.h;*.hpp;
+
+[long line marker]
+long_line_behaviour=1
+long_line_column=80
+
+[prjorg]
+source_patterns=*.c;*.C;*.cpp;*.cxx;*.c++;*.cc;*.m;
+header_patterns=*.h;*.H;*.hpp;*.hxx;*.h++;*.hh;
+ignored_dirs_patterns=.*;CVS;
+ignored_file_patterns=*.o;*.obj;*.a;*.lib;*.so;*.dll;*.lo;*.la;*.class;*.jar;*.pyc;*.mo;*.gmo;
+generate_tag_prefs=1
+external_dirs=
+
+[build-menu]
+NF_00_LB=_Make
+NF_00_CM=make
+NF_00_WD=
+NF_01_LB=Make Custom _Target...
+NF_01_CM=make 
+NF_01_WD=
