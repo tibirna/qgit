@@ -164,8 +164,12 @@ void MyProcess::on_finished(int exitCode, QProcess::ExitStatus exitStatus) {
 	accError += err;
 
 	isErrorExit =   (exitStatus != QProcess::NormalExit)
-	             || (exitCode != 0 && isWinShell)
-//	             || !accError.isEmpty()
+#ifdef Q_OS_WIN32
+	             || (exitCode && isWinShell)
+	             || !accError.isEmpty()
+#else
+	             || (exitCode && !accError.isEmpty())
+#endif
 	             ||  canceling;
 
 	if (!canceling) { // no more noise after cancel
