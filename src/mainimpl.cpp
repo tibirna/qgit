@@ -993,7 +993,7 @@ bool MainImpl::event(QEvent* e) {
 		EM_PROCESS_EVENTS;
 		MainExecErrorEvent* me = (MainExecErrorEvent*)e;
 		QString text("An error occurred while executing command:\n\n");
-		text.append(me->command() + "\n\nGit says: \n\n" + me->report());
+		text.append(me->command() + "\n\n" + me->report());
 		QMessageBox::warning(this, "Error - QGit", text);
 		QApplication::restoreOverrideCursor(); }
 		break;
