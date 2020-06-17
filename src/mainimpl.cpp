@@ -2200,7 +2200,8 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2018 <a href='mailto:balbusm@gmail.com'>Mateusz Balbus</a>,</nobr> "
 	"<nobr>2019 <a href='mailto:sebastian@pipping.org'>Sebastian Pipping</a>,</nobr> "
 	"<nobr>2019 <a href='mailto:mvf@gmx.eu'>Matthias von Faber</a>,</nobr> "
-	"<nobr>2019 <a href='mailto:Kevin@tigcc.ticalc.org'>Kevin Kofler</a></nobr> "
+	"<nobr>2019 <a href='mailto:Kevin@tigcc.ticalc.org'>Kevin Kofler</a>,</nobr> "
+	"<nobr>2020 <a href='mailto:initial.dann@gmail.com'>Daniel Kettle</a></nobr> "
 
 	"</p>"
 
