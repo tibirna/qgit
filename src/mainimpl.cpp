@@ -1716,7 +1716,7 @@ void MainImpl::doUpdateCustomActionMenu(const QStringList& list) {
 
 	Actions->addSeparator();
 	FOREACH_SL (it, list)
-		Actions->addAction(*it);
+		Actions->addAction(*it)->setMenuRole(QAction::NoRole);
 }
 
 void MainImpl::customAction_triggered(QAction* act) {

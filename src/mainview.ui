@@ -285,6 +285,9 @@
    <property name="iconText">
     <string>Settings</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
   </action>
   <action name="ActCommit">
    <property name="enabled">
@@ -712,6 +715,9 @@
    </property>
    <property name="iconText">
     <string>Setup actions...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="ActViewFileNewTab">
