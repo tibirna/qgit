@@ -46,6 +46,8 @@ RevsView::RevsView(MainImpl* mi, Git* g, bool isMain) : Domain(mi, g, isMain) {
 	connect(m(), SIGNAL(flagChanged(uint)),
 	        sb, SLOT(flagChanged(uint)));
 
+	connect(m(), SIGNAL(flagChanged(uint)), SLOT(on_flagChanged(uint)));
+
 	connect(git, SIGNAL(newRevsAdded(const FileHistory*, const QVector<ShaString>&)),
 	        this, SLOT(on_newRevsAdded(const FileHistory*, const QVector<ShaString>&)));
 
@@ -231,6 +233,17 @@ void RevsView::on_updateRevDesc() {
 
 	SCRef d = m()->getRevisionDesc(st.sha());
 	tab()->textBrowserDesc->setHtml(d);
+}
+
+void RevsView::on_flagChanged(uint flag) {
+
+	if (flag == QGit::ENABLE_DRAGNDROP_F) {
+		if (QGit::testFlag(QGit::ENABLE_DRAGNDROP_F)) {
+			tab()->listViewLog->setSelectionMode(QAbstractItemView::ExtendedSelection);
+		} else {
+			tab()->listViewLog->setSelectionMode(QAbstractItemView::SingleSelection);
+		}
+	}
 }
 
 bool RevsView::doUpdate(bool force) {
