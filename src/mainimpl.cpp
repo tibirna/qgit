@@ -204,6 +204,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 void MainImpl::initWithEventLoopActive() {
 
+	emit flagChanged(QGit::ENABLE_DRAGNDROP_F);
 	git->checkEnvironment();
 	setRepository(startUpDir);
 	startUpDir = ""; // one shot

@@ -36,6 +36,7 @@ private slots:
 	void on_loadCompleted(const FileHistory*, const QString& stats);
 	void on_lanesContextMenuRequested(const QStringList&, const QStringList&);
 	void on_updateRevDesc();
+	void on_flagChanged(uint flag);
 
 protected:
 	virtual bool doUpdate(bool force);

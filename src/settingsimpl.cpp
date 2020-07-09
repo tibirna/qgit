@@ -55,6 +55,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxLogDiffTab->setChecked(f & LOG_DIFF_TAB_F);
 	checkBoxSmartLabels->setChecked(f & SMART_LBL_F);
 	checkBoxMsgOnNewSHA->setChecked(f & MSG_ON_NEW_F);
+	checkBoxEnableDragnDrop->setChecked(f & ENABLE_DRAGNDROP_F);
 
 	QSettings set;
 	SCRef APOpt(set.value(AM_P_OPT_KEY).toString());
@@ -312,6 +313,11 @@ void SettingsImpl::checkBoxSmartLabels_toggled(bool b) {
 void SettingsImpl::checkBoxMsgOnNewSHA_toggled(bool b) {
 
 	changeFlag(MSG_ON_NEW_F, b);
+}
+
+void SettingsImpl::checkBoxEnableDragnDrop_toggled(bool b) {
+
+	changeFlag(ENABLE_DRAGNDROP_F, b);
 }
 
 void SettingsImpl::checkBoxCommitSign_toggled(bool b) {

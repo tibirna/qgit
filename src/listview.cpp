@@ -413,7 +413,7 @@ void ListView::startDragging(QMouseEvent* /*e*/) {
 
 void ListView::mouseMoveEvent(QMouseEvent* e) {
 
-	if (e->buttons() == Qt::LeftButton) {
+	if (e->buttons() == Qt::LeftButton && QGit::testFlag(QGit::ENABLE_DRAGNDROP_F)) {
 		startDragging(e);
 		return;
 	}

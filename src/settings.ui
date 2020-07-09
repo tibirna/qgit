@@ -500,6 +500,16 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxEnableDragnDrop">
+                <property name="toolTip">
+                 <string>Check to enable Git operations, etc. via drag &amp; drop</string>
+                </property>
+                <property name="text">
+                 <string>Enable drag &amp;&amp; drop</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -1652,6 +1662,22 @@
     <hint type="destinationlabel">
      <x>256</x>
      <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEnableDragnDrop</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxEnableDragnDrop_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>93</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
