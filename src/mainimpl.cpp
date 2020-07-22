@@ -2109,7 +2109,7 @@ void MainImpl::ActFindNext_activated() {
 			             textToFind + "\" not found!", QMessageBox::Ok, 0);
 			return;
 		}
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setWindowTitle("Find text - QGit");
         msgBox.setIcon(QMessageBox::Question);
         msgBox.setText(tr("End of document reached."));
