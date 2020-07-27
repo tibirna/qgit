@@ -193,6 +193,8 @@ namespace QGit {
 	extern const QString CMT_GEOM_KEY;
 	extern const QString MAIN_GEOM_KEY;
 	extern const QString REV_GEOM_KEY;
+	extern const QString REV_COLS_KEY;
+	extern const QString FILE_COLS_KEY;
 	extern const QString CMT_TEMPL_KEY;
 	extern const QString CMT_ARGS_KEY;
 	extern const QString RANGE_FROM_KEY;
