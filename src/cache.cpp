@@ -145,11 +145,17 @@ bool Cache::load(const QString& gitDir, RevFileMap& rfm,
 	stream >> revsFilesShaBuf;
 
 	const char* data = revsFilesShaBuf.constData();
+	const char* endptr = &*revsFilesShaBuf.constEnd();
 
 	while (!stream.atEnd()) {
 
 		RevFile* rf = new RevFile();
 		*rf << stream;
+
+		if (data > endptr - 41) {
+			dbs("ASSERT in Cache::load, corrupted SHA");
+			return false;
+		}
 
 		ShaString sha(data);
 		rfm.insert(sha, rf);

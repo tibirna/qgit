@@ -2281,7 +2281,6 @@ bool Git::init(SCRef wd, bool askForRange, const QStringList* passedArgs, bool o
                         bool dummy;
                         getBaseDir(wd, workDir, dummy);
                         localDates.clear();
-                        clearFileNames();
                         fileCacheAccessed = false;
 
                         SHOW_MSG(msg1 + "file names cache...");
@@ -2524,12 +2523,17 @@ void Git::loadFileCache() {
         if (!fileCacheAccessed) {
 
                 fileCacheAccessed = true;
+                clearFileNames();
                 QByteArray shaBuf;
                 if (Cache::load(gitDir, revsFiles, dirNamesVec, fileNamesVec, shaBuf)) {
                         revsFilesShaBackupBuf.append(shaBuf);
                         populateFileNamesMap();
-                } else
+                } else {
+                        // The cache isn't valid. Clear it before we corrupt it
+                        // by freeing `shaBuf`.
+                        clearFileNames();
                         dbs("ERROR: unable to load file names cache");
+                }
         }
 }
 
