@@ -15,6 +15,7 @@
 #include <QShortcut>
 #include <QDrag>
 #include <QUrl>
+#include <QSettings>
 #include "FileHistory.h"
 #include "domain.h"
 #include "mainimpl.h"
@@ -65,6 +66,10 @@ void ListView::setup(Domain* dm, Git* g) {
 ListView::~ListView() {
 
 	git->cancelDataLoading(fh); // non blocking
+
+	const QString settingsKey = git->isMainHistory(fh) ? QGit::REV_COLS_KEY : QGit::FILE_COLS_KEY;
+	QSettings settings;
+	settings.setValue(settingsKey, header()->saveState());
 }
 
 const QString ListView::sha(int row) const {
@@ -111,6 +116,11 @@ void ListView::setupGeometry() {
 
 	if (git->isMainHistory(fh))
 		hideColumn(ANN_ID_COL);
+
+	const QString settingsKey = git->isMainHistory(fh) ? QGit::REV_COLS_KEY : QGit::FILE_COLS_KEY;
+	QSettings settings;
+	QVariant v = settings.value(settingsKey);
+	if (v.isValid()) hv->restoreState(v.toByteArray());
 }
 
 void ListView::scrollToNextHighlighted(int direction) {
