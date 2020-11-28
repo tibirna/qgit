@@ -438,7 +438,6 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 			dbs("ASSERT in setRepository: different dir with no range select");
 
 		// now we can clear all our data
-		setWindowTitle(curDir + " - QGit");
 		bool complete = !refresh || !keepSelection;
 		rv->clear(complete);
 		if (archiveChanged)
@@ -449,19 +448,25 @@ void MainImpl::setRepository(SCRef newDir, bool refresh, bool keepSelection,
 		updateContextActions("", "", false, false);
 		ActCommit_setEnabled(false);
 
-		if (ActFilterTree->isChecked())
-			setWindowTitle(windowTitle() + " - FILTER ON < " +
-			               passedArgs->join(" ") + " >");
-
 		// tree name should be set before init because in case of
 		// StGIT archives the first revs are sent before init returns
 		QString n(curDir);
 		treeView->setTreeName(n.prepend('/').section('/', -1, -1));
 
+		QString curBranch;
+
 		bool quit;
 		bool ok = git->init(curDir, !refresh, passedArgs, overwriteArgs, &quit); // blocking call
 		if (quit)
 			goto exit;
+
+		curBranch = git->getCurrentBranchName();
+		if (curBranch.length()) curBranch = " [" + curBranch + "]";
+		setWindowTitle(curDir + curBranch + " - QGit");
+
+		if (ActFilterTree->isChecked())
+			setWindowTitle(windowTitle() + " - FILTER ON < " +
+					passedArgs->join(" ") + " >");
 
 		updateCommitMenu(ok && git->isStGITStack());
 		ActCheckWorkDir->setChecked(testFlag(DIFF_INDEX_F)); // could be changed in Git::init()
