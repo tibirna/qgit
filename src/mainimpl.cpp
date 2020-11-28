@@ -2201,9 +2201,10 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2018 <a href='mailto:balbusm@gmail.com'>Mateusz Balbus</a>,</nobr> "
 	"<nobr>2019 <a href='mailto:sebastian@pipping.org'>Sebastian Pipping</a>,</nobr> "
 	"<nobr>2019-2020 <a href='mailto:mvf@gmx.eu'>Matthias von Faber</a>,</nobr> "
-	"<nobr>2019 <a href='mailto:Kevin@tigcc.ticalc.org'>Kevin Kofler</a></nobr> "
-	"<nobr>2020 <a href='mailto:cortexspam-github@yahoo.fr'>Matthieu Muffato</a></nobr> "
-	"<nobr>2020 <a href='mailto:brent@mbari.org'>Brent Roman</a></nobr> "
+    "<nobr>2019 <a href='mailto:Kevin@tigcc.ticalc.org'>Kevin Kofler</a>,</nobr> "
+    "<nobr>2020 <a href='mailto:cortexspam-github@yahoo.fr'>Matthieu Muffato</a>,</nobr> "
+    "<nobr>2020 <a href='mailto:brent@mbari.org'>Brent Roman</a>,</nobr> "
+    "<nobr>2020 <a href='mailto:yyc1992@gmail.com'>Yichao Yu</a>,</nobr> "
 
 	"</p>"
 
