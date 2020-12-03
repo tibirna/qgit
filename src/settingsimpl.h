@@ -26,7 +26,6 @@ protected slots:
 	void checkBoxSign_toggled(bool b);
 	void checkBoxRangeSelectDialog_toggled(bool b);
 	void checkBoxReopenLastRepo_toggled(bool b);
-	void checkBoxOpenInEditor_toggled(bool b);
 	void checkBoxRelativeDate_toggled(bool b);
 	void checkBoxLogDiffTab_toggled(bool b);
 	void checkBoxSmartLabels_toggled(bool b);
@@ -44,6 +43,7 @@ protected slots:
 	void lineEditExcludePerDir_textChanged(const QString& s);
 	void lineEditTemplate_textChanged(const QString& s);
 	void lineEditCommitExtraOptions_textChanged(const QString& s);
+	void comboBoxDoubleClickAction_activated(int i);
 	void comboBoxCodecs_activated(int i);
 	void comboBoxUserSrc_activated(int i);
 	void comboBoxGitConfigSource_activated(int i);
