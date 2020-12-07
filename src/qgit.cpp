@@ -18,10 +18,8 @@ using namespace QGit;
 int main(int argc, char* argv[]) {
 
 	QApplication app(argc, argv);
-#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-    app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-#endif
-    QCoreApplication::setOrganizationName(ORG_KEY);
+	app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+	QCoreApplication::setOrganizationName(ORG_KEY);
 	QCoreApplication::setApplicationName(APP_KEY);
 
 	/* On Windows msysgit exec directory is set up
