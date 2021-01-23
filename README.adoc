@@ -45,7 +45,7 @@ To compile, install and start qgit:
 
  - generate Makefiles (only the first time)
    Unix/Linux and Windows:  qmake qgit.pro
-   Mac Os X:                qmake -spec macx-g++ qgit.pro
+   Mac Os X:                qmake -spec macx-clang qgit.pro
 
  - (Windows only with VC2008 IDE) open qgit.sln solution file
 
