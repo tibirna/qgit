@@ -56,6 +56,7 @@ public:
 	typedef QList<TreeEntry> TreeInfo;
 
 	void setDefaultModel(FileHistory* fh) { revData = fh; }
+	static int gitVersionCompare(QString lhs, QString rhs);
 	void checkEnvironment();
 	void userInfo(SList info);
 	const QStringList getGitConfigList(bool global);
@@ -267,6 +268,7 @@ private:
 	QString curBranchName;
 	int filesLoadingStartOfs;
 	bool cacheNeedsUpdate;
+	QString gitVersion;
 	bool errorReportingEnabled;
 	bool isMergeHead;
 	bool isStGIT;
