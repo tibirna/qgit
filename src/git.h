@@ -115,6 +115,7 @@ public:
 	const QStringList getAllRefNames(uint mask, bool onlyLoaded);
 	const QStringList getAllRefSha(uint mask);
 	const QStringList sortShaListByIndex(SCList shaList);
+	const QString refAsShortHash(SCRef sha);
 	void getWorkDirFiles(SList files, SList dirs, RevFile::StatusFlag status);
 	QTextCodec* getTextCodec(bool* isGitArchive);
 	bool formatPatch(SCList shaList, SCRef dirPath, SCRef remoteDir = "");

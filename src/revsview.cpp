@@ -322,14 +322,17 @@ void RevsView::updateLineEditSHA(bool clear) {
 		l->setText(""); // clears history
 
 	else if (l->text() != st.sha()) {
+		auto hash = QGit::testFlag(QGit::ENABLE_SHORTREF_F)
+			? git->refAsShortHash(st.sha())
+			: st.sha();
 
 		if (l->text().isEmpty())
-			l->setText(st.sha()); // first rev clears history
+			l->setText(hash); // first rev clears history
 		else {
 			// setText() clears undo/redo history so
 			// we use clear() + insert() instead
 			l->clear();
-			l->insert(st.sha());
+			l->insert(hash);
 		}
 	}
 	m()->ActBack->setEnabled(l->isUndoAvailable());
