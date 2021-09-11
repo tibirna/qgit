@@ -1930,12 +1930,8 @@ Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef
         if (!patch.isEmpty())
                 data.append('\n' + patch);
 
-#if QT_VERSION >= 0x050000
         QTextCodec* tc = QTextCodec::codecForLocale();
         QByteArray* ba = new QByteArray(tc->fromUnicode(data));
-#else
-        QByteArray* ba = new QByteArray(data.toLatin1());
-#endif
         ba->append('\0');
 
         fh->rowData.append(ba);
