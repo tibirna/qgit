@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
 	if (parser.isSet("help")
 			|| parser.isSet("help-all")
 			|| parser.isSet("version")) {
+		QCoreApplication::setApplicationName("QGit");
 		parser.process(app.arguments());  // exits the process
 	}
 
