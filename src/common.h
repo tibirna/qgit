@@ -19,7 +19,7 @@
 /*
    QVariant does not support size_t type used in Qt containers, this is
    a problem on 64bit systems where size_t != uint and when using debug
-   macros on size_t variables, as example dbg(vector.count()), a compile
+   macros on size_t variables, as example dbs(vector.count()), a compile
    error occurs.
    Workaround this using a function template and a specialization.
    Function _valueOf() is used by debug macros
@@ -31,15 +31,8 @@ inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 
 // some debug macros
 #define constlatin(x) (_valueOf(x).toLatin1().constData())
-#define dbg(x)    qDebug(#x " is <%s>", constlatin(x))
 #define dbs(x)    qDebug(constlatin(x), "")
 #define dbp(s, x) qDebug(constlatin(_valueOf(s).arg(x)), "")
-#define db1       qDebug("Mark Nr. 1")
-#define db2       qDebug("Mark Nr. 2")
-#define db3       qDebug("Mark Nr. 3")
-#define db4       qDebug("Mark Nr. 4")
-#define dbStart   dbs("Starting timer..."); QTime _t; _t.start()
-#define dbRestart dbp("Elapsed time is %1 ms", _t.restart())
 
 // some syntactic sugar
 #define FOREACH(type, i, c) for (type::const_iterator i((c).constBegin()),    \
