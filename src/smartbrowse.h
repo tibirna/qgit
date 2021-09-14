@@ -7,8 +7,8 @@
 #ifndef SMARTBROWSE_H
 #define SMARTBROWSE_H
 
+#include <QElapsedTimer>
 #include <QLabel>
-#include <QTime>
 #include "revsview.h"
 
 class SmartLabel : public QLabel {
@@ -49,7 +49,7 @@ private:
 	SmartLabel* logBottomLbl;
 	SmartLabel* diffTopLbl;
 	SmartLabel* diffBottomLbl;
-	QTime scrollTimer, switchTimer, timeoutTimer;
+	QElapsedTimer scrollTimer, switchTimer, timeoutTimer;
 	int wheelCnt;
 	bool lablesEnabled;
 };

@@ -7,7 +7,7 @@
 
 */
 #include <QApplication>
-#include <QTime>
+#include <QElapsedTimer>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "domain.h"
@@ -49,7 +49,7 @@ bool MyProcess::runSync(SCRef rc, QByteArray* ro, QObject* rcv, SCRef buf) {
 	if (!launchMe(runCmd, buf))
 		return false;
 
-	QTime t;
+	QElapsedTimer t;
 	t.start();
 
 	busy = true; // we have to wait here until we exit
