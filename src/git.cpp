@@ -817,7 +817,7 @@ bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 			ti.append(te);
 		}
 	}
-	qSort(ti); // list directories before files
+	std::sort(ti.begin(), ti.end()); // list directories before files
 	return true;
 }
 
@@ -2968,7 +2968,7 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
         const QVector<int>& src2 = revLookup(revData->revOrder[r_descBrnMaster])->descBranches;
         QVector<int> dst(src1);
         for (int i = 0; i < src2.count(); i++)
-                if (qFind(src1.constBegin(), src1.constEnd(), src2[i]) == src1.constEnd())
+                if (std::find(src1.constBegin(), src1.constEnd(), src2[i]) == src1.constEnd())
                         dst.append(src2[i]);
 
         p->descBranches = dst;
