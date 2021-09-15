@@ -352,7 +352,7 @@ QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &re
 		QStyleOptionViewItem o(opt);
 		QString dummy;
 		getTagMarkParams(dummy, o, refTypeFromName(ref), false);
-		painter.fillRect(0, 0, fm.width(ref)+2*spacing, height, o.palette.window());
+		painter.fillRect(0, 0, fm.horizontalAdvance(ref)+2*spacing, height, o.palette.window());
 		painter.drawText(spacing, fm.ascent()+1, ref);
 		row = 1;
 	}
