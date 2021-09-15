@@ -701,7 +701,7 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 		if (e->modifiers() == Qt::AltModifier) {
 
 			int idx = tabWdg->currentIndex();
-			if (e->delta() < 0)
+			if (e->angleDelta().y() < 0)
 				idx = (++idx == tabWdg->count() ? 0 : idx);
 			else
 				idx = (--idx < 0 ? tabWdg->count() - 1 : idx);
