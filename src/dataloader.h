@@ -7,8 +7,8 @@
 #ifndef DATALOADER_H
 #define DATALOADER_H
 
+#include <QElapsedTimer>
 #include <QProcess>
-#include <QTime>
 #include <QTimer>
 
 class Git;
@@ -48,7 +48,7 @@ private:
 	FileHistory* fh;
 	QByteArray* halfChunk;
 	UnbufferedTemporaryFile* dataFile;
-	QTime loadTime;
+	QElapsedTimer loadTime;
 	QTimer guiUpdateTimer;
 	ulong loadedBytes;
 	bool isProcExited;
