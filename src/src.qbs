@@ -8,14 +8,7 @@ Product {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core"] }
-    Depends {
-        name: "Qt.gui";
-        condition: Qt.core.versionMajor < 5
-    }
-    Depends {
-        name: "Qt.widgets";
-        condition: Qt.core.versionMajor >= 5
-    }
+    Depends { name: "Qt.widgets"; }
 
     Probe {
         configure: {
