@@ -31,7 +31,7 @@ Main features
 Installation
 ------------
 
-You need Qt developer libraries, version 5.0 or later, already installed.
+You need Qt developer libraries, version 5.11.0 or later, already installed.
 Be sure compiler, qmake (Qt5 version) and Qt5 bin tools are in path.
 
 NOTE: Correct qmake for Qt5 (/usr/lib/qt5/bin/qmake) must be called, in

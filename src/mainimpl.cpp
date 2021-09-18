@@ -67,7 +67,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 	// create light and dark colors for alternate background
 	ODD_LINE_COL = palette().color(QPalette::Base);
-	EVEN_LINE_COL = ODD_LINE_COL.dark(103);
+	EVEN_LINE_COL = ODD_LINE_COL.darker(103);
 
 	// our interface to git world
 	git = new Git(this);
@@ -701,7 +701,7 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 		if (e->modifiers() == Qt::AltModifier) {
 
 			int idx = tabWdg->currentIndex();
-			if (e->delta() < 0)
+			if (e->angleDelta().y() < 0)
 				idx = (++idx == tabWdg->count() ? 0 : idx);
 			else
 				idx = (--idx < 0 ? tabWdg->count() - 1 : idx);
