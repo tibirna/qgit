@@ -16,6 +16,13 @@
 #include <QVariant>
 #include <QVector>
 
+// QString::SplitBehavior becomes Qt::SplitBehavior in Qt 5.14
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+# define QGIT_SPLITBEHAVIOR(x) Qt::x
+#else
+# define QGIT_SPLITBEHAVIOR(x) QString::x
+#endif
+
 /*
    QVariant does not support size_t type used in Qt containers, this is
    a problem on 64bit systems where size_t != uint and when using debug

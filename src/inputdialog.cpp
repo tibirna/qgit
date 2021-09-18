@@ -94,7 +94,7 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	int row = 0;
 	while ((start = re.indexIn(cmd, start)) != -1) {
 		const QString type = re.cap(2);
-		const QStringList opts = re.cap(4).split(',', Qt::SkipEmptyParts);
+		const QStringList opts = re.cap(4).split(',', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 		const QString name = re.cap(5);
 		const QString value = re.cap(6).mid(1);
 		if (widgets.count(name)) { // widget already created

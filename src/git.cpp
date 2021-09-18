@@ -142,7 +142,7 @@ const QStringList Git::getGitConfigList(bool global) {
 
     errorReportingEnabled = true;
 
-    return runOutput.split('\n', Qt::SkipEmptyParts);
+    return runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 }
 
 bool Git::isImageFile(SCRef file) {
@@ -805,7 +805,7 @@ bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 	if (!tree.isEmpty() && !run("git ls-tree " + tree, &runOutput))
 		return false;
 
-	const QStringList sl(runOutput.split('\n', Qt::SkipEmptyParts));
+	const QStringList sl(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 	FOREACH_SL (it, sl) {
 
 		// append any not deleted file
@@ -1318,7 +1318,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 	if (!run(runCmd, &runOutput, NULL, buf))
 		return false;
 
-	const QStringList sl(runOutput.split('\n', Qt::SkipEmptyParts));
+	const QStringList sl(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 	FOREACH_SL (it, sl)
 		shaSet.insert(*it);
 
@@ -1803,7 +1803,7 @@ bool Git::getRefs() {
 
         QString prevRefSha;
         QStringList patchNames, patchShas;
-        const QStringList rLst(runOutput.split('\n', Qt::SkipEmptyParts));
+        const QStringList rLst(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
         FOREACH_SL (it, rLst) {
 
                 SCRef revSha = (*it).left(40);
@@ -1884,7 +1884,7 @@ void Git::parseStGitPatches(SCList patchNames, SCList patchShas) {
         if (!run("stg series", &runOutput))
                 return;
 
-        const QStringList pl(runOutput.split('\n', Qt::SkipEmptyParts));
+        const QStringList pl(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
         FOREACH_SL (it, pl) {
 
                 SCRef status = (*it).left(1);
@@ -1924,7 +1924,7 @@ const QStringList Git::getOthersFiles() {
 
         QString runOutput;
         run(runCmd, &runOutput);
-        return runOutput.split('\n', Qt::SkipEmptyParts);
+        return runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 }
 
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
@@ -2083,7 +2083,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 
 void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum, FileNamesLoader& fl) {
 
-        const QStringList sl(rowSt.split('\t', Qt::SkipEmptyParts));
+        const QStringList sl(rowSt.split('\t', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
         if (sl.count() != 3) {
                 dbp("ASSERT in setExtStatus, unexpected status string %1", rowSt);
                 return;

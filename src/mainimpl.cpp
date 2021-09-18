@@ -1309,7 +1309,7 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar sep = '/') {
 
 	FOREACH_SL (it, refs) {
-		const QStringList& parts(it->split(sep, Qt::SkipEmptyParts));
+		const QStringList& parts(it->split(sep, QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 		QMenu* add_here = menu;
 		FOREACH_SL (pit, parts) {
 			if (pit == parts.end() - 1) break;
