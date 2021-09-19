@@ -5,7 +5,7 @@
 # see also http://stackoverflow.com/questions/16245147/unable-to-include-a-ui-form-header-of-qt5-in-cmake
 # see also http://www.qtcentre.org/wiki/index.php?title=Compiling_Qt4_apps_with_CMake
 #
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.10.2)
 
 project(qgit)
 include(GNUInstallDirs)

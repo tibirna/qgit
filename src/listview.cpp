@@ -491,7 +491,7 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 
 	SCRef revsText(e->mimeData()->data("application/x-qgit-revs"));
 	QString header = revsText.section("\n", 0, 0);
-	dropInfo->shas = revsText.section("\n", 1).split('\n', QString::SkipEmptyParts);
+	dropInfo->shas = revsText.section("\n", 1).split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 	// extract refname and sha from first entry again
 	dropInfo->sourceRef = dropInfo->shas.front().section(" ", 1);
 	dropInfo->shas.front() = dropInfo->shas.front().section(" ", 0, 0);

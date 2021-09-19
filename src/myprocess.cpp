@@ -208,7 +208,7 @@ const QStringList MyProcess::splitArgList(SCRef cmd) {
 	if (!(   cmd.contains(QGit::QUOTE_CHAR)
 	      || cmd.contains("\"")
 	      || cmd.contains("\'")))
-		return cmd.split(' ', QString::SkipEmptyParts);
+		return cmd.split(' ', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 
 	// we have some work to do...
 	// first find a possible separator
@@ -238,7 +238,7 @@ const QStringList MyProcess::splitArgList(SCRef cmd) {
 
 	// QProcess::setArguments doesn't want quote
 	// delimited arguments, so remove trailing quotes
-	QStringList sl(newCmd.split(sepChar, QString::SkipEmptyParts));
+	QStringList sl(newCmd.split(sepChar, QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 	QStringList::iterator it(sl.begin());
 	for ( ; it != sl.end(); ++it) {
 		if (((*it).left(1) == "\"" && (*it).right(1) == "\"") ||

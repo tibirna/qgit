@@ -236,7 +236,7 @@ void PatchContent::processData(const QByteArray& fileChunk, int* prevLineNum) {
 	if (prevLineNum && prevFilter == VIEW_ALL)
 		*prevLineNum = -(*prevLineNum); // set once
 
-	const QStringList sl(newLines.split('\n', QString::KeepEmptyParts));
+	const QStringList sl(newLines.split('\n', QGIT_SPLITBEHAVIOR(KeepEmptyParts)));
 	FOREACH_SL (it, sl) {
 
 		// do not remove diff header because of centerTarget
