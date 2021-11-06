@@ -105,6 +105,7 @@ void ListView::setupGeometry() {
 	hv->setSectionResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
 	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
 	hv->resizeSection(LOG_COL, DEF_LOG_COL_WIDTH);
+	hv->resizeSection(HASH_COL, DEF_HASH_COL_WIDTH);
 	hv->resizeSection(AUTH_COL, DEF_AUTH_COL_WIDTH);
 	hv->resizeSection(TIME_COL, DEF_TIME_COL_WIDTH);
 
