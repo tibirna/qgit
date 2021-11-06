@@ -323,7 +323,7 @@ void RevsView::updateLineEditSHA(bool clear) {
 
 	else if (l->text() != st.sha()) {
 		auto hash = QGit::testFlag(QGit::ENABLE_SHORTREF_F)
-			? git->refAsShortHash(st.sha())
+			? st.sha().left(git->shortHashLength())
 			: st.sha();
 
 		if (l->text().isEmpty())

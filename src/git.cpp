@@ -64,6 +64,7 @@ Git::Git(QObject* p) : QObject(p) {
 	isStGIT = isGIT = loadingUnAppliedPatches = isTextHighlighterFound = false;
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
+	shortHashLen = shortHashLenDefault;
 	revData = NULL;
 	revsFiles.reserve(MAX_DICT_SIZE);
 }
@@ -274,12 +275,23 @@ const QStringList Git::getAllRefSha(uint mask) {
 	return shas;
 }
 
+/*
 const QString Git::refAsShortHash(SCRef sha)
 {
 	QString shortHash;
 	const bool success = run("git rev-parse --short " + sha, &shortHash);
 	// Fall back to input hash `sha` if rev-parse fails
 	return success ? shortHash : sha;
+}
+*/
+
+int Git::getShortHashLength()
+{
+	int len = 0;
+	QString shortHash;
+	if (run("git rev-parse --short HEAD", &shortHash))
+		len = shortHash.trimmed().size();   // Result contains a newline.
+	return (len > shortHashLenDefault) ? len : shortHashLenDefault;
 }
 
 const QString Git::getRefSha(SCRef refName, RefType type, bool askGit) {
@@ -2331,6 +2343,7 @@ bool Git::init(SCRef wd, bool askForRange, const QStringList* passedArgs, bool o
                         }
                 }
                 init2();
+                shortHashLen = getShortHashLength();
                 setThrowOnStop(false);
                 return true;
 

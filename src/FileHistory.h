@@ -39,7 +39,7 @@ public:
   virtual QModelIndex parent(const QModelIndex& index) const;
   virtual int rowCount(const QModelIndex& par = QModelIndex()) const;
   virtual bool hasChildren(const QModelIndex& par = QModelIndex()) const;
-  virtual int columnCount(const QModelIndex&) const { return 5; }
+  virtual int columnCount(const QModelIndex&) const { return 6; }
 
 public slots:
   void on_changeFont(const QFont&);
