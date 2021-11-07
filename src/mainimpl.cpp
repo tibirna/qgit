@@ -2155,7 +2155,7 @@ void MainImpl::ActAbout_activated() {
 	static const char* aboutMsg =
 	"<p><b>QGit version " PACKAGE_VERSION "</b></p>"
 	"<p>Copyright (c) 2005, 2007, 2008 Marco Costalba<br>"
-	"Copyright (c) 2011-2020 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
+	"Copyright (c) 2011-2021 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
 	"<p>Use and redistribute under the terms of the<br>"
 	"<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU General Public License Version 2</a></p>"
 	"<p>Contributors:<br>"
@@ -2195,8 +2195,8 @@ void MainImpl::ActAbout_activated() {
     "<nobr>2020 <a href='mailto:cortexspam-github@yahoo.fr'>Matthieu Muffato</a>,</nobr> "
     "<nobr>2020 <a href='mailto:brent@mbari.org'>Brent Roman</a>,</nobr> "
     "<nobr>2020 <a href='mailto:jjm@keelhaul.demon.co.uk'>Jonathan Marten</a>,</nobr> "
-    "<nobr>2020 <a href='mailto:yyc1992@gmail.com'>Yichao Yu</a></nobr> "
-
+    "<nobr>2020 <a href='mailto:yyc1992@gmail.com'>Yichao Yu</a>,</nobr> "
+    "<nobr>2021 <a href='mailto:wickedsmoke@users.sourceforge.net'>Karl Robillard</a></nobr> "
 	"</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
