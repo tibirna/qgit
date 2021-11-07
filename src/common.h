@@ -136,8 +136,9 @@ namespace QGit {
 		GRAPH_COL   = 0,
 		ANN_ID_COL  = 1,
 		LOG_COL     = 2,
-		AUTH_COL    = 3,
-		TIME_COL    = 4,
+		HASH_COL    = 3,
+		AUTH_COL    = 4,
+		TIME_COL    = 5,
 		COMMIT_COL  = 97, // dummy col used for sha searching
 		LOG_MSG_COL = 98, // dummy col used for log messages searching
 		SHA_MAP_COL = 99  // dummy col used when filter output is a set of matching sha
@@ -148,6 +149,7 @@ namespace QGit {
 	// default list view widths
 	const int DEF_GRAPH_COL_WIDTH = 80;
 	const int DEF_LOG_COL_WIDTH   = 500;
+	const int DEF_HASH_COL_WIDTH  = 90;
 	const int DEF_AUTH_COL_WIDTH  = 230;
 	const int DEF_TIME_COL_WIDTH  = 160;
 
@@ -314,6 +316,7 @@ public:
 	const ShaString parent(int idx) const;
 	const QStringList parents() const;
 	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
+	const QString shortHash(int len) const { return midSha(shaStart, len); }
 	const QString committer() const { setup(); return mid(comStart, autStart - comStart - 1); }
 	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
 	const QString authorDate() const { setup(); return mid(autDateStart, 10); }
