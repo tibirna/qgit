@@ -119,15 +119,15 @@ void FileHistory::clear(bool complete) {
 
   if (testFlag(REL_DATE_F)) {
     secs = QDateTime::currentDateTime().toTime_t();
-    headerInfo[4] = "Last Change";
+    headerInfo[5] = "Last Change";
   } else {
     secs = 0;
-    headerInfo[4] = "Author Date";
+    headerInfo[5] = "Author Date";
   }
   rowCnt = revOrder.count();
   annIdValid = false;
   endResetModel();
-  emit headerDataChanged(Qt::Horizontal, 0, 4);
+  emit headerDataChanged(Qt::Horizontal, 0, 5);
 }
 
 void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString>& shaVec) {
