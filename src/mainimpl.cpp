@@ -67,7 +67,7 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 
 	// create light and dark colors for alternate background
 	ODD_LINE_COL = palette().color(QPalette::Base);
-	EVEN_LINE_COL = ODD_LINE_COL.dark(103);
+	EVEN_LINE_COL = ODD_LINE_COL.darker(103);
 
 	// our interface to git world
 	git = new Git(this);
@@ -87,25 +87,14 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	QSettings settings;
 	QString font(settings.value(STD_FNT_KEY).toString());
 	if (font.isEmpty()) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
 		font = QFontDatabase::systemFont(QFontDatabase::GeneralFont).toString();
-#else
-		font = QApplication::font().toString();
-#endif
 	}
 	QGit::STD_FONT.fromString(font);
 
 	// set-up typewriter (fixed width) font
 	font = settings.value(TYPWRT_FNT_KEY).toString();
 	if (font.isEmpty()) { // choose a sensible default
-#if (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
 		QFont fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-#else
-		QFont fnt = QApplication::font();
-		fnt.setStyleHint(QFont::TypeWriter, QFont::PreferDefault);
-		fnt.setFixedPitch(true);
-		fnt.setFamily(fnt.defaultFamily()); // the family corresponding
-#endif
 		font = fnt.toString();              // to current style hint
 	}
 	QGit::TYPE_WRITER_FONT.fromString(font);
@@ -727,7 +716,7 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 		if (e->modifiers() == Qt::AltModifier) {
 
 			int idx = tabWdg->currentIndex();
-			if (e->delta() < 0)
+			if (e->angleDelta().y() < 0)
 				idx = (++idx == tabWdg->count() ? 0 : idx);
 			else
 				idx = (--idx < 0 ? tabWdg->count() - 1 : idx);
@@ -1158,11 +1147,7 @@ void MainImpl::shortCutActivated() {
 	QShortcut* se = dynamic_cast<QShortcut*>(sender());
 
 	if (se) {
-#if QT_VERSION >= 0x050000
 		const QKeySequence& key = se->key();
-#else
-		const int key = se->key();
-#endif
 
 		if (key == Qt::Key_I) {
 			rv->tab()->listViewLog->on_keyUp();
@@ -1339,7 +1324,7 @@ void MainImpl::doUpdateRecentRepoMenu(SCRef newEntry) {
 static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar sep = '/') {
 
 	FOREACH_SL (it, refs) {
-		const QStringList& parts(it->split(sep, QString::SkipEmptyParts));
+		const QStringList& parts(it->split(sep, QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 		QMenu* add_here = menu;
 		FOREACH_SL (pit, parts) {
 			if (pit == parts.end() - 1) break;
@@ -2185,7 +2170,7 @@ void MainImpl::ActAbout_activated() {
 	static const char* aboutMsg =
 	"<p><b>QGit version " PACKAGE_VERSION "</b></p>"
 	"<p>Copyright (c) 2005, 2007, 2008 Marco Costalba<br>"
-	"Copyright (c) 2011-2020 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
+	"Copyright (c) 2011-2021 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
 	"<p>Use and redistribute under the terms of the<br>"
 	"<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU General Public License Version 2</a></p>"
 	"<p>Contributors:<br>"
@@ -2225,8 +2210,8 @@ void MainImpl::ActAbout_activated() {
     "<nobr>2020 <a href='mailto:cortexspam-github@yahoo.fr'>Matthieu Muffato</a>,</nobr> "
     "<nobr>2020 <a href='mailto:brent@mbari.org'>Brent Roman</a>,</nobr> "
     "<nobr>2020 <a href='mailto:jjm@keelhaul.demon.co.uk'>Jonathan Marten</a>,</nobr> "
-    "<nobr>2020 <a href='mailto:yyc1992@gmail.com'>Yichao Yu</a></nobr> "
-
+    "<nobr>2020 <a href='mailto:yyc1992@gmail.com'>Yichao Yu</a>,</nobr> "
+    "<nobr>2021 <a href='mailto:wickedsmoke@users.sourceforge.net'>Karl Robillard</a></nobr> "
 	"</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";

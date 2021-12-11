@@ -7,6 +7,7 @@
 
 */
 #include <QApplication>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QImageReader>
@@ -63,6 +64,7 @@ Git::Git(QObject* p) : QObject(p) {
 	isStGIT = isGIT = loadingUnAppliedPatches = isTextHighlighterFound = false;
 	errorReportingEnabled = true; // report errors if run() fails
 	curDomain = NULL;
+	shortHashLen = shortHashLenDefault;
 	revData = NULL;
 	revsFiles.reserve(MAX_DICT_SIZE);
 }
@@ -141,7 +143,7 @@ const QStringList Git::getGitConfigList(bool global) {
 
     errorReportingEnabled = true;
 
-    return runOutput.split('\n', QString::SkipEmptyParts);
+    return runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 }
 
 bool Git::isImageFile(SCRef file) {
@@ -271,6 +273,25 @@ const QStringList Git::getAllRefSha(uint mask) {
 		if ((*it).type & mask)
 			shas.append(it.key());
 	return shas;
+}
+
+/*
+const QString Git::refAsShortHash(SCRef sha)
+{
+	QString shortHash;
+	const bool success = run("git rev-parse --short " + sha, &shortHash);
+	// Fall back to input hash `sha` if rev-parse fails
+	return success ? shortHash : sha;
+}
+*/
+
+int Git::getShortHashLength()
+{
+	int len = 0;
+	QString shortHash;
+	if (run("git rev-parse --short HEAD", &shortHash))
+		len = shortHash.trimmed().size();   // Result contains a newline.
+	return (len > shortHashLenDefault) ? len : shortHashLenDefault;
 }
 
 const QString Git::getRefSha(SCRef refName, RefType type, bool askGit) {
@@ -796,7 +817,7 @@ bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 	if (!tree.isEmpty() && !run("git ls-tree " + tree, &runOutput))
 		return false;
 
-	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
+	const QStringList sl(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 	FOREACH_SL (it, sl) {
 
 		// append any not deleted file
@@ -808,7 +829,7 @@ bool Git::getTree(SCRef treeSha, TreeInfo& ti, bool isWorkingDir, SCRef path) {
 			ti.append(te);
 		}
 	}
-	qSort(ti); // list directories before files
+	std::sort(ti.begin(), ti.end()); // list directories before files
 	return true;
 }
 
@@ -1309,7 +1330,7 @@ bool Git::getPatchFilter(SCRef exp, bool isRegExp, ShaSet& shaSet) {
 	if (!run(runCmd, &runOutput, NULL, buf))
 		return false;
 
-	const QStringList sl(runOutput.split('\n', QString::SkipEmptyParts));
+	const QStringList sl(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
 	FOREACH_SL (it, sl)
 		shaSet.insert(*it);
 
@@ -1643,7 +1664,7 @@ const QString Git::getLocalDate(SCRef gitDate) {
         if (localDate.isEmpty()) {
                 static QDateTime d;
                 d.setTime_t(gitDate.toUInt());
-                localDate = d.toString(Qt::SystemLocaleShortDate);
+                localDate = QLocale::system().toString(d, QLocale::ShortFormat);
 
                 // save to cache
                 localDates[gitDate] = localDate;
@@ -1794,7 +1815,7 @@ bool Git::getRefs() {
 
         QString prevRefSha;
         QStringList patchNames, patchShas;
-        const QStringList rLst(runOutput.split('\n', QString::SkipEmptyParts));
+        const QStringList rLst(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
         FOREACH_SL (it, rLst) {
 
                 SCRef revSha = (*it).left(40);
@@ -1875,7 +1896,7 @@ void Git::parseStGitPatches(SCList patchNames, SCList patchShas) {
         if (!run("stg series", &runOutput))
                 return;
 
-        const QStringList pl(runOutput.split('\n', QString::SkipEmptyParts));
+        const QStringList pl(runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
         FOREACH_SL (it, pl) {
 
                 SCRef status = (*it).left(1);
@@ -1915,7 +1936,7 @@ const QStringList Git::getOthersFiles() {
 
         QString runOutput;
         run(runCmd, &runOutput);
-        return runOutput.split('\n', QString::SkipEmptyParts);
+        return runOutput.split('\n', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 }
 
 Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef log, SCRef longLog,
@@ -1930,12 +1951,8 @@ Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef
         if (!patch.isEmpty())
                 data.append('\n' + patch);
 
-#if QT_VERSION >= 0x050000
         QTextCodec* tc = QTextCodec::codecForLocale();
         QByteArray* ba = new QByteArray(tc->fromUnicode(data));
-#else
-        QByteArray* ba = new QByteArray(data.toLatin1());
-#endif
         ba->append('\0');
 
         fh->rowData.append(ba);
@@ -2078,7 +2095,7 @@ void Git::setStatus(RevFile& rf, SCRef rowSt) {
 
 void Git::setExtStatus(RevFile& rf, SCRef rowSt, int parNum, FileNamesLoader& fl) {
 
-        const QStringList sl(rowSt.split('\t', QString::SkipEmptyParts));
+        const QStringList sl(rowSt.split('\t', QGIT_SPLITBEHAVIOR(SkipEmptyParts)));
         if (sl.count() != 3) {
                 dbp("ASSERT in setExtStatus, unexpected status string %1", rowSt);
                 return;
@@ -2326,6 +2343,7 @@ bool Git::init(SCRef wd, bool askForRange, const QStringList* passedArgs, bool o
                         }
                 }
                 init2();
+                shortHashLen = getShortHashLength();
                 setThrowOnStop(false);
                 return true;
 
@@ -2414,9 +2432,9 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
                         ulong kb = byteSize / 1024;
                         double mbs = (double)byteSize / fh->loadTime / 1000;
                         QString tmp;
-                        tmp.sprintf("Loaded %i revisions  (%li KB),   "
-                                    "time elapsed: %i ms  (%.2f MB/s)",
-                                    fh->revs.count(), kb, fh->loadTime, mbs);
+                        tmp.asprintf("Loaded %i revisions  (%li KB),   "
+                                     "time elapsed: %i ms  (%.2f MB/s)",
+                                     fh->revs.count(), kb, fh->loadTime, mbs);
 
                         if (!tryFollowRenames(fh))
                                 emit loadCompleted(fh, tmp);
@@ -2963,7 +2981,7 @@ void Git::mergeBranches(Rev* p, const Rev* r) {
         const QVector<int>& src2 = revLookup(revData->revOrder[r_descBrnMaster])->descBranches;
         QVector<int> dst(src1);
         for (int i = 0; i < src2.count(); i++)
-                if (qFind(src1.constBegin(), src1.constEnd(), src2[i]) == src1.constEnd())
+                if (std::find(src1.constBegin(), src1.constEnd(), src2[i]) == src1.constEnd())
                         dst.append(src2[i]);
 
         p->descBranches = dst;

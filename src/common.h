@@ -16,10 +16,17 @@
 #include <QVariant>
 #include <QVector>
 
+// QString::SplitBehavior becomes Qt::SplitBehavior in Qt 5.14
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+# define QGIT_SPLITBEHAVIOR(x) Qt::x
+#else
+# define QGIT_SPLITBEHAVIOR(x) QString::x
+#endif
+
 /*
    QVariant does not support size_t type used in Qt containers, this is
    a problem on 64bit systems where size_t != uint and when using debug
-   macros on size_t variables, as example dbg(vector.count()), a compile
+   macros on size_t variables, as example dbs(vector.count()), a compile
    error occurs.
    Workaround this using a function template and a specialization.
    Function _valueOf() is used by debug macros
@@ -31,15 +38,8 @@ inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
 
 // some debug macros
 #define constlatin(x) (_valueOf(x).toLatin1().constData())
-#define dbg(x)    qDebug(#x " is <%s>", constlatin(x))
 #define dbs(x)    qDebug(constlatin(x), "")
 #define dbp(s, x) qDebug(constlatin(_valueOf(s).arg(x)), "")
-#define db1       qDebug("Mark Nr. 1")
-#define db2       qDebug("Mark Nr. 2")
-#define db3       qDebug("Mark Nr. 3")
-#define db4       qDebug("Mark Nr. 4")
-#define dbStart   dbs("Starting timer..."); QTime _t; _t.start()
-#define dbRestart dbp("Elapsed time is %1 ms", _t.restart())
 
 // some syntactic sugar
 #define FOREACH(type, i, c) for (type::const_iterator i((c).constBegin()),    \
@@ -136,8 +136,9 @@ namespace QGit {
 		GRAPH_COL   = 0,
 		ANN_ID_COL  = 1,
 		LOG_COL     = 2,
-		AUTH_COL    = 3,
-		TIME_COL    = 4,
+		HASH_COL    = 3,
+		AUTH_COL    = 4,
+		TIME_COL    = 5,
 		COMMIT_COL  = 97, // dummy col used for sha searching
 		LOG_MSG_COL = 98, // dummy col used for log messages searching
 		SHA_MAP_COL = 99  // dummy col used when filter output is a set of matching sha
@@ -148,6 +149,7 @@ namespace QGit {
 	// default list view widths
 	const int DEF_GRAPH_COL_WIDTH = 80;
 	const int DEF_LOG_COL_WIDTH   = 500;
+	const int DEF_HASH_COL_WIDTH  = 90;
 	const int DEF_AUTH_COL_WIDTH  = 230;
 	const int DEF_TIME_COL_WIDTH  = 160;
 
@@ -246,6 +248,7 @@ namespace QGit {
 		USE_CMT_MSG_F   = 1 << 15,
 // 		OPEN_IN_EDITOR_F = 1 << 16,  //  not used anymore; subject to be replaced
 		ENABLE_DRAGNDROP_F = 1 << 17,
+		ENABLE_SHORTREF_F = 1 << 18,
 	};
 	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F | ENABLE_DRAGNDROP_F;
 
@@ -321,6 +324,7 @@ public:
 	const ShaString parent(int idx) const;
 	const QStringList parents() const;
 	const ShaString sha() const { return ShaString(ba.constData() + shaStart); }
+	const QString shortHash(int len) const { return midSha(shaStart, len); }
 	const QString committer() const { setup(); return mid(comStart, autStart - comStart - 1); }
 	const QString author() const { setup(); return mid(autStart, autDateStart - autStart - 1); }
 	const QString authorDate() const { setup(); return mid(autDateStart, 10); }

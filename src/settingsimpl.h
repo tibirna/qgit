@@ -31,6 +31,7 @@ protected slots:
 	void checkBoxSmartLabels_toggled(bool b);
 	void checkBoxMsgOnNewSHA_toggled(bool b);
 	void checkBoxEnableDragnDrop_toggled(bool b);
+	void checkBoxShowShortRef_toggled(bool b);
 	void checkBoxDiffCache_toggled(bool b);
 	void checkBoxCommitSign_toggled(bool b);
 	void checkBoxCommitVerify_toggled(bool b);

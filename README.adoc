@@ -31,7 +31,7 @@ Main features
 Installation
 ------------
 
-You need Qt developer libraries, version 5.0 or later, already installed.
+You need Qt developer libraries, version 5.11.0 or later, already installed.
 Be sure compiler, qmake (Qt5 version) and Qt5 bin tools are in path.
 
 NOTE: Correct qmake for Qt5 (/usr/lib/qt5/bin/qmake) must be called, in
@@ -45,7 +45,7 @@ To compile, install and start qgit:
 
  - generate Makefiles (only the first time)
    Unix/Linux and Windows:  qmake qgit.pro
-   Mac Os X:                qmake -spec macx-g++ qgit.pro
+   Mac Os X:                qmake -spec macx-clang qgit.pro
 
  - (Windows only with VC2008 IDE) open qgit.sln solution file
 

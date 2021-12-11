@@ -7,8 +7,8 @@
 #ifndef ANNOTATE_H
 #define ANNOTATE_H
 
+#include <QElapsedTimer>
 #include <QObject>
-#include <QTime>
 #include "exceptionmanager.h"
 #include "common.h"
 
@@ -78,7 +78,7 @@ private:
 	ShaVect histRevOrder; // TODO use reference
 	bool valid;
 	bool canceled;
-	QTime processingTime;
+	QElapsedTimer processingTime;
 	Ranges ranges;
 };
 

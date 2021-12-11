@@ -566,6 +566,16 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxShowShortRef">
+                <property name="toolTip">
+                 <string>Check to display short commit hash instead of full-length hash</string>
+                </property>
+                <property name="text">
+                 <string>Display short commit hash</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -1736,6 +1746,12 @@
      <y>182</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxShowShortRef</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>checkBoxShowShortRef_toggled(bool)</slot>
   </connection>
  </connections>
 </ui>
