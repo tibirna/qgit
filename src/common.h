@@ -206,6 +206,7 @@ namespace QGit {
 	extern const QString EX_PER_DIR_KEY;
 	extern const QString EXT_DIFF_KEY;
 	extern const QString EXT_EDITOR_KEY;
+	extern const QString DCLICK_ACT_KEY;
 	extern const QString REC_REP_KEY;
 	extern const QString ACT_LIST_KEY;
 	extern const QString ACT_GEOM_KEY;
@@ -219,6 +220,13 @@ namespace QGit {
 	extern const QString EX_PER_DIR_DEF;
 	extern const QString EXT_DIFF_DEF;
 	extern const QString EXT_EDITOR_DEF;
+
+
+	enum FileDoubleClickAction {
+		VIEW_PATCH,
+		OPEN_IN_EDITOR,
+		OPEN_IN_DIFFER,
+	};
 
 	// settings booleans
 	enum FlagType {
@@ -238,7 +246,7 @@ namespace QGit {
 		RANGE_SELECT_F  = 1 << 13,
 		REOPEN_REPO_F   = 1 << 14,
 		USE_CMT_MSG_F   = 1 << 15,
-		OPEN_IN_EDITOR_F = 1 << 16,
+// 		OPEN_IN_EDITOR_F = 1 << 16,  //  not used anymore; subject to be replaced
 		ENABLE_DRAGNDROP_F = 1 << 17,
 		ENABLE_SHORTREF_F = 1 << 18,
 	};

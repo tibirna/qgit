@@ -50,7 +50,6 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	checkBoxCommitUseDefMsg->setChecked(f & USE_CMT_MSG_F);
 	checkBoxRangeSelectDialog->setChecked(f & RANGE_SELECT_F);
 	checkBoxReopenLastRepo->setChecked(f & REOPEN_REPO_F);
-	checkBoxOpenInEditor->setChecked(f & OPEN_IN_EDITOR_F);
 	checkBoxRelativeDate->setChecked(f & REL_DATE_F);
 	checkBoxLogDiffTab->setChecked(f & LOG_DIFF_TAB_F);
 	checkBoxSmartLabels->setChecked(f & SMART_LBL_F);
@@ -79,6 +78,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	lineEditTypeWriterFont->setText(TYPE_WRITER_FONT.toString());
 	lineEditTypeWriterFont->setCursorPosition(0); // font description could be long
 
+	comboBoxDoubleClickAction->setCurrentIndex(set.value(DCLICK_ACT_KEY).toUInt());
 	setupCodecsCombo();
 	checkBoxDiffCache_toggled(checkBoxDiffCache->isChecked());
 	tabDialog->setCurrentIndex(defTab);
@@ -131,10 +131,10 @@ void SettingsImpl::addConfigOption(QTreeWidgetItem* parent, QStringList paths, c
 }
 
 void SettingsImpl::readGitConfig(const QString& source) {
- 
+
     populatingGitConfig = true;
     treeWidgetGitConfig->clear();
-    QStringList options(git->getGitConfigList(source == "Global"));    
+    QStringList options(git->getGitConfigList(source == "Global"));
     options.sort();
 
     FOREACH_SL(it, options) {
@@ -177,6 +177,11 @@ void SettingsImpl::comboBoxUserSrc_activated(int i) {
 void SettingsImpl::comboBoxGitConfigSource_activated(int) {
 
     readGitConfig(comboBoxGitConfigSource->currentText());
+}
+
+void SettingsImpl::comboBoxDoubleClickAction_activated(int idx) {
+
+	writeSetting(DCLICK_ACT_KEY, idx);
 }
 
 void SettingsImpl::writeSetting(const QString& key, const QVariant& value) {
@@ -289,11 +294,6 @@ void SettingsImpl::checkBoxRangeSelectDialog_toggled(bool b) {
 void SettingsImpl::checkBoxReopenLastRepo_toggled(bool b) {
 
 	changeFlag(REOPEN_REPO_F, b);
-}
-
-void SettingsImpl::checkBoxOpenInEditor_toggled(bool b) {
-
-	changeFlag(OPEN_IN_EDITOR_F, b);
 }
 
 void SettingsImpl::checkBoxRelativeDate_toggled(bool b) {

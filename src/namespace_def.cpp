@@ -164,6 +164,7 @@ const ShaString  QGit::ZERO_SHA_RAW(QGit::ZERO_SHA_BA.constData());
 const QString QGit::ORG_KEY         = "qgit";
 const QString QGit::APP_KEY         = "qgit4";
 const QString QGit::GIT_DIR_KEY     = "msysgit_exec_dir";
+const QString QGit::DCLICK_ACT_KEY  = "double_click_action";
 const QString QGit::EXT_DIFF_KEY    = "external_diff_viewer";
 const QString QGit::EXT_EDITOR_KEY  = "external_editor";
 const QString QGit::REC_REP_KEY     = "recent_open_repos";

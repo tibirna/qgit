@@ -580,9 +580,17 @@ void MainImpl::fileList_itemDoubleClicked(QListWidgetItem* item) {
 	if (isFirst && rv->st.isMerge())
 		return;
 
-	if (testFlag(OPEN_IN_EDITOR_F, FLAGS_KEY)) {
+	QSettings settings;
+	FileDoubleClickAction action_idx = static_cast<FileDoubleClickAction>(
+		settings.value(DCLICK_ACT_KEY, VIEW_PATCH).toUInt());
+
+	if (action_idx == OPEN_IN_EDITOR) {
 		if (item && ActExternalEditor->isEnabled())
 			ActExternalEditor->activate(QAction::Trigger);
+	} else if (action_idx == OPEN_IN_DIFFER) {
+		bool isMainView = (item && item->listWidget() == rv->tab()->fileList);
+		if (isMainView && ActExternalDiff->isEnabled())
+			ActExternalDiff->activate(QAction::Trigger);
 	} else {
 		bool isMainView = (item && item->listWidget() == rv->tab()->fileList);
 		if (isMainView && ActViewDiff->isEnabled())
@@ -594,9 +602,16 @@ void MainImpl::fileList_itemDoubleClicked(QListWidgetItem* item) {
 }
 
 void MainImpl::treeView_doubleClicked(QTreeWidgetItem* item, int) {
-	if (testFlag(OPEN_IN_EDITOR_F, FLAGS_KEY)) {
+	QSettings settings;
+	FileDoubleClickAction action_idx = static_cast<FileDoubleClickAction>(
+		settings.value(DCLICK_ACT_KEY, VIEW_PATCH).toUInt());
+
+	if (action_idx == OPEN_IN_EDITOR) {
 		if (item && ActExternalEditor->isEnabled())
 			ActExternalEditor->activate(QAction::Trigger);
+	} else if (action_idx == OPEN_IN_DIFFER) {
+		if (item && ActExternalDiff->isEnabled())
+			ActExternalDiff->activate(QAction::Trigger);
 	} else {
 		if (item && ActViewFile->isEnabled())
 			ActViewFile->activate(QAction::Trigger);
