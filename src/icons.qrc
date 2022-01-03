@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/icons" >
+    <qresource prefix="/icons">
         <file>resources/1downarrow.png</file>
         <file>resources/1uparrow.png</file>
         <file>resources/bookmark.png</file>
@@ -11,11 +11,9 @@
         <file>resources/encrypted.png</file>
         <file>resources/filter.png</file>
         <file>resources/find.png</file>
-        <file>resources/folder.png</file>
-        <file>resources/folder_open.png</file>
+        <file>resources/folder.svg</file>
+        <file>resources/folder-open.svg</file>
         <file>resources/help.png</file>
-        <file>resources/html.png</file>
-        <file>resources/image.png</file>
         <file>resources/mail_get.png</file>
         <file>resources/mail_send.png</file>
         <file>resources/minusonly.png</file>
@@ -31,19 +29,55 @@
         <file>resources/range_select.png</file>
         <file>resources/reload.png</file>
         <file>resources/remove.png</file>
-        <file>resources/shellscript.png</file>
-        <file>resources/source_c.png</file>
-        <file>resources/source_cpp.png</file>
-        <file>resources/source_h.png</file>
-        <file>resources/source_java.png</file>
-        <file>resources/source_pl.png</file>
-        <file>resources/source_py.png</file>
-        <file>resources/tar.png</file>
-        <file>resources/txt.png</file>
         <file>resources/vcs_commit.png</file>
         <file>resources/view_choose.png</file>
         <file>resources/view_top_bottom.png</file>
         <file>resources/view_tree.png</file>
         <file>resources/wizard.png</file>
+        <file>resources/file/application-json.svg</file>
+        <file>resources/file/application-pdf.svg</file>
+        <file>resources/file/application-x-ace.svg</file>
+        <file>resources/file/application-x-bzip.svg</file>
+        <file>resources/file/application-x-compressed-tar.svg</file>
+        <file>resources/file/application-x-designer.svg</file>
+        <file>resources/file/application-x-java.svg</file>
+        <file>resources/file/application-x-javascript.svg</file>
+        <file>resources/file/application-x-perl.svg</file>
+        <file>resources/file/application-x-python-bytecode.svg</file>
+        <file>resources/file/application-x-ruby.svg</file>
+        <file>resources/file/application-x-sharedlib.svg</file>
+        <file>resources/file/application-x-tar.svg</file>
+        <file>resources/file/application-zip.svg</file>
+        <file>resources/file/dialog-xml-editor.svg</file>
+        <file>resources/file/image-bmp.svg</file>
+        <file>resources/file/image-gif.svg</file>
+        <file>resources/file/image-jpeg.svg</file>
+        <file>resources/file/image-png.svg</file>
+        <file>resources/file/image-svg+xml-compressed.svg</file>
+        <file>resources/file/image-tiff.svg</file>
+        <file>resources/file/image-x-generic.svg</file>
+        <file>resources/file/image-x-ico.svg</file>
+        <file>resources/file/image-x-xcf.svg</file>
+        <file>resources/file/project-development.svg</file>
+        <file>resources/file/text-css.svg</file>
+        <file>resources/file/text-csv.svg</file>
+        <file>resources/file/text-dockerfile.svg</file>
+        <file>resources/file/text-html.svg</file>
+        <file>resources/file/text-rtf.svg</file>
+        <file>resources/file/text-rust.svg</file>
+        <file>resources/file/text-x-c++hdr.svg</file>
+        <file>resources/file/text-x-c++src.svg</file>
+        <file>resources/file/text-x-chdr.svg</file>
+        <file>resources/file/text-x-cmake.svg</file>
+        <file>resources/file/text-x-csharp.svg</file>
+        <file>resources/file/text-x-csrc.svg</file>
+        <file>resources/file/text-x-generic.svg</file>
+        <file>resources/file/text-x-go.svg</file>
+        <file>resources/file/text-x-markdown.svg</file>
+        <file>resources/file/text-x-patch.svg</file>
+        <file>resources/file/text-x-qml.svg</file>
+        <file>resources/file/text-x-r.svg</file>
+        <file>resources/file/text-x-script.svg</file>
+        <file>resources/file/text-x-tex.svg</file>
     </qresource>
 </RCC>
