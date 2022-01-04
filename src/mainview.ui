@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
-    <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
+    <normaloff>:/icons/resources/qgit.svg</normaloff>:/icons/resources/qgit.svg</iconset>
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QHBoxLayout">
@@ -229,7 +229,7 @@
   <action name="ActAbout">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
+     <normaloff>:/icons/resources/qgit.svg</normaloff>:/icons/resources/qgit.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;About QGit</string>
