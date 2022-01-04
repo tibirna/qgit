@@ -242,7 +242,7 @@ void QGit::initMimePix() {
 	mimePixMap.insert("#folder_closed", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/folder-open.svg"));
 	mimePixMap.insert("#folder_open", pm);
-	pm = new QPixmap(QString::fromUtf8(":/icons/resources/misc.png"));
+	pm = new QPixmap(QString::fromUtf8(":/icons/resources/snap-page.svg"));
 	mimePixMap.insert("#default", pm);
 	pm = new QPixmap(QString::fromUtf8(":/icons/resources/file/text-x-cmake.svg"));
 	mimePixMap.insert("CMakeLists.txt", pm);
