@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset theme="bookmarks" resource="icons.qrc">
-    <normaloff>:/icons/resources/bookmark.png</normaloff>:/icons/resources/bookmark.png</iconset>
+    <normaloff>:/icons/resources/emblem-favorite.svg</normaloff>:/icons/resources/emblem-favorite.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -40,7 +40,7 @@
         </property>
         <property name="icon">
          <iconset theme="bookmark-new" resource="icons.qrc">
-          <normaloff>:/icons/resources/bookmark_add.png</normaloff>:/icons/resources/bookmark_add.png</iconset>
+          <normaloff>:/icons/resources/archive-insert.svg</normaloff>:/icons/resources/archive-insert.svg</iconset>
         </property>
         <property name="shortcut">
          <string>Alt+N</string>
@@ -54,7 +54,7 @@
         </property>
         <property name="icon">
          <iconset theme="edit-rename" resource="icons.qrc">
-          <normaloff>:/icons/resources/pencil.png</normaloff>:/icons/resources/pencil.png</iconset>
+          <normaloff>:/icons/resources/document-edit-sign.svg</normaloff>:/icons/resources/document-edit-sign.svg</iconset>
         </property>
         <property name="shortcut">
          <string>Alt+R</string>
@@ -68,7 +68,7 @@
         </property>
         <property name="icon">
          <iconset theme="edit-delete" resource="icons.qrc">
-          <normaloff>:/icons/resources/remove.png</normaloff>:/icons/resources/remove.png</iconset>
+          <normaloff>:/icons/resources/archive-remove.svg</normaloff>:/icons/resources/archive-remove.svg</iconset>
         </property>
         <property name="shortcut">
          <string>Alt+E</string>
@@ -85,7 +85,7 @@
         </property>
         <property name="icon">
          <iconset theme="arrow-up" resource="icons.qrc">
-          <normaloff>:/icons/resources/1uparrow.png</normaloff>:/icons/resources/1uparrow.png</iconset>
+          <normaloff>:/icons/resources/go-up.svg</normaloff>:/icons/resources/go-up.svg</iconset>
         </property>
         <property name="shortcut">
          <string>Alt+U</string>
@@ -99,7 +99,7 @@
         </property>
         <property name="icon">
          <iconset theme="arrow-down" resource="icons.qrc">
-          <normaloff>:/icons/resources/1downarrow.png</normaloff>:/icons/resources/1downarrow.png</iconset>
+          <normaloff>:/icons/resources/go-down.svg</normaloff>:/icons/resources/go-down.svg</iconset>
         </property>
         <property name="shortcut">
          <string>Alt+D</string>

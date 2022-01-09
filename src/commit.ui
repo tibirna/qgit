@@ -13,7 +13,7 @@
    <string>Commit changes</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/icons/resources/vcs_commit.png</iconset>
+   <iconset resource="icons.qrc" >:/icons/resources/svn-commit.svg</iconset>
   </property>
   <layout class="QHBoxLayout" >
    <property name="spacing" >

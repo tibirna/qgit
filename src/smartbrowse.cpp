@@ -77,10 +77,10 @@ SmartBrowse::SmartBrowse(RevsView* par) : QObject(par) {
 	QTextEdit* log = static_cast<QTextEdit*>(rv->tab()->textBrowserDesc);
 	QTextEdit* diff = static_cast<QTextEdit*>(rv->tab()->textEditDiff);
 
-	logTopLbl = new SmartLabel(txt.arg("1uparrow.png", linkUp, ""), log);
-	logBottomLbl = new SmartLabel(txt.arg("1downarrow.png", linkDiff, linkDown), log);
-	diffTopLbl = new SmartLabel(txt.arg("1uparrow.png", linkLog, linkUp), diff);
-	diffBottomLbl = new SmartLabel(txt.arg("1downarrow.png", linkUp, linkDown), diff);
+	logTopLbl = new SmartLabel(txt.arg("go-up.svg", linkUp, ""), log);
+	logBottomLbl = new SmartLabel(txt.arg("go-down.svg", linkDiff, linkDown), log);
+	diffTopLbl = new SmartLabel(txt.arg("go-up.svg", linkLog, linkUp), diff);
+	diffBottomLbl = new SmartLabel(txt.arg("go-down.svg", linkUp, linkDown), diff);
 
 	diffTopLbl->setFont(qApp->font());    // override parent's font to
 	diffBottomLbl->setFont(qApp->font()); // avoid QGit::TYPE_WRITER_FONT

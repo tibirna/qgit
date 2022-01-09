@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
-    <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
+    <normaloff>:/icons/resources/qgit.svg</normaloff>:/icons/resources/qgit.svg</iconset>
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QHBoxLayout">
@@ -200,7 +200,7 @@
   <action name="ActOpenRepo">
    <property name="icon">
     <iconset theme="document-open-folder" resource="icons.qrc">
-     <normaloff>:/icons/resources/folder_open.png</normaloff>:/icons/resources/folder_open.png</iconset>
+     <normaloff>:/icons/resources/folder.svg</normaloff>:/icons/resources/folder.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -229,7 +229,7 @@
   <action name="ActAbout">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/resources/qgit.png</normaloff>:/icons/resources/qgit.png</iconset>
+     <normaloff>:/icons/resources/qgit.svg</normaloff>:/icons/resources/qgit.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;About QGit</string>
@@ -247,7 +247,7 @@
    </property>
    <property name="icon">
     <iconset theme="mail-send" resource="icons.qrc">
-     <normaloff>:/icons/resources/mail_send.png</normaloff>:/icons/resources/mail_send.png</iconset>
+     <normaloff>:/icons/resources/document-save.svg</normaloff>:/icons/resources/document-save.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Save patch...</string>
@@ -262,7 +262,7 @@
   <action name="ActHelp">
    <property name="icon">
     <iconset theme="help-contents" resource="icons.qrc">
-     <normaloff>:/icons/resources/help.png</normaloff>:/icons/resources/help.png</iconset>
+     <normaloff>:/icons/resources/question.svg</normaloff>:/icons/resources/question.svg</iconset>
    </property>
    <property name="text">
     <string>QGit ha&amp;ndbook</string>
@@ -277,7 +277,7 @@
   <action name="ActSettings">
    <property name="icon">
     <iconset theme="configure" resource="icons.qrc">
-     <normaloff>:/icons/resources/configure.png</normaloff>:/icons/resources/configure.png</iconset>
+     <normaloff>:/icons/resources/configure.svg</normaloff>:/icons/resources/configure.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Settings...</string>
@@ -295,7 +295,7 @@
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/icons/resources/vcs_commit.png</normaloff>:/icons/resources/vcs_commit.png</iconset>
+     <normaloff>:/icons/resources/svn-commit.svg</normaloff>:/icons/resources/svn-commit.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Commit...</string>
@@ -364,7 +364,7 @@
    </property>
    <property name="icon">
     <iconset theme="mail-receive" resource="icons.qrc">
-     <normaloff>:/icons/resources/mail_get.png</normaloff>:/icons/resources/mail_get.png</iconset>
+     <normaloff>:/icons/resources/text-x-patch.svg</normaloff>:/icons/resources/text-x-patch.svg</iconset>
    </property>
    <property name="text">
     <string>Apply &amp;patch...</string>
@@ -413,7 +413,7 @@
    </property>
    <property name="icon">
     <iconset theme="view-refresh" resource="icons.qrc">
-     <normaloff>:/icons/resources/reload.png</normaloff>:/icons/resources/reload.png</iconset>
+     <normaloff>:/icons/resources/view-refresh.svg</normaloff>:/icons/resources/view-refresh.svg</iconset>
    </property>
    <property name="iconText">
     <string>Refresh</string>
@@ -494,7 +494,7 @@
    </property>
    <property name="icon">
     <iconset theme="tools-wizard" resource="icons.qrc">
-     <normaloff>:/icons/resources/wizard.png</normaloff>:/icons/resources/wizard.png</iconset>
+     <normaloff>:/icons/resources/autocorrection.svg</normaloff>:/icons/resources/autocorrection.svg</iconset>
    </property>
    <property name="text">
     <string>Toggle filter by tree</string>
@@ -515,7 +515,7 @@
    </property>
    <property name="icon">
     <iconset theme="view-list-tree" resource="icons.qrc">
-     <normaloff>:/icons/resources/view_tree.png</normaloff>:/icons/resources/view_tree.png</iconset>
+     <normaloff>:/icons/resources/view-list-tree.svg</normaloff>:/icons/resources/view-list-tree.svg</iconset>
    </property>
    <property name="text">
     <string>Toggle tree view</string>
@@ -626,7 +626,7 @@
   <action name="ActSplitView">
    <property name="icon">
     <iconset theme="view-split-top-bottom" resource="icons.qrc">
-     <normaloff>:/icons/resources/view_top_bottom.png</normaloff>:/icons/resources/view_top_bottom.png</iconset>
+     <normaloff>:/icons/resources/view-split-top-bottom.svg</normaloff>:/icons/resources/view-split-top-bottom.svg</iconset>
    </property>
    <property name="text">
     <string>Toggle split view</string>
@@ -675,7 +675,7 @@
    </property>
    <property name="icon">
     <iconset theme="go-next" resource="icons.qrc">
-     <normaloff>:/icons/resources/next.png</normaloff>:/icons/resources/next.png</iconset>
+     <normaloff>:/icons/resources/go-next.svg</normaloff>:/icons/resources/go-next.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Forward</string>
@@ -693,7 +693,7 @@
    </property>
    <property name="icon">
     <iconset theme="go-previous" resource="icons.qrc">
-     <normaloff>:/icons/resources/previous.png</normaloff>:/icons/resources/previous.png</iconset>
+     <normaloff>:/icons/resources/go-previous.svg</normaloff>:/icons/resources/go-previous.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Back</string>
@@ -708,7 +708,7 @@
   <action name="ActCustomActionSetup">
    <property name="icon">
     <iconset theme="bookmarks" resource="icons.qrc">
-     <normaloff>:/icons/resources/bookmark.png</normaloff>:/icons/resources/bookmark.png</iconset>
+     <normaloff>:/icons/resources/emblem-favorite.svg</normaloff>:/icons/resources/emblem-favorite.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Setup actions...</string>
@@ -763,7 +763,7 @@
    </property>
    <property name="icon">
     <iconset theme="view-filter" resource="icons.qrc">
-     <normaloff>:/icons/resources/filter.png</normaloff>:/icons/resources/filter.png</iconset>
+     <normaloff>:/icons/resources/view-filter.svg</normaloff>:/icons/resources/view-filter.svg</iconset>
    </property>
    <property name="text">
     <string>Search and filter</string>
@@ -781,7 +781,7 @@
    </property>
    <property name="icon">
     <iconset theme="edit-find" resource="icons.qrc">
-     <normaloff>:/icons/resources/find.png</normaloff>:/icons/resources/find.png</iconset>
+     <normaloff>:/icons/resources/edit-find.svg</normaloff>:/icons/resources/edit-find.svg</iconset>
    </property>
    <property name="text">
     <string>Search and highlight</string>
@@ -827,7 +827,7 @@
   <action name="ActRangeDlg">
    <property name="icon">
     <iconset theme="edit-select" resource="icons.qrc">
-     <normaloff>:/icons/resources/range_select.png</normaloff>:/icons/resources/range_select.png</iconset>
+     <normaloff>:/icons/resources/join.svg</normaloff>:/icons/resources/join.svg</iconset>
    </property>
    <property name="text">
     <string>Select range...</string>

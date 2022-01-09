@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset theme="utilities-terminal" resource="icons.qrc">
-    <normaloff>:/icons/resources/openterm.png</normaloff>:/icons/resources/openterm.png</iconset>
+    <normaloff>:/icons/resources/utilities-terminal.svg</normaloff>:/icons/resources/utilities-terminal.svg</iconset>
   </property>
   <widget class="QWidget" name="widget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -101,7 +101,7 @@
         </property>
         <property name="icon">
          <iconset theme="dialog-cancel" resource="icons.qrc">
-          <normaloff>:/icons/resources/cancel.png</normaloff>:/icons/resources/cancel.png</iconset>
+          <normaloff>:/icons/resources/window-close.svg</normaloff>:/icons/resources/window-close.svg</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
