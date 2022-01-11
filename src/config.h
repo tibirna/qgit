@@ -17,7 +17,7 @@
 #define PACKAGE_TARNAME "qgit"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.9.1"
+#define PACKAGE_VERSION "2.10"
 
 /* Version number of package */
-#define VERSION "2.9.1"
+#define VERSION "2.10"

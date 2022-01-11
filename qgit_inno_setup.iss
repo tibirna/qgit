@@ -7,7 +7,7 @@
 
 [Setup]
 AppName=QGit
-AppVerName=QGit version 2.9.1
+AppVerName=QGit version 2.10
 DefaultDirName={pf}\QGit
 DefaultGroupName=QGit
 UninstallDisplayIcon={app}\qgit.exe
