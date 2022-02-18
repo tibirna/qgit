@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>513</width>
-    <height>377</height>
+    <height>416</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -575,6 +575,27 @@
                  <string>Display short commit hash</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <widget class="QLabel" name="textLabelMaxPatchSize">
+                  <property name="text">
+                   <string>Max patch size MiB</string>
+                  </property>
+                  <property name="textFormat">
+                   <enum>Qt::PlainText</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxMaxPatchSize">
+                  <property name="toolTip">
+                   <string>Bigger patches will be shown by-file</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </item>
@@ -1680,6 +1701,22 @@
     <hint type="destinationlabel">
      <x>221</x>
      <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxMaxPatchSize</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>settingsBase</receiver>
+   <slot>doubleSpinBoxMaxPatchSize_valueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>

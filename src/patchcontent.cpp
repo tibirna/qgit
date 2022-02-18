@@ -6,6 +6,8 @@
 */
 #include <QScrollBar>
 #include <QTextCharFormat>
+#include <QTextStream>
+#include <QSettings>
 #include "common.h"
 #include "domain.h"
 #include "git.h"
@@ -117,6 +119,8 @@ void PatchContent::clear() {
 	matches.clear();
 	diffLoaded = false;
 	seekTarget = !target.isEmpty();
+	patchByFile.clear();
+	patchStats.clear();
 }
 
 void PatchContent::refresh() {
@@ -188,6 +192,14 @@ void PatchContent::centerOnFileHeader(StateInfo& st) {
 	target = st.fileName();
 	bool combined = (st.isMerge() && !st.allMergeFiles());
 	git->formatPatchFileHeader(&target, st.sha(), st.diffToSha(), combined, st.allMergeFiles());
+
+	auto it = patchByFile.constFind(target);
+	if (it != patchByFile.constEnd()) {
+		// If target is in the mapping
+		// then show per-file changesets.
+		setPlainText(it.value());
+	}
+
 	seekTarget = !target.isEmpty();
 	if (seekTarget)
 		seekTarget = !centerTarget(target);
@@ -213,6 +225,20 @@ void PatchContent::typeWriterFontChanged() {
 
 	setFont(QGit::TYPE_WRITER_FONT);
 	setPlainText(toPlainText());
+}
+
+void PatchContent::parseDiff(const QString &data) {
+
+	static const QString delim = "diff --";
+	QStringList lst = data.split("\n" + delim, QString::SkipEmptyParts);
+
+	patchStats = lst.takeFirst();
+
+	for (auto& item : lst) {
+		QString file_diff = delim + item;
+		QString first_line = QTextStream(&file_diff).readLine();
+		patchByFile[first_line] = file_diff;
+	}
 }
 
 void PatchContent::processData(const QByteArray& fileChunk, int* prevLineNum) {
@@ -286,7 +312,18 @@ skip_filter:
 
 	if (prevLineNum || document()->isEmpty()) { // use the faster setPlainText()
 
-		setPlainText(newLines);
+		QSettings settings;
+		if (double(newLines.size()) / (1024*1024) > settings.value(QGit::MAX_PATCH_KEY).toDouble()) {
+			// If patch size exceeds the limit
+			// editor will show changes for individual files.
+			parseDiff(newLines);
+			setPlainText(patchStats);
+		} else {
+			// If patch size fits the limit
+			// editor will show complete patch.
+			setPlainText(newLines);
+		}
+
 		moveCursor(QTextCursor::Start);
 	} else {
 		int topLine = cursorForPosition(QPoint(1, 1)).blockNumber();

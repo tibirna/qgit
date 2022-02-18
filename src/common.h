@@ -213,6 +213,7 @@ namespace QGit {
 	extern const QString ACT_GROUP_KEY;
 	extern const QString ACT_TEXT_KEY;
 	extern const QString ACT_FLAGS_KEY;
+	extern const QString MAX_PATCH_KEY;
 
 	// settings default values
 	extern const QString CMT_TEMPL_DEF;
