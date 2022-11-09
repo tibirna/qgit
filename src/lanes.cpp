@@ -159,16 +159,16 @@ void Lanes::setMerge(const QStringList& parents) {
 
 	for (int i = rangeStart + 1; i < rangeEnd; i++) {
 
-		int& t = typeVec[i];
+		int& type = typeVec[i];
 
-		if (t == NOT_ACTIVE)
-			t = CROSS;
+		if (type == NOT_ACTIVE)
+			type = CROSS;
 
-		else if (t == EMPTY)
-			t = CROSS_EMPTY;
+		else if (type == EMPTY)
+			type = CROSS_EMPTY;
 
-		else if (t == TAIL_R || t == TAIL_L)
-			t = TAIL;
+		else if (type == TAIL_R || type == TAIL_L)
+			type = TAIL;
 	}
 }
 

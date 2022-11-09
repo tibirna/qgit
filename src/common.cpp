@@ -11,18 +11,18 @@
 #include <QTextDocument>
 #include "common.h"
 
-const QString Rev::mid(int start, int len) const {
+const QString Rev::mid(int from, int len) const {
 
         // warning no sanity check is done on arguments
         const char* data = ba.constData();
-        return QString::fromLocal8Bit(data + start, len);
+        return QString::fromLocal8Bit(data + from, len);
 }
 
-const QString Rev::midSha(int start, int len) const {
+const QString Rev::midSha(int from, int len) const {
 
         // warning no sanity check is done on arguments
         const char* data = ba.constData();
-        return QString::fromLatin1(data + start, len); // faster then formAscii
+        return QString::fromLatin1(data + from, len); // faster then formAscii
 }
 
 const ShaString Rev::parent(int idx) const {

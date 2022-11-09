@@ -994,7 +994,7 @@ bool MainImpl::event(QEvent* e) {
 	if (!de)
 		return QWidget::event(e);
 
-	SCRef data = de->myData();
+	SCRef d = de->myData();
 	bool ret = true;
 
         switch (static_cast<EventType>(e->type())) {
@@ -1008,14 +1008,14 @@ bool MainImpl::event(QEvent* e) {
 		QApplication::restoreOverrideCursor(); }
 		break;
 	case MSG_EV:
-		statusBar()->showMessage(data);
+		statusBar()->showMessage(d);
 		break;
 	case POPUP_LIST_EV:
-		doContexPopup(data);
+		doContexPopup(d);
 		break;
 	case POPUP_FILE_EV:
 	case POPUP_TREE_EV:
-		doFileContexPopup(data, e->type());
+		doFileContexPopup(d, e->type());
 		break;
 	default:
 		dbp("ASSERT in MainImpl::event unhandled event %1", e->type());
@@ -1285,11 +1285,11 @@ void MainImpl::updateCommitMenu(bool isStGITStack) {
 void MainImpl::updateRecentRepoMenu(SCRef newEntry) {
 
 	// update menu of all windows
-	foreach (QWidget* widget, QApplication::topLevelWidgets()) {
+	foreach (QWidget* w, QApplication::topLevelWidgets()) {
 
-		MainImpl* w = dynamic_cast<MainImpl*>(widget);
-		if (w)
-			w->doUpdateRecentRepoMenu(newEntry);
+		MainImpl* wmi = qobject_cast<MainImpl *>(w);
+		if (wmi)
+			wmi->doUpdateRecentRepoMenu(newEntry);
 	}
 }
 
@@ -1475,19 +1475,16 @@ void MainImpl::ActSplitView_activated() {
 	Domain* t;
 	switch (currentTabType(&t)) {
 	case TAB_REV: {
-		RevsView* rv = static_cast<RevsView*>(t);
-		QWidget* w = rv->tab()->fileList;
+		QWidget* w = static_cast<RevsView*>(t)->tab()->fileList;
 		QSplitter* sp = static_cast<QSplitter*>(w->parent());
 		sp->setHidden(w->isVisible()); }
 		break;
 	case TAB_PATCH: {
-		PatchView* pv = static_cast<PatchView*>(t);
-		QWidget* w = pv->tab()->textBrowserDesc;
+		QWidget* w = static_cast<PatchView*>(t)->tab()->textBrowserDesc;
 		w->setHidden(w->isVisible()); }
 		break;
 	case TAB_FILE: {
-		FileView* fv = static_cast<FileView*>(t);
-		QWidget* w = fv->tab()->histListView;
+		QWidget* w = static_cast<FileView*>(t)->tab()->histListView;
 		w->setHidden(w->isVisible()); }
 		break;
 	default:
@@ -1500,8 +1497,7 @@ void MainImpl::ActToggleLogsDiff_activated() {
 
 	Domain* t;
 	if (currentTabType(&t) == TAB_REV) {
-		RevsView* rv = static_cast<RevsView*>(t);
-		rv->toggleDiffView();
+		static_cast<RevsView*>(t)->toggleDiffView();
 	}
 }
 
@@ -1702,11 +1698,11 @@ void MainImpl::ActCustomActionSetup_activated() {
 void MainImpl::customActionListChanged(const QStringList& list) {
 
 	// update menu of all windows
-	foreach (QWidget* widget, QApplication::topLevelWidgets()) {
+	foreach (QWidget* w, QApplication::topLevelWidgets()) {
 
-		MainImpl* w = dynamic_cast<MainImpl*>(widget);
-		if (w)
-			w->doUpdateCustomActionMenu(list);
+		MainImpl* wmi = qobject_cast<MainImpl*>(w);
+		if (wmi)
+			wmi->doUpdateCustomActionMenu(list);
 	}
 }
 

@@ -630,8 +630,8 @@ const QStringList Git::getChildren(SCRef parent) {
         // reorder children by loading order
         QStringList::iterator itC(children.begin());
         for ( ; itC != children.end(); ++itC) {
-		const Rev* r = revLookup(*itC);
-		(*itC).prepend(QString("%1 ").arg(r->orderIdx, 6));
+		const Rev* rev = revLookup(*itC);
+		(*itC).prepend(QString("%1 ").arg(rev->orderIdx, 6));
 	}
         children.sort();
         for (itC = children.begin(); itC != children.end(); ++itC)
@@ -926,13 +926,13 @@ const QStringList Git::getDescendantBranches(SCRef sha, bool shaOnly) {
 
 	for (int i = 0; i < nr.count(); i++) {
 
-		const ShaString& sha = revData->revOrder[nr[i]];
+		const ShaString& sha2 = revData->revOrder[nr[i]];
 		if (shaOnly) {
-			tl.append(sha);
+			tl.append(sha2);
 			continue;
 		}
-		SCRef cap = " (" + sha + ") ";
-		RefMap::const_iterator it(refsShaMap.find(sha));
+		SCRef cap = " (" + sha2 + ") ";
+		RefMap::const_iterator it(refsShaMap.find(sha2));
 		if (it == refsShaMap.constEnd())
 			continue;
 
@@ -961,9 +961,9 @@ const QStringList Git::getNearTags(bool goDown, SCRef sha) {
 
 	for (int i = 0; i < nr.count(); i++) {
 
-		const ShaString& sha = revData->revOrder[nr[i]];
-		SCRef cap = " (" + sha + ")";
-		RefMap::const_iterator it(refsShaMap.find(sha));
+		const ShaString& sha2 = revData->revOrder[nr[i]];
+		SCRef cap = " (" + sha2 + ")";
+		RefMap::const_iterator it(refsShaMap.find(sha2));
 		if (it != refsShaMap.constEnd())
 			tl.append((*it).tags.join(cap).append(cap));
 	}
@@ -2912,19 +2912,19 @@ void Git::appendFileName(RevFile& rf, SCRef name, FileNamesLoader& fl) {
 
         QHash<QString, int>::const_iterator it(dirNamesMap.constFind(dr));
         if (it == dirNamesMap.constEnd()) {
-                int idx = dirNamesVec.count();
-                dirNamesMap.insert(dr, idx);
+                int num = dirNamesVec.count();
+                dirNamesMap.insert(dr, num);
                 dirNamesVec.append(dr);
-                fl.rfDirs.append(idx);
+                fl.rfDirs.append(num);
         } else
                 fl.rfDirs.append(*it);
 
         it = fileNamesMap.constFind(nm);
         if (it == fileNamesMap.constEnd()) {
-                int idx = fileNamesVec.count();
-                fileNamesMap.insert(nm, idx);
+                int num = fileNamesVec.count();
+                fileNamesMap.insert(nm, num);
                 fileNamesVec.append(nm);
-                fl.rfNames.append(idx);
+                fl.rfNames.append(num);
         } else
                 fl.rfNames.append(*it);
 }

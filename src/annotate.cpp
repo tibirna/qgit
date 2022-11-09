@@ -165,10 +165,10 @@ void Annotate::doAnnotate(const ShaString& ss) {
 	int parentNum = 1;
 	while (it != parents.constEnd()) {
 
-		FileAnnotation* pa = getFileAnnotation(*it);
-		const QString& diff(getPatch(sha, parentNum++));
+		pa = getFileAnnotation(*it);
+		const QString& diff2(getPatch(sha, parentNum++));
 		QStringList tmpAnn;
-		setAnnotation(diff, "Merge", pa->lines, tmpAnn);
+		setAnnotation(diff2, "Merge", pa->lines, tmpAnn);
 
 		// the two annotations must be of the same length
 		if (fa->lines.count() != tmpAnn.count()) {
@@ -214,7 +214,7 @@ void Annotate::setInitialAnnotation(SCRef fileSha, FileAnnotation* fa) {
 		fa->lines.append(empty);
 }
 
-const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
+const QString Annotate::setupAuthor(SCRef origAuthor, int id) {
 
 	QString tmp(origAuthor.section('<', 0, 0).trimmed()); // strip e-mail address
 	if (tmp.isEmpty()) { // probably only e-mail
@@ -232,7 +232,7 @@ const QString Annotate::setupAuthor(SCRef origAuthor, int annId) {
 
 		tmp.truncate(MAX_AUTHOR_LEN);
 	}
-	return QString("%1.%2").arg(annId, annNumLen).arg(tmp);
+	return QString("%1.%2").arg(id, annNumLen).arg(tmp);
 }
 
 void Annotate::unify(SList dst, SCList src) {
@@ -786,23 +786,23 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 
 	for ( ; shaIdx >= 0; shaIdx--) {
 
-		SCRef sha(histRevOrder[shaIdx]);
+		SCRef sha2(histRevOrder[shaIdx]);
 
-		if (!ranges.contains(sha)) {
+		if (!ranges.contains(sha2)) {
 
-			curRev = git->revLookup(sha, fh);
+			curRev = git->revLookup(sha2, fh);
 
 			if (curRev->parentsCount() == 0) {
 				// the start of an independent branch is found in this case
 				// insert an empty range, the whole branch will be ignored.
 				// Merge of outside branches are very rare so this solution
 				// seems enough if we don't want to dive in (useless) complications.
-				ranges.insert(sha, RangeInfo());
+				ranges.insert(sha2, RangeInfo());
 				continue;
 			}
-			const QString& diff(getPatch(sha));
+			const QString& diff(getPatch(sha2));
 			if (diff.isEmpty()) {
-				dbp("ASSERT in rangeFilter 2: diff for %1 not found", sha);
+				dbp("ASSERT in rangeFilter 2: diff for %1 not found", sha2);
 				return "";
 			}
 			QString parSha(curRev->parent(0));
@@ -817,9 +817,9 @@ const QString Annotate::computeRanges(SCRef sha, int paraFrom, int paraTo, SCRef
 			}
 			RangeInfo r(ranges[parSha]);
 			updateRange(&r, diff, false);
-			ranges.insert(sha, r);
+			ranges.insert(sha2, r);
 
-			if (sha == target) // stop now, no need to continue
+			if (sha2 == target) // stop now, no need to continue
 				return ancestor;
 		}
 	}

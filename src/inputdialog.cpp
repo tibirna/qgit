@@ -38,10 +38,10 @@ QStringList parseStringList(const QString &value, const InputDialog::VariableMap
 
 class RefNameValidator : public QValidator {
 public:
-	RefNameValidator(bool allowEmpty=false, QObject *parent=0)
+	RefNameValidator(bool allowEmptyP=false, QObject *parent=0)
 	    : QValidator(parent)
 	    , invalid("[ ~^:\?*[]")
-	    , allowEmpty(allowEmpty)
+	    , allowEmpty(allowEmptyP)
 	{}
 
 	void fixup(QString& input) const override;
@@ -81,10 +81,10 @@ QValidator::State RefNameValidator::validate(QString &input, int &pos) const
 }
 
 
-InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
+InputDialog::InputDialog(const QString &c, const VariableMap &variables,
                          const QString &title, QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
-    , cmd(cmd)
+    , cmd(c)
 {
 	this->setWindowTitle(title);
 	QGridLayout *layout = new QGridLayout(this);

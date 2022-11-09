@@ -159,12 +159,12 @@ int PatchContent::topToLineNum() {
 	return cursorForPosition(QPoint(1, 1)).blockNumber();
 }
 
-bool PatchContent::centerTarget(SCRef target) {
+bool PatchContent::centerTarget(SCRef tgt) {
 
 	moveCursor(QTextCursor::Start);
 
 	// find() updates cursor position
-	if (!find(target, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords))
+	if (!find(tgt, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords))
 		return false;
 
 	// move to the beginning of the line
@@ -202,11 +202,11 @@ void PatchContent::centerMatch(int id) {
 //	                                     matches[id].paraTo, matches[id].indexTo);
 }
 
-void PatchContent::procReadyRead(const QByteArray& data) {
+void PatchContent::procReadyRead(const QByteArray& read) {
 
-	patchRowData.append(data);
+	patchRowData.append(read);
 	if (document()->isEmpty() && isVisible())
-		processData(data);
+		processData(read);
 }
 
 void PatchContent::typeWriterFontChanged() {

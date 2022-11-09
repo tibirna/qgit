@@ -78,10 +78,10 @@ bool ConsoleImpl::start(const QString& cmd) {
 	return !proc.isNull();
 }
 
-void ConsoleImpl::procReadyRead(const QByteArray& data) {
+void ConsoleImpl::procReadyRead(const QByteArray& read) {
 
 	QString newParagraph;
-	if (QGit::stripPartialParaghraps(data, &newParagraph, &inpBuf))
+	if (QGit::stripPartialParaghraps(read, &newParagraph, &inpBuf))
 		// QTextEdit::append() adds a new paragraph,
 		// i.e. inserts a LF if not already present.
 		textEditOutput->append(newParagraph);
