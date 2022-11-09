@@ -59,6 +59,12 @@ StateInfo& StateInfo::operator=(const StateInfo& newState) {
 	return *this;
 }
 
+StateInfo::StateInfo(const StateInfo& newState) {
+
+	isLocked = false;
+	curS = newState.curS; // prevS is mot modified to allow a rollback
+}
+
 bool StateInfo::operator==(const StateInfo& newState) const {
 
 	if (&newState == this)

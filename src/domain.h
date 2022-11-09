@@ -35,6 +35,7 @@ class StateInfo {
 public:
 	StateInfo() { clear(); }
 	StateInfo& operator=(const StateInfo& newState);
+	StateInfo(const StateInfo& newState);
 	bool operator==(const StateInfo& newState) const;
 	bool operator!=(const StateInfo& newState) const;
 	void clear();
