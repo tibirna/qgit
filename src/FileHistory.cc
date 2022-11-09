@@ -204,7 +204,7 @@ QModelIndex FileHistory::index(int row, int column, const QModelIndex&) const {
   if (row < 0 || row >= rowCnt)
     return QModelIndex();
 
-  return createIndex(row, column, (void*)0);
+  return createIndex(row, column, nullptr);
 }
 
 QModelIndex FileHistory::parent(const QModelIndex&) const {

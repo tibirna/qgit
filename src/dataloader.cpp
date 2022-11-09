@@ -168,7 +168,7 @@ void DataLoader::addSplittedChunks(const QByteArray* hc) {
 	}
 	// do not assume we have only one chunk in hc
 	int ofs = 0;
-	while (ofs != -1 && ofs != (int)hc->size())
+	while (ofs != -1 && ofs != static_cast<int>(hc->size()))
 		ofs = git->addChunk(fh, *hc, ofs);
 }
 

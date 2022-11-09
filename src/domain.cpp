@@ -217,13 +217,13 @@ bool Domain::event(QEvent* e) {
 		fromMaster = true;
 		// fall through
 	case UPD_DM_EV:
-		update(fromMaster, ((UpdateDomainEvent*)e)->isForced());
+		update(fromMaster, static_cast<UpdateDomainEvent *>(e)->isForced());
 		break;
 	case MSG_EV:
 		if (!busy && !st.requestPending())
-			QApplication::postEvent(m(), new MessageEvent(((MessageEvent*)e)->myData()));
+			QApplication::postEvent(m(), new MessageEvent(static_cast<MessageEvent *>(e)->myData()));
 		else // waiting for the end of updating
-			statusBarRequest = ((MessageEvent*)e)->myData();
+			statusBarRequest = static_cast<MessageEvent *>(e)->myData();
 		break;
 	default:
 		break;
@@ -275,7 +275,9 @@ void Domain::update(bool fromMaster, bool force) {
 		busy = false;
 		if (git->curContext() != this)
 			qDebug("ASSERT in Domain::update, context is %p "
-			       "instead of %p", (void*)git->curContext(), (void*)this);
+			       "instead of %p",
+			       static_cast<void *>(git->curContext()),
+			       static_cast<void *>(this));
 
 		git->setCurContext(NULL);
 		git->setThrowOnStop(false);

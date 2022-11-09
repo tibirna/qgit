@@ -997,11 +997,11 @@ bool MainImpl::event(QEvent* e) {
 	SCRef data = de->myData();
 	bool ret = true;
 
-        switch ((EventType)e->type()) {
+        switch (static_cast<EventType>(e->type())) {
 	case ERROR_EV: {
 		QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 		EM_PROCESS_EVENTS;
-		MainExecErrorEvent* me = (MainExecErrorEvent*)e;
+		MainExecErrorEvent* me = static_cast<MainExecErrorEvent *>(e);
 		QString text("An error occurred while executing command:\n\n");
 		text.append(me->command() + "\n\n" + me->report());
 		QMessageBox::warning(this, "Error - QGit", text);

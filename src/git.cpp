@@ -1705,7 +1705,7 @@ const QStringList Git::getArgs(bool* quit, bool repoChanged) {
         }
         if (!startup || args.isEmpty()) { // need to retrieve args
                 if (testFlag(RANGE_SELECT_F)) { // open range dialog
-                        RangeSelectImpl rs((QWidget*)parent(), &args, repoChanged, this);
+                        RangeSelectImpl rs(qobject_cast<QWidget *>(parent()), &args, repoChanged, this);
                         *quit = (rs.exec() == QDialog::Rejected); // modal execution
                         if (*quit)
                             return QStringList();
@@ -2430,7 +2430,7 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
                         fh->loadTime += loadTime;
 
                         ulong kb = byteSize / 1024;
-                        double mbs = (double)byteSize / fh->loadTime / 1000;
+                        double mbs = static_cast<double>(byteSize) / fh->loadTime / 1000;
                         QString tmp;
                         tmp.asprintf("Loaded %i revisions  (%li KB),   "
                                      "time elapsed: %i ms  (%.2f MB/s)",
@@ -2888,7 +2888,7 @@ void Git::flushFileNames(FileNamesLoader& fl) {
         b.clear();
         b.resize(2 * dirs.size() * static_cast<int>(sizeof(int)));
 
-        int* d = (int*)(b.data());
+        int* d = reinterpret_cast<int *>(b.data());
 
         for (int i = 0; i < dirs.size(); i++) {
 
@@ -2952,7 +2952,7 @@ void Git::updateDescMap(const Rev* r,uint idx, QHash<QPair<uint, uint>, bool>& d
 
                         for (int y = 0; y < dvv.count(); y++) {
 
-                                uint v = (uint)dvv[y];
+                                uint v = static_cast<uint>(dvv[y]);
                                 QPair<uint, uint> key = qMakePair(idx, v);
                                 QPair<uint, uint> keyN = qMakePair(v, idx);
                                 dm.insert(key, true);
@@ -3018,7 +3018,7 @@ void Git::mergeNearTags(bool down, Rev* p, const Rev* r, const QHash<QPair<uint,
                                 add = false;
                                 break;
                         }
-                        QPair<uint, uint> key = qMakePair((uint)src2[s2], (uint)src1[s1]);
+                        QPair<uint, uint> key = qMakePair(static_cast<uint>(src2[s2]), static_cast<uint>(src1[s1]));
 
                         if (!dm.contains(key)) { // could be empty if all tags are independent
                                 add = true; // could be an independent path

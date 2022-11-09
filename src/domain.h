@@ -24,8 +24,8 @@ class MainImpl;
 class UpdateDomainEvent : public QEvent {
 public:
 	explicit UpdateDomainEvent(bool fromMaster, bool force = false)
-	: QEvent(fromMaster ? (QEvent::Type)QGit::UPD_DM_MST_EV
-	                    : (QEvent::Type)QGit::UPD_DM_EV), f(force) {}
+		: QEvent(fromMaster ? static_cast<QEvent::Type>(QGit::UPD_DM_MST_EV)
+			            : static_cast<QEvent::Type>(QGit::UPD_DM_EV)), f(force) {}
 	bool isForced() const { return f; }
 private:
 	bool f;

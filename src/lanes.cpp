@@ -282,7 +282,7 @@ int Lanes::findType(int type, int pos) {
 int Lanes::add(int type, const QString& next, int pos) {
 
 	// first check empty lanes starting from pos
-	if (pos < (int)typeVec.count()) {
+	if (pos < static_cast<int>(typeVec.count())) {
 		pos = findType(EMPTY, pos);
 		if (pos != -1) {
 			typeVec[pos] = type;

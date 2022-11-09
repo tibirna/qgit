@@ -217,19 +217,19 @@ const RevFile& RevFile::operator>>(QDataStream& stream) const {
 
         // skip common case of only modified files
         bool isEmpty = onlyModified;
-        stream << (quint32)isEmpty;
+        stream << static_cast<quint32>(isEmpty);
         if (!isEmpty)
                 stream << status;
 
         // skip common case of just one parent
         isEmpty = (mergeParent.isEmpty() || mergeParent.last() == 1);
-        stream << (quint32)isEmpty;
+        stream << static_cast<quint32>(isEmpty);
         if (!isEmpty)
                 stream << mergeParent;
 
         // skip common case of no rename/copies
         isEmpty = extStatus.isEmpty();
-        stream << (quint32)isEmpty;
+        stream << static_cast<quint32>(isEmpty);
         if (!isEmpty)
                 stream << extStatus;
 
@@ -247,17 +247,17 @@ RevFile& RevFile::operator<<(QDataStream& stream) {
         quint32 tmp;
 
         stream >> tmp;
-        onlyModified = (bool)tmp;
+        onlyModified = static_cast<bool>(tmp);
         if (!onlyModified)
                 stream >> status;
 
         stream >> tmp;
-        isEmpty = (bool)tmp;
+        isEmpty = static_cast<bool>(tmp);
         if (!isEmpty)
                 stream >> mergeParent;
 
         stream >> tmp;
-        isEmpty = (bool)tmp;
+        isEmpty = static_cast<bool>(tmp);
         if (!isEmpty)
                 stream >> extStatus;
 
