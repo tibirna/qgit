@@ -31,7 +31,7 @@ public slots:
 	void procFinished();
 
 protected slots:
-	virtual void closeEvent(QCloseEvent* ce);
+	virtual void closeEvent(QCloseEvent* ce) override;
 	void pushButtonTerminate_clicked();
 	void pushButtonOk_clicked();
 

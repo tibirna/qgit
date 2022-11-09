@@ -21,7 +21,7 @@ signals:
 	void changesCommitted(bool);
 
 public slots:
-	virtual void closeEvent(QCloseEvent*);
+	virtual void closeEvent(QCloseEvent*) override;
 	void pushButtonCommit_clicked();
 	void pushButtonAmend_clicked();
 	void pushButtonCancel_clicked();
@@ -43,7 +43,7 @@ private:
 	bool checkPatchName(QString& patchName);
 	bool checkConfirm(SCRef msg, SCRef patchName, SCList selFiles, bool amend);
 	void computePosition(int &col_pos, int &line_pos);
-    bool eventFilter(QObject* obj, QEvent* event);
+	bool eventFilter(QObject* obj, QEvent* event) override;
 
 	Git* git;
 	QString origMsg;

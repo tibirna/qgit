@@ -131,7 +131,7 @@ protected slots:
 
 protected:
 	virtual void clear(bool complete = true);
-	virtual bool event(QEvent* e);
+	virtual bool event(QEvent* e) override;
 	virtual bool doUpdate(bool force) = 0;
 	void linkDomain(Domain* d);
 	void unlinkDomain(Domain* d);

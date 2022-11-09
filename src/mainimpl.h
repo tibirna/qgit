@@ -75,7 +75,7 @@ private slots:
 	void shortCutActivated();
 
 protected:
-	virtual bool event(QEvent* e);
+	virtual bool event(QEvent* e) override;
 
 protected slots:
 	void initWithEventLoopActive();
@@ -134,12 +134,12 @@ protected slots:
 	void ActAbout_activated();
 	void ActHelp_activated();
 	void ActMarkDiffToSha_activated();
-	void closeEvent(QCloseEvent* ce);
+	void closeEvent(QCloseEvent* ce) override;
 
 private:
 	friend class setRepoDelayed;
 
-	virtual bool eventFilter(QObject* obj, QEvent* ev);
+	virtual bool eventFilter(QObject* obj, QEvent* ev) override;
 	void updateGlobalActions(bool b);
 	void updateRevVariables(SCRef sha);
 	void setupShortcuts();

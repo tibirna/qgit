@@ -24,7 +24,7 @@
 class FileHighlighter : public QSyntaxHighlighter {
 public:
 	FileHighlighter(FileContent* fc) : QSyntaxHighlighter(fc), f(fc) {}
-	virtual void highlightBlock(const QString& p) {
+	virtual void highlightBlock(const QString& p) override {
 
 		// state is used to count lines, starting from 0
 		if (currentBlockState() == -1) // only once

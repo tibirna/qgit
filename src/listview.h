@@ -58,19 +58,19 @@ public slots:
 	void on_keyDown();
 
 protected:
-	virtual void mousePressEvent(QMouseEvent* e);
-	virtual void mouseMoveEvent(QMouseEvent* e);
-	virtual void mouseReleaseEvent(QMouseEvent* e);
-	virtual void dragEnterEvent(QDragEnterEvent* e);
-	virtual void dragMoveEvent(QDragMoveEvent* e);
-	virtual void dragLeaveEvent(QDragLeaveEvent* event);
-	virtual void dropEvent(QDropEvent* e);
+	virtual void mousePressEvent(QMouseEvent* e) override;
+	virtual void mouseMoveEvent(QMouseEvent* e) override;
+	virtual void mouseReleaseEvent(QMouseEvent* e) override;
+	virtual void dragEnterEvent(QDragEnterEvent* e) override;
+	virtual void dragMoveEvent(QDragMoveEvent* e) override;
+	virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+	virtual void dropEvent(QDropEvent* e) override;
 	void startDragging(QMouseEvent *e);
 	QPixmap pixmapFromSelection(const QStringList &revs, const QString &ref) const;
 
 private slots:
 	void on_customContextMenuRequested(const QPoint&);
-	virtual void currentChanged(const QModelIndex&, const QModelIndex&);
+	virtual void currentChanged(const QModelIndex&, const QModelIndex&) override;
 
 private:
 	void setupGeometry();
@@ -95,8 +95,8 @@ Q_OBJECT
 public:
 	ListViewDelegate(Git* git, ListViewProxy* lp, QObject* parent);
 
-	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const;
-	virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
+	virtual void paint(QPainter* p, const QStyleOptionViewItem& o, const QModelIndex &i) const override;
+	virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const override;
 	int laneWidth() const { return 3 * laneHeight / 4; }
 	void setLaneHeight(int h) { laneHeight = h; }
 
@@ -130,7 +130,7 @@ public:
 	bool isHighlighted(int row) const;
 
 protected:
-	virtual bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
+	virtual bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
 
 private:
 	bool isMatch(int row) const;

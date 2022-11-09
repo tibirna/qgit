@@ -18,7 +18,7 @@ public:
 	PatchView() {}
 	PatchView(MainImpl* mi, Git* g);
 	~PatchView();
-	void clear(bool complete = true);
+	void clear(bool complete = true) override;
 	Ui_TabPatch* tab() { return patchTab; }
 
 signals:
@@ -32,10 +32,10 @@ public slots:
 	void buttonFilterPatch_clicked();
 
 protected slots:
-	virtual void on_contextMenu(const QString&, int);
+	virtual void on_contextMenu(const QString&, int) override;
 
 protected:
-	virtual bool doUpdate(bool force);
+	virtual bool doUpdate(bool force) override;
 
 private:
 	void updatePatch();

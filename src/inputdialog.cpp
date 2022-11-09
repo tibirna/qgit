@@ -44,8 +44,8 @@ public:
 	    , allowEmpty(allowEmpty)
 	{}
 
-	void fixup(QString& input) const;
-	State validate(QString & input, int & pos) const;
+	void fixup(QString& input) const override;
+	State validate(QString & input, int & pos) const override;
 private:
 	const QRegExp invalid;
 	bool allowEmpty;
