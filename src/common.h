@@ -445,14 +445,14 @@ typedef QHash<ShaString, FileAnnotation> AnnotateHistory;
 
 class BaseEvent: public QEvent {
 public:
-	BaseEvent(SCRef d, int id) : QEvent((QEvent::Type)id), payLoad(d) {}
+	BaseEvent(SCRef ref, int id) : QEvent((QEvent::Type)id), payLoad(ref) {}
 	const QString myData() const { return payLoad; }
 private:
 	const QString payLoad; // passed by copy
 };
 
 #define DEF_EVENT(X, T) class X : public BaseEvent { public:        \
-                        explicit X (SCRef d) : BaseEvent(d, T) {} }
+                        explicit X (SCRef ref) : BaseEvent(ref, T) {} }
 
 DEF_EVENT(MessageEvent, QGit::MSG_EV);
 DEF_EVENT(AnnotateProgressEvent, QGit::ANN_PRG_EV);
