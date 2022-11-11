@@ -864,6 +864,23 @@
     <string>Ctrl+B</string>
    </property>
   </action>
+  <action name="ActBranchRename">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-entry"/>
+   </property>
+   <property name="text">
+    <string>&amp;Rename branch</string>
+   </property>
+   <property name="iconText">
+    <string>Rename branch</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename selected branch</string>
+   </property>
+  </action>
   <action name="ActCheckout">
    <property name="text">
     <string>Ch&amp;eckout...</string>
@@ -1216,6 +1233,22 @@
    <signal>triggered()</signal>
    <receiver>MainBase</receiver>
    <slot>ActBranch_activated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ActBranchRename</sender>
+   <signal>triggered()</signal>
+   <receiver>MainBase</receiver>
+   <slot>ActBranchRename_activated()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1586,6 +1619,7 @@
   <slot>ActSettings_activated()</slot>
   <slot>ActShowTree_toggled(bool)</slot>
   <slot>ActBranch_activated()</slot>
+  <slot>ActBranchRename_activated()</slot>
   <slot>ActTag_activated()</slot>
   <slot>ActDelete_activated()</slot>
   <slot>ActViewFile_activated()</slot>

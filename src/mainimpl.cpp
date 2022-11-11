@@ -570,9 +570,11 @@ void MainImpl::updateContextActions(SCRef newRevSha, SCRef newFileName,
 		isUnApplied = r->isUnApplied;
 		isApplied = r->isApplied;
 	}
+
 	ActMarkDiffToSha->setEnabled(newRevSha != ZERO_SHA);
 	ActCheckout->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActBranch->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
+	ActBranchRename->setEnabled(ref_type | Git::BRANCH);
 	ActTag->setEnabled(found && (newRevSha != ZERO_SHA) && !isUnApplied);
 	ActDelete->setEnabled(ref_type != 0);
 	ActPush->setEnabled(found && isUnApplied && git->isNothingToCommit());
@@ -1453,10 +1455,16 @@ void MainImpl::doContexPopup(SCRef sha) {
 	if (isRevPage) {
 		updateRevVariables(sha);
 
+		auto selected_name = revision_variables.value(SELECTED_NAME).toString();
+		auto local_branches = revision_variables.value(REV_LOCAL_BRANCHES).toStringList();
+		bool isLocalBranchSelected = !selected_name.isEmpty() && local_branches.contains(selected_name);
+
 		if (ActCommit->isEnabled() && (sha == ZERO_SHA))
 			contextMenu.addAction(ActCommit);
 		if (ActCheckout->isEnabled())
 			contextMenu.addAction(ActCheckout);
+		if (ActBranchRename->isEnabled() && isLocalBranchSelected)
+			contextMenu.addAction(ActBranchRename);
 		if (ActBranch->isEnabled())
 			contextMenu.addAction(ActBranch);
 		if (ActTag->isEnabled())
@@ -1985,6 +1993,47 @@ void MainImpl::ActBranch_activated() {
 void MainImpl::ActTag_activated() {
 
     doBranchOrTag(true);
+}
+
+void MainImpl::ActBranchRename_activated() {
+	const QString &branchName = revision_variables.value(SELECTED_NAME).toString();
+
+	if (branchName.isEmpty()) {
+		return;
+	}
+
+	QString dlgTitle = "Rename branch " + branchName + " - QGit";
+	QString dlgDesc = "%lineedit[ref]:name=$BRANCH_NAME%";
+
+	InputDialog::VariableMap dlgVars = { { "BRANCH_NAME", branchName } };
+	InputDialog dlg(dlgDesc, dlgVars, dlgTitle, this);
+
+	if (dlg.exec() != QDialog::Accepted) {
+		return;
+	}
+
+	auto newBranchName = dlg.value("name").toString();
+
+	if (newBranchName.isEmpty()) return;
+
+	bool force = false;
+	if (!git->getRefSha(newBranchName, Git::BRANCH, false).isEmpty()) {
+		if (QMessageBox::warning(this, dlgTitle,
+		                         QString("Branch '%1' already exists.\nForce reset?").arg(newBranchName),
+								 QMessageBox::Yes | QMessageBox::No,
+		                         QMessageBox::No) != QMessageBox::Yes)
+			return;
+		force = true;
+	}
+
+	auto cmd = QString("git branch --move %1 '%2' '%3'")
+					.arg(force ? "--force" : "")
+					.arg(branchName)
+					.arg(newBranchName);
+
+	if (git->run(cmd)) {
+		refreshRepo(true);
+	}
 }
 
 const QStringList& stripNames(QStringList& names) {
