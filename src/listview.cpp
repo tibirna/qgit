@@ -93,11 +93,6 @@ int ListView::row(SCRef sha) const {
 
 void ListView::setupGeometry() {
 
-	QPalette pl = palette();
-	pl.setColor(QPalette::Base, ODD_LINE_COL);
-	pl.setColor(QPalette::AlternateBase, EVEN_LINE_COL);
-	setPalette(pl); // does not seem to inherit application paletteAnnotate
-
 	QHeaderView* hv = header();
 	hv->setStretchLastSection(true);
 	hv->setSectionResizeMode(LOG_COL, QHeaderView::Interactive);
