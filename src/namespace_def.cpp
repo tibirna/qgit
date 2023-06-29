@@ -136,8 +136,6 @@ const QColor QGit::PURPLE       = QColor(221, 221, 255);
 const QColor QGit::DARK_GREEN   = QColor(0, 205, 0);
 
 // initialized at startup according to system wide settings
-QColor QGit::ODD_LINE_COL;
-QColor QGit::EVEN_LINE_COL;
 QString QGit::GIT_DIR;
 
 /*
