@@ -2191,7 +2191,7 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
            then, with this option, file history is truncated to
            the file deletion revision.
         */
-                initCmd << QString("-r -m -p --full-index").split(' ');
+                initCmd << QString("-r -m -p --full-index --simplify-merges").split(' ');
         } else
                 {} // initCmd << QString("--early-output"); currently disabled
 
