@@ -2170,7 +2170,7 @@ bool Git::startParseProc(SCList initCmd, FileHistory* fh, SCRef buf) {
 
 bool Git::startRevList(SCList args, FileHistory* fh) {
 
-        QString baseCmd("git log --topo-order --no-color "
+        QString baseCmd("git -c log.diffMerges=separate log --topo-order --no-color "
 
 #ifndef Q_OS_WIN32
                         "--log-size " // FIXME broken on Windows
