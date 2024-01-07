@@ -34,7 +34,7 @@
 template<typename T> inline const QString _valueOf(const T& x) { return QVariant(x).toString(); }
 template<> inline const QString _valueOf(const QStringList& x) { return x.join(" "); }
 inline const QString& _valueOf(const QString& x) { return x; }
-inline const QString  _valueOf(size_t x) { return QString::number((uint)x); }
+inline const QString  _valueOf(size_t x) { return QString::number(static_cast<uint>(x)); }
 
 // some debug macros
 #define constlatin(x) (_valueOf(x).toLatin1().constData())
@@ -401,15 +401,15 @@ public:
 	 */
 	QByteArray pathsIdx;
 
-	int dirAt(uint idx) const { return ((const int*)pathsIdx.constData())[idx]; }
-	int nameAt(uint idx) const { return ((const int*)pathsIdx.constData())[count() + idx]; }
+	int dirAt(uint idx) const { return reinterpret_cast<const int *>(pathsIdx.constData())[idx]; }
+	int nameAt(uint idx) const { return reinterpret_cast<const int *>(pathsIdx.constData())[count() + idx]; }
 
 	QVector<int> mergeParent;
 
 	// helper functions
 	int count() const {
 
-		return pathsIdx.size() / ((int)sizeof(int) * 2);
+		return pathsIdx.size() / (sizeof(int) * 2);
 	}
 	bool statusCmp(int idx, StatusFlag sf) const {
 
@@ -443,14 +443,14 @@ typedef QHash<ShaString, FileAnnotation> AnnotateHistory;
 
 class BaseEvent: public QEvent {
 public:
-	BaseEvent(SCRef d, int id) : QEvent((QEvent::Type)id), payLoad(d) {}
+	BaseEvent(SCRef ref, int id) : QEvent(static_cast<QEvent::Type>(id)), payLoad(ref) {}
 	const QString myData() const { return payLoad; }
 private:
 	const QString payLoad; // passed by copy
 };
 
 #define DEF_EVENT(X, T) class X : public BaseEvent { public:        \
-                        explicit X (SCRef d) : BaseEvent(d, T) {} }
+                        explicit X (SCRef ref) : BaseEvent(ref, T) {} }
 
 DEF_EVENT(MessageEvent, QGit::MSG_EV);
 DEF_EVENT(AnnotateProgressEvent, QGit::ANN_PRG_EV);

@@ -24,7 +24,7 @@
 class FileHighlighter : public QSyntaxHighlighter {
 public:
 	FileHighlighter(FileContent* fc) : QSyntaxHighlighter(fc), f(fc) {}
-	virtual void highlightBlock(const QString& p) {
+	virtual void highlightBlock(const QString& p) override {
 
 		// state is used to count lines, starting from 0
 		if (currentBlockState() == -1) // only once
@@ -601,8 +601,8 @@ void FileContent::setAnnList() {
 	QBrush back(Qt::lightGray);
 	QFont f(listWidgetAnn->font());
 	f.setBold(true);
-	FOREACH (QVector<int>, it, curIdLines) {
-		QListWidgetItem* item = listWidgetAnn->item(*it);
+	FOREACH (QVector<int>, it2, curIdLines) {
+		QListWidgetItem* item = listWidgetAnn->item(*it2);
 		item->setForeground(fore);
 		item->setBackground(back);
 		item->setFont(f);

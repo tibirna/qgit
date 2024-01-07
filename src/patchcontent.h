@@ -21,7 +21,7 @@ class DiffHighlighter : public QSyntaxHighlighter {
 public:
 	DiffHighlighter(QTextEdit* p) : QSyntaxHighlighter(p), cl(0) {}
 	void setCombinedLength(uint c) { cl = c; }
-	virtual void highlightBlock(const QString& text);
+	virtual void highlightBlock(const QString& text) override;
 private:
 	uint cl;
 };

@@ -56,7 +56,7 @@ public slots:
 	void typeWriterFontChanged();
 
 protected:
-	virtual void resizeEvent(QResizeEvent* e);
+	virtual void resizeEvent(QResizeEvent* e) override;
 
 private slots:
 	void on_list_doubleClicked(QListWidgetItem*);

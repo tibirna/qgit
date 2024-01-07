@@ -24,9 +24,9 @@ void ExceptionManager::init(int* excp, const QString& desc) {
 	descriptions.append(desc);
 }
 
-const QString ExceptionManager::desc(int excpId) {
+const QString ExceptionManager::desc(int exId) {
 
-	return descriptions[excpId];
+	return descriptions[exId];
 }
 
 bool ExceptionManager::isMatch(int value, int excp, const QString& context) {
@@ -40,79 +40,79 @@ bool ExceptionManager::isMatch(int value, int excp, const QString& context) {
 	return match;
 }
 
-void ExceptionManager::add(int excpId, bool verbose) {
+void ExceptionManager::add(int exId, bool verbose) {
 // add a new exception in currentThrowableSet
 
 	// are prepended so to use a for loop starting
 	// from begin to find the latest. Exceptions are
 	// always added/removed from both totalThrowableSet
 	// and regionThrowableSet
-	totalThrowableSet.prepend(Exception(excpId, verbose));
-	regionThrowableSet.prepend(Exception(excpId, verbose));
+	totalThrowableSet.prepend(Exception(exId, verbose));
+	regionThrowableSet.prepend(Exception(exId, verbose));
 }
 
-void ExceptionManager::remove(int excpId) {
+void ExceptionManager::remove(int exId) {
 // removes ONE exception in totalThrowableSet and ONE in regionThrowableSet.
 // if add and remove calls are correctly nested the removed
 // excp should be the first in both throwable sets
 
 	if (totalThrowableSet.isEmpty() || regionThrowableSet.isEmpty()) {
-		qDebug("ASSERT in remove: removing %i from an empty set", excpId);
+		qDebug("ASSERT in remove: removing %i from an empty set", exId);
 		return;
 	}
 	// remove from region.
 	SetIt itReg(regionThrowableSet.begin());
-	if ((*itReg).excpId != excpId) {
-		qDebug("ASSERT in remove: %i is not the first in list", excpId);
+	if ((*itReg).excpId != exId) {
+		qDebug("ASSERT in remove: %i is not the first in list", exId);
 		return;
 	}
 	regionThrowableSet.erase(itReg);
 
 	// remove from total.
 	SetIt itTot(totalThrowableSet.begin());
-	if ((*itTot).excpId != excpId) {
-		qDebug("ASSERT in remove: %i is not the first in list", excpId);
+	if ((*itTot).excpId != exId) {
+		qDebug("ASSERT in remove: %i is not the first in list", exId);
 		return;
 	}
 	totalThrowableSet.erase(itTot);
 }
 
 ExceptionManager::SetIt ExceptionManager::findExcp(ThrowableSet& ts,
-		const SetIt& startIt, int excpId) {
+		const SetIt& startIt, int exId) {
 
 	SetIt it(startIt);
 	for ( ; it != ts.end(); ++it)
-		if ((*it).excpId == excpId)
+		if ((*it).excpId == exId)
 			break;
 	return it;
 }
 
-void ExceptionManager::setRaisedFlag(ThrowableSet& ts, int excpId) {
+void ExceptionManager::setRaisedFlag(ThrowableSet& ts, int exId) {
 
-	SetIt it(findExcp(ts, ts.begin(), excpId));
+	SetIt it(findExcp(ts, ts.begin(), exId));
 	while (it != ts.end()) {
 		(*it).isRaised = true;
-		it = findExcp(ts, ++it, excpId);
+		it = findExcp(ts, ++it, exId);
 	}
 }
 
-void ExceptionManager::raise(int excpId) {
+void ExceptionManager::raise(int exId) {
 
 	if (totalThrowableSet.isEmpty())
 		return;
 
 	// check totalThrowableSet to find if excpId is throwable
-	SetIt it = findExcp(totalThrowableSet, totalThrowableSet.begin(), excpId);
+	SetIt it = findExcp(totalThrowableSet, totalThrowableSet.begin(), exId);
 	if (it == totalThrowableSet.end())
 		return;
 
 	// we have found an exception. Set raised flag in regionThrowableSet
-	setRaisedFlag(regionThrowableSet, excpId);
+	setRaisedFlag(regionThrowableSet, exId);
 
 	// then set the flag in all regions throwableSetList
 	QMap<int, ThrowableSet>::iterator itList(throwableSetMap.begin());
 	while (itList != throwableSetMap.end()) {
-		setRaisedFlag(*itList, excpId);
+		setRaisedFlag(*itList, exId);
 		++itList;
 	}
 }
@@ -134,17 +134,17 @@ int ExceptionManager::saveThrowableSet() {
 	return oldCurrentRegionId;
 }
 
-void ExceptionManager::restoreThrowableSet(int regionId) {
+void ExceptionManager::restoreThrowableSet(int regId) {
 
-	if (!throwableSetMap.contains(regionId)) {
-		qDebug("ASSERT in restoreThrowableSet: region %i not found", regionId);
+	if (!throwableSetMap.contains(regId)) {
+		qDebug("ASSERT in restoreThrowableSet: region %i not found", regId);
 		return;
 	}
-	regionThrowableSet = throwableSetMap[regionId];
-	throwableSetMap.remove(regionId);
+	regionThrowableSet = throwableSetMap[regId];
+	throwableSetMap.remove(regId);
 }
 
-bool ExceptionManager::isPending(int excpId) {
+bool ExceptionManager::isPending(int exId) {
 
 	// check in ALL regions if an exception request is pending
 	QMap<int, ThrowableSet>::const_iterator itList(throwableSetMap.constBegin());
@@ -152,7 +152,7 @@ bool ExceptionManager::isPending(int excpId) {
 
 		ThrowableSet::const_iterator it((*itList).constBegin());
 		for ( ; it != (*itList).constEnd(); ++it)
-			if ((*it).isRaised && (*it).excpId == excpId)
+			if ((*it).isRaised && (*it).excpId == exId)
 				return true;
 		++itList;
 	}

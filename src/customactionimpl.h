@@ -20,7 +20,7 @@ signals:
 	void listChanged(const QStringList&);
 
 protected slots:
-	virtual void closeEvent(QCloseEvent*);
+	virtual void closeEvent(QCloseEvent*) override;
 	void listWidgetNames_currentItemChanged(QListWidgetItem*, QListWidgetItem*);
 	void pushButtonNew_clicked();
 	void pushButtonRename_clicked();

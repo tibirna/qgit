@@ -17,7 +17,7 @@ public:
 	void setup(Domain* dm) { d = dm; }
 
 protected:
-	virtual void contextMenuEvent(QContextMenuEvent* e);
+	virtual void contextMenuEvent(QContextMenuEvent* e) override;
 
 private slots:
 	void on_anchorClicked(const QUrl& link);

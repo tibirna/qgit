@@ -29,8 +29,8 @@ public slots:
 	void on_changeFont(const QFont& f);
 
 protected:
-	virtual void focusInEvent(QFocusEvent*);
-	virtual void mouseMoveEvent(QMouseEvent*);
+	virtual void focusInEvent(QFocusEvent*) override;
+	virtual void mouseMoveEvent(QMouseEvent*) override;
 	bool startDragging(QMouseEvent *e);
 
 private slots:

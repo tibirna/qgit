@@ -204,7 +204,7 @@ QModelIndex FileHistory::index(int row, int column, const QModelIndex&) const {
   if (row < 0 || row >= rowCnt)
     return QModelIndex();
 
-  return createIndex(row, column, (void*)0);
+  return createIndex(row, column, nullptr);
 }
 
 QModelIndex FileHistory::parent(const QModelIndex&) const {
@@ -213,12 +213,12 @@ QModelIndex FileHistory::parent(const QModelIndex&) const {
   return no_parent;
 }
 
-const QString FileHistory::timeDiff(unsigned long secs) const {
+const QString FileHistory::timeDiff(unsigned long s) const {
 
-  ulong days  =  secs / (3600 * 24);
-  ulong hours = (secs - days * 3600 * 24) / 3600;
-  ulong min   = (secs - days * 3600 * 24 - hours * 3600) / 60;
-  ulong sec   =  secs - days * 3600 * 24 - hours * 3600 - min * 60;
+  ulong days  =  s / (3600 * 24);
+  ulong hours = (s - days * 3600 * 24) / 3600;
+  ulong min   = (s - days * 3600 * 24 - hours * 3600) / 60;
+  ulong sec   =  s - days * 3600 * 24 - hours * 3600 - min * 60;
   QString tmp;
   if (days > 0)
     tmp.append(QString::number(days) + "d ");

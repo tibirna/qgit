@@ -21,7 +21,7 @@ public:
 	FileView() {}
 	FileView(MainImpl* m, Git* git);
 	~FileView();
-	virtual void clear(bool complete = true);
+	virtual void clear(bool complete = true) override;
 	void append(SCRef data);
 	void historyReady();
 	void updateHistViewer(SCRef revSha, SCRef fileName, bool fromUpstream = true);
@@ -44,9 +44,9 @@ public slots:
 	void on_revIdSelected(int);
 
 protected:
-	virtual bool doUpdate(bool force);
-	virtual bool isMatch(SCRef sha);
-	virtual bool eventFilter(QObject *obj, QEvent *e);
+	virtual bool doUpdate(bool force) override;
+	virtual bool isMatch(SCRef sha) override;
+	virtual bool eventFilter(QObject *obj, QEvent *e) override;
 
 private:
 	friend class MainImpl;

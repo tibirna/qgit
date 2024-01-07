@@ -11,18 +11,18 @@
 #include <QTextDocument>
 #include "common.h"
 
-const QString Rev::mid(int start, int len) const {
+const QString Rev::mid(int from, int len) const {
 
         // warning no sanity check is done on arguments
         const char* data = ba.constData();
-        return QString::fromLocal8Bit(data + start, len);
+        return QString::fromLocal8Bit(data + from, len);
 }
 
-const QString Rev::midSha(int start, int len) const {
+const QString Rev::midSha(int from, int len) const {
 
         // warning no sanity check is done on arguments
         const char* data = ba.constData();
-        return QString::fromLatin1(data + start, len); // faster then formAscii
+        return QString::fromLatin1(data + from, len); // faster then formAscii
 }
 
 const ShaString Rev::parent(int idx) const {
@@ -217,19 +217,19 @@ const RevFile& RevFile::operator>>(QDataStream& stream) const {
 
         // skip common case of only modified files
         bool isEmpty = onlyModified;
-        stream << (quint32)isEmpty;
+        stream << static_cast<quint32>(isEmpty);
         if (!isEmpty)
                 stream << status;
 
         // skip common case of just one parent
         isEmpty = (mergeParent.isEmpty() || mergeParent.last() == 1);
-        stream << (quint32)isEmpty;
+        stream << static_cast<quint32>(isEmpty);
         if (!isEmpty)
                 stream << mergeParent;
 
         // skip common case of no rename/copies
         isEmpty = extStatus.isEmpty();
-        stream << (quint32)isEmpty;
+        stream << static_cast<quint32>(isEmpty);
         if (!isEmpty)
                 stream << extStatus;
 
@@ -247,17 +247,17 @@ RevFile& RevFile::operator<<(QDataStream& stream) {
         quint32 tmp;
 
         stream >> tmp;
-        onlyModified = (bool)tmp;
+        onlyModified = static_cast<bool>(tmp);
         if (!onlyModified)
                 stream >> status;
 
         stream >> tmp;
-        isEmpty = (bool)tmp;
+        isEmpty = static_cast<bool>(tmp);
         if (!isEmpty)
                 stream >> mergeParent;
 
         stream >> tmp;
-        isEmpty = (bool)tmp;
+        isEmpty = static_cast<bool>(tmp);
         if (!isEmpty)
                 stream >> extStatus;
 

@@ -15,10 +15,10 @@ class SmartLabel : public QLabel {
 Q_OBJECT
 public:
 	SmartLabel(const QString& text, QWidget* par);
-	void paintEvent(QPaintEvent* event);
+	void paintEvent(QPaintEvent* event) override;
 
 protected:
-	virtual void contextMenuEvent(QContextMenuEvent* e);
+	virtual void contextMenuEvent(QContextMenuEvent* e) override;
 
 private slots:
 	void switchLinks();
@@ -30,7 +30,7 @@ public:
 	SmartBrowse(RevsView* par);
 
 protected:
-	bool eventFilter(QObject *obj, QEvent *event);
+	bool eventFilter(QObject *obj, QEvent *event) override;
 
 public slots:
 	void updateVisibility();

@@ -42,8 +42,7 @@ void CustomActionImpl::loadAction(const QString& name) {
 	const QString flags(ACT_GROUP_KEY + name + ACT_FLAGS_KEY);
 	checkBoxRefreshAfterAction->setChecked(testFlag(ACT_REFRESH_F, flags));
 	QSettings set;
-	const QString& data(set.value(ACT_GROUP_KEY + name + ACT_TEXT_KEY, "").toString());
-	textEditAction->setPlainText(data);
+	textEditAction->setPlainText(set.value(ACT_GROUP_KEY + name + ACT_TEXT_KEY, "").toString());
 }
 
 void CustomActionImpl::removeAction(const QString& name) {

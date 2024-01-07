@@ -159,16 +159,16 @@ void Lanes::setMerge(const QStringList& parents) {
 
 	for (int i = rangeStart + 1; i < rangeEnd; i++) {
 
-		int& t = typeVec[i];
+		int& type = typeVec[i];
 
-		if (t == NOT_ACTIVE)
-			t = CROSS;
+		if (type == NOT_ACTIVE)
+			type = CROSS;
 
-		else if (t == EMPTY)
-			t = CROSS_EMPTY;
+		else if (type == EMPTY)
+			type = CROSS_EMPTY;
 
-		else if (t == TAIL_R || t == TAIL_L)
-			t = TAIL;
+		else if (type == TAIL_R || type == TAIL_L)
+			type = TAIL;
 	}
 }
 
@@ -282,7 +282,7 @@ int Lanes::findType(int type, int pos) {
 int Lanes::add(int type, const QString& next, int pos) {
 
 	// first check empty lanes starting from pos
-	if (pos < (int)typeVec.count()) {
+	if (pos < static_cast<int>(typeVec.count())) {
 		pos = findType(EMPTY, pos);
 		if (pos != -1) {
 			typeVec[pos] = type;

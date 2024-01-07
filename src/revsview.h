@@ -22,7 +22,7 @@ Q_OBJECT
 public:
 	RevsView(MainImpl* parent, Git* git, bool isMain = false);
 	~RevsView();
-	void clear(bool complete);
+	void clear(bool complete) override;
 	void viewPatch(bool newTab);
 	void setEnabled(bool b);
 	void setTabLogDiffVisible(bool);
@@ -39,7 +39,7 @@ private slots:
 	void on_flagChanged(uint flag);
 
 protected:
-	virtual bool doUpdate(bool force);
+	virtual bool doUpdate(bool force) override;
 
 private:
 	friend class MainImpl;

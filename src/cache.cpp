@@ -38,14 +38,14 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 	QDataStream stream(&data, QIODevice::WriteOnly);
 
 	// Write a header with a "magic number" and a version
-	stream << (quint32)C_MAGIC;
-	stream << (qint32)C_VERSION;
+	stream << static_cast<quint32>(C_MAGIC);
+	stream << static_cast<qint32>(C_VERSION);
 
-	stream << (qint32)dirs.count();
+	stream << static_cast<qint32>(dirs.count());
 	for (int i = 0; i < dirs.count(); ++i)
 		stream << dirs.at(i);
 
-	stream << (qint32)files.count();
+	stream << static_cast<qint32>(files.count());
 	for (int i = 0; i < files.count(); ++i)
 		stream << files.at(i);
 
@@ -83,7 +83,7 @@ bool Cache::save(const QString& gitDir, const RevFileMap& rf,
 		}
 	}
 	buf.resize(newSize);
-	stream << (qint32)newSize;
+	stream << static_cast<qint32>(newSize);
 	stream << buf;
 
 	for (int i = 0; i < v.size(); ++i)

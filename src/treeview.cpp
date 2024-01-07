@@ -66,7 +66,7 @@ void TreeView::setup(Domain* dm, Git* g) {
 void TreeView::on_currentItemChanged(QTreeWidgetItem* item, QTreeWidgetItem*) {
 
 	if (item) {
-		SCRef fn = ((FileItem*)item)->fullName();
+		SCRef fn = (static_cast<FileItem *>(item))->fullName();
 		if (!ignoreCurrentChanged && fn != st->fileName()) {
 			st->setFileName(fn);
 			st->setSelectItem(true);
@@ -262,7 +262,7 @@ void TreeView::updateTree() {
 				// could be a different subdirectory with the
 				// same name that appears before in tree view
 				// to be sure we need to check the names
-				SCRef fn = ((FileItem*)*item)->fullName();
+				SCRef fn = static_cast<FileItem *>(*item)->fullName();
 				if (st->fileName().startsWith(fn)) {
 
 					if (dynamic_cast<DirItem*>(*item)) {

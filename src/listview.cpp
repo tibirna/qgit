@@ -712,8 +712,8 @@ public:
 	void next();
 };
 
-RefNameIterator::RefNameIterator(const QString &sha, Git *git)
-    : git(git), sha(sha), cur_state(0), cur_branch(git->getCurrentBranchName())
+RefNameIterator::RefNameIterator(const QString &s, Git *g)
+    : git(g), sha(s), cur_state(0), cur_branch(git->getCurrentBranchName())
 {
 	ref_types = git->checkRef(sha);
 	if (ref_types == 0) {
@@ -747,7 +747,7 @@ void RefNameIterator::next()
 		case Git::TAG: cur_state = Git::REF; break;
 		default: cur_state = -1; // indicate end
 		}
-		ref_names = git->getRefNames(sha, (Git::RefType)cur_state);
+		ref_names = git->getRefNames(sha, static_cast<Git::RefType>(cur_state));
 		cur_name = ref_names.begin();
 	}
 }
@@ -985,20 +985,20 @@ void ListViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 }
 
 void ListViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
-                                  const QModelIndex& i) const {
+                                  const QModelIndex& idx) const {
 	static const QColor & baseColor = QPalette().color(QPalette::WindowText);
 	static const QColor colors[COLORS_NUM] = { baseColor, Qt::red, DARK_GREEN,
 	                                           Qt::blue, Qt::darkGray, BROWN,
 	                                           Qt::magenta, ORANGE };
 	if (opt.state & QStyle::State_Selected)
 		p->fillRect(opt.rect, opt.palette.highlight());
-	else if (i.row() & 1)
+	else if (idx.row() & 1)
 		p->fillRect(opt.rect, opt.palette.alternateBase());
 	else
 		p->fillRect(opt.rect, opt.palette.base());
 
 	FileHistory* fh;
-	const Rev* r = revLookup(i.row(), &fh);
+	const Rev* r = revLookup(idx. row(), &fh);
 	if (!r)
 		return;
 

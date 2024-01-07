@@ -108,9 +108,9 @@ void MyProcess::sendErrorMsg(bool notStarted) {
 	QApplication::postEvent(guiObject, e);
 }
 
-bool MyProcess::launchMe(SCRef runCmd, SCRef buf) {
+bool MyProcess::launchMe(SCRef cmd, SCRef buf) {
 
-	arguments = splitArgList(runCmd);
+	arguments = splitArgList(cmd);
 	if (arguments.isEmpty())
 		return false;
 
