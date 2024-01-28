@@ -48,6 +48,13 @@ void StateInfo::clear() {
 	isLocked = false;
 }
 
+StateInfo::StateInfo(const StateInfo& otherState) :
+	curS(otherState.curS),
+	prevS(otherState.prevS),
+	nextS(otherState.nextS),
+	isLocked(otherState.isLocked)
+{}
+
 StateInfo& StateInfo::operator=(const StateInfo& newState) {
 
 	if (&newState != this) {
