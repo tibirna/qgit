@@ -2166,7 +2166,7 @@ void MainImpl::ActAbout_activated() {
 	static const char* aboutMsg =
 	"<p><b>QGit version " PACKAGE_VERSION "</b></p>"
 	"<p>Copyright (c) 2005-2008 Marco Costalba<br>"
-	"Copyright (c) 2011-2022 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
+	"Copyright (c) 2011-2024 <a href='mailto:tibirna@kde.org'>Cristian Tibirna</a></p>"
 	"<p>Use and redistribute under the terms of the<br>"
 	"<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GNU General Public License Version 2</a></p>"
 	"<p>Contributors:<br>"
@@ -2198,7 +2198,7 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2018 <a href='mailto:asturm@gentoo.org'>Andreas Sturmlechner</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:kde@davidedmundson.co.uk'>David Edmundson</a>,</nobr> "
 	"<nobr>2016-2018 <a href='mailto:rhaschke@techfak.uni-bielefeld.de'>Robert Haschke</a>,</nobr> "
-	"<nobr>2018-2022 <a href='mailto:filipe.rinaldi@gmail.com'>Filipe Rinaldi</a>,</nobr> "
+	"<nobr>2018-2024 <a href='mailto:filipe.rinaldi@gmail.com'>Filipe Rinaldi</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:balbusm@gmail.com'>Mateusz Balbus</a>,</nobr> "
 	"<nobr>2019-2022 <a href='mailto:sebastian@pipping.org'>Sebastian Pipping</a>,</nobr> "
 	"<nobr>2019-2020 <a href='mailto:mvf@gmx.eu'>Matthias von Faber</a>,</nobr> "
@@ -2209,6 +2209,9 @@ void MainImpl::ActAbout_activated() {
     "<nobr>2020 <a href='mailto:yyc1992@gmail.com'>Yichao Yu</a>,</nobr> "
     "<nobr>2021 <a href='mailto:wickedsmoke@users.sourceforge.net'>Karl Robillard</a></nobr> "
     "<nobr>2021 <a href='mailto:vchesn@gmail.com'>Vitaly Chesnokov</a></nobr> "
+    "<nobr>2022 <a href='mailto:bits_n_bytes@gmx.de'>Frank Dietrich</a></nobr> "
+    "<nobr>2023 <a href='mailto:urban82@gmail.com'>Danilo Treffiletti</a></nobr> "
+    "<nobr>2023 <a href='mailto:urban82@gmail.com'>Magnus Holmgren</a></nobr> "
 	"</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
