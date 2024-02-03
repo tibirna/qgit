@@ -2139,6 +2139,22 @@ void MainImpl::ActFind_activated() {
 	if (!ok || str.isEmpty())
 		return;
 
+	// Highlight all occurrences.
+	const QTextCursor origCursor = te->textCursor();
+	te->moveCursor(QTextCursor::Start);
+
+	QList<QTextEdit::ExtraSelection> extras;
+	while(te->find(str)) {
+		QTextEdit::ExtraSelection extra;
+		extra.format.setBackground(Qt::yellow);
+		extra.cursor = te->textCursor();
+		extras.append(extra);
+	}
+	te->setExtraSelections(extras);
+
+	te->setTextCursor(origCursor);
+
+	// Do the normal find().
 	textToFind = str; // update with valid data only
 	ActFindNext_activated();
 }
