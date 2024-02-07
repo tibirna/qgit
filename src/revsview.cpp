@@ -300,7 +300,13 @@ bool RevsView::doUpdate(bool force) {
 		if (st.isChanged() || force) {
 			// activate log or diff tab depending on file selection
 			bool sha_changed = st.sha(true) != st.sha(false);
-			tab()->tabLogDiff->setCurrentIndex(sha_changed ? 0 : 1);
+			if (!sha_changed) {
+				if (!force)
+					tab()->tabLogDiff->setCurrentIndex(1); // file selected -> show diff tab
+			} else if (QGit::testFlag(QGit::MSG_ON_NEW_F)) {
+				// commit selected and log set to always show first -> show log tab
+				tab()->tabLogDiff->setCurrentIndex(0);
+			}
 			tab()->textEditDiff->centerOnFileHeader(st);
 		}
 
