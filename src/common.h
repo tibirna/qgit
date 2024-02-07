@@ -66,7 +66,7 @@ uint qHash(const ShaString&); // optimized custom hash for sha strings
 namespace QGit {
 
 	// minimum git version required
-	extern const QString GIT_VERSION;
+	extern const QString GIT_VERSION_REQUIRED;
 
 	// tab pages
 	enum TabType {

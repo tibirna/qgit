@@ -124,7 +124,7 @@ const ShaString QGit::toPersistentSha(const QString& sha, QVector<QByteArray>& v
 }
 
 // minimum git version required
-const QString QGit::GIT_VERSION = "1.5.5";
+const QString QGit::GIT_VERSION_REQUIRED = "1.5.5";
 
 // colors
 const QColor QGit::BROWN        = QColor(150, 75, 0);

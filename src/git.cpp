@@ -69,18 +69,54 @@ Git::Git(QObject* p) : QObject(p) {
 	revsFiles.reserve(MAX_DICT_SIZE);
 }
 
+int Git::gitVersionCompare(QString lhs, QString rhs) {
+	lhs = lhs.trimmed();
+	rhs = rhs.trimmed();
+
+	QRegExp versionRegex("\\d+\\.\\d+\\.\\d+(-rc\\d+)?");
+	if (!versionRegex.exactMatch(lhs)) {
+		dbp("ASSERT: Incorrect git version given: \"%1\"", lhs);
+		return -1;
+	}
+	if (!versionRegex.exactMatch(rhs)) {
+		dbp("ASSERT: Incorrect git version given: \"%1\"", rhs);
+		return -1;
+	}
+
+	lhs.replace("-rc", ".");
+	rhs.replace("-rc", ".");
+	QStringList lcs = lhs.split('.');
+	QStringList rcs = rhs.split('.');
+
+	for (int i = 0; i < 3; ++i) {
+		uint lc = lcs.takeFirst().toUInt();
+		uint rc = rcs.takeFirst().toUInt();
+		if (lc != rc)
+			return lc < rc ? -1 : 1;
+	}
+	if (lcs.isEmpty() != rcs.isEmpty()) // -rc present in one only
+		return lcs.isEmpty() ? 1 : -1;
+	if (lcs.isEmpty()) { // -rc present in both
+		uint lc = lcs.takeFirst().toUInt();
+		uint rc = rcs.takeFirst().toUInt();
+		if (lc != rc)
+			return lc < rc ? -1 : 1;
+	}
+	return 0;
+}
+
 void Git::checkEnvironment() {
 
 	QString version;
 	if (run("git --version", &version)) {
 
 		version = version.section(' ', -1, -1).section('.', 0, 2);
-		if (version < GIT_VERSION) {
+		if (gitVersionCompare(version, GIT_VERSION_REQUIRED) < 0) {
 
 			// simply send information, the 'not compatible version'
 			// policy should be implemented upstream
 			const QString cmd("Current git version is " + version +
-			      " but is required " + GIT_VERSION + " or better");
+			      " but is required " + GIT_VERSION_REQUIRED + " or better");
 
 			const QString errorDesc("Your installed git is too old."
 			      "\nPlease upgrade to avoid possible misbehaviours.");
@@ -88,6 +124,7 @@ void Git::checkEnvironment() {
 			MainExecErrorEvent* e = new MainExecErrorEvent(cmd, errorDesc);
 			QApplication::postEvent(parent(), e);
 		}
+		gitVersion = version;
 	} else {
 		dbs("Cannot find git files");
 		return;
@@ -2195,6 +2232,9 @@ bool Git::startRevList(SCList args, FileHistory* fh) {
         } else
                 {} // initCmd << QString("--early-output"); currently disabled
 
+        if (gitVersionCompare(gitVersion, "2.10.0") >= 0)
+                initCmd << "--no-show-signature";
+
         return startParseProc(initCmd + args, fh, QString());
 }
 
@@ -2214,6 +2254,10 @@ bool Git::startUnappliedList() {
                     "--pretty=format:" GIT_LOG_FORMAT "%b ^HEAD");
 
         QStringList sl(cmd.split(' '));
+
+        if (gitVersionCompare(gitVersion, "2.10.0") >= 0)
+                sl << "--no-show-signature";
+
         sl << unAppliedShaList;
         return startParseProc(sl, revData, QString());
 }
