@@ -44,6 +44,7 @@ protected slots:
 	void lineEditExcludePerDir_textChanged(const QString& s);
 	void lineEditTemplate_textChanged(const QString& s);
 	void lineEditCommitExtraOptions_textChanged(const QString& s);
+	void doubleSpinBoxMaxPatchSize_valueChanged(double d);
 	void comboBoxDoubleClickAction_activated(int i);
 	void comboBoxCodecs_activated(int i);
 	void comboBoxUserSrc_activated(int i);
