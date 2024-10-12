@@ -154,17 +154,15 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	connect(treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
 	        this, SLOT(treeView_doubleClicked(QTreeWidgetItem*, int)));
 
-	// use most recent repo as startup dir if it exists and user opted to do so
-	QStringList recents(settings.value(REC_REP_KEY).toStringList());
-	QDir checkRepo;
-	if (	recents.size() >= 1
-		 && testFlag(REOPEN_REPO_F, FLAGS_KEY)
-		 && checkRepo.exists(recents.at(0)))
-	{
-		startUpDir = recents.at(0);
-	}
-	else {
-		startUpDir = (cd.isEmpty() ? QDir::current().absolutePath() : cd);
+	// If enabled in settings, open last opened repository.
+	if(testFlag(REOPEN_REPO_F, FLAGS_KEY)) {
+		const QStringList recents(settings.value(REC_REP_KEY).toStringList());
+		if(!recents.empty() ) {
+			const QDir checkRepo(recents.at(0));
+			if(checkRepo.exists()) {
+				startUpDir = recents.at(0);
+			}
+		}
 	}
 
 	// handle --view-file=* or --view-file * argument
