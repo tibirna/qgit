@@ -47,7 +47,7 @@ public:
 	void fixup(QString& input) const;
 	State validate(QString & input, int & pos) const;
 private:
-	const QRegExp invalid;
+	const QRegularExpression invalid;
 	bool allowEmpty;
 };
 
@@ -89,7 +89,7 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	this->setWindowTitle(title);
 	QGridLayout *layout = new QGridLayout(this);
 
-	QRegExp re("%(([a-z_]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
+	QRegularExpression re("%(([a-z_]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
 	int start = 0;
 	int row = 0;
 	while ((start = re.indexIn(cmd, start)) != -1) {

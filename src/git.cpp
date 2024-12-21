@@ -12,7 +12,7 @@
 #include <QFile>
 #include <QImageReader>
 #include <QPalette>
-#include <QRegExp>
+#include <QRegularExpression>
 //#include <QSet> //CT TODO remove
 #include <QSettings>
 #include <QTextCodec>
@@ -420,8 +420,8 @@ const QString Git::getTagMsg(SCRef sha) {
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
 
-	QRegExp pgp("-----BEGIN PGP SIGNATURE*END PGP SIGNATURE-----",
-	            Qt::CaseSensitive, QRegExp::Wildcard);
+	QRegularExpression pgp("-----BEGIN PGP SIGNATURE*END PGP SIGNATURE-----",
+	            Qt::CaseSensitive, QRegularExpression::Wildcard);
 
 	if (!rf.tagObj.isEmpty()) {
 		QString ro;
@@ -1001,7 +1001,7 @@ const QString Git::getNewCommitMsg() {
 		return "";
 	}
 	QString status = c->longLog();
-	status.prepend('\n').replace(QRegExp("\\n([^#\\n]?)"), "\n#\\1"); // comment all the lines
+	status.prepend('\n').replace(QRegularExpression("\\n([^#\\n]?)"), "\n#\\1"); // comment all the lines
 
 	if (isMergeHead) {
 		QFile file(QDir(gitDir).absoluteFilePath("MERGE_MSG"));
@@ -1018,7 +1018,7 @@ const QString Git::getNewCommitMsg() {
 }
 
 //CT TODO utility function; can go elsewhere
-const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
+const QString Git::colorMatch(SCRef txt, QRegularExpression& regExp) {
 
 	QString text = qt4and5escaping(txt);
 
@@ -1051,7 +1051,7 @@ const QString Git::formatList(SCList sl, SCRef name, bool inOneLine) {
 	return ls;
 }
 
-const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
+const QString Git::getDesc(SCRef sha, QRegularExpression& shortLogRE, QRegularExpression& longLogRE,
                            bool showHeader, FileHistory* fh) {
 
 	if (sha.isEmpty())
@@ -1116,7 +1116,7 @@ const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
 	// sha if there isn't a leading trailing space or an open parenthesis and,
 	// in that case, before the space must not be a ':' character.
 	// It's an ugly heuristic, but seems to work in most cases.
-	QRegExp reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", Qt::CaseInsensitive);
+	QRegularExpression reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", Qt::CaseInsensitive);
 	reSHA.setMinimal(false);
 	int pos = 0;
 	while ((pos = text.indexOf(reSHA, pos)) != -1) {
@@ -1293,7 +1293,7 @@ const QString Git::getNewestFileName(SCList branches, SCRef fileName) {
 void Git::getFileFilter(SCRef path, ShaSet& shaSet) const {
 
 	shaSet.clear();
-	QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);
+	QRegularExpression rx(path, Qt::CaseInsensitive, QRegularExpression::Wildcard);
 	FOREACH (ShaVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it))

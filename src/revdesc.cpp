@@ -6,7 +6,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QContextMenuEvent>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QClipboard>
 #include "domain.h"
 #include "revdesc.h"
@@ -22,8 +22,8 @@ RevDesc::RevDesc(QWidget* p) : QTextBrowser(p), d(NULL) {
 
 void RevDesc::on_anchorClicked(const QUrl& link) {
 
-	QRegExp re("[0-9a-f]{40}", Qt::CaseInsensitive);
-	if (re.exactMatch(link.toString())) {
+	QRegularExpression re("[0-9a-f]{40}", Qt::CaseInsensitive);
+	if (re.match(link.toString()).hasMatch()) {
 
 		setSource(QUrl()); // override default navigation behavior
 		d->st.setSha(link.toString());

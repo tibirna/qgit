@@ -9,7 +9,7 @@
 #include <QTreeView>
 #include <QItemDelegate>
 #include <QSortFilterProxyModel>
-#include <QRegExp>
+#include <QRegularExpression>
 #include "common.h"
 
 class Git;
@@ -139,7 +139,7 @@ private:
 	Domain* d;
 	Git* git;
 	bool isHighLight;
-	QRegExp filter;
+	QRegularExpression filter;
 	int colNum;
 	ShaSet shaSet;
 };

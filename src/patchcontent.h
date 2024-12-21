@@ -71,7 +71,7 @@ private:
 	QByteArray patchRowData;
 	QString halfLine;
 	bool isRegExp;
-	QRegExp pickAxeRE;
+	QRegularExpression pickAxeRE;
 	QString target;
 	bool seekTarget;
 
