@@ -18,7 +18,18 @@
     <name>Cristian Tibirna</name>
   </developer>
   <screenshots>
-    <screenshot type="default"/>
+    <screenshot>
+      <caption>Show repository log</caption>
+      <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_main_view.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Show diff for a commit</caption>
+      <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_diff_view.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Show repository tree</caption>
+      <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_tree_view.png</image>
+    </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/tibirna/qgit</url>
   <url type="bugtracker">https://github.com/tibirna/qgit/issues</url>
