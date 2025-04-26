@@ -330,7 +330,7 @@ void ListView::mouseReleaseEvent(QMouseEvent* e) {
 
 
 QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &ref) const {
-	const int maxRows = 10;
+	const qsizetype maxRows = 10;
 	const int dotdotRow = 5;
 	QStyleOptionViewItem opt; opt.initFrom(this);
 //	ListViewDelegate *lvd = dynamic_cast<ListViewDelegate*>(itemDelegate());
