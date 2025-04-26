@@ -10,7 +10,6 @@
 #include "exceptionmanager.h"
 #include "common.h"
 
-template <class, class> struct QPair;
 class QRegularExpression;
 class QTextCodec;
 class Annotate;
