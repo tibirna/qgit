@@ -14,12 +14,33 @@
       <li>Quick access to git operations</li>
     </ul>
   </description>
+  <developer id="org.tibirna">
+    <name>Marco Costalba, Cristian Tibirna and the QGit developers</name>
+  </developer>
   <screenshots>
-    <screenshot type="default"/>
+    <screenshot type="default">
+      <caption>Show repository log</caption>
+      <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_main_view.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Show diff for a commit</caption>
+      <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_diff_view.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Show repository tree</caption>
+      <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_tree_view.png</image>
+    </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/tibirna/qgit</url>
   <url type="bugtracker">https://github.com/tibirna/qgit/issues</url>
+  <launchable type="desktop-id">qgit.desktop</launchable>
   <provides>
     <binary>qgit</binary>
   </provides>
+  <releases>
+    <release version="2.11" date="2025-04-26"/>
+    <release version="2.10" date="2022-01-09"/>
+    <release version="2.9" date="2019-08-24"/>
+  </releases>
+  <content_rating type="oars-1.1" />
 </component>
