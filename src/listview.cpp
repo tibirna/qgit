@@ -520,9 +520,9 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 void ListView::dragMoveEvent(QDragMoveEvent* e) {
 	// When getting here, dragEnterEvent already accepted the drag in general
 
-	SCRef targetRef = refNameAt(e->pos());
+	SCRef targetRef = refNameAt(e->position().toPoint());
 	uint targetRefType = refTypeFromName(targetRef);
-	QModelIndex idx = indexAt(e->pos());
+	QModelIndex idx = indexAt(e->position().toPoint());
 	SCRef targetSHA = sha(idx.row());
 	uint   accepted_actions = DropInfo::PatchAction; // applying patches is always allowed
 	DropInfo::Action  action, default_action = DropInfo::PatchAction;
@@ -622,9 +622,9 @@ void ListView::dropEvent(QDropEvent *e) {
 		return;
 	}
 
-	SCRef targetRef = refNameAt(e->pos());
+	SCRef targetRef = refNameAt(e->position().toPoint());
 //	uint  targetRefType = refTypeFromName(targetRef);
-	SCRef targetSHA = sha(indexAt(e->pos()).row());
+	SCRef targetSHA = sha(indexAt(e->position().toPoint()).row());
 	switch(dropInfo->action) {
 	case DropInfo::PatchAction:
 		emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
