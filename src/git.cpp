@@ -1967,7 +1967,7 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
         if (!isMainHistory(fh))
                 patch = getWorkDirDiff(fh->fileNames().first());
 
-        QString date(QString::number(QDateTime::currentDateTime().toTime_t()));
+        QString date(QString::number(QDateTime::currentDateTime().toSecsSinceEpoch()));
         QString author("-");
         QStringList parents(parent);
         Rev* c = fakeRevData(ZERO_SHA, parents, author, date, log, longLog, patch, idx, fh);
