@@ -18,7 +18,7 @@
     <name>Cristian Tibirna</name>
   </developer>
   <screenshots>
-    <screenshot>
+    <screenshot type="default">
       <caption>Show repository log</caption>
       <image>https://raw.githubusercontent.com/tibirna/qgit/refs/heads/master/screenshots/qgit_main_view.png</image>
     </screenshot>
