@@ -567,7 +567,7 @@ void ListView::dragMoveEvent(QDragMoveEvent* e) {
 
 	e->accept();
 	// check whether modifier keys enforce an action
-	switch (e->keyboardModifiers()) {
+	switch (e->modifiers()) {
 	case Qt::ControlModifier: action = DropInfo::PatchAction; break;
 	case Qt::ShiftModifier: action = DropInfo::RebaseAction; break;
 	case Qt::AltModifier: action = DropInfo::MergeAction; break;
