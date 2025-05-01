@@ -1663,7 +1663,7 @@ const QString Git::getLocalDate(SCRef gitDate) {
         // cache miss
         if (localDate.isEmpty()) {
                 static QDateTime d;
-                d.setTime_t(gitDate.toUInt());
+                d.setSecsSinceEpoch(gitDate.toUInt());
                 localDate = QLocale::system().toString(d, QLocale::ShortFormat);
 
                 // save to cache
