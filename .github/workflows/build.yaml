@@ -34,6 +34,7 @@ jobs:
             cmake \
             libgl1-mesa-dev \
             libglx-dev \
+            libqt6core5compat6-dev \
             qt6-base-dev
 
       - name: 'Checkout Git branch'

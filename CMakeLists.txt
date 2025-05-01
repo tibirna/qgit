@@ -18,7 +18,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 set(QT_MIN_VERSION 6.2.4)
-find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui Widgets Core5Compat)
 add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x050F00)
 
 include_directories(
@@ -81,7 +81,7 @@ set(RESOURCE_FILES
 qt6_add_resources(RC_SRCS ${RESOURCE_FILES})
 
 add_executable(qgit ${CPP_SOURCES} ${UIS_HDRS} ${RC_SRCS})
-target_link_libraries(qgit Qt6::Widgets)
+target_link_libraries(qgit Qt6::Widgets Qt6::Core5Compat)
 
 
 install(TARGETS qgit DESTINATION bin)
