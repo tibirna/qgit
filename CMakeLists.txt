@@ -17,7 +17,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-set(QT_MIN_VERSION 6.6.0)
+set(QT_MIN_VERSION 6.2.4)
 find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui Widgets)
 add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x050F00)
 
