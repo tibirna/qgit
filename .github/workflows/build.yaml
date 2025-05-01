@@ -32,7 +32,9 @@ jobs:
           sudo apt-get install --yes --no-install-recommends \
             build-essential \
             cmake \
-            qtbase5-dev
+            libgl1-mesa-dev \
+            libglx-dev \
+            qt6-base-dev
 
       - name: 'Checkout Git branch'
         uses: actions/checkout@v2.0.0
