@@ -420,8 +420,7 @@ const QString Git::getTagMsg(SCRef sha) {
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
 
-	QRegularExpression pgp("-----BEGIN PGP SIGNATURE*END PGP SIGNATURE-----",
-	            Qt::CaseSensitive, QRegularExpression::Wildcard);
+	QRegularExpression pgp("-----BEGIN PGP SIGNATURE.*END PGP SIGNATURE-----", QRegularExpression::DotMatchesEverythingOption);
 
 	if (!rf.tagObj.isEmpty()) {
 		QString ro;
@@ -1022,15 +1021,16 @@ const QString Git::colorMatch(SCRef txt, QRegularExpression& regExp) {
 
 	QString text = qt4and5escaping(txt);
 
-	if (regExp.isEmpty())
+	if (regExp.pattern().isEmpty())
 		return text;
 
 	SCRef startCol(QString::fromLatin1("<b><font color=\"red\">"));
 	SCRef endCol(QString::fromLatin1("</font></b>"));
 	int pos = 0;
-	while ((pos = text.indexOf(regExp, pos)) != -1) {
+	QRegularExpressionMatch regExpMatch;
+	while ((pos = text.indexOf(regExp, pos, &regExpMatch)) != -1) {
 
-		SCRef match(regExp.cap(0));
+		SCRef match(regExpMatch.captured(0));
 		const QString coloredText(startCol + match + endCol);
 		text.replace(pos, match.length(), coloredText);
 		pos += coloredText.length();
@@ -1116,12 +1116,12 @@ const QString Git::getDesc(SCRef sha, QRegularExpression& shortLogRE, QRegularEx
 	// sha if there isn't a leading trailing space or an open parenthesis and,
 	// in that case, before the space must not be a ':' character.
 	// It's an ugly heuristic, but seems to work in most cases.
-	QRegularExpression reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", Qt::CaseInsensitive);
-	reSHA.setMinimal(false);
+	QRegularExpression reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", QRegularExpression::CaseInsensitiveOption);
 	int pos = 0;
-	while ((pos = text.indexOf(reSHA, pos)) != -1) {
+	QRegularExpressionMatch match;
+	while ((pos = text.indexOf(reSHA, pos, &match)) != -1) {
 
-		SCRef ref = reSHA.cap(0).mid(2);
+		SCRef ref = match.captured(0).mid(2);
 		const Rev* r = (ref.length() == 40 ? revLookup(ref) : revLookup(getRefSha(ref)));
 		if (r && r->sha() != ZERO_SHA_RAW) {
 			QString slog(r->shortLog());
@@ -1134,7 +1134,7 @@ const QString Git::getDesc(SCRef sha, QRegularExpression& shortLogRE, QRegularEx
 			text.replace(pos + 2, ref.length(), link);
 			pos += link.length();
 		} else
-			pos += reSHA.cap(0).length();
+			pos += match.captured(0).length();
 	}
 	return text;
 }
@@ -1293,7 +1293,7 @@ const QString Git::getNewestFileName(SCList branches, SCRef fileName) {
 void Git::getFileFilter(SCRef path, ShaSet& shaSet) const {
 
 	shaSet.clear();
-	QRegularExpression rx(path, Qt::CaseInsensitive, QRegularExpression::Wildcard);
+	QRegularExpression rx = QRegularExpression::fromWildcard(path, Qt::CaseInsensitive);
 	FOREACH (ShaVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it))
@@ -1663,7 +1663,7 @@ const QString Git::getLocalDate(SCRef gitDate) {
         // cache miss
         if (localDate.isEmpty()) {
                 static QDateTime d;
-                d.setTime_t(gitDate.toUInt());
+                d.setSecsSinceEpoch(gitDate.toUInt());
                 localDate = QLocale::system().toString(d, QLocale::ShortFormat);
 
                 // save to cache

@@ -74,10 +74,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	setRepositoryBusy = false;
 
 	// init filter match highlighters
-	shortLogRE.setMinimal(true);
-	shortLogRE.setCaseSensitivity(Qt::CaseInsensitive);
-	longLogRE.setMinimal(true);
-	longLogRE.setCaseSensitivity(Qt::CaseInsensitive);
+	shortLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+	longLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
 	// set-up standard revisions and files list font
 	QSettings settings;

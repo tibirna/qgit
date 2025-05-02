@@ -8,6 +8,7 @@
 #define PATCHCONTENT_H
 
 #include <QPointer>
+#include <QRegularExpression>
 #include <QTextEdit>
 #include <QSyntaxHighlighter>
 #include "common.h"
@@ -57,7 +58,6 @@ private:
 	int positionToLineNum(int pos);
 	int topToLineNum();
 	void saveRestoreSizes(bool startup = false);
-	int doSearch(const QString& txt, int pos);
 	bool computeMatches();
 	bool getMatch(int para, int* indexFrom, int* indexTo);
 	void centerMatch(int id = 0);
@@ -70,7 +70,6 @@ private:
 	bool diffLoaded;
 	QByteArray patchRowData;
 	QString halfLine;
-	bool isRegExp;
 	QRegularExpression pickAxeRE;
 	QString target;
 	bool seekTarget;
