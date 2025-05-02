@@ -66,6 +66,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	SCRef exPDir(set.value(EX_PER_DIR_KEY, EX_PER_DIR_DEF).toString());
 	SCRef tmplt(set.value(CMT_TEMPL_KEY, CMT_TEMPL_DEF).toString());
 	SCRef CMArgs(set.value(CMT_ARGS_KEY).toString());
+	double MPOpt(set.value(MAX_PATCH_KEY).toDouble());
 
 	lineEditApplyPatchExtraOptions->setText(APOpt);
 	lineEditFormatPatchExtraOptions->setText(FPOpt);
@@ -77,6 +78,7 @@ SettingsImpl::SettingsImpl(QWidget* p, Git* g, int defTab) : QDialog(p), git(g) 
 	lineEditCommitExtraOptions->setText(CMArgs);
 	lineEditTypeWriterFont->setText(TYPE_WRITER_FONT.toString());
 	lineEditTypeWriterFont->setCursorPosition(0); // font description could be long
+	doubleSpinBoxMaxPatchSize->setValue(MPOpt);
 
 	comboBoxDoubleClickAction->setCurrentIndex(set.value(DCLICK_ACT_KEY).toUInt());
 	setupCodecsCombo();
@@ -344,6 +346,11 @@ void SettingsImpl::checkBoxCommitUseDefMsg_toggled(bool b) {
 void SettingsImpl::lineEditExternalDiffViewer_textChanged(const QString& s) {
 
 	writeSetting(EXT_DIFF_KEY, s);
+}
+
+void SettingsImpl::doubleSpinBoxMaxPatchSize_valueChanged(double d) {
+
+	writeSetting(MAX_PATCH_KEY, d);
 }
 
 void SettingsImpl::lineEditExternalEditor_textChanged(const QString& s) {
