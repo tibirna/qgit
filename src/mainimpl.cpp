@@ -758,7 +758,7 @@ void MainImpl::applyRevisions(SCList remoteRevs, SCRef remoteRepo) {
 
 		dr.refresh();
 		if (dr.count() != 1) {
-			qDebug("ASSERT in on_droppedRevisions: found %i files "
+			qDebug("ASSERT in on_droppedRevisions: found %lli files "
 			       "in %s", dr.count(), qPrintable(dr.absolutePath()));
 			break;
 		}
