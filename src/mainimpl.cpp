@@ -2246,7 +2246,7 @@ void MainImpl::ActAbout_activated() {
     "<nobr>2022 <a href='mailto:bits_n_bytes@gmx.de'>Frank Dietrich</a></nobr> "
     "<nobr>2023 <a href='mailto:urban82@gmail.com'>Danilo Treffiletti</a></nobr> "
     "<nobr>2023 <a href='mailto:urban82@gmail.com'>Magnus Holmgren</a></nobr> "
-	"<nobr>2025 <a href='mailto:tim@siosm.fr'>Thimothée Ravier</a></nobr> "
+	"<nobr>2025 <a href='mailto:tim@siosm.fr'>Thimoth&eacute;e Ravier</a></nobr> "
 	"</p>"
 
 	"<p>This version was compiled against Qt " QT_VERSION_STR "</p>";
