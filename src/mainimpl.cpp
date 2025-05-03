@@ -1615,16 +1615,30 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 
 	int ret = 0;
 	if (!git->isStGITStack()) {
-		ret = QMessageBox::question(this, "Apply Patch",
-		      "Do you want to commit or just to apply changes to "
-                      "working directory?", "&Cancel", "&Working directory", "&Commit", 0, 0);
-		*workDirOnly = (ret == 1);
+		QMessageBox ret(QMessageBox::Question,
+			"Apply Patch",
+			"Do you want to commit or just to apply changes to "
+			"working directory?",
+			{}, this);
+		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
+		QAbstractButton* wdbtn = ret.addButton(
+					"&Working directory", QMessageBox::ButtonRole::AcceptRole);
+		ret.addButton("Commm&it", QMessageBox::ButtonRole::AcceptRole);
+		ret.exec();
+		*workDirOnly = (ret.clickedButton() == wdbtn);
 		*fold = false;
 	} else {
-		ret = QMessageBox::question(this, "Apply Patch", "Do you want to "
-		      "import or fold the patch?", "&Cancel", "&Fold", "&Import", 0, 0);
+		QMessageBox ret(QMessageBox::Question,
+			"Apply Patch",
+			"Do you want to import or fold the patch?",
+			{}, this);
+		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
+		QAbstractButton* fbtn = ret.addButton(
+					"&Fold", QMessageBox::ButtonRole::AcceptRole);
+		ret.addButton("&Import", QMessageBox::ButtonRole::AcceptRole);
+		ret.exec();
 		*workDirOnly = false;
-		*fold = (ret == 1);
+		*fold = (ret.clickedButton() == fbtn);
 	}
 	return (ret != 0);
 }
@@ -2105,13 +2119,19 @@ void MainImpl::ActFindNext_activated() {
 			return;
 
 		if (endOfDocument) {
-			QMessageBox::warning(this, "Find text - QGit", "Text \"" +
-			             textToFind + "\" not found!", QMessageBox::Ok, 0);
+			QMessageBox(QMessageBox::Warning,
+				"Find text - QGit",
+				"Text \"" + textToFind + "\" not found!",
+				QMessageBox::StandardButton::Ok,
+				this);
 			return;
 		}
-		if (QMessageBox::question(this, "Find text - QGit", "End of document "
-		    "reached\n\nDo you want to continue from beginning?", QMessageBox::Yes,
-		    QMessageBox::No | QMessageBox::Escape) == QMessageBox::No)
+		QMessageBox q(QMessageBox::Question,
+			"Find text - QGit",
+			"End of document reached\n\nDo you want to continue from beginning?",
+			QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+			this);
+		if (q.exec() == QMessageBox::No)
 			return;
 
 		endOfDocument = true;
