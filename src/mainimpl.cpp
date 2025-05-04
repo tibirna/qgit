@@ -112,10 +112,19 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	tabWdg->addTab(rv->tabPage(), "&Rev list");
 
 	// hide close button for rev list tab
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	// For Qt4: Use findChild to access QTabBar as tabBar() is protected
+	QTabBar* const tabBar = tabWdg->findChild<QTabBar*>();
+#else
+	// For Qt5+: Directly access tabBar()
 	QTabBar* const tabBar = tabWdg->tabBar();
+#endif
+
+if (tabBar) {
 	tabBar->setTabButton(0, QTabBar::RightSide, NULL);
 	tabBar->setTabButton(0, QTabBar::LeftSide, NULL);
-	connect(tabWdg, SIGNAL(tabCloseRequested(int)), SLOT(tabBar_tabCloseRequested(int)));
+}
+connect(tabWdg, SIGNAL(tabCloseRequested(int)), SLOT(tabBar_tabCloseRequested(int)));
 
 	// set-up file names loading progress bar
 	pbFileNamesLoading = new QProgressBar(statusBar());
@@ -1343,7 +1352,11 @@ static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar 
 		QMenu* add_here = menu;
 		FOREACH_SL (pit, parts) {
 			if (pit == parts.end() - 1) break;
+	#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+			QMenu* found = add_here->findChild<QMenu*>(*pit);
+	#else
 			QMenu* found = add_here->findChild<QMenu*>(*pit, Qt::FindDirectChildrenOnly);
+	#endif
 			if(!found) {
 				found = add_here->addMenu(*pit);
 				found->setObjectName(*pit);
