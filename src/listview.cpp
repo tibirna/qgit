@@ -438,13 +438,13 @@ struct ListView::DropInfo {
 		PATCHES  = 1 << 0,
 		REV_LIST = 1 << 1,
 		REV_RANGE = 1 << 2,
-		SAME_REPO     = 1 << 3,
+		SAME_REPO     = 1 << 3
 	};
 	enum Action {
 		PatchAction = Qt::CopyAction,
 		RebaseAction = Qt::MoveAction,
 		MoveRefAction = (Qt::LinkAction << 1) | Qt::MoveAction,
-		MergeAction = Qt::LinkAction,
+		MergeAction = Qt::LinkAction
 	};
 
 	QString sourceRepo;
