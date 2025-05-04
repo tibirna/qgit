@@ -5,12 +5,12 @@ GIT_EXEC_DIR = "$$(ProgramFiles)\\Git\\bin"
 # Under Windows uncomment following line to enable console messages
 #CONFIG += ENABLE_CONSOLE_MSG
 
-# check for Qt >= 5.11.0
+# check for Qt >= 4.8.0
 CUR_QT = $$[QT_VERSION]
 
 # WARNING greaterThan is an undocumented function
-!greaterThan(CUR_QT, 5.11) {
-        error("Sorry I need Qt 5.11.0 or later, you seem to have Qt $$CUR_QT instead")
+!greaterThan(CUR_QT, 4.8) {
+        error("Sorry I need Qt 4.8.0 or later, you seem to have Qt $$CUR_QT instead")
 }
 
 # check for g++ compiler
