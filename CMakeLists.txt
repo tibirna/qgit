@@ -17,8 +17,29 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-set(QT_MIN_VERSION 5.11.0)
-find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui Widgets)
+option(UseQt5 "Use Qt5?" ON)
+ if (UseQt5)
+   set(QT_MIN_VERSION 5.11.0)
+   find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui Widgets)
+   set(QT_LIBRARIES Qt5::Widgets)
+
+   macro(qt_wrap_ui)
+     qt5_wrap_ui(${ARGN})
+   endmacro()
+   macro(qt_add_resources)
+     qt5_add_resources(${ARGN})
+   endmacro()
+ else()
+   find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
+   include(${QT_USE_FILE})
+
+   macro(qt_wrap_ui)
+     qt4_wrap_ui(${ARGN})
+   endmacro()
+   macro(qt_add_resources)
+     qt4_add_resources(${ARGN})
+   endmacro()
+ endif()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
@@ -57,7 +78,7 @@ set(CPP_SOURCES
 )
 
 # UIS_HDRS will be used later in add_executable
-qt5_wrap_ui(UIS_HDRS
+qt_wrap_ui(UIS_HDRS
     src/commit.ui
     src/console.ui
     src/customaction.ui
@@ -77,11 +98,10 @@ set(RESOURCE_FILES
 
 # this command will generate rules that will run rcc on all files from SAMPLE_RCS
 # in result SAMPLE_RC_SRCS variable will contain paths to files produced by rcc
-qt5_add_resources(RC_SRCS ${RESOURCE_FILES})
+qt_add_resources(RC_SRCS ${RESOURCE_FILES})
 
 add_executable(qgit ${CPP_SOURCES} ${UIS_HDRS} ${RC_SRCS})
-target_link_libraries(qgit Qt5::Widgets)
-
+target_link_libraries(qgit ${QT_LIBRARIES})
 
 install(TARGETS qgit DESTINATION bin)
 
