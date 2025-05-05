@@ -139,7 +139,11 @@ private:
 	Domain* d;
 	Git* git;
 	bool isHighLight;
+#if QT_VERSION >= 0x060000
 	QRegularExpression filter;
+#else
+	QRegExp filter;
+#endif
 	int colNum;
 	ShaSet shaSet;
 };

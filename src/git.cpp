@@ -1293,7 +1293,11 @@ const QString Git::getNewestFileName(SCList branches, SCRef fileName) {
 void Git::getFileFilter(SCRef path, ShaSet& shaSet) const {
 
 	shaSet.clear();
-	QRegularExpression rx = QRegularExpression::fromWildcard(path, Qt::CaseInsensitive);
+#if QT_VERSION >= 0x060000
+    QRegularExpression rx = QRegularExpression::fromWildcard(path, Qt::CaseInsensitive);
+#else
+    QRegExp rx(path, Qt::CaseInsensitive, QRegExp::Wildcard);
+#endif
 	FOREACH (ShaVect, it, revData->revOrder) {
 
 		if (!revsFiles.contains(*it))

@@ -330,7 +330,11 @@ void ListView::mouseReleaseEvent(QMouseEvent* e) {
 
 
 QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &ref) const {
+#if QT_VERSION >= 0x060000
 	const qsizetype maxRows = 10;
+#else
+	const int maxRows = 10;
+#endif
 	const int dotdotRow = 5;
 	QStyleOptionViewItem opt; opt.initFrom(this);
 //	ListViewDelegate *lvd = dynamic_cast<ListViewDelegate*>(itemDelegate());
@@ -520,9 +524,21 @@ void ListView::dragEnterEvent(QDragEnterEvent* e) {
 void ListView::dragMoveEvent(QDragMoveEvent* e) {
 	// When getting here, dragEnterEvent already accepted the drag in general
 
-	SCRef targetRef = refNameAt(e->position().toPoint());
+	SCRef targetRef = refNameAt(e->
+#if QT_VERSION >= 0x060000
+		position().toPoint()
+#else
+		pos()
+#endif
+	);
 	uint targetRefType = refTypeFromName(targetRef);
-	QModelIndex idx = indexAt(e->position().toPoint());
+	QModelIndex idx = indexAt(e->
+#if QT_VERSION >= 0x060000
+		position().toPoint()
+#else
+		pos()
+#endif
+	);
 	SCRef targetSHA = sha(idx.row());
 	uint   accepted_actions = DropInfo::PatchAction; // applying patches is always allowed
 	DropInfo::Action  action, default_action = DropInfo::PatchAction;
@@ -567,7 +583,11 @@ void ListView::dragMoveEvent(QDragMoveEvent* e) {
 
 	e->accept();
 	// check whether modifier keys enforce an action
+#if QT_VERSION >= 0x060000
 	switch (e->modifiers()) {
+#else
+	switch (e->keyboardModifiers()) {
+#endif
 	case Qt::ControlModifier: action = DropInfo::PatchAction; break;
 	case Qt::ShiftModifier: action = DropInfo::RebaseAction; break;
 	case Qt::AltModifier: action = DropInfo::MergeAction; break;
@@ -622,9 +642,21 @@ void ListView::dropEvent(QDropEvent *e) {
 		return;
 	}
 
-	SCRef targetRef = refNameAt(e->position().toPoint());
+	SCRef targetRef = refNameAt(e->
+#if QT_VERSION >= 0x060000
+		position().toPoint()
+#else
+		pos()
+#endif
+	);
 //	uint  targetRefType = refTypeFromName(targetRef);
-	SCRef targetSHA = sha(indexAt(e->position().toPoint()).row());
+	SCRef targetSHA = sha(indexAt(e->
+#if QT_VERSION >= 0x060000
+		position().toPoint()
+#else
+		pos()
+#endif
+	).row());
 	switch(dropInfo->action) {
 	case DropInfo::PatchAction:
 		emit applyRevisions(dropInfo->shas, dropInfo->sourceRepo);
@@ -1272,7 +1304,11 @@ bool ListViewProxy::filterAcceptsRow(int source_row, const QModelIndex&) const {
 
 int ListViewProxy::setFilter(bool isOn, bool h, SCRef fl, int cn, ShaSet* s) {
 
+#if QT_VERSION >= 0x060000
 	filter = QRegularExpression::fromWildcard(fl, Qt::CaseInsensitive);
+#else
+	filter = QRegExp(fl, Qt::CaseInsensitive, QRegExp::Wildcard);
+#endif
 	colNum = cn;
 	if (s)
 		shaSet = *s;

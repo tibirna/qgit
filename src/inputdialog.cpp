@@ -206,8 +206,14 @@ QString InputDialog::replace(const VariableMap &variables) const
 	}
 	for (VariableMap::const_iterator it=variables.begin(), end=variables.end(); it != end; ++it) {
 		QString token = "$" + it.key();
-		QString val = it.value().metaType().id() == QMetaType::QStringList ? it.value().toStringList().join(" ")
-		                                                        : it.value().toString();
+		QString val =
+#if QT_VERSION >= 0x060000
+			it.value().metaType().id() == QMetaType::QStringList ?
+#else
+			it.value().type() == QVariant::StringList ?
+#endif
+				it.value().toStringList().join(" ")
+			  : it.value().toString();
 		result.replace(token, val);
 	}
 	return result;
