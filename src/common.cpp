@@ -265,5 +265,9 @@ RevFile& RevFile::operator<<(QDataStream& stream) {
 }
 
 QString qt4and5escaping(QString toescape) {
-    return toescape.toHtmlEscaped();
+#if QT_VERSION >= 0x050000
+	return toescape.toHtmlEscaped();
+#else
+	return Qt::escape(toescape);
+#endif
 }

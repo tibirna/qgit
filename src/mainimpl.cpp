@@ -81,14 +81,25 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	QSettings settings;
 	QString font(settings.value(STD_FNT_KEY).toString());
 	if (font.isEmpty()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
 		font = QFontDatabase::systemFont(QFontDatabase::GeneralFont).toString();
+#else
+		font = QApplication::font().toString();
+#endif
 	}
 	QGit::STD_FONT.fromString(font);
 
 	// set-up typewriter (fixed width) font
 	font = settings.value(TYPWRT_FNT_KEY).toString();
 	if (font.isEmpty()) { // choose a sensible default
+#if (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
 		QFont fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+#else
+		QFont fnt = QApplication::font();
+		fnt.setStyleHint(QFont::TypeWriter, QFont::PreferDefault);
+		fnt.setFixedPitch(true);
+		fnt.setFamily(fnt.defaultFamily()); // the family corresponding
+#endif
 		font = fnt.toString();              // to current style hint
 	}
 	QGit::TYPE_WRITER_FONT.fromString(font);
@@ -99,10 +110,19 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	tabWdg->addTab(rv->tabPage(), "&Rev list");
 
 	// hide close button for rev list tab
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	// For Qt4: Use findChild to access QTabBar as tabBar() is protected
+	QTabBar* const tabBar = tabWdg->findChild<QTabBar*>();
+#else
+	// For Qt5+: Directly access tabBar()
 	QTabBar* const tabBar = tabWdg->tabBar();
+#endif
+
+if (tabBar) {
 	tabBar->setTabButton(0, QTabBar::RightSide, NULL);
 	tabBar->setTabButton(0, QTabBar::LeftSide, NULL);
-	connect(tabWdg, SIGNAL(tabCloseRequested(int)), SLOT(tabBar_tabCloseRequested(int)));
+}
+connect(tabWdg, SIGNAL(tabCloseRequested(int)), SLOT(tabBar_tabCloseRequested(int)));
 
 	// set-up file names loading progress bar
 	pbFileNamesLoading = new QProgressBar(statusBar());
@@ -710,7 +730,11 @@ bool MainImpl::eventFilter(QObject* obj, QEvent* ev) {
 		if (e->modifiers() == Qt::AltModifier) {
 
 			int idx = tabWdg->currentIndex();
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+			if (e->delta() < 0)
+#else
 			if (e->angleDelta().y() < 0)
+#endif
 				idx = (++idx == tabWdg->count() ? 0 : idx);
 			else
 				idx = (--idx < 0 ? tabWdg->count() - 1 : idx);
@@ -1141,7 +1165,11 @@ void MainImpl::shortCutActivated() {
 	QShortcut* se = dynamic_cast<QShortcut*>(sender());
 
 	if (se) {
+#if QT_VERSION >= 0x050000
 		const QKeySequence& key = se->key();
+#else
+		const int key = se->key();
+#endif
 
 		if (key == Qt::Key_I) {
 			rv->tab()->listViewLog->on_keyUp();
@@ -1322,7 +1350,11 @@ static void prepareRefSubmenu(QMenu* menu, const QStringList& refs, const QChar 
 		QMenu* add_here = menu;
 		FOREACH_SL (pit, parts) {
 			if (pit == parts.end() - 1) break;
+	#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+			QMenu* found = add_here->findChild<QMenu*>(*pit);
+	#else
 			QMenu* found = add_here->findChild<QMenu*>(*pit, Qt::FindDirectChildrenOnly);
+	#endif
 			if(!found) {
 				found = add_here->addMenu(*pit);
 				found->setObjectName(*pit);

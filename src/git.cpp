@@ -31,6 +31,12 @@
 
 #define GIT_LOG_FORMAT "%m%HX%PX%n%cn<%ce>%n%an<%ae>%n%at%n%s%n"
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+    #define QT_ASPRINTF asprintf
+#else
+    #define QT_ASPRINTF sprintf
+#endif
+
 // Used on init() for reading parameters once;
 // It's OK to be unique among qgit windows.
 static bool startup = true;
@@ -1955,8 +1961,12 @@ Rev* Git::fakeRevData(SCRef sha, SCList parents, SCRef author, SCRef date, SCRef
         if (!patch.isEmpty())
                 data.append('\n' + patch);
 
+#if QT_VERSION >= 0x050000
         QTextCodec* tc = QTextCodec::codecForLocale();
         QByteArray* ba = new QByteArray(tc->fromUnicode(data));
+#else
+        QByteArray* ba = new QByteArray(data.toLatin1());
+#endif
         ba->append('\0');
 
         fh->rowData.append(ba);
@@ -2436,7 +2446,7 @@ void Git::on_loaded(FileHistory* fh, ulong byteSize, int loadTime,
                         ulong kb = byteSize / 1024;
                         double mbs = (double)byteSize / fh->loadTime / 1000;
                         QString tmp;
-                        tmp.asprintf("Loaded %lli revisions  (%li KB),   "
+                        tmp.QT_ASPRINTF("Loaded %lli revisions  (%li KB),   "
                                      "time elapsed: %i ms  (%.2f MB/s)",
                                      fh->revs.count(), kb, fh->loadTime, mbs);
 

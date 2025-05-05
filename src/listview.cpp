@@ -95,9 +95,15 @@ void ListView::setupGeometry() {
 
 	QHeaderView* hv = header();
 	hv->setStretchLastSection(true);
+#if QT_VERSION >= 0x050000
 	hv->setSectionResizeMode(LOG_COL, QHeaderView::Interactive);
 	hv->setSectionResizeMode(TIME_COL, QHeaderView::Interactive);
 	hv->setSectionResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
+#else
+	hv->setResizeMode(LOG_COL, QHeaderView::Interactive);
+	hv->setResizeMode(TIME_COL, QHeaderView::Interactive);
+	hv->setResizeMode(ANN_ID_COL, QHeaderView::ResizeToContents);
+#endif
 	hv->resizeSection(GRAPH_COL, DEF_GRAPH_COL_WIDTH);
 	hv->resizeSection(LOG_COL, DEF_LOG_COL_WIDTH);
 	hv->resizeSection(HASH_COL, DEF_HASH_COL_WIDTH);
@@ -352,7 +358,11 @@ QPixmap ListView::pixmapFromSelection(const QStringList &revs, const QString &re
 		QStyleOptionViewItem o(opt);
 		QString dummy;
 		getTagMarkParams(dummy, o, refTypeFromName(ref), false);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
 		painter.fillRect(0, 0, fm.horizontalAdvance(ref)+2*spacing, height, o.palette.window());
+#else
+		painter.fillRect(0, 0, fm.width(ref)+2*spacing, height, o.palette.window());
+#endif
 		painter.drawText(spacing, fm.ascent()+1, ref);
 		row = 1;
 	}
@@ -432,13 +442,13 @@ struct ListView::DropInfo {
 		PATCHES  = 1 << 0,
 		REV_LIST = 1 << 1,
 		REV_RANGE = 1 << 2,
-		SAME_REPO     = 1 << 3,
+		SAME_REPO     = 1 << 3
 	};
 	enum Action {
 		PatchAction = Qt::CopyAction,
 		RebaseAction = Qt::MoveAction,
 		MoveRefAction = (Qt::LinkAction << 1) | Qt::MoveAction,
-		MergeAction = Qt::LinkAction,
+		MergeAction = Qt::LinkAction
 	};
 
 	QString sourceRepo;
@@ -1201,7 +1211,11 @@ QString ListView::refNameAt(const QPoint &pos)
  * Return the device pixel ratio
  */
 qreal ListViewDelegate::dpr(void) const {
-	return qApp->devicePixelRatio();
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    return qApp->devicePixelRatio();
+#else
+    return 1.0;
+#endif
 }
 
 void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOptionViewItem& opt) const {
@@ -1221,7 +1235,9 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 			 static_cast<int>(text_height * dpr()));
 
 	QPixmap* newPm = new QPixmap(pixmapSize);
-	newPm->setDevicePixelRatio(dpr());
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    newPm->setDevicePixelRatio(dpr());
+#endif
 
 	QPainter p;
 	p.begin(newPm);

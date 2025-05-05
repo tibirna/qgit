@@ -19,9 +19,7 @@ set(CMAKE_AUTOMOC ON)
 
 # Select the Qt major version and its dependencies\
 set(QT_PACKAGE "Qt6" CACHE STRING "Major Qt version")
-#set_property(CACHE QT_PACKAGE PROPERTY STRINGS "Qt6" "Qt5" "Qt4")
-set_property(CACHE QT_PACKAGE PROPERTY STRINGS "Qt6" "Qt5")
-
+set_property(CACHE QT_PACKAGE PROPERTY STRINGS "Qt6" "Qt5" "Qt4")
 
 find_package(QT NAMES ${QT_PACKAGE} REQUIRED)
 set(QT Qt${QT_VERSION_MAJOR})

@@ -224,7 +224,11 @@ bool SmartBrowse::eventFilter(QObject *obj, QEvent *event) {
 	if (sb && t == QEvent::Wheel && sb->orientation() == Qt::Vertical) {
 
 		QWheelEvent* we = static_cast<QWheelEvent*>(event);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		if (wheelRolled(we->delta(), visibilityFlags()))
+#else
 		if (wheelRolled(we->angleDelta().y(), visibilityFlags()))
+#endif
 			return true; // filter event out
 	}
 	return QObject::eventFilter(obj, event);

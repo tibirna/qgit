@@ -322,7 +322,7 @@ void RevsView::updateLineEditSHA(bool clear) {
 		l->setText(""); // clears history
 
 	else if (l->text() != st.sha()) {
-		auto hash = QGit::testFlag(QGit::ENABLE_SHORTREF_F)
+		QString hash = QGit::testFlag(QGit::ENABLE_SHORTREF_F)
 			? st.sha().left(git->shortHashLength())
 			: st.sha();
 
