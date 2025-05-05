@@ -223,7 +223,7 @@ namespace QGit {
 	enum FileDoubleClickAction {
 		VIEW_PATCH,
 		OPEN_IN_EDITOR,
-		OPEN_IN_DIFFER,
+		OPEN_IN_DIFFER
 	};
 
 	// settings booleans
@@ -246,7 +246,7 @@ namespace QGit {
 		USE_CMT_MSG_F   = 1 << 15,
 // 		OPEN_IN_EDITOR_F = 1 << 16,  //  not used anymore; subject to be replaced
 		ENABLE_DRAGNDROP_F = 1 << 17,
-		ENABLE_SHORTREF_F = 1 << 18,
+		ENABLE_SHORTREF_F = 1 << 18
 	};
 	const int FLAGS_DEF = USE_CMT_MSG_F | RANGE_SELECT_F | SMART_LBL_F | VERIFY_CMT_F | SIGN_PATCH_F | LOG_DIFF_TAB_F | MSG_ON_NEW_F | ENABLE_DRAGNDROP_F;
 

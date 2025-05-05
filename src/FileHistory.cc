@@ -17,6 +17,10 @@
 
 #include "git.h"
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  #define HAVE_COLUMNTYPE
+#endif
+
 using namespace QGit;
 
 FileHistory::FileHistory(QObject* p, Git* g) : QAbstractItemModel(p), git(g) {
@@ -119,15 +123,27 @@ void FileHistory::clear(bool complete) {
 
   if (testFlag(REL_DATE_F)) {
     secs = QDateTime::currentDateTime().toTime_t();
+#ifdef HAVE_COLUMNTYPE
     headerInfo[ColumnType::TIME_COL] = "Last Change";
+#else
+    headerInfo[5] = "Last Change";
+#endif
   } else {
     secs = 0;
+#ifdef HAVE_COLUMNTYPE
     headerInfo[ColumnType::TIME_COL] = "Author Date";
+#else
+    headerInfo[5] = "Author Date";
+#endif
   }
   rowCnt = revOrder.count();
   annIdValid = false;
   endResetModel();
+#ifdef HAVE_COLUMNTYPE
   emit headerDataChanged(Qt::Horizontal, 0, ColumnType::TIME_COL);
+#else
+  emit headerDataChanged(Qt::Horizontal, 0, 5);
+#endif
 }
 
 void FileHistory::on_newRevsAdded(const FileHistory* fh, const QVector<ShaString>& shaVec) {
