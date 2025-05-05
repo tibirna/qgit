@@ -47,7 +47,7 @@ public:
 	void fixup(QString& input) const;
 	State validate(QString & input, int & pos) const;
 private:
-	const QRegExp invalid;
+	const QRegularExpression invalid;
 	bool allowEmpty;
 };
 
@@ -89,14 +89,15 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	this->setWindowTitle(title);
 	QGridLayout *layout = new QGridLayout(this);
 
-	QRegExp re("%(([a-z_]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
+	QRegularExpression re("%(([a-z_]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
 	int start = 0;
 	int row = 0;
-	while ((start = re.indexIn(cmd, start)) != -1) {
-		const QString type = re.cap(2);
-		const QStringList opts = re.cap(4).split(',', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
-		const QString name = re.cap(5);
-		const QString value = re.cap(6).mid(1);
+	QRegularExpressionMatch match;
+	while ((start = cmd.indexOf(re, start, &match)) != -1) {
+		const QString type = match.captured(2);
+		const QStringList opts = match.captured(4).split(',', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
+		const QString name = match.captured(5);
+		const QString value = match.captured(6).mid(1);
 		if (widgets.count(name)) { // widget already created
 			if (!type.isEmpty()) dbs("token must not be redefined: " + name);
 			continue;
@@ -104,7 +105,7 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 
 		WidgetItemPtr item (new WidgetItem());
 		item->start = start;
-		item->end = start = start + re.matchedLength();
+		item->end = start = start + match.capturedLength();
 
 		if (type == "combobox") {
 			QComboBox *w = new QComboBox(this);
@@ -205,8 +206,14 @@ QString InputDialog::replace(const VariableMap &variables) const
 	}
 	for (VariableMap::const_iterator it=variables.begin(), end=variables.end(); it != end; ++it) {
 		QString token = "$" + it.key();
-		QString val = it.value().type() == QVariant::StringList ? it.value().toStringList().join(" ")
-		                                                        : it.value().toString();
+		QString val =
+#if QT_VERSION >= 0x060000
+			it.value().metaType().id() == QMetaType::QStringList ?
+#else
+			it.value().type() == QVariant::StringList ?
+#endif
+				it.value().toStringList().join(" ")
+			  : it.value().toString();
 		result.replace(token, val);
 	}
 	return result;

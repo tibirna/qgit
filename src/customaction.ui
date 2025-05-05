@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
+    <width>604</width>
     <height>492</height>
    </rect>
   </property>
@@ -27,10 +27,10 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -78,7 +78,7 @@
       <item>
        <widget class="QPushButton" name="pushButtonMoveUp">
         <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
         </property>
         <property name="text">
          <string>Move &amp;up</string>
@@ -118,14 +118,14 @@
       </sizepolicy>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <widget class="QFrame" name="frame_3">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -145,10 +145,10 @@
      </widget>
      <widget class="QFrame" name="frame_2">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -200,7 +200,7 @@ variables &lt;code&gt;$CURRENT_BRANCH&lt;/code&gt; and &lt;code&gt;$SHA&lt;/code
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
@@ -356,4 +356,15 @@ variables &lt;code&gt;$CURRENT_BRANCH&lt;/code&gt; and &lt;code&gt;$SHA&lt;/code
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>pushButtonNew_clicked()</slot>
+  <slot>pushButtonRename_clicked()</slot>
+  <slot>pushButtonRemove_clicked()</slot>
+  <slot>checkBoxRefreshAfterAction_toggled(bool)</slot>
+  <slot>pushButtonMoveUp_clicked()</slot>
+  <slot>pushButtonMoveDown_clicked()</slot>
+  <slot>textEditAction_textChanged()</slot>
+  <slot>listWidgetNames_currentItemChanged(QListWidgetItem*,QListWidgetItem*)</slot>
+  <slot>pushButtonOk_clicked()</slot>
+ </slots>
 </ui>

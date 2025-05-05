@@ -46,14 +46,19 @@ void ConsoleImpl::pushButtonTerminate_clicked() {
 
 void ConsoleImpl::closeEvent(QCloseEvent* ce) {
 
-	if (proc && proc->state() == QProcess::Running)
-		if (QMessageBox::question(this, "Action output window - QGit",
-		    "Action is still running.\nAre you sure you want to close "
-		    "the window and leave the action running in background?",
-		    "&Yes", "&No", QString(), 1, 1) == 1) {
+	if (proc && proc->state() == QProcess::Running) {
+		QMessageBox q(QMessageBox::Question,
+			"Action output window - QGit",
+			"Action is still running.\nAre you sure you want to close "
+			"the window and leave the action running in background?",
+			QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+			this
+		);
+		if (q.exec() == QMessageBox::StandardButton::No) {
 			ce->ignore();
 			return;
 		}
+	}
 	if (QApplication::overrideCursor())
 		QApplication::restoreOverrideCursor();
 
