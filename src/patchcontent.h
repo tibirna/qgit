@@ -11,6 +11,7 @@
 #include <QTextEdit>
 #include <QSyntaxHighlighter>
 #include "common.h"
+#include <QHash>
 
 class Domain;
 class Git;
@@ -63,6 +64,7 @@ private:
 	void centerMatch(int id = 0);
 	bool centerTarget(SCRef target);
 	void processData(const QByteArray& data, int* prevLineNum = NULL);
+	void parseDiff(const QString& data);
 
 	Git* git;
 	DiffHighlighter* diffHighlighter;
@@ -74,6 +76,14 @@ private:
 	QRegExp pickAxeRE;
 	QString target;
 	bool seekTarget;
+
+	// Mapping of first string of file changeset ("diff --git a/... b/...")
+	// to complete file changeset;
+	// empty if size of patch less than maxPatchSizeShowComplete.
+	QHash<QString, QString> patchByFile;
+	// First section of patch text with changes stats;
+	// empty if size of patch less than maxPatchSizeShowComplete.
+	QString patchStats;
 
 	struct MatchSelection {
 		int paraFrom;

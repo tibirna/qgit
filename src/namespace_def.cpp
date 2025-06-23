@@ -172,6 +172,7 @@ const QString QGit::FLAGS_KEY       = "flags";
 const QString QGit::PATCH_DIR_KEY   = "Patch/last_dir";
 const QString QGit::FMT_P_OPT_KEY   = "Patch/args";
 const QString QGit::AM_P_OPT_KEY    = "Patch/args_2";
+const QString QGit::MAX_PATCH_KEY   = "max_patch_size_show_complete";
 const QString QGit::EX_KEY          = "Working_dir/exclude_file_path";
 const QString QGit::EX_PER_DIR_KEY  = "Working_dir/exclude_per_directory_file_name";
 const QString QGit::CON_GEOM_KEY    = "Console/geometry";
