@@ -288,7 +288,7 @@ void MainImpl::ActExternalDiff_activated() {
 	if (!QGit::startProcess(externalDiff, args)) {
 		QString text("Cannot start external viewer: ");
 		text.append(args[0]);
-		QMessageBox::warning(this, "Error - QGit", text);
+        QMessageBox::warning(this, "Error - QGit", text);
 		delete externalDiff;
 	}
 }
@@ -2143,9 +2143,21 @@ void MainImpl::ActFindNext_activated() {
 			             textToFind + "\" not found!", QMessageBox::Ok, 0);
 			return;
 		}
-		if (QMessageBox::question(this, "Find text - QGit", "End of document "
-		    "reached\n\nDo you want to continue from beginning?", QMessageBox::Yes,
-		    QMessageBox::No | QMessageBox::Escape) == QMessageBox::No)
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Find text - QGit");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setText(tr("End of document reached."));
+        msgBox.setInformativeText(tr("Do you want to continue from beginning?\n"));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setBaseSize(QSize(400, 160));
+        QList<QAbstractButton *> bList = msgBox.buttons();
+        for (int i=0; i<bList.count(); i++)
+        {
+            bList.at(i)->setFocusPolicy(Qt::StrongFocus);
+        }
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::No)
 			return;
 
 		endOfDocument = true;
