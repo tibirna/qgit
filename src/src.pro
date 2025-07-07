@@ -8,8 +8,7 @@ GIT_EXEC_DIR = "$$(ProgramFiles)\\Git\\bin"
 # check for Qt >= 4.8.0
 CUR_QT = $$[QT_VERSION]
 
-# WARNING greaterThan is an undocumented function
-!greaterThan(CUR_QT, 4.8) {
+lessThan(CUR_QT, 4.8) {
         error("Sorry I need Qt 4.8.0 or later, you seem to have Qt $$CUR_QT instead")
 }
 
