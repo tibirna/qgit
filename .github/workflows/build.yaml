@@ -22,30 +22,39 @@ on:
 
 jobs:
   build:
-    name: Build (Linux, Ubuntu 22.04 LTS)
+    name: Build (Linux, Qt ${{ matrix.qt_major }}, Ubuntu 22.04 LTS)
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - qt_major: 5
+            packages: qtbase5-dev
+          - qt_major: 6
+            packages: libgl1-mesa-dev libglx-dev libqt6core5compat6-dev qt6-base-dev
     steps:
       - name: 'Install build dependencies'
+        env:
+          packages: ${{ matrix.packages }}
         run: |-
           set -e
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             build-essential \
             cmake \
-            libgl1-mesa-dev \
-            libglx-dev \
-            libqt6core5compat6-dev \
-            qt6-base-dev
+            ${packages}
 
       - name: 'Checkout Git branch'
         uses: actions/checkout@v2.0.0
 
       - name: 'Configure'
+        env:
+          qt_major: ${{ matrix.qt_major }}
         run: |-
           set -e
           mkdir build
           cd build
-          cmake ..
+          cmake -DQT_PACKAGE="Qt${qt_major}" ..
 
       - name: 'Build'
         run: |-
