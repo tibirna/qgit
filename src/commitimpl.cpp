@@ -8,7 +8,7 @@
 #include <QTextCodec>
 #include <QSettings>
 #include <QMenu>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDir>
 #include <QMessageBox>
 #include <QInputDialog>
@@ -191,8 +191,8 @@ bool CommitImpl::checkFiles(SList selFiles) {
 bool CommitImpl::checkMsg(QString& msg) {
 
 	msg = textEditMsg->toPlainText();
-	msg.remove(QRegExp("(^|\\n)\\s*#[^\\n]*")); // strip comments
-	msg.replace(QRegExp("[ \\t\\r\\f\\v]+\\n"), "\n"); // strip line trailing cruft
+	msg.remove(QRegularExpression("(^|\\n)\\s*#[^\\n]*")); // strip comments
+	msg.replace(QRegularExpression("[ \\t\\r\\f\\v]+\\n"), "\n"); // strip line trailing cruft
 	msg = msg.trimmed();
 	if (msg.isEmpty()) {
 		QMessageBox::warning(this, "Commit changes - QGit",

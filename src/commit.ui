@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>CommitBase</class>
- <widget class="QWidget" name="CommitBase" >
-  <property name="geometry" >
+ <widget class="QWidget" name="CommitBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,106 +10,107 @@
     <height>531</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Commit changes</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="icons.qrc" >:/icons/resources/svn-commit.svg</iconset>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/resources/svn-commit.svg</normaloff>:/icons/resources/svn-commit.svg</iconset>
   </property>
-  <layout class="QHBoxLayout" >
-   <property name="spacing" >
+  <layout class="QHBoxLayout">
+   <property name="spacing">
     <number>0</number>
    </property>
-   <property name="leftMargin" >
+   <property name="leftMargin">
     <number>0</number>
    </property>
-   <property name="topMargin" >
+   <property name="topMargin">
     <number>0</number>
    </property>
-   <property name="rightMargin" >
+   <property name="rightMargin">
     <number>0</number>
    </property>
-   <property name="bottomMargin" >
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" >
-     <property name="spacing" >
+    <layout class="QVBoxLayout">
+     <property name="spacing">
       <number>6</number>
      </property>
-     <property name="leftMargin" >
+     <property name="leftMargin">
       <number>0</number>
      </property>
-     <property name="topMargin" >
+     <property name="topMargin">
       <number>0</number>
      </property>
-     <property name="rightMargin" >
+     <property name="rightMargin">
       <number>0</number>
      </property>
-     <property name="bottomMargin" >
+     <property name="bottomMargin">
       <number>0</number>
      </property>
      <item>
-      <widget class="QSplitter" name="splitter" >
-       <property name="orientation" >
-        <enum>Qt::Vertical</enum>
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
+        <enum>Qt::Orientation::Vertical</enum>
        </property>
-       <widget class="QTreeWidget" name="treeWidgetFiles" >
-        <property name="contextMenuPolicy" >
-         <enum>Qt::CustomContextMenu</enum>
+       <widget class="QTreeWidget" name="treeWidgetFiles">
+        <property name="contextMenuPolicy">
+         <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
         </property>
-        <property name="toolTip" >
+        <property name="toolTip">
          <string>Check files to commit</string>
         </property>
-        <property name="showDropIndicator" stdset="0" >
+        <property name="showDropIndicator" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="rootIsDecorated" >
+        <property name="rootIsDecorated">
          <bool>false</bool>
         </property>
-        <property name="allColumnsShowFocus" >
+        <property name="allColumnsShowFocus">
          <bool>true</bool>
         </property>
-        <property name="columnCount" >
+        <property name="columnCount">
          <number>2</number>
         </property>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>File</string>
          </property>
         </column>
         <column>
-         <property name="text" >
+         <property name="text">
           <string>Index status</string>
          </property>
         </column>
        </widget>
-       <widget class="QWidget" name="layoutWidget" >
-        <layout class="QVBoxLayout" >
-         <property name="spacing" >
+       <widget class="QWidget" name="layoutWidget">
+        <layout class="QVBoxLayout">
+         <property name="spacing">
           <number>0</number>
          </property>
-         <property name="leftMargin" >
+         <property name="leftMargin">
           <number>0</number>
          </property>
-         <property name="topMargin" >
+         <property name="topMargin">
           <number>0</number>
          </property>
-         <property name="rightMargin" >
+         <property name="rightMargin">
           <number>0</number>
          </property>
-         <property name="bottomMargin" >
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="textLabelMsg" >
-           <property name="text" >
+          <widget class="QLabel" name="textLabelMsg">
+           <property name="text">
             <string>Commit message (first line is the sub&amp;ject):</string>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>false</bool>
            </property>
-           <property name="buddy" >
+           <property name="buddy">
             <cstring>textEditMsg</cstring>
            </property>
           </widget>
@@ -119,13 +121,13 @@
             <string>Lines starting with '#' will be ignored
 Press &lt;Ctrl+Enter&gt; to commit changes</string>
            </property>
-           <property name="lineWrapMode" >
-            <enum>QTextEdit::NoWrap</enum>
+           <property name="lineWrapMode">
+            <enum>QTextEdit::LineWrapMode::NoWrap</enum>
            </property>
-           <property name="readOnly" >
+           <property name="readOnly">
             <bool>false</bool>
            </property>
-           <property name="acceptRichText" >
+           <property name="acceptRichText">
             <bool>false</bool>
            </property>
           </widget>
@@ -135,55 +137,55 @@ Press &lt;Ctrl+Enter&gt; to commit changes</string>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" >
-       <property name="spacing" >
+      <layout class="QHBoxLayout">
+       <property name="spacing">
         <number>6</number>
        </property>
-       <property name="leftMargin" >
+       <property name="leftMargin">
         <number>0</number>
        </property>
-       <property name="topMargin" >
+       <property name="topMargin">
         <number>0</number>
        </property>
-       <property name="rightMargin" >
+       <property name="rightMargin">
         <number>0</number>
        </property>
-       <property name="bottomMargin" >
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="textLabelLineCol" >
-         <property name="minimumSize" >
+        <widget class="QLabel" name="textLabelLineCol">
+         <property name="minimumSize">
           <size>
            <width>150</width>
            <height>24</height>
           </size>
          </property>
-         <property name="font" >
+         <property name="font">
           <font>
            <family>Monospace</family>
           </font>
          </property>
-         <property name="frameShadow" >
-          <enum>QFrame::Sunken</enum>
+         <property name="frameShadow">
+          <enum>QFrame::Shadow::Sunken</enum>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Line: %1 Col: %2</string>
          </property>
-         <property name="wordWrap" >
+         <property name="wordWrap">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
-         <property name="sizeType" >
-          <enum>QSizePolicy::Expanding</enum>
+         <property name="sizeType">
+          <enum>QSizePolicy::Policy::Expanding</enum>
          </property>
-         <property name="sizeHint" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>30</width>
            <height>20</height>
@@ -192,80 +194,80 @@ Press &lt;Ctrl+Enter&gt; to commit changes</string>
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonSettings" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+        <widget class="QPushButton" name="pushButtonSettings">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Settin&amp;gs</string>
          </property>
-         <property name="shortcut" >
+         <property name="shortcut">
           <string>Alt+G</string>
          </property>
-         <property name="autoDefault" >
+         <property name="autoDefault">
           <bool>false</bool>
          </property>
-         <property name="default" >
+         <property name="default">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonCancel" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+        <widget class="QPushButton" name="pushButtonCancel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Canc&amp;el</string>
          </property>
-         <property name="shortcut" >
+         <property name="shortcut">
           <string>Alt+E</string>
          </property>
-         <property name="autoDefault" >
+         <property name="autoDefault">
           <bool>false</bool>
          </property>
-         <property name="default" >
+         <property name="default">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonUpdateCache" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+        <widget class="QPushButton" name="pushButtonUpdateCache">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Update index for selected files</string>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Update &amp;Index</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonOk" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+        <widget class="QPushButton" name="pushButtonOk">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>Commit selected files</string>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>&amp;Commit</string>
          </property>
-         <property name="shortcut" >
+         <property name="shortcut">
           <string>Alt+C</string>
          </property>
         </widget>
@@ -276,14 +278,14 @@ Press &lt;Ctrl+Enter&gt; to commit changes</string>
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>pushButtonCancel</tabstop>
   <tabstop>pushButtonUpdateCache</tabstop>
   <tabstop>pushButtonOk</tabstop>
  </tabstops>
  <resources>
-  <include location="icons.qrc" />
+  <include location="icons.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -292,11 +294,11 @@ Press &lt;Ctrl+Enter&gt; to commit changes</string>
    <receiver>CommitBase</receiver>
    <slot>pushButtonCancel_clicked()</slot>
    <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+    <hint type="sourcelabel">
+     <x>375</x>
+     <y>511</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -308,11 +310,11 @@ Press &lt;Ctrl+Enter&gt; to commit changes</string>
    <receiver>CommitBase</receiver>
    <slot>pushButtonUpdateCache_clicked()</slot>
    <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+    <hint type="sourcelabel">
+     <x>465</x>
+     <y>511</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -324,15 +326,20 @@ Press &lt;Ctrl+Enter&gt; to commit changes</string>
    <receiver>CommitBase</receiver>
    <slot>pushButtonSettings_clicked()</slot>
    <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
+    <hint type="sourcelabel">
+     <x>285</x>
+     <y>511</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>pushButtonCancel_clicked()</slot>
+  <slot>pushButtonUpdateCache_clicked()</slot>
+  <slot>pushButtonSettings_clicked()</slot>
+ </slots>
 </ui>

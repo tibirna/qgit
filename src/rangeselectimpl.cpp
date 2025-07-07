@@ -7,7 +7,7 @@
 
 */
 #include <QSettings>
-#include <QRegExp>
+#include <QRegularExpression>
 #include "common.h"
 #include "git.h"
 #include "rangeselectimpl.h"
@@ -84,7 +84,7 @@ void RangeSelectImpl::orderRefs(const QStringList& src, QStringList& dst) {
 // releases as example v.2.6.18-rc4 before v.2.6.18
 
 	// match a (dotted) number + something else + a number + EOL
-	QRegExp re("[\\d\\.]+([^\\d\\.]+\\d+$)");
+	QRegularExpression re("[\\d\\.]+([^\\d\\.]+\\d+$)");
 
 	// in ASCII the space ' ' (32) comes before '!' (33) and both
 	// before the rest, we need this to correctly order a sequence like
@@ -95,15 +95,16 @@ void RangeSelectImpl::orderRefs(const QStringList& src, QStringList& dst) {
 	const QString noRcMark("!$$%%"); // an impossible to find string starting with a '!'
 
 	typedef QMap<QString, QString> OrderedMap;
-	QRegExp verRE("([^\\d])(\\d{1,2})(?=[^\\d])");
+	QRegularExpression verRE("([^\\d])(\\d{1,2})(?=[^\\d])");
 	OrderedMap map;
 
 	FOREACH_SL (it, src) {
 
 		QString tmpStr(*it);
 
-		if (re.indexIn(tmpStr) != -1)
-			tmpStr.insert(re.pos(1), rcMark);
+		QRegularExpressionMatch match;
+		if (tmpStr.indexOf(re, 0, &match) != -1)
+			tmpStr.insert(match.capturedStart(1), rcMark);
 		else
 			tmpStr += noRcMark;
 

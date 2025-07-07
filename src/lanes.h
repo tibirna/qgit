@@ -10,8 +10,6 @@
 #include <QString>
 #include <QVector>
 
-class QStringList;
-
 
 //
 //  At any given time, the Lanes class represents a single revision (row) of the history graph.

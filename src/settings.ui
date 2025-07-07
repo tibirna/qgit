@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>513</width>
-    <height>377</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -75,10 +75,10 @@
          <item>
           <widget class="QFrame" name="frame">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout">
             <property name="spacing">
@@ -217,7 +217,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -383,7 +383,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -485,10 +485,10 @@
          <item>
           <widget class="QFrame" name="frame_5">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout">
             <property name="spacing">
@@ -584,7 +584,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -608,10 +608,10 @@
          <item>
           <widget class="QFrame" name="frame_2">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout">
             <property name="spacing">
@@ -680,7 +680,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -784,10 +784,10 @@
          <item>
           <widget class="QFrame" name="frame_3">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout">
             <property name="spacing">
@@ -824,7 +824,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -938,10 +938,10 @@
          <item>
           <widget class="QFrame" name="frame_4">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout">
             <property name="spacing">
@@ -1017,7 +1017,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1093,7 +1093,7 @@
          <item>
           <spacer>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1126,7 +1126,7 @@
               <string>Ms&amp;g template</string>
              </property>
              <property name="textFormat">
-              <enum>Qt::PlainText</enum>
+              <enum>Qt::TextFormat::PlainText</enum>
              </property>
              <property name="wordWrap">
               <bool>false</bool>
@@ -1181,7 +1181,7 @@
            <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1240,7 +1240,7 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
@@ -1752,6 +1752,48 @@
    <signal>toggled(bool)</signal>
    <receiver>settingsBase</receiver>
    <slot>checkBoxShowShortRef_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>checkBoxNumbers_toggled(bool)</slot>
+  <slot>lineEditFormatPatchExtraOptions_textChanged(QString)</slot>
+  <slot>checkBoxDiffCache_toggled(bool)</slot>
+  <slot>lineEditExcludePerDir_textChanged(QString)</slot>
+  <slot>lineEditExcludeFile_textChanged(QString)</slot>
+  <slot>checkBoxSign_toggled(bool)</slot>
+  <slot>lineEditTemplate_textChanged(QString)</slot>
+  <slot>lineEditCommitExtraOptions_textChanged(QString)</slot>
+  <slot>checkBoxRelativeDate_toggled(bool)</slot>
+  <slot>checkBoxRangeSelectDialog_toggled(bool)</slot>
+  <slot>checkBoxReopenLastRepo_toggled(bool)</slot>
+  <slot>comboBoxDoubleClickAction_activated(int)</slot>
+  <slot>comboBoxCodecs_activated(int)</slot>
+  <slot>checkBoxCommitVerify_toggled(bool)</slot>
+  <slot>checkBoxCommitSign_toggled(bool)</slot>
+  <slot>checkBoxCommitUseDefMsg_toggled(bool)</slot>
+  <slot>lineEditExternalDiffViewer_textChanged(QString)</slot>
+  <slot>lineEditExternalEditor_textChanged(QString)</slot>
+  <slot>pushButtonExtDiff_clicked()</slot>
+  <slot>pushButtonExtEditor_clicked()</slot>
+  <slot>pushButtonFont_clicked()</slot>
+  <slot>comboBoxUserSrc_activated(int)</slot>
+  <slot>checkBoxMsgOnNewSHA_toggled(bool)</slot>
+  <slot>checkBoxLogDiffTab_toggled(bool)</slot>
+  <slot>checkBoxSmartLabels_toggled(bool)</slot>
+  <slot>lineEditApplyPatchExtraOptions_textChanged(QString)</slot>
+  <slot>comboBoxGitConfigSource_activated(int)</slot>
+  <slot>treeWidgetGitConfig_itemChanged(QTreeWidgetItem*, int)</slot>
+  <slot>checkBoxEnableDragnDrop_toggled(bool)</slot>
+  <slot>checkBoxShowShortRef_toggled(bool)</slot>
+ </slots>
 </ui>
