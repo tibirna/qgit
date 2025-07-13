@@ -74,10 +74,8 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	setRepositoryBusy = false;
 
 	// init filter match highlighters
-	shortLogRE.setMinimal(true);
-	shortLogRE.setCaseSensitivity(Qt::CaseInsensitive);
-	longLogRE.setMinimal(true);
-	longLogRE.setCaseSensitivity(Qt::CaseInsensitive);
+	shortLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+	longLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
 	// set-up standard revisions and files list font
 	QSettings settings;
@@ -293,10 +291,10 @@ void MainImpl::ActExternalDiff_activated() {
 	}
 }
 
-const QRegExp MainImpl::emptySha("0*");
+const QRegularExpression MainImpl::emptySha("0*");
 
 QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
-	if (emptySha.exactMatch(sha))
+	if (emptySha.match(sha).hasMatch())
 	{
 		return QString(curDir + "/" + rv->st.fileName());
 	}
@@ -784,7 +782,7 @@ void MainImpl::applyRevisions(SCList remoteRevs, SCRef remoteRepo) {
 
 		dr.refresh();
 		if (dr.count() != 1) {
-			qDebug("ASSERT in on_droppedRevisions: found %i files "
+			qDebug("ASSERT in on_droppedRevisions: found %lli files "
 			       "in %s", dr.count(), qPrintable(dr.absolutePath()));
 			break;
 		}
@@ -1649,16 +1647,30 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 
 	int ret = 0;
 	if (!git->isStGITStack()) {
-		ret = QMessageBox::question(this, "Apply Patch",
-		      "Do you want to commit or just to apply changes to "
-                      "working directory?", "&Cancel", "&Working directory", "&Commit", 0, 0);
-		*workDirOnly = (ret == 1);
+		QMessageBox ret(QMessageBox::Question,
+			"Apply Patch",
+			"Do you want to commit or just to apply changes to "
+			"working directory?",
+			{}, this);
+		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
+		QAbstractButton* wdbtn = ret.addButton(
+					"&Working directory", QMessageBox::ButtonRole::AcceptRole);
+		ret.addButton("Commm&it", QMessageBox::ButtonRole::AcceptRole);
+		ret.exec();
+		*workDirOnly = (ret.clickedButton() == wdbtn);
 		*fold = false;
 	} else {
-		ret = QMessageBox::question(this, "Apply Patch", "Do you want to "
-		      "import or fold the patch?", "&Cancel", "&Fold", "&Import", 0, 0);
+		QMessageBox ret(QMessageBox::Question,
+			"Apply Patch",
+			"Do you want to import or fold the patch?",
+			{}, this);
+		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
+		QAbstractButton* fbtn = ret.addButton(
+					"&Fold", QMessageBox::ButtonRole::AcceptRole);
+		ret.addButton("&Import", QMessageBox::ButtonRole::AcceptRole);
+		ret.exec();
 		*workDirOnly = false;
-		*fold = (ret == 1);
+		*fold = (ret.clickedButton() == fbtn);
 	}
 	return (ret != 0);
 }
@@ -2139,13 +2151,19 @@ void MainImpl::ActFindNext_activated() {
 			return;
 
 		if (endOfDocument) {
-			QMessageBox::warning(this, "Find text - QGit", "Text \"" +
-			             textToFind + "\" not found!", QMessageBox::Ok, 0);
+			QMessageBox(QMessageBox::Warning,
+				"Find text - QGit",
+				"Text \"" + textToFind + "\" not found!",
+				QMessageBox::StandardButton::Ok,
+				this);
 			return;
 		}
-		if (QMessageBox::question(this, "Find text - QGit", "End of document "
-		    "reached\n\nDo you want to continue from beginning?", QMessageBox::Yes,
-		    QMessageBox::No | QMessageBox::Escape) == QMessageBox::No)
+		QMessageBox q(QMessageBox::Question,
+			"Find text - QGit",
+			"End of document reached\n\nDo you want to continue from beginning?",
+			QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
+			this);
+		if (q.exec() == QMessageBox::No)
 			return;
 
 		endOfDocument = true;
@@ -2248,7 +2266,7 @@ void MainImpl::ActAbout_activated() {
 	"<nobr>2016-2018 <a href='mailto:rhaschke@techfak.uni-bielefeld.de'>Robert Haschke</a>,</nobr> "
 	"<nobr>2018-2024 <a href='mailto:filipe.rinaldi@gmail.com'>Filipe Rinaldi</a>,</nobr> "
 	"<nobr>2018 <a href='mailto:balbusm@gmail.com'>Mateusz Balbus</a>,</nobr> "
-	"<nobr>2019-2022 <a href='mailto:sebastian@pipping.org'>Sebastian Pipping</a>,</nobr> "
+	"<nobr>2019-2025 <a href='mailto:sebastian@pipping.org'>Sebastian Pipping</a>,</nobr> "
 	"<nobr>2019-2020 <a href='mailto:mvf@gmx.eu'>Matthias von Faber</a>,</nobr> "
     "<nobr>2019 <a href='mailto:Kevin@tigcc.ticalc.org'>Kevin Kofler</a>,</nobr> "
     "<nobr>2020 <a href='mailto:cortexspam-github@yahoo.fr'>Matthieu Muffato</a>,</nobr> "

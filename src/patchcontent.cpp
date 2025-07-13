@@ -96,8 +96,7 @@ PatchContent::PatchContent(QWidget* parent) : QTextEdit(parent) {
 	diffLoaded = seekTarget = false;
 	curFilter = prevFilter = VIEW_ALL;
 
-	pickAxeRE.setMinimal(true);
-	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
+	pickAxeRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
 	setFont(QGit::TYPE_WRITER_FONT);
 	diffHighlighter = new DiffHighlighter(this);
@@ -316,25 +315,18 @@ void PatchContent::procFinished() {
 	}
 }
 
-int PatchContent::doSearch(SCRef txt, int pos) {
-
-	if (isRegExp)
-		return txt.indexOf(pickAxeRE, pos);
-
-	return txt.indexOf(pickAxeRE.pattern(), pos, Qt::CaseInsensitive);
-}
-
 bool PatchContent::computeMatches() {
 
 	matches.clear();
-	if (pickAxeRE.isEmpty())
+	if (pickAxeRE.pattern().isEmpty())
 		return false;
 
 	SCRef txt = toPlainText();
 	int pos, lastPos = 0, lastPara = 0;
 
 	// must be at the end to catch patterns across more the one chunk
-	while ((pos = doSearch(txt, lastPos)) != -1) {
+	QRegularExpressionMatch match;
+	while ((pos = txt.indexOf(pickAxeRE, pos, &match)) != -1) {
 
 		matches.append(MatchSelection());
 		MatchSelection& s = matches.last();
@@ -344,7 +336,7 @@ bool PatchContent::computeMatches() {
 		s.indexFrom = pos - txt.lastIndexOf('\n', pos) - 1; // index starts from 0
 
 		lastPos = pos;
-		pos += (isRegExp ? pickAxeRE.matchedLength() : pickAxeRE.pattern().length());
+		pos += match.capturedLength();
 		pos--;
 
 		s.paraTo = s.paraFrom + txt.mid(lastPos, pos - lastPos).count('\n');
@@ -370,9 +362,7 @@ bool PatchContent::getMatch(int para, int* indexFrom, int* indexTo) {
 }
 
 void PatchContent::on_highlightPatch(const QString& exp, bool re) {
-
-	pickAxeRE.setPattern(exp);
-	isRegExp = re;
+	pickAxeRE.setPattern(re ? exp : QRegularExpression::escape(exp));
 	if (diffLoaded)
 		procFinished();
 }

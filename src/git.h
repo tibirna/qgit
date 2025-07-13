@@ -10,8 +10,7 @@
 #include "exceptionmanager.h"
 #include "common.h"
 
-template <class, class> struct QPair;
-class QRegExp;
+class QRegularExpression;
 class QTextCodec;
 class Annotate;
 //class DataLoader;
@@ -98,7 +97,7 @@ public:
 	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
 	static const QString getLocalDate(SCRef gitDate);
 	const QString getCurrentBranchName() const {return curBranchName;}
-	const QString getDesc(SCRef sha, QRegExp& slogRE, QRegExp& lLogRE, bool showH, FileHistory* fh);
+	const QString getDesc(SCRef sha, QRegularExpression& slogRE, QRegularExpression& lLogRE, bool showH, FileHistory* fh);
 	const QString getLastCommitMsg();
 	const QString getNewCommitMsg();
 	const QString getLaneParent(SCRef fromSHA, int laneNum);
@@ -247,7 +246,7 @@ private:
 	const QStringList getOthersFiles();
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
 	const QString getNewestFileName(SCList args, SCRef fileName);
-	static const QString colorMatch(SCRef txt, QRegExp& regExp);
+	static const QString colorMatch(SCRef txt, QRegularExpression& regExp);
 	void appendFileName(RevFile& rf, SCRef name, FileNamesLoader& fl);
 	void flushFileNames(FileNamesLoader& fl);
 	void populateFileNamesMap();

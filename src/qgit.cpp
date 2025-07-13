@@ -29,10 +29,10 @@ using namespace QGit;
 int main(int argc, char* argv[]) {
 
 	QApplication app(argc, argv);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+#if QT_VERSION_CHECK(5, 6, 0) <= QT_VERSION && QT_VERSION < QT_VERSION_CHECK(6,0,0)
+	app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 #endif
-    QCoreApplication::setOrganizationName(ORG_KEY);
+	QCoreApplication::setOrganizationName(ORG_KEY);
 	QCoreApplication::setApplicationName(APP_KEY);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)

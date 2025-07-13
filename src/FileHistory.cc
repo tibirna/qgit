@@ -122,7 +122,11 @@ void FileHistory::clear(bool complete) {
   rowData.clear();
 
   if (testFlag(REL_DATE_F)) {
+#if QT_VERSION >= 0x06000
+    secs = QDateTime::currentDateTime().toSecsSinceEpoch();
+#else
     secs = QDateTime::currentDateTime().toTime_t();
+#endif
 #ifdef HAVE_COLUMNTYPE
     headerInfo[ColumnType::TIME_COL] = "Last Change";
 #else

@@ -48,7 +48,6 @@
          <font>
           <family>Sans Serif</family>
           <pointsize>9</pointsize>
-          <weight>75</weight>
           <italic>false</italic>
           <bold>true</bold>
           <underline>false</underline>
@@ -62,10 +61,10 @@
          <string>...</string>
         </property>
         <property name="textFormat">
-         <enum>Qt::PlainText</enum>
+         <enum>Qt::TextFormat::PlainText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -75,7 +74,7 @@
       <item>
        <spacer>
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -277,7 +276,7 @@
     <item>
      <widget class="QDialogButtonBox" name="buttonBox">
       <property name="standardButtons">
-       <set>QDialogButtonBox::Close</set>
+       <set>QDialogButtonBox::StandardButton::Close</set>
       </property>
      </widget>
     </item>
@@ -330,4 +329,8 @@
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>pushButtonTerminate_clicked()</slot>
+  <slot>pushButtonOk_clicked()</slot>
+ </slots>
 </ui>

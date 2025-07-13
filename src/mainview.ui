@@ -40,14 +40,14 @@
     <item>
      <widget class="QSplitter" name="treeSplitter">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <widget class="TreeView" name="treeView">
        <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
        </property>
        <property name="selectionMode">
-        <enum>QAbstractItemView::ExtendedSelection</enum>
+        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
        </property>
        <property name="rootIsDecorated">
         <bool>false</bool>
@@ -80,7 +80,7 @@
     <string>Toolbar</string>
    </property>
    <property name="orientation">
-    <enum>Qt::Horizontal</enum>
+    <enum>Qt::Orientation::Horizontal</enum>
    </property>
    <property name="iconSize">
     <size>
@@ -113,7 +113,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>20</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="Help">
@@ -286,7 +286,7 @@
     <string>Settings</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::PreferencesRole</enum>
+    <enum>QAction::MenuRole::PreferencesRole</enum>
    </property>
   </action>
   <action name="ActCommit">
@@ -450,7 +450,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>View file</string>
+    <string>Vie&amp;w file</string>
    </property>
    <property name="iconText">
     <string>View file</string>
@@ -497,7 +497,7 @@
      <normaloff>:/icons/resources/autocorrection.svg</normaloff>:/icons/resources/autocorrection.svg</iconset>
    </property>
    <property name="text">
-    <string>Toggle filter by tree</string>
+    <string>To&amp;ggle filter by tree</string>
    </property>
    <property name="iconText">
     <string>Filter by tree</string>
@@ -518,7 +518,7 @@
      <normaloff>:/icons/resources/view-list-tree.svg</normaloff>:/icons/resources/view-list-tree.svg</iconset>
    </property>
    <property name="text">
-    <string>Toggle tree view</string>
+    <string>&amp;Toggle tree view</string>
    </property>
    <property name="iconText">
     <string>Archive tree</string>
@@ -611,7 +611,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>View revision</string>
+    <string>&amp;View revision</string>
    </property>
    <property name="iconText">
     <string>View revision</string>
@@ -629,7 +629,7 @@
      <normaloff>:/icons/resources/view-split-top-bottom.svg</normaloff>:/icons/resources/view-split-top-bottom.svg</iconset>
    </property>
    <property name="text">
-    <string>Toggle split view</string>
+    <string>T&amp;oggle split view</string>
    </property>
    <property name="iconText">
     <string>Toggle split view</string>
@@ -717,7 +717,7 @@
     <string>Setup actions...</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::NoRole</enum>
+    <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
   <action name="ActViewFileNewTab">
@@ -728,7 +728,7 @@
     <iconset theme="tab-new"/>
    </property>
    <property name="text">
-    <string>View file in new tab</string>
+    <string>View file &amp;in new tab</string>
    </property>
    <property name="iconText">
     <string>View file in new tab</string>
@@ -745,7 +745,7 @@
     <iconset theme="tab-new"/>
    </property>
    <property name="text">
-    <string>View patch in new tab</string>
+    <string>View patch in &amp;new tab</string>
    </property>
    <property name="iconText">
     <string>View patch in new tab</string>
@@ -812,7 +812,7 @@
   </action>
   <action name="ActToggleLogsDiff">
    <property name="text">
-    <string>Toggle message/diff</string>
+    <string>Toggle message/&amp;diff</string>
    </property>
    <property name="iconText">
     <string>Toggle message/diff</string>
@@ -830,7 +830,7 @@
      <normaloff>:/icons/resources/join.svg</normaloff>:/icons/resources/join.svg</iconset>
    </property>
    <property name="text">
-    <string>Select range...</string>
+    <string>&amp;Select range...</string>
    </property>
    <property name="toolTip">
     <string>Show 'Select range' dialog</string>
@@ -866,7 +866,7 @@
   </action>
   <action name="ActCheckout">
    <property name="text">
-    <string>&amp;Checkout...</string>
+    <string>Ch&amp;eckout...</string>
    </property>
    <property name="iconText">
     <string>Checkout</string>
@@ -1564,4 +1564,48 @@
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>ActAbout_activated()</slot>
+  <slot>ActCheckWorkDir_toggled(bool)</slot>
+  <slot>ActCheckout_activated()</slot>
+  <slot>ActClose_activated()</slot>
+  <slot>ActCommit_activated()</slot>
+  <slot>ActExit_activated()</slot>
+  <slot>ActExternalDiff_activated()</slot>
+  <slot>ActExternalEditor_activated()</slot>
+  <slot>ActFilterTree_toggled(bool)</slot>
+  <slot>ActHelp_activated()</slot>
+  <slot>ActMailApplyPatch_activated()</slot>
+  <slot>ActMailFormatPatch_activated()</slot>
+  <slot>ActOpenRepo_activated()</slot>
+  <slot>ActOpenRepoNewWindow_activated()</slot>
+  <slot>ActPop_activated()</slot>
+  <slot>ActPush_activated()</slot>
+  <slot>ActRefresh_activated()</slot>
+  <slot>ActSaveFile_activated()</slot>
+  <slot>ActSettings_activated()</slot>
+  <slot>ActShowTree_toggled(bool)</slot>
+  <slot>ActBranch_activated()</slot>
+  <slot>ActTag_activated()</slot>
+  <slot>ActDelete_activated()</slot>
+  <slot>ActViewFile_activated()</slot>
+  <slot>ActViewDiff_activated()</slot>
+  <slot>ActViewRev_activated()</slot>
+  <slot>ActSplitView_activated()</slot>
+  <slot>ActFind_activated()</slot>
+  <slot>ActFindNext_activated()</slot>
+  <slot>ActBack_activated()</slot>
+  <slot>ActForward_activated()</slot>
+  <slot>ActCustomActionSetup_activated()</slot>
+  <slot>ActViewFileNewTab_activated()</slot>
+  <slot>ActViewDiffNewTab_activated()</slot>
+  <slot>tabWdg_currentChanged(int)</slot>
+  <slot>ActSearchAndFilter_toggled(bool)</slot>
+  <slot>ActSearchAndHighlight_toggled(bool)</slot>
+  <slot>ActShowDescHeader_activated()</slot>
+  <slot>ActToggleLogsDiff_activated()</slot>
+  <slot>ActRangeDlg_activated()</slot>
+  <slot>ActAmend_activated()</slot>
+  <slot>ActMarkDiffToSha_activated()</slot>
+ </slots>
 </ui>
