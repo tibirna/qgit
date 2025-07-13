@@ -7,7 +7,7 @@
 
 [Setup]
 AppName=QGit
-AppVerName=QGit version 2.11
+AppVerName=QGit version 2.12
 DefaultDirName={pf}\QGit
 DefaultGroupName=QGit
 UninstallDisplayIcon={app}\qgit.exe
@@ -16,7 +16,7 @@ SolidCompression=yes
 LicenseFile=COPYING.rtf
 SetupIconFile=src\resources\qgit.ico
 OutputDir=bin
-OutputBaseFilename=qgit-2.3_win
+OutputBaseFilename=qgit-2.12_win
 
 [Files]
 Source: "bin\qgit.exe"; DestDir: "{app}"
