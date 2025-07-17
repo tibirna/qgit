@@ -12,7 +12,11 @@
 #include <QFile>
 #include <QImageReader>
 #include <QPalette>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QRegExp>
+#else
 #include <QRegularExpression>
+#endif
 //#include <QSet> //CT TODO remove
 #include <QSettings>
 #include <QTextCodec>
@@ -425,9 +429,11 @@ const QString Git::getTagMsg(SCRef sha) {
 
 	if (!rf.tagMsg.isEmpty())
 		return rf.tagMsg;
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	QRegExp pgp("-----BEGIN PGP SIGNATURE*END PGP SIGNATURE-----", Qt::CaseSensitive, QRegExp::Wildcard);
+#else
 	QRegularExpression pgp("-----BEGIN PGP SIGNATURE.*END PGP SIGNATURE-----", QRegularExpression::DotMatchesEverythingOption);
-
+#endif
 	if (!rf.tagObj.isEmpty()) {
 		QString ro;
 		if (run("git cat-file tag " + rf.tagObj, &ro))
@@ -1006,8 +1012,11 @@ const QString Git::getNewCommitMsg() {
 		return "";
 	}
 	QString status = c->longLog();
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	status.prepend('\n').replace(QRegExp("\\n([^#\\n]?)"), "\n#\\1"); // comment all the lines
+#else
 	status.prepend('\n').replace(QRegularExpression("\\n([^#\\n]?)"), "\n#\\1"); // comment all the lines
-
+#endif
 	if (isMergeHead) {
 		QFile file(QDir(gitDir).absoluteFilePath("MERGE_MSG"));
 		if (file.open(QIODevice::ReadOnly)) {
@@ -1023,6 +1032,27 @@ const QString Git::getNewCommitMsg() {
 }
 
 //CT TODO utility function; can go elsewhere
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+const QString Git::colorMatch(SCRef txt, QRegExp& regExp) {
+
+	QString text = qt4and5escaping(txt);
+
+	if (regExp.isEmpty())
+		return text;
+
+	SCRef startCol(QString::fromLatin1("<b><font color=\"red\">"));
+	SCRef endCol(QString::fromLatin1("</font></b>"));
+	int pos = 0;
+	while ((pos = text.indexOf(regExp, pos)) != -1) {
+
+		SCRef match(regExp.cap(0));
+		const QString coloredText(startCol + match + endCol);
+		text.replace(pos, match.length(), coloredText);
+		pos += coloredText.length();
+	}
+	return text;
+}
+#else
 const QString Git::colorMatch(SCRef txt, QRegularExpression& regExp) {
 
 	QString text = qt4and5escaping(txt);
@@ -1043,6 +1073,7 @@ const QString Git::colorMatch(SCRef txt, QRegularExpression& regExp) {
 	}
 	return text;
 }
+#endif
 
 //CT TODO utility function; can go elsewhere
 const QString Git::formatList(SCList sl, SCRef name, bool inOneLine) {
@@ -1057,9 +1088,14 @@ const QString Git::formatList(SCList sl, SCRef name, bool inOneLine) {
 	return ls;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+const QString Git::getDesc(SCRef sha, QRegExp& shortLogRE, QRegExp& longLogRE,
+                           bool showHeader, FileHistory* fh)
+#else
 const QString Git::getDesc(SCRef sha, QRegularExpression& shortLogRE, QRegularExpression& longLogRE,
-                           bool showHeader, FileHistory* fh) {
-
+                           bool showHeader, FileHistory* fh)
+#endif
+	{
 	if (sha.isEmpty())
 		return "";
 
@@ -1122,6 +1158,28 @@ const QString Git::getDesc(SCRef sha, QRegularExpression& shortLogRE, QRegularEx
 	// sha if there isn't a leading trailing space or an open parenthesis and,
 	// in that case, before the space must not be a ':' character.
 	// It's an ugly heuristic, but seems to work in most cases.
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	QRegExp reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", Qt::CaseInsensitive);
+	reSHA.setMinimal(false);
+	int pos = 0;
+	while ((pos = text.indexOf(reSHA, pos)) != -1) {
+
+		SCRef ref = reSHA.cap(0).mid(2);
+		const Rev* r = (ref.length() == 40 ? revLookup(ref) : revLookup(getRefSha(ref)));
+		if (r && r->sha() != ZERO_SHA_RAW) {
+			QString slog(r->shortLog());
+			if (slog.isEmpty()) // very rare but possible
+				slog = r->sha();
+			if (slog.length() > 60)
+				slog = slog.left(57).trimmed().append("...");
+
+			const QString link("<a href=\"" + r->sha() + "\">" + qt4and5escaping(slog) + "</a>");
+			text.replace(pos + 2, ref.length(), link);
+			pos += link.length();
+		} else
+			pos += reSHA.cap(0).length();
+	}
+#else
 	QRegularExpression reSHA("..[0-9a-f]{21,40}|[^:][\\s(][0-9a-f]{6,20}", QRegularExpression::CaseInsensitiveOption);
 	int pos = 0;
 	QRegularExpressionMatch match;
@@ -1142,6 +1200,7 @@ const QString Git::getDesc(SCRef sha, QRegularExpression& shortLogRE, QRegularEx
 		} else
 			pos += match.captured(0).length();
 	}
+#endif
 	return text;
 }
 
@@ -1673,7 +1732,11 @@ const QString Git::getLocalDate(SCRef gitDate) {
         // cache miss
         if (localDate.isEmpty()) {
                 static QDateTime d;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                d.setTime_t(gitDate.toUInt());
+#else
                 d.setSecsSinceEpoch(gitDate.toUInt());
+#endif
                 localDate = QLocale::system().toString(d, QLocale::ShortFormat);
 
                 // save to cache
@@ -1980,8 +2043,11 @@ const Rev* Git::fakeWorkDirRev(SCRef parent, SCRef log, SCRef longLog, int idx, 
         QString patch;
         if (!isMainHistory(fh))
                 patch = getWorkDirDiff(fh->fileNames().first());
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        QString date(QString::number(QDateTime::currentDateTime().toTime_t()));
+#else
         QString date(QString::number(QDateTime::currentDateTime().toSecsSinceEpoch()));
+#endif
         QString author("-");
         QStringList parents(parent);
         Rev* c = fakeRevData(ZERO_SHA, parents, author, date, log, longLog, patch, idx, fh);

@@ -74,9 +74,15 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	setRepositoryBusy = false;
 
 	// init filter match highlighters
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	shortLogRE.setMinimal(true);
+	shortLogRE.setCaseSensitivity(Qt::CaseInsensitive);
+	longLogRE.setMinimal(true);
+	longLogRE.setCaseSensitivity(Qt::CaseInsensitive);
+#else
 	shortLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 	longLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-
+#endif
 	// set-up standard revisions and files list font
 	QSettings settings;
 	QString font(settings.value(STD_FNT_KEY).toString());
@@ -291,10 +297,18 @@ void MainImpl::ActExternalDiff_activated() {
 	}
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+const QRegExp MainImpl::emptySha("0*");
+#else
 const QRegularExpression MainImpl::emptySha("0*");
+#endif
 
 QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	if (emptySha.exactMatch(sha))
+#else
 	if (emptySha.match(sha).hasMatch())
+#endif
 	{
 		return QString(curDir + "/" + rv->st.fileName());
 	}
@@ -317,7 +331,6 @@ QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
 	filenames->append(fName);
 
 	return fName;
-
 }
 
 void MainImpl::getExternalDiffArgs(QStringList* args, QStringList* filenames) {
@@ -1647,6 +1660,19 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 
 	int ret = 0;
 	if (!git->isStGITStack()) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		QMessageBox ret(QMessageBox::Question,
+			"Apply Patch",
+			"Do you want to commit or just to apply changes to "
+			"working directory?",
+			QMessageBox::NoButton, this);
+		ret.addButton("&Cancel", QMessageBox::RejectRole);
+		QAbstractButton* wdbtn = ret.addButton("&Working directory", QMessageBox::AcceptRole);
+		ret.addButton("&Commit", QMessageBox::AcceptRole);
+		ret.exec();
+		*workDirOnly = (ret.clickedButton() == wdbtn);
+		*fold = false;
+#else
 		QMessageBox ret(QMessageBox::Question,
 			"Apply Patch",
 			"Do you want to commit or just to apply changes to "
@@ -1655,11 +1681,24 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
 		QAbstractButton* wdbtn = ret.addButton(
 					"&Working directory", QMessageBox::ButtonRole::AcceptRole);
-		ret.addButton("Commm&it", QMessageBox::ButtonRole::AcceptRole);
+		ret.addButton("&Commit", QMessageBox::ButtonRole::AcceptRole);
 		ret.exec();
 		*workDirOnly = (ret.clickedButton() == wdbtn);
 		*fold = false;
+#endif
 	} else {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		QMessageBox ret(QMessageBox::Question,
+			"Apply Patch",
+			"Do you want to import or fold the patch?",
+			QMessageBox::NoButton, this);
+		ret.addButton("&Cancel", QMessageBox::RejectRole);
+		QAbstractButton* fbtn = ret.addButton("&Fold", QMessageBox::AcceptRole);
+		ret.addButton("&Import", QMessageBox::AcceptRole);
+		ret.exec();
+		*workDirOnly = false;
+		*fold = (ret.clickedButton() == fbtn);
+#else
 		QMessageBox ret(QMessageBox::Question,
 			"Apply Patch",
 			"Do you want to import or fold the patch?",
@@ -1671,6 +1710,7 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 		ret.exec();
 		*workDirOnly = false;
 		*fold = (ret.clickedButton() == fbtn);
+#endif
 	}
 	return (ret != 0);
 }
