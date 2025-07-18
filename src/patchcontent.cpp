@@ -95,9 +95,12 @@ PatchContent::PatchContent(QWidget* parent) : QTextEdit(parent) {
 
 	diffLoaded = seekTarget = false;
 	curFilter = prevFilter = VIEW_ALL;
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	pickAxeRE.setMinimal(true);
+	pickAxeRE.setCaseSensitivity(Qt::CaseInsensitive);
+#else
 	pickAxeRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-
+#endif
 	setFont(QGit::TYPE_WRITER_FONT);
 	diffHighlighter = new DiffHighlighter(this);
 }
@@ -315,19 +318,37 @@ void PatchContent::procFinished() {
 	}
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+int PatchContent::doSearch(SCRef txt, int pos) {
+
+	if (isRegExp)
+		return txt.indexOf(pickAxeRE, pos);
+
+	return txt.indexOf(pickAxeRE.pattern(), pos, Qt::CaseInsensitive);
+}
+#endif
+
 bool PatchContent::computeMatches() {
 
 	matches.clear();
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	if (pickAxeRE.isEmpty())
+#else
 	if (pickAxeRE.pattern().isEmpty())
+#endif
 		return false;
 
 	SCRef txt = toPlainText();
 	int pos, lastPos = 0, lastPara = 0;
 
 	// must be at the end to catch patterns across more the one chunk
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	while ((pos = doSearch(txt, lastPos)) != -1)
+#else
 	QRegularExpressionMatch match;
-	while ((pos = txt.indexOf(pickAxeRE, pos, &match)) != -1) {
-
+	while ((pos = txt.indexOf(pickAxeRE, pos, &match)) != -1)
+#endif
+	{
 		matches.append(MatchSelection());
 		MatchSelection& s = matches.last();
 
@@ -336,7 +357,11 @@ bool PatchContent::computeMatches() {
 		s.indexFrom = pos - txt.lastIndexOf('\n', pos) - 1; // index starts from 0
 
 		lastPos = pos;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		pos += (isRegExp ? pickAxeRE.matchedLength() : pickAxeRE.pattern().length());
+#else
 		pos += match.capturedLength();
+#endif
 		pos--;
 
 		s.paraTo = s.paraFrom + txt.mid(lastPos, pos - lastPos).count('\n');
@@ -362,7 +387,12 @@ bool PatchContent::getMatch(int para, int* indexFrom, int* indexTo) {
 }
 
 void PatchContent::on_highlightPatch(const QString& exp, bool re) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	pickAxeRE.setPattern(exp);
+	isRegExp = re;
+#else
 	pickAxeRE.setPattern(re ? exp : QRegularExpression::escape(exp));
+#endif
 	if (diffLoaded)
 		procFinished();
 }
