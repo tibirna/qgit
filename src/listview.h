@@ -9,7 +9,11 @@
 #include <QTreeView>
 #include <QItemDelegate>
 #include <QSortFilterProxyModel>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QRegExp>
+#else
 #include <QRegularExpression>
+#endif
 #include "common.h"
 
 class Git;

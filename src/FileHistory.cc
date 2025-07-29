@@ -122,7 +122,7 @@ void FileHistory::clear(bool complete) {
   rowData.clear();
 
   if (testFlag(REL_DATE_F)) {
-#if QT_VERSION >= 0x06000
+#if QT_VERSION >= 0x060000
     secs = QDateTime::currentDateTime().toSecsSinceEpoch();
 #else
     secs = QDateTime::currentDateTime().toTime_t();
