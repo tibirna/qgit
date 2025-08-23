@@ -1242,10 +1242,8 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 	QPainter p;
 	p.begin(newPm);
 
-	if (!pm->isNull()) {
-		newPm->fill(opt.palette.base().color());
-		p.drawPixmap(0, 0, *pm);
-	}
+	newPm->fill(opt.palette.base().color());
+	if (!pm->isNull()) p.drawPixmap(0, 0, *pm);
 
 	p.setPen(opt.palette.color(QPalette::WindowText));
 	p.setBrush(opt.palette.color(QPalette::Window));
