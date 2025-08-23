@@ -1227,7 +1227,12 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 
 	QFontMetrics fm(opt.font);
 	const unsigned int text_spacing = 4;
-	unsigned int text_width = fm.boundingRect(txt).width() + 2 * text_spacing;
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
+			unsigned int fmw = fm.horizontalAdvance(txt);
+#else
+			unsigned int fmw = fm.width(txt)
+#endif
+	unsigned int text_width = fmw + 2 * text_spacing;
 	unsigned int text_height = fm.height();
 
 	// Define size of the new Pixmap
