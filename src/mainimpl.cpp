@@ -1653,7 +1653,7 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 		QAbstractButton* cbtn = qmb.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
 		QAbstractButton* wdbtn = qmb.addButton(
 					"&Working directory", QMessageBox::ButtonRole::AcceptRole);
-		qmb.addButton("Commm&it", QMessageBox::ButtonRole::AcceptRole);
+		qmb.addButton("Comm&it", QMessageBox::ButtonRole::AcceptRole);
 		qmb.exec();
 		*workDirOnly = (qmb.clickedButton() == wdbtn);
 		*fold = false;
