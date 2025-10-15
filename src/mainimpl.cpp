@@ -1643,34 +1643,36 @@ void MainImpl::ActMailFormatPatch_activated() {
 
 bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 
-	int ret = 0;
+	bool applied = false;
 	if (!git->isStGITStack()) {
-		QMessageBox ret(QMessageBox::Question,
+		QMessageBox qmb(QMessageBox::Question,
 			"Apply Patch",
 			"Do you want to commit or just to apply changes to "
 			"working directory?",
 			{}, this);
-		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
-		QAbstractButton* wdbtn = ret.addButton(
+		QAbstractButton* cbtn = qmb.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
+		QAbstractButton* wdbtn = qmb.addButton(
 					"&Working directory", QMessageBox::ButtonRole::AcceptRole);
-		ret.addButton("Commm&it", QMessageBox::ButtonRole::AcceptRole);
-		ret.exec();
-		*workDirOnly = (ret.clickedButton() == wdbtn);
+		qmb.addButton("Commm&it", QMessageBox::ButtonRole::AcceptRole);
+		qmb.exec();
+		*workDirOnly = (qmb.clickedButton() == wdbtn);
 		*fold = false;
+		applied = qmb.clickedButton() != cbtn;
 	} else {
-		QMessageBox ret(QMessageBox::Question,
+		QMessageBox qmb(QMessageBox::Question,
 			"Apply Patch",
 			"Do you want to import or fold the patch?",
 			{}, this);
-		ret.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
-		QAbstractButton* fbtn = ret.addButton(
+		QAbstractButton* cbtn = qmb.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
+		QAbstractButton* fbtn = qmb.addButton(
 					"&Fold", QMessageBox::ButtonRole::AcceptRole);
-		ret.addButton("&Import", QMessageBox::ButtonRole::AcceptRole);
-		ret.exec();
+		qmb.addButton("&Import", QMessageBox::ButtonRole::AcceptRole);
+		qmb.exec();
 		*workDirOnly = false;
-		*fold = (ret.clickedButton() == fbtn);
+		*fold = (qmb.clickedButton() == fbtn);
+		applied = qmb.clickedButton() != cbtn;
 	}
-	return (ret != 0);
+	return applied;
 }
 
 void MainImpl::ActMailApplyPatch_activated() {
