@@ -291,10 +291,8 @@ void MainImpl::ActExternalDiff_activated() {
 	}
 }
 
-const QRegularExpression MainImpl::emptySha("0*");
-
 QString MainImpl::copyFileToDiffIfNeeded(QStringList* filenames, QString sha) {
-	if (emptySha.match(sha).hasMatch())
+	if (sha == QGit::ZERO_SHA)
 	{
 		return QString(curDir + "/" + rv->st.fileName());
 	}

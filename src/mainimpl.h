@@ -187,7 +187,6 @@ private:
 	QString textToFind;
 	QRegularExpression shortLogRE;
 	QRegularExpression longLogRE;
-	static const QRegularExpression emptySha;
 	QMap<QString, QVariant> revision_variables; // variables used in generic input dialogs
 	bool setRepositoryBusy;
 
