@@ -10,7 +10,12 @@
 #include "exceptionmanager.h"
 #include "common.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+template <class, class> struct QPair;
+class QRegExp;
+#else
 class QRegularExpression;
+#endif
 class QTextCodec;
 class Annotate;
 //class DataLoader;
@@ -97,7 +102,11 @@ public:
 	bool getTree(SCRef ts, TreeInfo& ti, bool wd, SCRef treePath);
 	static const QString getLocalDate(SCRef gitDate);
 	const QString getCurrentBranchName() const {return curBranchName;}
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	const QString getDesc(SCRef sha, QRegExp& slogRE, QRegExp& lLogRE, bool showH, FileHistory* fh);
+#else
 	const QString getDesc(SCRef sha, QRegularExpression& slogRE, QRegularExpression& lLogRE, bool showH, FileHistory* fh);
+#endif
 	const QString getLastCommitMsg();
 	const QString getNewCommitMsg();
 	const QString getLaneParent(SCRef fromSHA, int laneNum);
@@ -246,7 +255,11 @@ private:
 	const QStringList getOthersFiles();
 	const QStringList getOtherFiles(SCList selFiles, bool onlyInIndex);
 	const QString getNewestFileName(SCList args, SCRef fileName);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	static const QString colorMatch(SCRef txt, QRegExp& regExp);
+#else
 	static const QString colorMatch(SCRef txt, QRegularExpression& regExp);
+#endif
 	void appendFileName(RevFile& rf, SCRef name, FileNamesLoader& fl);
 	void flushFileNames(FileNamesLoader& fl);
 	void populateFileNamesMap();

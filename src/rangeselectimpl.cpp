@@ -7,7 +7,12 @@
 
 */
 #include <QSettings>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QRegExp>
+#define QRegularExpression QRegExp
+#else
 #include <QRegularExpression>
+#endif
 #include "common.h"
 #include "git.h"
 #include "rangeselectimpl.h"
@@ -101,10 +106,14 @@ void RangeSelectImpl::orderRefs(const QStringList& src, QStringList& dst) {
 	FOREACH_SL (it, src) {
 
 		QString tmpStr(*it);
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		if (re.indexIn(tmpStr) != -1)
+			tmpStr.insert(re.pos(1), rcMark);
+#else
 		QRegularExpressionMatch match;
 		if (tmpStr.indexOf(re, 0, &match) != -1)
 			tmpStr.insert(match.capturedStart(1), rcMark);
+#endif
 		else
 			tmpStr += noRcMark;
 

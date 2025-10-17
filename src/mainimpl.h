@@ -8,7 +8,12 @@
 #define MAINIMPL_H
 
 #include <QProcess>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QRegExp>
+#define QRegularExpression QRegExp
+#else
 #include <QRegularExpression>
+#endif
 #include <QDir>
 #include "exceptionmanager.h"
 #include "common.h"
