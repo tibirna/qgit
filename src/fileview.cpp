@@ -17,6 +17,10 @@
 
 #define MAX_LINE_NUM 5
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#define QRegularExpression QRegExp
+#endif
+
 FileView::FileView(MainImpl* mi, Git* g) : Domain(mi, g, false) {
 
 	fileTab = new Ui_TabFile();

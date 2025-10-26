@@ -11,6 +11,10 @@
 #include <QListView>
 #include <QStringListModel>
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#define QRegularExpression QRegExp
+#endif
+
 namespace QGit {
 
 InputDialog::WidgetItem::WidgetItem() : widget(NULL)
@@ -92,12 +96,20 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 	QRegularExpression re("%(([a-z_]+)([[]([a-z ,]+)[]])?:)?([^%=]+)(=[^%]+)?%");
 	int start = 0;
 	int row = 0;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	while ((start = re.indexIn(cmd, start)) != -1) {
+		const QString type = re.cap(2);
+		const QStringList opts = re.cap(4).split(',', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
+		const QString name = re.cap(5);
+		const QString value = re.cap(6).mid(1);
+#else
 	QRegularExpressionMatch match;
 	while ((start = cmd.indexOf(re, start, &match)) != -1) {
 		const QString type = match.captured(2);
 		const QStringList opts = match.captured(4).split(',', QGIT_SPLITBEHAVIOR(SkipEmptyParts));
 		const QString name = match.captured(5);
 		const QString value = match.captured(6).mid(1);
+#endif
 		if (widgets.count(name)) { // widget already created
 			if (!type.isEmpty()) dbs("token must not be redefined: " + name);
 			continue;
@@ -105,8 +117,11 @@ InputDialog::InputDialog(const QString &cmd, const VariableMap &variables,
 
 		WidgetItemPtr item (new WidgetItem());
 		item->start = start;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+		item->end = start = start + re.matchedLength();
+#else
 		item->end = start = start + match.capturedLength();
-
+#endif
 		if (type == "combobox") {
 			QComboBox *w = new QComboBox(this);
 			w->addItems(parseStringList(value, variables));

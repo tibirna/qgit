@@ -1230,7 +1230,7 @@ void ListViewDelegate::addTextPixmap(QPixmap** pp, SCRef txt, const QStyleOption
 #if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
 			unsigned int fmw = fm.horizontalAdvance(txt);
 #else
-			unsigned int fmw = fm.width(txt)
+			unsigned int fmw = fm.width(txt);
 #endif
 	unsigned int text_width = fmw + 2 * text_spacing;
 	unsigned int text_height = fm.height();

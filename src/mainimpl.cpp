@@ -74,9 +74,15 @@ MainImpl::MainImpl(SCRef cd, QWidget* p) : QMainWindow(p) {
 	setRepositoryBusy = false;
 
 	// init filter match highlighters
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+	shortLogRE.setMinimal(true);
+	shortLogRE.setCaseSensitivity(Qt::CaseInsensitive);
+	longLogRE.setMinimal(true);
+	longLogRE.setCaseSensitivity(Qt::CaseInsensitive);
+#else
 	shortLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 	longLogRE.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-
+#endif
 	// set-up standard revisions and files list font
 	QSettings settings;
 	QString font(settings.value(STD_FNT_KEY).toString());
@@ -1649,7 +1655,7 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 			"Apply Patch",
 			"Do you want to commit or just to apply changes to "
 			"working directory?",
-			{}, this);
+			QMessageBox::NoButton, this);
 		QAbstractButton* cbtn = qmb.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
 		QAbstractButton* wdbtn = qmb.addButton(
 					"&Working directory", QMessageBox::ButtonRole::AcceptRole);
@@ -1662,7 +1668,7 @@ bool MainImpl::askApplyPatchParameters(bool* workDirOnly, bool* fold) {
 		QMessageBox qmb(QMessageBox::Question,
 			"Apply Patch",
 			"Do you want to import or fold the patch?",
-			{}, this);
+			QMessageBox::NoButton, this);
 		QAbstractButton* cbtn = qmb.addButton("&Cancel", QMessageBox::ButtonRole::RejectRole);
 		QAbstractButton* fbtn = qmb.addButton(
 					"&Fold", QMessageBox::ButtonRole::AcceptRole);
