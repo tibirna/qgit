@@ -537,11 +537,15 @@ bool QGit::startProcess(QProcess* proc, SCList args, SCRef buf, bool* winShell) 
 	   Process stdin will be redirected to this file
 	*/
 		QTemporaryFile* bufFile = new QTemporaryFile(proc);
-		bufFile->open();
-		QTextStream stream(bufFile);
-		stream << buf;
-		proc->setStandardInputFile(bufFile->fileName());
-		bufFile->close();
+		if (bufFile->open()) {
+			QTextStream stream(bufFile);
+			stream << buf;
+			proc->setStandardInputFile(bufFile->fileName());
+			bufFile->close();
+		}
+		else {
+			// TODO handle failure to open temporary file
+		}
 	}
 	QStringList env = QProcess::systemEnvironment();
 	env << "GIT_TRACE=0"; // avoid choking on debug traces
