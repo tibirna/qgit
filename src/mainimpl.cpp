@@ -2007,6 +2007,7 @@ void MainImpl::ActBranchRename_activated() {
 
 	InputDialog::VariableMap dlgVars = { { "BRANCH_NAME", branchName } };
 	InputDialog dlg(dlgDesc, dlgVars, dlgTitle, this);
+	dlg.setMinimumWidth(400); // TODO magic constant, use font metrics.
 
 	if (dlg.exec() != QDialog::Accepted) {
 		return;
