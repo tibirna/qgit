@@ -176,9 +176,6 @@ void FileList::insertFiles(const RevFile* files) {
 	setUpdatesEnabled(false);
 	for (int i = 0; i < files->count(); ++i) {
 
-		if (files->statusCmp(i, RevFile::UNKNOWN))
-			continue;
-
 		const bool useDark = QPalette().color(QPalette::Window).value() > QPalette().color(QPalette::WindowText).value();
 
 		QColor clr = palette().color(QPalette::WindowText);
@@ -189,7 +186,7 @@ void FileList::insertFiles(const RevFile* files) {
 		}
 		QString extSt(files->extendedStatus(i));
 		if (extSt.isEmpty()) {
-			if (files->statusCmp(i, RevFile::NEW))
+			if (files->statusCmp(i, RevFile::NEW) || files->statusCmp(i, RevFile::UNKNOWN))
 				clr = useDark ? Qt::darkGreen
 				              : Qt::green;
 			else if (files->statusCmp(i, RevFile::DELETED))
